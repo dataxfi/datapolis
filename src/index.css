@@ -8,3 +8,18 @@
 body {
   @apply bg-black text-white;
 }
+
+/* Links */
+.hm-link {
+  @apply text-gray-300 hover:text-gray-50;
+}
+
+
+/* Buttons */
+.hm-btn {
+  @apply px-4 py-2 rounded;
+}
+
+.hm-btn.hm-btn-light {
+  @apply bg-gray-800 text-gray-200 hover:bg-gray-700;
+}
