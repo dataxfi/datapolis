@@ -1,13 +1,11 @@
-import React from 'react'
-
-const SwapInput = () => {
+const SwapInput = ({title}: {title: string}) => {
     return (
         <div className="mt-4 bg-gray-800 p-4 rounded-lg">
         <div className="grid grid-cols-5">
             <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center">
                 <img src="http://via.placeholder.com/70x70" className="w-16 h-16 rounded-md" alt="" />
                 <div>
-                    <p className="text-xs text-gray-300">Swap from</p>
+                    <p className="text-xs text-gray-300">{title}</p>
                     <p className="text-2xl text-gray-200 font-bold">ETH</p>
                 </div>
             </div>
