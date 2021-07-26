@@ -4,9 +4,25 @@
 @tailwind components;
 @tailwind utilities;
 
+.dark {
+  @apply bg-gray-900 text-white;
+}
+
+/* Resets */
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
 
 body {
-  @apply bg-black text-white;
+  @apply dark;
 }
 
 /* Links */
@@ -23,3 +39,5 @@ body {
 .hm-btn.hm-btn-light {
   @apply bg-gray-800 text-gray-200 hover:bg-gray-700;
 }
+
+

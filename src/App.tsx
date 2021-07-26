@@ -11,7 +11,6 @@ function App() {
       <Route path='/swap' component={Swap} />
       <Route path='/pool' component={Pool} />
     </Router>
-     {/* Hello world */}
     </>
   );
 }
