@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { MdMenu, MdClose } from 'react-icons/md'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Button from './Button'
 
 const MobileNavbar = ({links, text, onClick}: {links: Array<any>, text: Record<any, any>, onClick: React.MouseEventHandler<HTMLButtonElement>}) => {
@@ -10,6 +10,12 @@ const MobileNavbar = ({links, text, onClick}: {links: Array<any>, text: Record<a
     function toggleMenu(state: boolean){
         setMenuVisible(state)
     }
+
+    const location = useLocation()
+
+    useEffect(() => {
+        toggleMenu(false)
+    }, [location]);
 
     return (
         <div className="flex md:hidden justify-between items-center py-4 border-b border-gray-800 pl-4 pr-2">
@@ -27,8 +33,8 @@ const MobileNavbar = ({links, text, onClick}: {links: Array<any>, text: Record<a
         </div>
         {menuVisible ? <div className="fixed w-full top-20 left-0 bg-black px-8">
         { links.map((link, idx) => {
-                return <div key={idx} className="py-1.5"><Link to={link.link} className="hm-link">{link.name}</Link></div>
-            }) }       
+                return <div key={idx} className="py-1.5"><Link onClick={() => toggleMenu(false)} to={link.link} className="hm-link">{link.name}</Link></div>
+            }) }
         </div> : <></> }
     </div>
     )
