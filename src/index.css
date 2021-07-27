@@ -5,7 +5,7 @@
 @tailwind utilities;
 
 .dark {
-  @apply bg-gray-900 text-white;
+  @apply bg-gray-900 text-gray-100;
 }
 
 /* Resets */
@@ -34,6 +34,10 @@ body {
 /* Buttons */
 .hm-btn {
   @apply px-4 py-2 rounded;
+}
+
+.hm-btn.hm-btn-medium {
+  @apply px-4 py-4 rounded;
 }
 
 .hm-btn.hm-btn-light {
