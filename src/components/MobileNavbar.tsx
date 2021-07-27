@@ -31,7 +31,7 @@ const MobileNavbar = ({links, text, onClick}: {links: Array<any>, text: Record<a
         <div className="fixed bottom-0 left-0 w-full pb-4 md:hidden flex justify-center">
             <Button text={text.T_CONNECT_WALLET} classes="hm-btn hm-btn-light" onClick={onClick}></Button>
         </div>
-        {menuVisible ? <div className="fixed w-full top-20 left-0 bg-black px-8">
+        {menuVisible ? <div className="fixed w-full top-20 left-0 bg-primary-900 px-8">
         { links.map((link, idx) => {
                 return <div key={idx} className="py-1.5"><Link onClick={() => toggleMenu(false)} to={link.link} className="hm-link">{link.name}</Link></div>
             }) }

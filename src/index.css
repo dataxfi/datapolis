@@ -4,10 +4,6 @@
 @tailwind components;
 @tailwind utilities;
 
-.dark {
-  @apply bg-gray-900 text-gray-100;
-}
-
 /* Resets */
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
@@ -22,12 +18,12 @@ input[type=number] {
 }
 
 body {
-  @apply dark;
+  @apply bg-background text-type-100;
 }
 
 /* Links */
 .hm-link {
-  @apply text-gray-300 hover:text-gray-50;
+  @apply text-type-300 hover:text-type-50;
 }
 
 
@@ -41,7 +37,7 @@ body {
 }
 
 .hm-btn.hm-btn-light {
-  @apply bg-gray-800 text-gray-200 hover:bg-gray-700;
+  @apply bg-primary-800 text-type-200 hover:bg-primary-700;
 }
 
 
