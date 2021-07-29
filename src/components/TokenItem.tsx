@@ -5,7 +5,7 @@ const TokenItem = ({token}: {token: Record<any, any>}) => {
         <div className="px-2 py-1.5 hover:bg-type-200 hover:bg-opacity-20 rounded-lg cursor-pointer">
             <div className="grid grid-flow-col justify-start gap-2 items-center">
                 <div>
-                    <img src="http://via.placeholder.com/36x36" className="rounded-lg" alt="" />
+                    <img src={token.logoURI} className="rounded-lg w-8 h-8" alt="" loading="lazy" />
                 </div>
                 <div>
                     <p className="text-lg text-type-100">{token.symbol}</p>
