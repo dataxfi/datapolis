@@ -15,7 +15,6 @@ const TokenModal = ({close}: {close: Function}) => {
     const [tokens, setTokens] = useState([]);
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(false)
-    const [search, setSearch] = useState('')
 
     useEffect(() => {
         const url = 'https://gateway.pinata.cloud/ipfs/QmQi1sNZVP52urWq4TzLWx9dPRWNrvR4CUFgCEsocGkj5X'
@@ -64,7 +63,7 @@ const TokenModal = ({close}: {close: Function}) => {
                     { loading ? <div className="flex justify-center my-4"><HashLoader size={28} color="white" loading={loading} /></div> : 
                               error ? <div className="text-white text-center my-4">There was an error loading the tokens</div>  :   
                               <div className="mt-4 overflow-y-scroll" style={{maxHeight: '60vh'}}>
-                                  <ReactList itemRenderer={tokenRenderer} length={tokens.length} type="uniform" />
+                                  <ReactList itemRenderer={tokenRenderer} length={tokens.length} type="simple" />
                               </div>                    
                     }
                 </div>
