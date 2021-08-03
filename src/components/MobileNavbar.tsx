@@ -1,9 +1,9 @@
 import { Link, useLocation } from 'react-router-dom'
 import { MdMenu, MdClose } from 'react-icons/md'
 import { useState, useEffect } from 'react'
-import Button from './Button'
+import Web3Provider from './Web3Provider'
 
-const MobileNavbar = ({links, text, onClick}: {links: Array<any>, text: Record<any, any>, onClick: React.MouseEventHandler<HTMLButtonElement>}) => {
+const MobileNavbar = ({links, text, wallet}: {links: Array<any>, text: Record<any, any>, wallet: string}) => {
 
     const [menuVisible, setMenuVisible] = useState(false)
 
@@ -28,8 +28,9 @@ const MobileNavbar = ({links, text, onClick}: {links: Array<any>, text: Record<a
                     <button><MdMenu onClick={() => toggleMenu(true)} color="#ccc" size="28" /> </button>
                 }
             </div>
-        <div className="fixed bottom-0 left-0 w-full pb-4 md:hidden flex justify-center">
-            <Button text={text.T_CONNECT_WALLET} classes="hm-btn hm-btn-light" onClick={onClick}></Button>
+        <div className="fixed bottom-0 left-0 w-full py-2 md:hidden flex justify-center bg-background">
+            <Web3Provider buttonClasses="hm-btn hm-btn-light" />
+            {/* <Button text={wallet} classes="hm-btn hm-btn-light" onClick={() => connectToWallet()}></Button> */}
         </div>
         {menuVisible ? <div className="fixed w-full top-20 left-0 bg-primary-900 px-8">
         { links.map((link, idx) => {

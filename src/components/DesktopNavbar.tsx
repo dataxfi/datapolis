@@ -1,8 +1,8 @@
 import React from 'react'
-import Button from './Button'
 import { Link } from 'react-router-dom'
+import Web3Provider from './Web3Provider'
 
-const DesktopNavbar = ({links, text, onClick}: {links: Array<any>, text: Record<any, any>, onClick: React.MouseEventHandler<HTMLButtonElement>}) => {
+const DesktopNavbar = ({links, text, wallet}: {links: Array<any>, text: Record<any, any>, wallet: string}) => {
     return (
              <div className="md:flex justify-between items-center py-4 border-b border-gray-800 pl-4 pr-2 hidden">
                 <div className="grid grid-flow-col gap-8 items-center">
@@ -12,7 +12,8 @@ const DesktopNavbar = ({links, text, onClick}: {links: Array<any>, text: Record<
                     })}
                 </div>
                 <div className="hidden md:block">
-                    <Button text={text.T_CONNECT_WALLET} classes="hm-btn hm-btn-light" onClick={onClick}></Button>
+                    <Web3Provider buttonClasses="hm-btn hm-btn-light" />
+                    {/* <Button text={wallet} classes="" onClick={() => connectToWallet()}></Button> */}
                 </div>
             </div>
     )

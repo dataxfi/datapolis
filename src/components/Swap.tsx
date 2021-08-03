@@ -1,7 +1,7 @@
 import SwapInput from "./SwapInput"
 import { IoSwapVertical } from "react-icons/io5"
 import {MdLocalGasStation, MdTune} from 'react-icons/md'
-import Button from "./Button"
+import Web3Provider from "./Web3Provider"
 
 const text = {
     T_SWAP: 'Swap',
@@ -11,10 +11,6 @@ const text = {
 
 
 const Swap = () => {
-
-    function handleWalletConnection(){
-
-    }
 
     return (
         <div className="flex mt-16 w-full items-center">
@@ -39,7 +35,7 @@ const Swap = () => {
                 </div>
                 <SwapInput title={text.T_SWAP_TO} />
                 <div className="mt-4">
-                    <Button classes="px-4 py-4 rounded-lg bg-secondary-500 bg-opacity-20 hover:bg-opacity-40 w-full text-secondary-400" text="Connect to a wallet" onClick={handleWalletConnection} />
+                    <Web3Provider buttonClasses="px-4 py-4 rounded-lg bg-secondary-500 bg-opacity-20 hover:bg-opacity-40 w-full text-secondary-400" />
                 </div>
             </div>
         </div>
