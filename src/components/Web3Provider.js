@@ -24,13 +24,14 @@ export default function Web3Provider({buttonClasses}) {
                 walletconnect: {
                     package: WalletConnectProvider, // required
                     options: {
-                    infuraId: process.env.INFURA_ID // required
+                    infuraId: process.env.REACT_APP_INFURA_ID // required
                     }
                 },
             }, // required
           })
-    
+  
           setWeb3Modal(web3Modal)
+          web3Modal.clearCachedProvider()
         }
     
         init()
@@ -38,7 +39,6 @@ export default function Web3Provider({buttonClasses}) {
 
 
       async function handleConnect() {
-        web3Modal.clearCachedProvider()
         const provider = await web3Modal.connect()
         setProvider(provider)
         const _web3 = new Web3(provider)
@@ -46,7 +46,7 @@ export default function Web3Provider({buttonClasses}) {
         setAccountId((await _web3.eth.getAccounts())[0])
         setChainId(await _web3.eth.getChainId())
         setListeners(provider)
-      }      
+      }
 
     async function setListeners(provider) {
         provider.on('accountsChanged', (accounts) => {
@@ -62,10 +62,8 @@ export default function Web3Provider({buttonClasses}) {
     
         // Subscribe to provider connection
         provider.on('connect', (info) => {
-          console.log(info)
-          console.log('Checking network type')
+          console.log('Connect event fired')
           web3.eth.getNetworkType((val) => {
-            console.log(val)
             setButtonText(val)
           })
         })
