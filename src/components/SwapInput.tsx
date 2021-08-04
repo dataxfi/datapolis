@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { BsChevronDown } from 'react-icons/bs'
 import TokenModal from './TokenModal';
-import { GlobalContext } from '../context/GlobalState';
 
 
 const SwapInput = ({title, value, pos, setToken}: {title: string, value: Record<any, any> | null, pos: number, setToken: Function}) => {
