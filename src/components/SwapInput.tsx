@@ -1,25 +1,39 @@
 import { useState } from 'react';
 import { BsChevronDown } from 'react-icons/bs'
 import TokenModal from './TokenModal';
+import { GlobalContext } from '../context/GlobalState';
 
 
-const SwapInput = ({title}: {title: string}) => {
+const SwapInput = ({title, value, pos, setToken}: {title: string, value: Record<any, any> | null, pos: number, setToken: Function}) => {
 
     const [showModal, setShowModal] = useState(false);
+
+    const tokenSelected = (token: Record<any, any>) => {
+        // Dispatch state change event
+        setToken(token, pos)
+        setShowModal(false)
+    }
 
     return (
 
         <div className="mt-4 bg-primary-800 p-4 rounded-lg">
         <div className="md:grid md:grid-cols-5">
             <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center">
-                <img src="http://via.placeholder.com/70x70" className="w-16 h-16 rounded-md" alt="" />
+                { value ? 
+                    <img src={value.logoURI} className="w-14 h-14 rounded-md" alt="" /> :
+                    <div className="w-14 h-14 rounded-md bg-background"></div>
+                }
                 <div role="button" tabIndex={0} onClick={() => {setShowModal(true)}}>
                     {/* <button> */}
                         <p className="text-xs text-type-200">{title}</p>
+                        { value ? 
                         <span className="text-2xl text-type-200 font-bold grid grid-flow-col items-center gap-1">
-                            <span>ETH</span>
+                            <span>{value.symbol}</span>
                             <BsChevronDown className="text-type-200" size="16" />
-                        </span>
+                        </span> :
+                        <p className="text-xs text-type-100 border-type-300 border rounded-full px-2 py-1 mt-1">Select token</p>          
+                        }
+
                     {/* </button> */}
                 </div>
             </div>
@@ -28,7 +42,7 @@ const SwapInput = ({title}: {title: string}) => {
                 <input onWheel={ event => event.currentTarget.blur() } onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()} type="number" className="h-full w-full rounded-lg bg-primary-900 text-3xl px-2 outline-none focus:placeholder-type-200 placeholder-type-400" placeholder="0.0" />
             </div>
         </div>
-        {showModal ? <TokenModal close={() => setShowModal(false)} /> : <></> }
+        {showModal ? <TokenModal onClick={tokenSelected} close={() => setShowModal(false)} /> : <></> }
     </div>
     )
 }

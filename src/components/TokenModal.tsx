@@ -9,7 +9,7 @@ const text = {
     T_SELECT_TOKEN: 'Select a token'
 }
 
-const TokenModal = ({close}: {close: Function}) => {
+const TokenModal = ({close, onClick}: {close: Function, onClick: Function}) => {
 
     const [response, setResponse] = useState([]);
     const [tokens, setTokens] = useState([]);
@@ -38,7 +38,7 @@ const TokenModal = ({close}: {close: Function}) => {
     }, []);
 
     const tokenRenderer = (idx: number, key: string | number) => {
-        return <TokenItem key={key} token={tokens[idx]} />
+        return <TokenItem onClick={onClick} key={key} token={tokens[idx]} />
     }
 
     const searchToken = (val: string) => {
@@ -64,7 +64,7 @@ const TokenModal = ({close}: {close: Function}) => {
                               error ? <div className="text-white text-center my-4">There was an error loading the tokens</div>  :   
                               <div className="mt-4 overflow-y-scroll" style={{maxHeight: '60vh'}}>
                                   <ReactList itemRenderer={tokenRenderer} length={tokens.length} type="simple" />
-                              </div>                    
+                              </div>           
                     }
                 </div>
         </div>
