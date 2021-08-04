@@ -20,6 +20,8 @@ const Swap = () => {
 
     useEffect(() => {
 
+        console.log('Fetching gas prices')
+
         const getGasPrice = async () => {
             const res = await axios.get(`https://ethgasstation.info/api/ethgasAPI.json?api-key=${process.env.REACT_ENV_DEFI_PULSE}`)
             setGasPrice(parseFloat(res.data.average)/10)
@@ -27,7 +29,7 @@ const Swap = () => {
 
         getGasPrice()
 
-    });
+    }, []);
 
     const setToken = (token: Record<any, any>, num: number) => {
         if(num === 1){
