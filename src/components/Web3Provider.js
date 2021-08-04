@@ -39,6 +39,7 @@ export default function Web3Provider({buttonClasses}) {
 
 
       async function handleConnect() {
+        web3Modal.clearCachedProvider()
         const provider = await web3Modal.connect()
         setProvider(provider)
         const _web3 = new Web3(provider)
