@@ -27,8 +27,8 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
         async function init() {
         console.log('Init')
           const web3Modal = new Web3Modal({
-            network: 'mainnet', // optional
-            cacheProvider: false, // optional
+            // network: 'ropsten', // optional
+            cacheProvider: true, // optional
             theme: 'dark',
             providerOptions: {
                 walletconnect: {
@@ -60,7 +60,7 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
 
     async function setListeners(provider: any) {
         provider.on('accountsChanged', (accounts: any) => {
-          console.log(accounts)
+          console.log('Accounts changed')
           setAccountId(accounts[0])
         })
     
