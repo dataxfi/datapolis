@@ -19,8 +19,8 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
     const [chainId, setChainId] = useState<number | null>(null)
     const [provider, setProvider] = useState(null)
     // const [web3, setWeb3] = useState<Web3 | null>(null)
-    // const [buttonText, setButtonText] = useState('Connect to a wallet')    
-    const buttonText = 'Connect to a wallet'
+    const [buttonText, setButtonText] = useState<string | undefined>('Connect to a wallet')    
+    //const buttonText = 'Connect to a wallet'
     
 
     useEffect(() => {
@@ -28,7 +28,7 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
         console.log('Init')
           const web3Modal = new Web3Modal({
             // network: 'ropsten', // optional
-            cacheProvider: true, // optional
+            cacheProvider: false, // optional
             theme: 'dark',
             providerOptions: {
                 walletconnect: {
@@ -51,22 +51,24 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
         web3Modal?.clearCachedProvider()
         const provider = await web3Modal?.connect()
         setProvider(provider)
-        setListeners(provider)
         const _web3 = new Web3(provider)
         // setWeb3(_web3)
         setAccountId((await _web3.eth.getAccounts())[0])
+        setButtonText(accountId ? accountId?.toString() : 'Connect to a wallet')
         setChainId(await _web3.eth.getChainId())
+        setListeners(provider)
       }
 
     async function setListeners(provider: any) {
         provider.on('accountsChanged', (accounts: any) => {
-          console.log('Accounts changed')
+          console.log('Accounts changed to - ', accounts[0])
+          console.log('Connected Accounts - ', JSON.stringify(accounts))
           setAccountId(accounts[0])
         })
     
         // Subscribe to chainId change
         provider.on('chainChanged', (chainId: any) => {
-          console.log(chainId)
+          console.log('ChainID changed to - ', chainId)
           setChainId(chainId)
         })
     
@@ -103,7 +105,7 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
         })
     }
 
-    return (<GlobalContext.Provider value={{token1: state.token1, token2: state.token2, setToken1, setToken2, swapTokens, handleConnect, buttonText}} >
+    return (<GlobalContext.Provider value={{token1: state.token1, token2: state.token2, setToken1, setToken2, swapTokens, handleConnect, buttonText, accountId, chainId, provider}} >
         { children }
     </GlobalContext.Provider>)
 }
