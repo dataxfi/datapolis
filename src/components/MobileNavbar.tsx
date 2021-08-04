@@ -1,10 +1,12 @@
 import { Link, useLocation } from 'react-router-dom'
 import { MdMenu, MdClose } from 'react-icons/md'
-import { useState, useEffect } from 'react'
-import Web3Provider from './Web3Provider'
+import { useState, useEffect, useContext } from 'react'
+import { GlobalContext } from '../context/GlobalState'
+import Button from './Button'
 
 const MobileNavbar = ({links, text, wallet}: {links: Array<any>, text: Record<any, any>, wallet: string}) => {
-
+    
+    const {buttonText, handleConnect} = useContext(GlobalContext)
     const [menuVisible, setMenuVisible] = useState(false)
 
     function toggleMenu(state: boolean){
@@ -29,7 +31,7 @@ const MobileNavbar = ({links, text, wallet}: {links: Array<any>, text: Record<an
                 }
             </div>
         <div className="fixed bottom-0 left-0 w-full py-2 md:hidden flex justify-center bg-background">
-            <Web3Provider buttonClasses="hm-btn hm-btn-light" />
+            <Button text={buttonText} onClick={() => handleConnect()} classes="hm-btn hm-btn-light" />
             {/* <Button text={wallet} classes="hm-btn hm-btn-light" onClick={() => connectToWallet()}></Button> */}
         </div>
         {menuVisible ? <div className="fixed w-full top-20 left-0 bg-primary-900 px-8">

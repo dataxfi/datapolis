@@ -1,10 +1,10 @@
 import SwapInput from "./SwapInput"
 import { IoSwapVertical } from "react-icons/io5"
 import {MdLocalGasStation, MdTune} from 'react-icons/md'
-import Web3Provider from "./Web3Provider"
 import { useEffect, useState, useContext } from "react"
 import {GlobalContext} from '../context/GlobalState'
 import axios from 'axios'
+import Button from "./Button"
 
 const text = {
     T_SWAP: 'Swap',
@@ -15,7 +15,7 @@ const text = {
 
 const Swap = () => {
 
-    const { token1, token2, setToken1, setToken2, swapTokens } =  useContext(GlobalContext)
+    const { token1, token2, setToken1, setToken2, swapTokens, handleConnect, buttonText } =  useContext(GlobalContext)
     const [gasPrice, setGasPrice] = useState(0)
 
     useEffect(() => {
@@ -64,7 +64,7 @@ const Swap = () => {
                 </div>
                 <SwapInput value={token2} title={text.T_SWAP_TO} pos={2} setToken={setToken} />
                 <div className="mt-4">
-                    <Web3Provider buttonClasses="px-4 py-4 rounded-lg bg-secondary-500 bg-opacity-20 hover:bg-opacity-40 w-full text-secondary-400" />
+                    <Button text={buttonText} onClick={() => handleConnect()} classes="px-4 py-4 rounded-lg bg-secondary-500 bg-opacity-20 hover:bg-opacity-40 w-full text-secondary-400" />
                 </div>
             </div>
         </div>

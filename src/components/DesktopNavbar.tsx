@@ -1,8 +1,12 @@
-import React from 'react'
+import React, {useContext} from 'react'
 import { Link } from 'react-router-dom'
-import Web3Provider from './Web3Provider'
+import Button from './Button'
+import {GlobalContext} from '../context/GlobalState'
 
 const DesktopNavbar = ({links, text, wallet}: {links: Array<any>, text: Record<any, any>, wallet: string}) => {
+
+    const {handleConnect, buttonText } = useContext(GlobalContext)
+
     return (
              <div className="md:flex justify-between items-center py-4 border-b border-gray-800 pl-4 pr-2 hidden">
                 <div className="grid grid-flow-col gap-8 items-center">
@@ -12,8 +16,7 @@ const DesktopNavbar = ({links, text, wallet}: {links: Array<any>, text: Record<a
                     })}
                 </div>
                 <div className="hidden md:block">
-                    <Web3Provider buttonClasses="hm-btn hm-btn-light" />
-                    {/* <Button text={wallet} classes="" onClick={() => connectToWallet()}></Button> */}
+                    <Button text={buttonText} onClick={() => handleConnect()} classes="hm-btn hm-btn-light" />
                 </div>
             </div>
     )
