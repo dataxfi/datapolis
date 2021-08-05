@@ -14,8 +14,20 @@ const AppReducer = (state: any, action: any) => {
             return {
                 ...state,
                 token1: state.token2,
-                token2: state.token1
+                token2: state.token1,
+                token1Value: state.token2Value,
+                token2Value: state.token1Value
             }
+        case 'SET_TOKEN_1_VALUE':
+            return {
+                ...state,
+                token1Value: action.payload
+            }
+        case 'SET_TOKEN_2_VALUE':
+            return {
+                ...state,
+                token2Value: action.payload
+            }            
         default: return state
     }
 }

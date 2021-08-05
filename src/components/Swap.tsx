@@ -15,7 +15,7 @@ const text = {
 
 const Swap = () => {
 
-    const { token1, token2, setToken1, setToken2, swapTokens, handleConnect, buttonText } =  useContext(GlobalContext)
+    const { token1, token2, setToken1, setToken2, swapTokens, handleConnect, buttonText, token1Value, token2Value, setToken1Value, setToken2Value } =  useContext(GlobalContext)
     const [gasPrice, setGasPrice] = useState(0)
 
     useEffect(() => {
@@ -56,13 +56,13 @@ const Swap = () => {
                         </div>
                     </div>
                 </div>
-                <SwapInput value={token1} title={text.T_SWAP_FROM} pos={1} setToken={setToken} />
+                <SwapInput num={token1Value} value={token1} title={text.T_SWAP_FROM} pos={1} setToken={setToken} updateNum={(val: number) => setToken1Value(val)} />
                 <div className="px-4 relative my-12">
                     <div onClick={() => {swapTokens()}} role="button" tabIndex={0} className="rounded-full border-black border-4 absolute -top-14 bg-primary-800 w-16 h-16 flex items-center justify-center">
                         <IoSwapVertical size="30" className="text-gray-300" />
                     </div>
                 </div>
-                <SwapInput value={token2} title={text.T_SWAP_TO} pos={2} setToken={setToken} />
+                <SwapInput num={token2Value} value={token2} title={text.T_SWAP_TO} pos={2} setToken={setToken} updateNum={(val: number) => setToken2Value(val)}  />
                 <div className="mt-4">
                     <Button text={buttonText} onClick={() => handleConnect()} classes="px-4 py-4 rounded-lg bg-secondary-500 bg-opacity-20 hover:bg-opacity-40 w-full text-secondary-400" />
                 </div>

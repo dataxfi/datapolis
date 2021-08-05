@@ -7,7 +7,9 @@ import Core from "web3modal";
 
 const initialState: any = {
     token1: null,
-    token2: null
+    token1Value: '',
+    token2: null,
+    token2Value: ''
 }
 
 export const GlobalContext  = createContext(initialState)
@@ -92,6 +94,20 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
         })
     }
 
+    function setToken1Value(value: number){
+      dispatch({
+          type: 'SET_TOKEN_1_VALUE',
+          payload: value
+      })
+    } 
+    
+    function setToken2Value(value: number){
+      dispatch({
+          type: 'SET_TOKEN_2_VALUE',
+          payload: value
+      })
+    }     
+
     function setToken2(token: Record<any, any>){
         dispatch({
             type: 'SET_TOKEN_2',
@@ -105,7 +121,7 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
         })
     }
 
-    return (<GlobalContext.Provider value={{token1: state.token1, token2: state.token2, setToken1, setToken2, swapTokens, handleConnect, buttonText, accountId, chainId, provider}} >
+    return (<GlobalContext.Provider value={{token1: state.token1, token2: state.token2, setToken1, setToken2, setToken1Value, setToken2Value, token1Value: state.token1Value, token2Value: state.token2Value, swapTokens, handleConnect, buttonText, accountId, chainId, provider}} >
         { children }
     </GlobalContext.Provider>)
 }

@@ -3,7 +3,7 @@ import { BsChevronDown } from 'react-icons/bs'
 import TokenModal from './TokenModal';
 
 
-const SwapInput = ({title, value, pos, setToken}: {title: string, value: Record<any, any> | null, pos: number, setToken: Function}) => {
+const SwapInput = ({title, value, pos, setToken, num, updateNum}: {title: string, value: Record<any, any> | null, pos: number, setToken: Function, num: number, updateNum: Function}) => {
 
     const [showModal, setShowModal] = useState(false);
 
@@ -38,7 +38,7 @@ const SwapInput = ({title, value, pos, setToken}: {title: string, value: Record<
             </div>
             <div className="col-span-3 mt-3 md:mt-0">
                 {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
-                <input onWheel={ event => event.currentTarget.blur() } onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()} type="number" className="h-full w-full rounded-lg bg-primary-900 text-3xl px-2 outline-none focus:placeholder-type-200 placeholder-type-400" placeholder="0.0" />
+                <input onChange={(e) => updateNum(e.target.value)} onWheel={ event => event.currentTarget.blur() } onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()} type="number" className="h-full w-full rounded-lg bg-primary-900 text-3xl px-2 outline-none focus:placeholder-type-200 placeholder-type-400" placeholder="0.0" value={num} />
             </div>
         </div>
         {showModal ? <TokenModal onClick={tokenSelected} close={() => setShowModal(false)} /> : <></> }
