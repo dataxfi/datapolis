@@ -7,7 +7,7 @@ import DesktopNavbar from './DesktopNavbar'
 
 const text = {
     T_SWAP: 'Swap',
-    T_POOL: 'Pool',
+    T_STAKE: 'Stake',
     T_CONNECT_WALLET: 'Connect to a wallet'
 }
 
@@ -21,7 +21,7 @@ const Navbar = () => {
 
     const links = [
         { name: text.T_SWAP, link: '/swap' },
-        { name: text.T_POOL, link: '/pool' },
+        { name: text.T_STAKE, link: '/stake' },
     ]
 
     return (

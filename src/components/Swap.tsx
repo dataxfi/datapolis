@@ -15,7 +15,7 @@ const text = {
 
 const Swap = () => {
 
-    const { token1, token2, setToken1, setToken2, swapTokens, handleConnect, buttonText, token1Value, token2Value, setToken1Value, setToken2Value } =  useContext(GlobalContext)
+    const { token1, token2, setToken1, setToken2, swapTokens, handleConnect, buttonText, token1Value, token2Value, setToken1Value, setToken2Value, accountId } =  useContext(GlobalContext)
     const [gasPrice, setGasPrice] = useState(0)
 
     useEffect(() => {
@@ -63,9 +63,13 @@ const Swap = () => {
                     </div>
                 </div>
                 <SwapInput num={token2Value} value={token2} title={text.T_SWAP_TO} pos={2} setToken={setToken} updateNum={(val: number) => setToken2Value(val)}  />
-                <div className="mt-4">
-                    <Button text={buttonText} onClick={() => handleConnect()} classes="px-4 py-4 rounded-lg bg-secondary-500 bg-opacity-20 hover:bg-opacity-40 w-full text-secondary-400" />
-                </div>
+
+                { accountId ? 
+                   <></> :  <div className="mt-4">
+                        <Button text={buttonText} onClick={() => handleConnect()} classes="px-4 py-4 rounded-lg bg-secondary-500 bg-opacity-20 hover:bg-opacity-40 w-full text-secondary-400" />
+                    </div>
+                }
+
             </div>
         </div>
     )

@@ -32,8 +32,6 @@ const SwapInput = ({title, value, pos, setToken, num, updateNum}: {title: string
                         </span> :
                         <p className="text-xs text-type-100 border-type-300 border rounded-full px-2 py-1 mt-1">Select token</p>          
                         }
-
-                    {/* </button> */}
                 </div>
             </div>
             <div className="col-span-3 mt-3 md:mt-0">
