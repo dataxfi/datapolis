@@ -1,6 +1,6 @@
 import {AiOutlinePlus} from 'react-icons/ai'
-import { useEffect, useState, useContext } from "react"
-import {GlobalContext} from '../context/GlobalState'
+// import { useEffect, useState, useContext } from "react"
+// import {GlobalContext} from '../context/GlobalState'
 import StakeSelect from "./StakeSelect"
 import RemoveAmount from './RemoveAmount'
 import PositionBox from './PositionBox'
@@ -13,7 +13,7 @@ const text = {
 
 const Swap = () => {
 
-    const { token1, token2, setToken1, setToken2, swapTokens, handleConnect, buttonText, token1Value, token2Value, setToken1Value, setToken2Value, accountId } =  useContext(GlobalContext)
+    // const { token1, token2, setToken1, setToken2, swapTokens, handleConnect, buttonText, token1Value, token2Value, setToken1Value, setToken2Value, accountId } =  useContext(GlobalContext)
     // const [gasPrice, setGasPrice] = useState(0)
 
     // useEffect(() => {
