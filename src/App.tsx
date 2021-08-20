@@ -4,8 +4,15 @@ import Swap from './components/Swap'
 import Stake from './components/Stake'
 
 import {GlobalProvider} from './context/GlobalState'
+// import LiquidityPosition from "./components/LiquidityPosition";
+// import TransactionDoneModal from "./components/TransactionDoneModal";
+// import Snackbar from "./components/Snackbar";
+// import CreatePoolModal from "./components/CreatePoolModal";
+// import ConfirmModal from "./components/ConfirmModal";
+// import TransactionDoneModal from "./components/TransactionDoneModal";
 
 function App() {
+
   return (
     <>
     <GlobalProvider>
@@ -13,6 +20,11 @@ function App() {
         <Navbar />
         <Route path='/swap' component={Swap} />
         <Route path='/stake' component={Stake} />
+        {/* <Snackbar text="Approve LINK" onClose={() => {}} /> */}
+        {/* <CreatePoolModal /> */}
+        {/* <ConfirmModal /> */}
+        {/* <TransactionDoneModal /> */}
+        {/* <LiquidityPosition /> */}
       </Router>
     </GlobalProvider>
     </>
