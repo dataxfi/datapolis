@@ -10,6 +10,7 @@ import {GlobalProvider} from './context/GlobalState'
 // import CreatePoolModal from "./components/CreatePoolModal";
 // import ConfirmModal from "./components/ConfirmModal";
 // import TransactionDoneModal from "./components/TransactionDoneModal";
+import ConfirmSwapModal from "./components/ConfirmSwapModal";
 
 function App() {
 
@@ -25,6 +26,7 @@ function App() {
         {/* <ConfirmModal /> */}
         {/* <TransactionDoneModal /> */}
         {/* <LiquidityPosition /> */}
+        <ConfirmSwapModal />
       </Router>
     </GlobalProvider>
     </>
