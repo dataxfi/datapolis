@@ -1,4 +1,6 @@
 import Web3 from "web3";
+// @ts-ignore  
+import { Ocean, TokenList, Config } from "@dataxfi/datax.js";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import React, {createContext, PropsWithChildren, useEffect, useReducer, useState} from "react";
@@ -20,14 +22,14 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
     const [accountId, setAccountId] = useState<string | null>(null)
     const [chainId, setChainId] = useState<number | null>(null)
     const [provider, setProvider] = useState(null)
-    // const [web3, setWeb3] = useState<Web3 | null>(null)
-    const [buttonText, setButtonText] = useState<string | undefined>('Connect to a wallet')    
+    const [web3, setWeb3] = useState<Web3 | null>(null)
+    const [buttonText, setButtonText] = useState<string | undefined>('Connect to a wallet')
+    const [ocean, setOcean] = useState<any>(null)
     //const buttonText = 'Connect to a wallet'
     
 
     useEffect(() => {
         async function init() {
-        console.log('Init')
           const web3Modal = new Web3Modal({
             // network: 'ropsten', // optional
             cacheProvider: false, // optional
@@ -41,6 +43,14 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
                 },
             }, // required
           })
+
+          const provider = await web3Modal?.connect()
+          setProvider(provider)          
+          const web3 = new Web3(provider)
+          setWeb3(web3)
+          const ocean = new Ocean(web3, 'ropsten')
+          setOcean(ocean)
+          console.log(ocean)
   
           setWeb3Modal(web3Modal)
           web3Modal.clearCachedProvider()
@@ -51,14 +61,16 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
 
       async function handleConnect() {
         web3Modal?.clearCachedProvider()
-        const provider = await web3Modal?.connect()
-        setProvider(provider)
-        const _web3 = new Web3(provider)
+        // const provider = await web3Modal?.connect()
+        // setProvider(provider)
+        // const _web3 = new Web3(provider)
         // setWeb3(_web3)
-        setAccountId((await _web3.eth.getAccounts())[0])
-        setButtonText(accountId ? accountId?.toString() : 'Connect to a wallet')
-        setChainId(await _web3.eth.getChainId())
-        setListeners(provider)
+        if(web3){
+          setAccountId((await web3.eth.getAccounts())[0])
+          setButtonText(accountId ? accountId?.toString() : 'Connect to a wallet')
+          setChainId(await web3.eth.getChainId())
+          setListeners(provider)
+        }
       }
 
     async function setListeners(provider: any) {
