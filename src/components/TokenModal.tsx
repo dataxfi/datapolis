@@ -1,9 +1,11 @@
 import { MdClose } from 'react-icons/md'
 import TokenItem from './TokenItem'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useContext } from 'react'
 import axios from 'axios'
 import HashLoader from 'react-spinners/HashLoader'
 import ReactList from 'react-list'
+import {GlobalContext} from '../context/GlobalState'
+import { TokenList } from '@dataxfi/datax.js'
 
 const text = {
     T_SELECT_TOKEN: 'Select a token'
@@ -11,20 +13,23 @@ const text = {
 
 const TokenModal = ({close, onClick}: {close: Function, onClick: Function}) => {
 
-    const [response, setResponse] = useState([]);
-    const [tokens, setTokens] = useState([]);
+    const { web3, network } =  useContext(GlobalContext)
+    const [response, setResponse] = useState<any>([]);
+    const [tokens, setTokens] = useState<any>([]);
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(false)
 
     useEffect(() => {
         const url = 'https://gateway.pinata.cloud/ipfs/QmQi1sNZVP52urWq4TzLWx9dPRWNrvR4CUFgCEsocGkj5X'
+        console.log(process.env.REACT_APP_PINATA_KEY, process.env.REACT_APP_PINATA_SECRET)
+        const tokenList = new TokenList(web3, 'mainnet', process.env.REACT_APP_PINATA_KEY || '', process.env.REACT_APP_PINATA_SECRET || '')
         const getTokenList = async(url: string) => {
             try {
                 setError(false)
                 setLoading(true)
-                const res = await axios.get(url)   
-                setResponse(res.data.tokens)
-                setTokens(res.data.tokens)
+                const res = await tokenList.fetchDataTokenList()
+                setResponse(res.tokens)
+                setTokens(res.tokens)
                 setLoading(false)
             } catch (error) {
                 console.log(error)

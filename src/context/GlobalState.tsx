@@ -1,5 +1,4 @@
 import Web3 from "web3";
-// @ts-ignore  
 import { Ocean, TokenList, Config } from "@dataxfi/datax.js";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
@@ -11,12 +10,15 @@ const initialState: any = {
     token1: null,
     token1Value: '',
     token2: null,
-    token2Value: ''
+    token2Value: '',
+    token1Balance: 0.003,
+    token2Balance: 0.003
 }
 
 export const GlobalContext  = createContext(initialState)
 
 export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) => {
+    const NETWORK = 'mainnet'
     const [state, dispatch]: [any, Function] = useReducer(AppReducer, initialState)
     const [web3Modal, setWeb3Modal] = useState<Core | null>(null)
     const [accountId, setAccountId] = useState<string | null>(null)
@@ -44,16 +46,20 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
             }, // required
           })
 
-          const provider = await web3Modal?.connect()
-          setProvider(provider)          
-          const web3 = new Web3(provider)
-          setWeb3(web3)
-          const ocean = new Ocean(web3, 'ropsten')
-          setOcean(ocean)
-          console.log(ocean)
-  
           setWeb3Modal(web3Modal)
           web3Modal.clearCachedProvider()
+
+          const provider = await web3Modal?.connect()
+          setProvider(provider)
+
+          // This is required to get the token list
+          const web3 = new Web3(provider)
+          setWeb3(web3)
+
+          // This is required to do wallet-specific functions
+          const ocean = new Ocean(web3, NETWORK)
+          setOcean(ocean)
+
         }
     
         init()
@@ -61,10 +67,7 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
 
       async function handleConnect() {
         web3Modal?.clearCachedProvider()
-        // const provider = await web3Modal?.connect()
-        // setProvider(provider)
-        // const _web3 = new Web3(provider)
-        // setWeb3(_web3)
+        await web3Modal?.toggleModal()
         if(web3){
           setAccountId((await web3.eth.getAccounts())[0])
           setButtonText(accountId ? accountId?.toString() : 'Connect to a wallet')
@@ -99,11 +102,14 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
       }
 
 
-    function setToken1(token: Record<any, any>){
+    async function setToken1(token: Record<any, any>){
         dispatch({
             type: 'SET_TOKEN_1',
             payload: token
         })
+        console.log(token.address, accountId)
+        const balance = await ocean.getBalance(token.address, accountId)
+        console.log('Balance: ', balance)
     }
 
     function setToken1Value(value: number){
@@ -133,7 +139,7 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
         })
     }
 
-    return (<GlobalContext.Provider value={{token1: state.token1, token2: state.token2, setToken1, setToken2, setToken1Value, setToken2Value, token1Value: state.token1Value, token2Value: state.token2Value, swapTokens, handleConnect, buttonText, accountId, chainId, provider}} >
+    return (<GlobalContext.Provider value={{token1: state.token1, token2: state.token2, token1Balance: state.token1Balance, token2Balance: state.token2Balance, setToken1, setToken2, setToken1Value, setToken2Value, token1Value: state.token1Value, token2Value: state.token2Value, swapTokens, handleConnect, buttonText, accountId, chainId, provider, web3, ocean, network: NETWORK}} >
         { children }
     </GlobalContext.Provider>)
 }

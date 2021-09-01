@@ -1364,10 +1364,10 @@
   resolved "https://registry.yarnpkg.com/@csstools/normalize.css/-/normalize.css-10.1.0.tgz#f0950bba18819512d42f7197e56c518aa491cf18"
   integrity sha512-ij4wRiunFfaJxjB0BdrYHIH8FxBJpOwNPhhAcunlmPdXudL1WQV1qoP9un6JsEBAgQH+7UXyyjh0g7jTxXK6tg==
 
-"@dataxfi/datax.js@^0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@dataxfi/datax.js/-/datax.js-0.1.1.tgz#f08f2eff58bb32db730f44040eec6bc81319f554"
-  integrity sha512-kgDinlVvEERMUmI390z166fumjt6W5IIWXffY22ULYooB2LbZx++emCnnE8k5pJmM84tsrys5dF+2+IwIueqXQ==
+"@dataxfi/datax.js@^0.1.3":
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/@dataxfi/datax.js/-/datax.js-0.1.3.tgz#b1d51bea4aff01035e2b90e600d70e86fb3124df"
+  integrity sha512-PE6izV2USG/4JKe6cYD8l0/smdvST/L4cv8KnhtFxIkS+4ADV59FVX7m7GCRAHyzs95hyysXXjRmo7z7wwl6aA==
   dependencies:
     "@dataxfi/ocean.js" "^0.16.6"
     "@oceanprotocol/contracts" "^0.6.5"

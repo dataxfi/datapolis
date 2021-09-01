@@ -16,7 +16,7 @@ const text = {
 
 const Swap = () => {
 
-    const { token1, token2, setToken1, setToken2, swapTokens, handleConnect, buttonText, token1Value, token2Value, setToken1Value, setToken2Value, accountId } =  useContext(GlobalContext)
+    const { token1, token2, setToken1, setToken2, swapTokens, handleConnect, buttonText, token1Value, token2Value, setToken1Value, setToken2Value, accountId, token1Balance, token2Balance } =  useContext(GlobalContext)
     const [gasPrice, setGasPrice] = useState(0)
     const [showSettings, setShowSettings] = useState(false)
 
@@ -33,10 +33,10 @@ const Swap = () => {
 
     }, []);
 
-    const setToken = (token: Record<any, any>, num: number) => {
-        if(num === 1){
+    const setToken = (token: Record<any, any>, pos: number) => {
+        if(pos === 1){
             setToken1(token)
-        } else if (num === 2){
+        } else if (pos === 2){
             setToken2(token)
         }
     }

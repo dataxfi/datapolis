@@ -16,7 +16,9 @@ const AppReducer = (state: any, action: any) => {
                 token1: state.token2,
                 token2: state.token1,
                 token1Value: state.token2Value,
-                token2Value: state.token1Value
+                token2Value: state.token1Value,
+                token1Balance: state.token2Balance,
+                token2Balance: state.token1Balance
             }
         case 'SET_TOKEN_1_VALUE':
             return {
