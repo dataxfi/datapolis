@@ -1364,10 +1364,10 @@
   resolved "https://registry.yarnpkg.com/@csstools/normalize.css/-/normalize.css-10.1.0.tgz#f0950bba18819512d42f7197e56c518aa491cf18"
   integrity sha512-ij4wRiunFfaJxjB0BdrYHIH8FxBJpOwNPhhAcunlmPdXudL1WQV1qoP9un6JsEBAgQH+7UXyyjh0g7jTxXK6tg==
 
-"@dataxfi/datax.js@^0.1.3":
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/@dataxfi/datax.js/-/datax.js-0.1.3.tgz#b1d51bea4aff01035e2b90e600d70e86fb3124df"
-  integrity sha512-PE6izV2USG/4JKe6cYD8l0/smdvST/L4cv8KnhtFxIkS+4ADV59FVX7m7GCRAHyzs95hyysXXjRmo7z7wwl6aA==
+"@dataxfi/datax.js@^0.1.4":
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/@dataxfi/datax.js/-/datax.js-0.1.4.tgz#040a28c55df02c13ea8c4cc32fe5db870cfccf47"
+  integrity sha512-8UWIHG55pqPOVJ1W5u8rg4UR+1SJqp2WmMSi/hp4BLBWPzQIc+T4aGobLwC+TgrKEJz6I+YGKW9pSShM+zLADQ==
   dependencies:
     "@dataxfi/ocean.js" "^0.16.6"
     "@oceanprotocol/contracts" "^0.6.5"
@@ -14478,7 +14478,7 @@ lodash.clonedeep@^4.5.0:
   resolved "https://registry.yarnpkg.com/lodash.clonedeep/-/lodash.clonedeep-4.5.0.tgz#e23f3f9c4f8fbdde872529c1071857a086e5ccef"
   integrity sha1-4j8/nE+Pvd6HJSnBBxhXoIblzO8=
 
-lodash.debounce@^4.0.8:
+lodash.debounce@^4, lodash.debounce@^4.0.8:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
   integrity sha1-gteb/zCmfEAF/9XiUVMArZyk168=
@@ -18267,6 +18267,14 @@ react-app-polyfill@^2.0.0:
     raf "^3.4.1"
     regenerator-runtime "^0.13.7"
     whatwg-fetch "^3.4.1"
+
+react-debounce-input@^3.2.5:
+  version "3.2.5"
+  resolved "https://registry.yarnpkg.com/react-debounce-input/-/react-debounce-input-3.2.5.tgz#3a29682c4b9dcd62694d6e03f85d7bfa96cec433"
+  integrity sha512-WDc9nvZ8E/cT4nW1RlD/r+Nsc5Z5+Jmj2v9HT9RzsPtxkwRTQUBCKJvdt1fCYy5ME/nQPoqVYmWUWSv7whGmig==
+  dependencies:
+    lodash.debounce "^4"
+    prop-types "^15.7.2"
 
 react-dev-utils@^11.0.3:
   version "11.0.4"

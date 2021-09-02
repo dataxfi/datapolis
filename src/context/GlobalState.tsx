@@ -11,8 +11,8 @@ const initialState: any = {
     token1Value: '',
     token2: null,
     token2Value: '',
-    token1Balance: 0.003,
-    token2Balance: 0.003
+    token1Balance: null,
+    token2Balance: null
 }
 
 export const GlobalContext  = createContext(initialState)
@@ -27,7 +27,9 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
     const [web3, setWeb3] = useState<Web3 | null>(null)
     const [buttonText, setButtonText] = useState<string | undefined>('Connect to a wallet')
     const [ocean, setOcean] = useState<any>(null)
-    //const buttonText = 'Connect to a wallet'
+    const [postExchange, setPostExchange] = useState<any>(null)
+    const [loadingExchange, setLoadingExchange] = useState<any>(null)
+    const [slippage, setSlippage] = useState<number>(1)
     
 
     useEffect(() => {
@@ -47,7 +49,6 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
           })
 
           setWeb3Modal(web3Modal)
-          web3Modal.clearCachedProvider()
 
           const provider = await web3Modal?.connect()
           setProvider(provider)
@@ -56,8 +57,11 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
           const web3 = new Web3(provider)
           setWeb3(web3)
 
+          web3Modal.clearCachedProvider()
+          setupAccountAndListeners()
+
           // This is required to do wallet-specific functions
-          const ocean = new Ocean(web3, NETWORK)
+          const ocean = new Ocean(web3, 'mainnet')
           setOcean(ocean)
 
         }
@@ -65,16 +69,40 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
         init()
       }, [accountId, chainId, provider])
 
+      useEffect(() => {
+        updateOtherTokenValue(true, state.token1Value)
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [state?.token1?.symbol]);
+
+      // Set default exchange rate
+      // useEffect(() => {
+      //   async function setExchangeRate(){
+      //     setLoadingExchange(true)
+      //     if(state.token1 && state.token2){
+      //       const exchange = await ocean.getDtReceivedForExactDt("1", state.token1.pool, state.token2.pool)
+      //       setPostExchange(exchange)
+      //     } else {
+      //       console.log('Did not find this')
+      //     }
+      //     setLoadingExchange(false)
+      // }
+      // setExchangeRate()
+      // }, [state.token1, state.token2, ocean]);
+
       async function handleConnect() {
         web3Modal?.clearCachedProvider()
         await web3Modal?.toggleModal()
-        if(web3){
-          setAccountId((await web3.eth.getAccounts())[0])
-          setButtonText(accountId ? accountId?.toString() : 'Connect to a wallet')
-          setChainId(await web3.eth.getChainId())
-          setListeners(provider)
-        }
+        setupAccountAndListeners()
       }
+
+    async function setupAccountAndListeners(){
+      if(web3){
+        setAccountId((await web3.eth.getAccounts())[0])
+        setButtonText(accountId ? accountId?.toString() : 'Connect to a wallet')
+        setChainId(await web3.eth.getChainId())
+        setListeners(provider)
+      }
+    }
 
     async function setListeners(provider: any) {
         provider.on('accountsChanged', (accounts: any) => {
@@ -103,34 +131,47 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
 
 
     async function setToken1(token: Record<any, any>){
+      const balance = await ocean.getBalance(token.address, accountId)  
         dispatch({
             type: 'SET_TOKEN_1',
-            payload: token
+            payload: {token, balance}
         })
-        console.log(token.address, accountId)
-        const balance = await ocean.getBalance(token.address, accountId)
-        console.log('Balance: ', balance)
+
+        updateOtherTokenValue(true, state.token1Value)
+
     }
 
-    function setToken1Value(value: number){
+    function setToken1Value(value: number, triggerUpdate = true){
       dispatch({
           type: 'SET_TOKEN_1_VALUE',
           payload: value
       })
-    } 
-    
-    function setToken2Value(value: number){
+
+      if(triggerUpdate){
+        updateOtherTokenValue(true, value || 0)
+      }
+    }
+
+    async function setToken2(token: Record<any, any>){
+      const balance = await ocean.getBalance(token.address, accountId)      
+        dispatch({
+            type: 'SET_TOKEN_2',
+            payload: {token, balance}
+        })
+
+        updateOtherTokenValue(false, state.token2Value)
+    }
+
+    function setToken2Value(value: number, triggerUpdate = true){
       dispatch({
           type: 'SET_TOKEN_2_VALUE',
           payload: value
       })
-    }     
 
-    function setToken2(token: Record<any, any>){
-        dispatch({
-            type: 'SET_TOKEN_2',
-            payload: token
-        })
+      if(triggerUpdate){
+        updateOtherTokenValue(false, value || 0)
+      }
+
     }
 
     function swapTokens(){
@@ -139,7 +180,27 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
         })
     }
 
-    return (<GlobalContext.Provider value={{token1: state.token1, token2: state.token2, token1Balance: state.token1Balance, token2Balance: state.token2Balance, setToken1, setToken2, setToken1Value, setToken2Value, token1Value: state.token1Value, token2Value: state.token2Value, swapTokens, handleConnect, buttonText, accountId, chainId, provider, web3, ocean, network: NETWORK}} >
+
+
+    async function updateOtherTokenValue(fromToken1: boolean, inputAmount: number) {
+      if(state.token1 && state.token2){
+        if(fromToken1){
+          let exchange = await ocean.getDtReceivedForExactDt(inputAmount.toString(), state.token1.pool, state.token2.pool)
+          exchange = Number(Number(exchange).toFixed(6))
+          setToken2Value(exchange, false)
+          setPostExchange((exchange/inputAmount))
+        } else {
+          let exchange = await ocean.getDtNeededForExactDt(inputAmount.toString(), state.token1.pool, state.token2.pool)
+          exchange = Number(Number(exchange || 0).toFixed(6))
+          setToken1Value(exchange || 0, false)
+          setPostExchange((inputAmount/exchange) || 0)
+        }
+
+      }
+    }
+
+
+    return (<GlobalContext.Provider value={{token1: state.token1, token2: state.token2, token1Balance: state.token1Balance, token2Balance: state.token2Balance, setToken1, setToken2, setToken1Value, setToken2Value, token1Value: state.token1Value, token2Value: state.token2Value, swapTokens, handleConnect, buttonText, accountId, chainId, provider, web3, ocean, network: NETWORK, postExchange, loadingExchange, slippage, setSlippage}} >
         { children }
     </GlobalContext.Provider>)
 }

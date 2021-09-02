@@ -3,12 +3,14 @@ const AppReducer = (state: any, action: any) => {
         case 'SET_TOKEN_1':
             return {
                 ...state,
-                token1: action.payload
+                token1: action.payload.token,
+                token1Balance: action.payload.balance
             }
         case 'SET_TOKEN_2':
             return {
                 ...state,
-                token2: action.payload
+                token2: action.payload.token,
+                token2Balance: action.payload.balance
             }
         case 'SWAP_TOKENS':
             return {
