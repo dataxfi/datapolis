@@ -19,13 +19,14 @@ const ConfirmSwapModal = ({confirm, show, close} : {confirm: Function, show: boo
     }, [token2Value, slippage]);
 
     useEffect(() => {
-        if(ocean){
+        if(ocean && token1 && token1Value){
             (async () => {
-                const swapFee = await ocean.calculateSwapFee(token1.pool, token1Value)
+                const pool = token1.symbol === 'OCEAN' ? token2.pool : token1.pool
+                const swapFee = await ocean.calculateSwapFee(pool, token1Value)
                 setswapFee(swapFee)
              })()
         }
-    }, []);
+    });
 
     if(!show){
         return null

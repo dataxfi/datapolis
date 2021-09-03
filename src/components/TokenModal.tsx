@@ -22,7 +22,7 @@ const TokenModal = ({close, onClick}: {close: Function, onClick: Function}) => {
     useEffect(() => {
         const url = 'https://gateway.pinata.cloud/ipfs/QmQi1sNZVP52urWq4TzLWx9dPRWNrvR4CUFgCEsocGkj5X'
         console.log(process.env.REACT_APP_PINATA_KEY, process.env.REACT_APP_PINATA_SECRET)
-        const tokenList = new TokenList(web3, 'mainnet', process.env.REACT_APP_PINATA_KEY || '', process.env.REACT_APP_PINATA_SECRET || '')
+        const tokenList = new TokenList(web3, '4', process.env.REACT_APP_PINATA_KEY || '', process.env.REACT_APP_PINATA_SECRET || '')
         const getTokenList = async(url: string) => {
             try {
                 setError(false)

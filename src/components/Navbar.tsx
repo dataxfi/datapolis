@@ -6,8 +6,8 @@ import DesktopNavbar from './DesktopNavbar'
 // import Emitter from '../emitter'
 
 const text = {
-    T_SWAP: 'Swap',
-    T_STAKE: 'Stake',
+    T_SWAP: 'TradeX',
+    T_STAKE: 'StakeX',
     T_CONNECT_WALLET: 'Connect to a wallet'
 }
 

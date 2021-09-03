@@ -8,9 +8,10 @@ import OutsideClickHandler from 'react-outside-click-handler'
 import ConfirmSwapModal from "./ConfirmSwapModal"
 import ConfirmModal from "./ConfirmModal"
 import TransactionDoneModal from "./TransactionDoneModal"
+import { Config } from "@dataxfi/datax.js"
 
 const text = {
-    T_SWAP: 'Swap',
+    T_SWAP: 'TradeX',
     T_SWAP_FROM: 'Swap from',
     T_SWAP_TO: 'Swap to'
 }
@@ -18,21 +19,21 @@ const text = {
 
 const Swap = () => {
 
-    const { token1, token2, setToken1, setToken2, swapTokens, handleConnect, buttonText, token1Value, token2Value, setToken1Value, setToken2Value, accountId, token1Balance, token2Balance, postExchange, loadingExchange, ocean, slippage, setSlippage } =  useContext(GlobalContext)
+    const { token1, token2, setToken1, setToken2, swapTokens, handleConnect, buttonText, token1Value, token2Value, setToken1Value, setToken2Value, accountId, token1Balance, token2Balance, postExchange, loadingExchange, slippage, setSlippage, loadingToken1Val, loadingToken2Val, exactToken, ocean } =  useContext(GlobalContext)
     const [showSettings, setShowSettings] = useState(false)
     const [show, setShow] = useState(false)
     const [showConfirmLoader, setShowConfirmLoader] = useState(false)
     const [showTxDone, setShowTxDone] = useState(false)
 
-    useEffect(() => {
-        if(showConfirmLoader){
-            setShow(false)
-            setTimeout(() => {
-                setShowConfirmLoader(false)
-                setShowTxDone(true)
-            }, 3000);
-        }
-    }, [showConfirmLoader]);
+    // useEffect(() => {
+    //     if(showConfirmLoader){
+    //         setShow(false)
+    //         setTimeout(() => {
+    //             setShowConfirmLoader(false)
+    //             setShowTxDone(true)
+    //         }, 3000);
+    //     }
+    // }, [showConfirmLoader]);
 
     // useEffect(() => {
 
@@ -53,9 +54,45 @@ const Swap = () => {
         }
     }
 
-    function makeTheSwap(){
+    async function makeTheSwap(){
+        let txReceipt = null
+        setShow(false)
         setShowConfirmLoader(true)
-        // TODO: const res = await ocean.swapExactDtToDt(...)
+        try {
+            if(token1.symbol === 'OCEAN'){
+                if(exactToken === 1){
+                    console.log('exact ocean to dt')
+                    console.log(accountId, token2.pool.toString(), token2Value.toString(), token1Value.toString())
+                    txReceipt = await ocean.swapExactOceanToDt(accountId, token2.pool.toString(), token2Value.toString(), token1Value.toString())
+                } else {
+                    console.log('ocean to exact dt')
+                    // await ocean.swapOceantoExactDt(accountId, token2.pool, token1Value)
+                }
+            } 
+            else if(token2.symbol === 'OCEAN'){
+                if(exactToken === 1){
+                    console.log('exact dt to ocean')
+                    // await ocean.swapExactDtToOcean(accountId, token1.pool, token2Value, token1Balance)
+                } else {
+                    console.log('dt to exact ocean')
+                    // await ocean.swapDtToExactOcean(accountId, token1.pool, token2Value, token1Value)
+                }
+            } else {
+                if(exactToken === 1){
+                    console.log('exact dt to dt')
+                    // await ocean.swapExactDtToDt(accountId, token1.address, token2.address, token2Value, token1Value, token1.pool, token2.pool, proxyAddress, slippage)
+                } else {
+                    console.log('dt to exact dt')
+                    // await ocean.swapDtToExactDt(accountId, token1.address, token2.address, token2Value, token1Value, token1.pool, token2.pool, proxyAddress, slippage)
+                }
+            }            
+        } catch (error) {
+            console.log(error)
+        }
+
+        setShowConfirmLoader(false)
+        setShowTxDone(true)
+        console.log(txReceipt)
     }
 
     return (
@@ -110,13 +147,13 @@ const Swap = () => {
                         }
 
                     </div>
-                    <SwapInput num={token1Value} value={token1} balance={token1Balance} title={text.T_SWAP_FROM} pos={1} setToken={setToken} updateNum={(val: number) => setToken1Value(val)} />
+                    <SwapInput num={token1Value} value={token1} balance={token1Balance} title={text.T_SWAP_FROM} pos={1} setToken={setToken} updateNum={(val: number) => setToken1Value(val)} loading={loadingToken1Val} />
                     <div className="px-4 relative my-12">
                         <div onClick={() => {swapTokens()}} role="button" tabIndex={0} className="rounded-full border-black border-4 absolute -top-14 bg-primary-800 w-16 h-16 flex items-center justify-center">
                             <IoSwapVertical size="30" className="text-gray-300" />
                         </div>
                     </div>
-                    <SwapInput num={token2Value} value={token2} balance={token2Balance} title={text.T_SWAP_TO} pos={2} setToken={setToken} updateNum={(val: number) => setToken2Value(val)}  />
+                    <SwapInput num={token2Value} value={token2} balance={token2Balance} title={text.T_SWAP_TO} pos={2} setToken={setToken} updateNum={(val: number) => setToken2Value(val)} loading={loadingToken2Val}  />
 
                     {
                         token1 && token2 && !loadingExchange && !Number.isNaN(postExchange) ?
@@ -130,14 +167,22 @@ const Swap = () => {
                         </div> : <></>
                     }
 
-                    { accountId ? 
-                    <div className="mt-4">
-                        <Button onClick={() => setShow(true)} text="TradeX" classes="px-4 py-4 rounded-lg bg-secondary-500 bg-opacity-20 hover:bg-opacity-40 w-full text-secondary-400" />
-                    </div>
-                    :  
-                    <div className="mt-4">
-                        <Button text={buttonText} onClick={() => handleConnect()} classes="px-4 py-4 rounded-lg bg-secondary-500 bg-opacity-20 hover:bg-opacity-40 w-full text-secondary-400" />
-                    </div>
+                    {
+                        !accountId ?
+                        <div className="mt-4">
+                            <Button text={buttonText} onClick={() => handleConnect()} classes="px-4 py-4 rounded-lg bg-secondary-500 bg-opacity-20 hover:bg-opacity-40 w-full text-secondary-400" />
+                        </div> : <></>                    
+                    }
+
+                    {
+                        accountId && token1 && token2 && token1Value && token2Value && token1Balance && Number(token1Balance) >= Number(token1Value)  ?
+                        <div className="mt-4">
+                            <Button onClick={() => setShow(true)} text="Swap" classes="px-4 py-4 rounded-lg bg-secondary-500 bg-opacity-20 hover:bg-opacity-40 w-full text-secondary-400" />
+                        </div>
+                        : accountId && (token1Value || token2Value) ? 
+                        <div className="mt-4">
+                            <Button onClick={() => setShow(true)} text="Insufficient balance" disabled={true} classes="px-4 py-4 rounded-lg bg-gray-800 w-full text-gray-400 cursor-not-allowed" />
+                         </div> : <></>
                     }
 
                 </div>

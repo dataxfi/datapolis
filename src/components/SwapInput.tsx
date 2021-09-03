@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { BsChevronDown } from 'react-icons/bs'
 import TokenModal from './TokenModal';
 import { DebounceInput } from 'react-debounce-input';
+import PulseLoader from 'react-spinners/PulseLoader'
 
 
-const SwapInput = ({title, value, pos, setToken, num, updateNum, balance}: {title: string, value: Record<any, any> | null, pos: number, setToken: Function, num: number, updateNum: Function, balance: number}) => {
+const SwapInput = ({title, value, pos, setToken, num, updateNum, balance, loading}: {title: string, value: Record<any, any> | null, pos: number, setToken: Function, num: number, updateNum: Function, balance: number, loading: boolean}) => {
 
     const [showModal, setShowModal] = useState(false);
 
@@ -38,13 +39,13 @@ const SwapInput = ({title, value, pos, setToken, num, updateNum, balance}: {titl
             <div className="col-span-3 mt-3 md:mt-0">
                 <div className="h-full w-full rounded-lg bg-primary-900 text-3xl p-2">
                     <div className="flex justify-between items-center">
-                        <DebounceInput debounceTimeout={500} onChange={(e) => updateNum(e.target.value)} onWheel={ (event: any) => event.currentTarget.blur() } onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()} type="number" className="h-full w-full rounded-lg bg-primary-900 text-3xl outline-none focus:placeholder-type-200 placeholder-type-400" placeholder="0.0" value={num} />
+                        <DebounceInput disabled={loading} debounceTimeout={500} onChange={(e) => updateNum(e.target.value)} onWheel={ (event: any) => event.currentTarget.blur() } onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()} type="number" className="h-full w-full rounded-lg bg-primary-900 text-3xl outline-none focus:placeholder-type-200 placeholder-type-400" placeholder="0.0" value={num} />
                         {/* <input /> */}
                         <div>
                             {
                                 balance ?
                                 <p className="text-sm text-type-400 whitespace-nowrap text-right">
-                                    Balance: {balance}
+                                    Balance: {Number(balance).toLocaleString(undefined, {maximumFractionDigits: 4})}
                                 </p> : <></>
                             }
                             {/* {
@@ -53,6 +54,13 @@ const SwapInput = ({title, value, pos, setToken, num, updateNum, balance}: {titl
                                 =$320.08
                                 </p> : <></>
                             } */}
+                            {
+                                loading ? 
+                                <div className="text-center">
+                                    <PulseLoader color="white" size="4px" margin="5px" /> 
+                                </div>
+                                : <></>
+                            }
 
                         </div>
                     </div>
