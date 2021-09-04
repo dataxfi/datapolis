@@ -6,25 +6,28 @@ import ConfirmSwapItem from './ConfirmSwapItem'
 import ConfirmSwapListItem from './ConfirmSwapListItem'
 import {GlobalContext} from '../context/GlobalState'
 
-const ConfirmSwapModal = ({confirm, show, close} : {confirm: Function, show: boolean, close: Function}) => {
+const ConfirmSwapModal = ({confirm, show, close, token1, token2, postExchange} : {confirm: Function, show: boolean, close: Function, token1: any, token2: any, postExchange: any}) => {
 
-    const {token1, token2, token1Value, token2Value, postExchange, ocean, slippage} = useContext(GlobalContext)
-
+    const {ocean, slippage} = useContext(GlobalContext)
     const [swapFee, setswapFee] = useState(0);
     const [minReceived, setMinReceived] = useState(0)
 
     useEffect(() => {
-        const exchange = token2Value || 0
-        setMinReceived(exchange - (exchange * slippage/100))
-    }, [token2Value, slippage]);
+        if(show){
+            const exchange = token2.value || 0
+            setMinReceived(exchange - (exchange * slippage/100))
+        }
+    }, [token2.value, slippage, show]);
 
     useEffect(() => {
-        if(ocean && token1 && token1Value){
-            (async () => {
-                const pool = token1.symbol === 'OCEAN' ? token2.pool : token1.pool
-                const swapFee = await ocean.calculateSwapFee(pool, token1Value)
-                setswapFee(swapFee)
-             })()
+        if(show){
+            if(ocean && token1.info && token1.value && token2.info){
+                (async () => {
+                    const pool = token1.info.symbol === 'OCEAN' ? token2.info.pool : token1.info.pool
+                    const swapFee = await ocean.calculateSwapFee(pool, token1.value)
+                    setswapFee(swapFee)
+                 })()
+            }
         }
     });
 
@@ -40,9 +43,9 @@ const ConfirmSwapModal = ({confirm, show, close} : {confirm: Function, show: boo
                 </div>
 
                 <div className="mt-4">
-                    <ConfirmSwapItem img={token1.logoURI} value={token1Value} name={token1?.symbol} />
+                    <ConfirmSwapItem img={token1.info.logoURI} value={token1.value} name={token1.info.symbol} />
                     <BsArrowDown className="ml-2 my-2 text-type-300" size={24} />
-                    <ConfirmSwapItem img={token2.logoURI} value={token2Value} name={token2?.symbol} />
+                    <ConfirmSwapItem img={token2.info.logoURI} value={token2.value} name={token2.info.symbol} />
                 </div>
 
                 <div className="mt-6 flex justify-between">
@@ -50,7 +53,7 @@ const ConfirmSwapModal = ({confirm, show, close} : {confirm: Function, show: boo
                         Exchange rate
                     </p>
                     <p className="text-type-400 text-sm grid grid-flow-col items-center gap-2">
-                        1 {token1?.symbol} = {postExchange.toFixed(6)} {token2?.symbol}
+                        1 {token1?.symbol} = {postExchange.toFixed(6)} {token2.info.symbol}
                         <BsShuffle size={12} />
                     </p>
                 </div>
@@ -59,14 +62,14 @@ const ConfirmSwapModal = ({confirm, show, close} : {confirm: Function, show: boo
                     {/* <ConfirmSwapListItem name="Route" value="ETH > KNC" /> */}
                     <ConfirmSwapListItem name="Minimum received" value={minReceived.toFixed(6)} />
                     {/* <ConfirmSwapListItem name="Price impact" value="-0.62%" valueClass="text-green-500" /> */}
-                    <ConfirmSwapListItem name="Swap fee" value={swapFee.toString() + " " + token1.symbol} />
+                    <ConfirmSwapListItem name="Swap fee" value={swapFee.toString() + " " + token1.info.symbol} />
                     {/* <ConfirmSwapListItem name="DataX fee" value="0.000000006 ETH" /> */}
                     <ConfirmSwapListItem name="Slippage tolerance" value={slippage + "%"} />
                 </div>
 
                 <div className="mt-4">
                     <p className="text-type-300 text-sm">
-                        Output is estimated. You will receive at least {minReceived.toFixed(6)} {token2.symbol} or the transaction will revert
+                        Output is estimated. You will receive at least {minReceived.toFixed(6)} {token2.info.symbol} or the transaction will revert
                     </p>
                 </div>
 

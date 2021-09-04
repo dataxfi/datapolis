@@ -16,103 +16,116 @@ const text = {
     T_SWAP_TO: 'Swap to'
 }
 
-
 const Swap = () => {
 
-    const { token1, token2, setToken1, setToken2, swapTokens, handleConnect, buttonText, token1Value, token2Value, setToken1Value, setToken2Value, accountId, token1Balance, token2Balance, postExchange, loadingExchange, slippage, setSlippage, loadingToken1Val, loadingToken2Val, exactToken, ocean } =  useContext(GlobalContext)
+    const { handleConnect, buttonText, accountId, loadingExchange, slippage, setSlippage, ocean } =  useContext(GlobalContext)
     const [showSettings, setShowSettings] = useState(false)
     const [show, setShow] = useState(false)
     const [showConfirmLoader, setShowConfirmLoader] = useState(false)
     const [showTxDone, setShowTxDone] = useState(false)
-    // const [error, setError] = useState('')
+    const [token1, setToken1] = useState<any>({info: null, value: '', balance: ''})
+    const [token2, setToken2] = useState<any>({info: null, value: '', balance: ''})
+    const [exactToken, setExactToken] = useState<number>(1)
+    const [postExchange, setPostExchange] = useState<any>(null)
 
-    // useEffect(() => {
-    //     if(showConfirmLoader){
-    //         setShow(false)
-    //         setTimeout(() => {
-    //             setShowConfirmLoader(false)
-    //             setShowTxDone(true)
-    //         }, 3000);
-    //     }
-    // }, [showConfirmLoader]);
 
-    // useEffect(() => {
-
-    //     const getGasPrice = async () => {
-    //         const res = await axios.get(`https://ethgasstation.info/api/ethgasAPI.json?api-key=${process.env.REACT_ENV_DEFI_PULSE}`)
-    //         setGasPrice(parseFloat(res.data.average)/10)
-    //     }
-
-    //     getGasPrice()
-
-    // }, []);
-
-    const setToken = (token: Record<any, any>, pos: number) => {
+    const setToken = async (info: Record<any, any>, pos: number) => {
+        const balance = await ocean.getBalance(info.address, accountId)
         if(pos === 1){
-            setToken1(token)
+            setToken1({...token1, info, balance})
+            updateOtherTokenValue(true, token1.value)
         } else if (pos === 2){
-            setToken2(token)
+            setToken2({...token2, info, balance})
+            updateOtherTokenValue(false, token2.value)
         }
     }
+
+    function swapTokens() {
+        setToken1(token2)
+        setToken2(token1)
+        calculateExchange(true, token1.value)
+    }
+
+    async function updateOtherTokenValue(fromToken1: boolean, inputAmount: number) {
+        if(token1.info && token2.info){
+          if(fromToken1){
+            setToken2({...token2, loading: true})
+            let exchange = await calculateExchange(fromToken1, inputAmount)
+            exchange = Number(Number(exchange).toFixed(6))
+            setPostExchange((exchange/inputAmount))
+            setToken2({...token2, value: exchange, loading: false})
+            setExactToken(1)
+          } else {
+            setToken1({...token1, loading: true})
+            let exchange = await calculateExchange(fromToken1, inputAmount)
+            exchange = Number(Number(exchange || 0).toFixed(6))
+            setPostExchange((inputAmount/exchange) || 0)
+            setToken1({...token1, value: exchange, loading: false})
+            setExactToken(2)
+          }
+        }
+    }
+
+    async function calculateExchange(fromToken1: boolean, amount:number){
+      
+        if(token1.info.symbol === 'OCEAN'){
+          if(fromToken1){
+            return await ocean.getDtReceived(token2.info.pool, amount)
+          } else {
+            return await ocean.getOceanNeeded(token2.info.pool, amount)
+          }
+        }
+  
+        if(token2.info.symbol === 'OCEAN'){
+          if(fromToken1){
+            return await ocean.getOceanReceived(token2.info.pool, amount)
+          } else {
+            return await ocean.getDtNeeded(token1.info.pool, amount)
+          }
+        }
+  
+        if(fromToken1){
+          return await ocean.getDtReceivedForExactDt(amount.toString(), token1.info.pool, token2.info.pool)
+        } else {
+          return await ocean.getDtNeededForExactDt(amount.toString(), token1.info.pool, token2.info.pool)
+        }
+  
+      }    
+
+
 
     async function makeTheSwap(){
         let txReceipt = null
         setShow(false)
         setShowConfirmLoader(true)
         try {
-            if(token1.symbol === 'OCEAN'){
+            if(token1?.info.symbol === 'OCEAN'){
                 if(exactToken === 1){
-                    txReceipt = await ocean.swapExactOceanToDt(accountId, token2.pool.toString(), token2Value.toString(), token1Value.toString())
+                    txReceipt = await ocean.swapExactOceanToDt(accountId, token2.info.pool.toString(), token2.value.toString(), token1.value.toString())
                 } else {
                     console.log('ocean to exact dt')
-                    txReceipt = await ocean.swapOceanToExactDt(accountId, token2.pool, token2Value.toString(), token1Value.toString())
+                    txReceipt = await ocean.swapOceanToExactDt(accountId, token2.info.pool, token2.value.toString(), token1.value.toString())
                 }
             } 
-            else if(token2.symbol === 'OCEAN'){
+            else if(token2.info.symbol === 'OCEAN'){
                 if(exactToken === 1){
                     console.log('exact dt to ocean')
-                    txReceipt = await ocean.swapExactDtToOcean(accountId, token1.pool, token1Value.toString(), token2Value.toString())
+                    txReceipt = await ocean.swapExactDtToOcean(accountId, token1.info.pool, token1.value.toString(), token2.value.toString())
                 } else {
                     // Error: Throws not enough datatokens
                     console.log('dt to exact ocean')
-                    txReceipt = await ocean.swapDtToExactOcean(accountId, token1.pool, token2Value.toString(), token1Value.toString())
+                    txReceipt = await ocean.swapDtToExactOcean(accountId, token1.info.pool, token2.value.toString(), token1.value.toString())
                 }
             } else {
                 if(exactToken === 1){
-                    // GOT ERR_LIMIT_OUT
-                    // Error: ERROR: execution reverted: ERR_LIMIT_OUT
-                    // {
-                    //   "originalError": {
-                    //     "code": 3,
-                    //     "data": "0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000d4552525f4c494d49545f4f555400000000000000000000000000000000000000",
-                    //     "message": "execution reverted: ERR_LIMIT_OUT"
-                    //   }
-                    // }
-                    //     at Ocean.<anonymous> (Ocean.ts:575)
-                    //     at step (Config.ts:77)
-                    //     at Object.throw (Config.ts:77)
-                    //     at rejected (Config.ts:77)
-                    txReceipt = await ocean.swapExactDtToDt(accountId, token1.address, token2.address, token2Value.toString(), token1Value.toString(), token1.pool, token2.pool, null, (Number(slippage)/100).toString())
-                } else {
-                    // Error: ERROR: execution reverted: ERR_LIMIT_IN
-                    // {
-                    //   "originalError": {
-                    //     "code": 3,
-                    //     "data": "0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000c4552525f4c494d49545f494e0000000000000000000000000000000000000000",
-                    //     "message": "execution reverted: ERR_LIMIT_IN"
-                    //   }
-                    // }
-                    //     at Ocean.<anonymous> (Ocean.ts:454)
-                    //     at step (Config.ts:77)
-                    //     at Object.throw (Config.ts:77)
-                    //     at rejected (Config.ts:77)                    
+                    txReceipt = await ocean.swapExactDtToDt(accountId, token1.info.address, token2.info.address, token2.value.toString(), token1.value.toString(), token1.info.pool, token2.info.pool, null, (Number(slippage)/100).toString())
+                } else {                  
                     console.log('dt to exact dt')
-                    txReceipt = await ocean.swapDtToExactDt(accountId, token1.address, token2.address, token2Value.toString(), token1Value.toString(), token1.pool, token2.pool, null, (Number(slippage)/100).toString())
+                    txReceipt = await ocean.swapDtToExactDt(accountId, token1.info.address, token2.info.address, token2.value.toString(), token1.value.toString(), token1.info.pool, token2.info.pool, null, (Number(slippage)/100).toString())
                 }
             }            
         } catch (error: any) {
             console.log(error)
-            // setError(error.toString())
         }
 
         setShowConfirmLoader(false)
@@ -127,11 +140,6 @@ const Swap = () => {
                     <div className="flex justify-between relative">
                         <p className="text-xl">{ text.T_SWAP }</p>
                         <div className="grid grid-flow-col gap-2 items-center">
-                            {/* {gasPrice > 0 ? 
-                            <div role="button" className="grid grid-flow-col items-center gap-1 hover:bg-primary-700 rounded-lg px-2 py-1.5">
-                                <MdLocalGasStation size="24" style={{color: '#7CFF6B'}} />
-                                <p className="text-green-500">{gasPrice}</p>
-                            </div> : <div></div> } */}
                             <div onClick={() => setShowSettings(true)} className="hover:bg-primary-700 px-1.5 py-1.5 rounded-lg" role="button">
                                 <MdTune size="24" />
                             </div>      
@@ -156,15 +164,6 @@ const Swap = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                        {/* <div className="mt-4">
-                                            <p className="text-type-300 text-sm">Transaction deadline</p>
-                                            <div className="grid grid-flow-col gap-2 items-center">
-                                                <div className="focus:border-secondary-500 bg-primary-700 rounded-lg px-2 py-1">
-                                                        <input type="number" className="text-lg bg-primary-700 outline-none rounded-l-lg w-32"  />
-                                                </div>
-                                                <p className="text-type-200">minutes</p>
-                                            </div>
-                                        </div> */}
                                     </div>
                                 </OutsideClickHandler>
                             </div>
@@ -172,22 +171,22 @@ const Swap = () => {
                         }
 
                     </div>
-                    <SwapInput num={token1Value} value={token1} balance={token1Balance} title={text.T_SWAP_FROM} pos={1} setToken={setToken} updateNum={(val: number) => setToken1Value(val)} loading={loadingToken1Val} />
+                    <SwapInput num={token1.value} value={token1.info} balance={token1.balance} title={text.T_SWAP_FROM} pos={1} setToken={setToken} updateNum={(value: number) => { setToken1({...token1, value}); updateOtherTokenValue(true, value) } } loading={token1.loading} />
                     <div className="px-4 relative my-12">
                         <div onClick={() => {swapTokens()}} role="button" tabIndex={0} className="rounded-full border-black border-4 absolute -top-14 bg-primary-800 w-16 h-16 flex items-center justify-center">
                             <IoSwapVertical size="30" className="text-gray-300" />
                         </div>
                     </div>
-                    <SwapInput num={token2Value} value={token2} balance={token2Balance} title={text.T_SWAP_TO} pos={2} setToken={setToken} updateNum={(val: number) => setToken2Value(val)} loading={loadingToken2Val}  />
+                    <SwapInput num={token2.value} value={token2.info} balance={token2.balance} title={text.T_SWAP_TO} pos={2} setToken={setToken} updateNum={(value: number) => { setToken2({...token2, value}); updateOtherTokenValue(false, value) }} loading={token2.loading}  />
 
                     {
-                        token1 && token2 && !loadingExchange && !Number.isNaN(postExchange) ?
+                        token1.info && token2.info && !loadingExchange && !Number.isNaN(postExchange) ?
                         <div className="my-4 p-2 bg-primary-800 flex justify-between text-type-400 text-sm rounded-lg">
                             <p>Exchange rate</p>
 
                             {
                             loadingExchange ? <p>...</p> :
-                            <p>1 {token1.symbol} = {Number(postExchange).toLocaleString('en', {maximumFractionDigits: 4})} {token2.symbol}</p>
+                            <p>1 {token1.info.symbol} = {Number(postExchange).toLocaleString('en', {maximumFractionDigits: 4})} {token2.info.symbol}</p>
                             }
                         </div> : <></>
                     }
@@ -200,11 +199,11 @@ const Swap = () => {
                     }
 
                     {
-                        accountId && token1 && token2 && token1Value && token2Value && token1Balance && Number(token1Balance) >= Number(token1Value)  ?
+                        accountId && token1.info && token2.info && token1.value && token2.value && token1.balance && Number(token1.balance) >= Number(token1.value)  ?
                         <div className="mt-4">
                             <Button onClick={() => setShow(true)} text="Swap" classes="px-4 py-4 rounded-lg bg-secondary-500 bg-opacity-20 hover:bg-opacity-40 w-full text-secondary-400" />
                         </div>
-                        : accountId && (token1Value || token2Value) ? 
+                        : accountId && (token1.value || token2.value) ? 
                         <div className="mt-4">
                             <Button onClick={() => setShow(true)} text="Insufficient balance" disabled={true} classes="px-4 py-4 rounded-lg bg-gray-800 w-full text-gray-400 cursor-not-allowed" />
                          </div> : <></>
@@ -213,7 +212,7 @@ const Swap = () => {
                 </div>
             </div>
             
-            <ConfirmSwapModal show={show} close={() => setShow(false)} confirm={() => makeTheSwap()} />
+            <ConfirmSwapModal close={() => setShow(false)} confirm={() => makeTheSwap()} show={show} token1={token1} token2={token2} postExchange={postExchange} />
             <ConfirmModal show={showConfirmLoader} close={() => setShowConfirmLoader(false)} />
             <TransactionDoneModal show={showTxDone} close={() => setShowTxDone(false)} />
         </>
