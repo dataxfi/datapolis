@@ -5,7 +5,7 @@ const TransactionDoneModal = ({show, close}: {show: boolean, close: Function}) =
     if(!show) return null
     return (
         <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-md w-full z-20 shadow">
-            <div className="bg-primary-900 rounded-lg p-4">
+            <div className="bg-primary-900 rounded-lg p-4 hm-box">
                 <div className="flex justify-end">
                     <BsX onClick={() => close()} size={28} className="text-type-200" role="button" />
                 </div>

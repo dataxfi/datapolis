@@ -13,7 +13,7 @@ const ConfirmModal = ({show, close}: {show: boolean, close: Function}) => {
     }
     else return (
         <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-sm w-full z-30 shadow">
-            <div className="bg-primary-900 p-4 rounded-lg">
+            <div className="bg-primary-900 p-4 rounded-lg hm-box">
                 <div className="flex justify-end">
                     <BsX onClick={() => close()} role="button" size="28" className="text-type-200 text-right" />
                 </div>
