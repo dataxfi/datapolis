@@ -19,11 +19,12 @@ const text = {
 
 const Swap = () => {
 
-    const { token1, token2, setToken1, setToken2, swapTokens, handleConnect, buttonText, token1Value, token2Value, setToken1Value, setToken2Value, accountId, token1Balance, token2Balance, postExchange, loadingExchange, slippage, setSlippage, loadingToken1Val, loadingToken2Val, exactToken, ocean } =  useContext(GlobalContext)
+    const { token1, token2, setToken1, setToken2, swapTokens, handleConnect, buttonText, token1Value, token2Value, setToken1Value, setToken2Value, accountId, token1Balance, token2Balance, postExchange, loadingExchange, slippage, setSlippage, loadingToken1Val, loadingToken2Val, exactToken, ocean, web3 } =  useContext(GlobalContext)
     const [showSettings, setShowSettings] = useState(false)
     const [show, setShow] = useState(false)
     const [showConfirmLoader, setShowConfirmLoader] = useState(false)
     const [showTxDone, setShowTxDone] = useState(false)
+    const [error, setError] = useState('')
 
     // useEffect(() => {
     //     if(showConfirmLoader){
@@ -61,33 +62,57 @@ const Swap = () => {
         try {
             if(token1.symbol === 'OCEAN'){
                 if(exactToken === 1){
-                    console.log('exact ocean to dt')
-                    console.log(accountId, token2.pool.toString(), token2Value.toString(), token1Value.toString())
                     txReceipt = await ocean.swapExactOceanToDt(accountId, token2.pool.toString(), token2Value.toString(), token1Value.toString())
                 } else {
                     console.log('ocean to exact dt')
-                    // await ocean.swapOceantoExactDt(accountId, token2.pool, token1Value)
+                    txReceipt = await ocean.swapOceanToExactDt(accountId, token2.pool, token2Value.toString(), token1Value.toString())
                 }
             } 
             else if(token2.symbol === 'OCEAN'){
                 if(exactToken === 1){
                     console.log('exact dt to ocean')
-                    // await ocean.swapExactDtToOcean(accountId, token1.pool, token2Value, token1Balance)
+                    txReceipt = await ocean.swapExactDtToOcean(accountId, token1.pool, token1Value.toString(), token2Value.toString())
                 } else {
+                    // Error: Throws not enough datatokens
                     console.log('dt to exact ocean')
-                    // await ocean.swapDtToExactOcean(accountId, token1.pool, token2Value, token1Value)
+                    txReceipt = await ocean.swapDtToExactOcean(accountId, token1.pool, token2Value.toString(), token1Value.toString())
                 }
             } else {
                 if(exactToken === 1){
-                    console.log('exact dt to dt')
-                    // await ocean.swapExactDtToDt(accountId, token1.address, token2.address, token2Value, token1Value, token1.pool, token2.pool, proxyAddress, slippage)
+                    // GOT ERR_LIMIT_OUT
+                    // Error: ERROR: execution reverted: ERR_LIMIT_OUT
+                    // {
+                    //   "originalError": {
+                    //     "code": 3,
+                    //     "data": "0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000d4552525f4c494d49545f4f555400000000000000000000000000000000000000",
+                    //     "message": "execution reverted: ERR_LIMIT_OUT"
+                    //   }
+                    // }
+                    //     at Ocean.<anonymous> (Ocean.ts:575)
+                    //     at step (Config.ts:77)
+                    //     at Object.throw (Config.ts:77)
+                    //     at rejected (Config.ts:77)
+                    txReceipt = await ocean.swapExactDtToDt(accountId, token1.address, token2.address, token2Value.toString(), token1Value.toString(), token1.pool, token2.pool, null, (Number(slippage)/100).toString())
                 } else {
+                    // Error: ERROR: execution reverted: ERR_LIMIT_IN
+                    // {
+                    //   "originalError": {
+                    //     "code": 3,
+                    //     "data": "0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000c4552525f4c494d49545f494e0000000000000000000000000000000000000000",
+                    //     "message": "execution reverted: ERR_LIMIT_IN"
+                    //   }
+                    // }
+                    //     at Ocean.<anonymous> (Ocean.ts:454)
+                    //     at step (Config.ts:77)
+                    //     at Object.throw (Config.ts:77)
+                    //     at rejected (Config.ts:77)                    
                     console.log('dt to exact dt')
-                    // await ocean.swapDtToExactDt(accountId, token1.address, token2.address, token2Value, token1Value, token1.pool, token2.pool, proxyAddress, slippage)
+                    txReceipt = await ocean.swapDtToExactDt(accountId, token1.address, token2.address, token2Value.toString(), token1Value.toString(), token1.pool, token2.pool, null, (Number(slippage)/100).toString())
                 }
             }            
-        } catch (error) {
+        } catch (error: any) {
             console.log(error)
+            setError(error.toString())
         }
 
         setShowConfirmLoader(false)
