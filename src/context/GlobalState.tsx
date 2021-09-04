@@ -1,5 +1,5 @@
 import Web3 from "web3";
-import { Ocean, TokenList, Config } from "@dataxfi/datax.js";
+import { Ocean } from "@dataxfi/datax.js";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import React, {createContext, PropsWithChildren, useEffect, useReducer, useState} from "react";
@@ -70,6 +70,7 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
         }
     
         init()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [accountId, chainId, provider])
 
       useEffect(() => {
@@ -234,7 +235,7 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
     }
 
 
-    return (<GlobalContext.Provider value={{token1: state.token1, token2: state.token2, token1Balance: state.token1Balance, token2Balance: state.token2Balance, setToken1, setToken2, setToken1Value, setToken2Value, token1Value: state.token1Value, token2Value: state.token2Value, swapTokens, handleConnect, buttonText, accountId, chainId, provider, web3, ocean, network: NETWORK, postExchange, loadingExchange, slippage, setSlippage, loadingToken1Val, loadingToken2Val, exactToken}} >
+    return (<GlobalContext.Provider value={{token1: state.token1, token2: state.token2, token1Balance: state.token1Balance, token2Balance: state.token2Balance, setToken1, setToken2, setToken1Value, setToken2Value, token1Value: state.token1Value, token2Value: state.token2Value, swapTokens, handleConnect, buttonText, accountId, chainId, provider, web3, ocean, network: NETWORK, postExchange, loadingExchange, slippage, setSlippage, loadingToken1Val, loadingToken2Val, exactToken, setLoadingExchange}} >
         { children }
     </GlobalContext.Provider>)
 }

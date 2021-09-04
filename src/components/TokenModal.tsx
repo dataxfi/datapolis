@@ -1,7 +1,6 @@
 import { MdClose } from 'react-icons/md'
 import TokenItem from './TokenItem'
 import { useEffect, useState, useContext } from 'react'
-import axios from 'axios'
 import HashLoader from 'react-spinners/HashLoader'
 import ReactList from 'react-list'
 import {GlobalContext} from '../context/GlobalState'
@@ -13,7 +12,7 @@ const text = {
 
 const TokenModal = ({close, onClick}: {close: Function, onClick: Function}) => {
 
-    const { web3, network } =  useContext(GlobalContext)
+    const { web3 } =  useContext(GlobalContext)
     const [response, setResponse] = useState<any>([]);
     const [tokens, setTokens] = useState<any>([]);
     const [loading, setLoading] = useState(false)
@@ -40,6 +39,7 @@ const TokenModal = ({close, onClick}: {close: Function, onClick: Function}) => {
         
         getTokenList(url)
         
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const tokenRenderer = (idx: number, key: string | number) => {

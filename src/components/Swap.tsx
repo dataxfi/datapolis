@@ -1,14 +1,14 @@
 import SwapInput from "./SwapInput"
 import { IoSwapVertical } from "react-icons/io5"
 import {MdTune} from 'react-icons/md'
-import { useEffect, useState, useContext } from "react"
+import { useState, useContext } from "react"
 import {GlobalContext} from '../context/GlobalState'
 import Button from "./Button"
 import OutsideClickHandler from 'react-outside-click-handler'
 import ConfirmSwapModal from "./ConfirmSwapModal"
 import ConfirmModal from "./ConfirmModal"
 import TransactionDoneModal from "./TransactionDoneModal"
-import { Config } from "@dataxfi/datax.js"
+// import { Config } from "@dataxfi/datax.js"
 
 const text = {
     T_SWAP: 'TradeX',
@@ -19,12 +19,12 @@ const text = {
 
 const Swap = () => {
 
-    const { token1, token2, setToken1, setToken2, swapTokens, handleConnect, buttonText, token1Value, token2Value, setToken1Value, setToken2Value, accountId, token1Balance, token2Balance, postExchange, loadingExchange, slippage, setSlippage, loadingToken1Val, loadingToken2Val, exactToken, ocean, web3 } =  useContext(GlobalContext)
+    const { token1, token2, setToken1, setToken2, swapTokens, handleConnect, buttonText, token1Value, token2Value, setToken1Value, setToken2Value, accountId, token1Balance, token2Balance, postExchange, loadingExchange, slippage, setSlippage, loadingToken1Val, loadingToken2Val, exactToken, ocean } =  useContext(GlobalContext)
     const [showSettings, setShowSettings] = useState(false)
     const [show, setShow] = useState(false)
     const [showConfirmLoader, setShowConfirmLoader] = useState(false)
     const [showTxDone, setShowTxDone] = useState(false)
-    const [error, setError] = useState('')
+    // const [error, setError] = useState('')
 
     // useEffect(() => {
     //     if(showConfirmLoader){
@@ -112,7 +112,7 @@ const Swap = () => {
             }            
         } catch (error: any) {
             console.log(error)
-            setError(error.toString())
+            // setError(error.toString())
         }
 
         setShowConfirmLoader(false)
