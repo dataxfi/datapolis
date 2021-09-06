@@ -5,12 +5,11 @@ import { DebounceInput } from 'react-debounce-input';
 import PulseLoader from 'react-spinners/PulseLoader'
 
 
-const SwapInput = ({title, value, pos, setToken, num, updateNum, balance, loading}: {title: string, value: Record<any, any> | null, pos: number, setToken: Function, num: number, updateNum: Function, balance: number, loading: boolean}) => {
+const SwapInput = ({title, value, pos, setToken, num, updateNum, balance, loading, otherToken}: {title: string, value: Record<any, any> | null, pos: number, setToken: Function, num: number, updateNum: Function, balance: number, loading: boolean, otherToken: string}) => {
 
     const [showModal, setShowModal] = useState(false);
 
     const tokenSelected = (token: Record<any, any>) => {
-        // Dispatch state change event
         setToken(token, pos)
         setShowModal(false)
     }
@@ -70,7 +69,7 @@ const SwapInput = ({title, value, pos, setToken, num, updateNum, balance, loadin
                 {/* <input onChange={(e) => updateNum(e.target.value)} onWheel={ event => event.currentTarget.blur() } onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()} type="number" className="h-full w-full rounded-lg bg-primary-900 text-3xl px-2 outline-none focus:placeholder-type-200 placeholder-type-400" placeholder="0.0" value={num} /> */}
             </div>
         </div>
-        {showModal ? <TokenModal onClick={tokenSelected} close={() => setShowModal(false)} /> : <></> }
+        {showModal ? <TokenModal onClick={tokenSelected} close={() => setShowModal(false)} otherToken={otherToken} /> : <></> }
     </div>
     )
 }

@@ -20,8 +20,6 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
     const [ocean, setOcean] = useState<any>(null)
 
     const [buttonText, setButtonText] = useState<string | undefined>('Connect to a wallet')
-    const [loadingExchange, setLoadingExchange] = useState<any>(null)
-    const [slippage, setSlippage] = useState<number>(1)
     
 
     useEffect(() => {
@@ -61,11 +59,6 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
         init()
       // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [accountId, chainId, provider])
-
-      // useEffect(() => {
-      //   updateOtherTokenValue(true, state.token1Value)
-      // // eslint-disable-next-line react-hooks/exhaustive-deps
-      // }, [state?.token1?.symbol]);
 
       async function handleConnect() {
         web3Modal?.clearCachedProvider()
@@ -107,53 +100,7 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
         })
       }
 
-
-    // async function setToken1(token: Record<any, any>){
-    //   const balance = await ocean.getBalance(token.address, accountId)  
-    //     dispatch({
-    //         type: 'SET_TOKEN_1',
-    //         payload: {token, balance}
-    //     })
-
-    //     updateOtherTokenValue(true, state.token1Value)
-
-    // }
-
-    // function setToken1Value(value: number, triggerUpdate = true){
-    //   dispatch({
-    //       type: 'SET_TOKEN_1_VALUE',
-    //       payload: value
-    //   })
-
-    //   if(triggerUpdate){
-    //     updateOtherTokenValue(true, value || 0)
-    //   }
-    // }
-
-    // async function setToken2(token: Record<any, any>){
-    //   const balance = await ocean.getBalance(token.address, accountId)      
-    //     dispatch({
-    //         type: 'SET_TOKEN_2',
-    //         payload: {token, balance}
-    //     })
-
-    //     updateOtherTokenValue(false, state.token2Value)
-    // }
-
-    // function setToken2Value(value: number, triggerUpdate = true){
-    //   dispatch({
-    //       type: 'SET_TOKEN_2_VALUE',
-    //       payload: value
-    //   })
-
-    //   if(triggerUpdate){
-    //     updateOtherTokenValue(false, value || 0)
-    //   }
-
-    // }
-
-
-    return (<GlobalContext.Provider value={{ handleConnect, buttonText, accountId, chainId, provider, web3, ocean, network: NETWORK, loadingExchange, slippage, setSlippage, setLoadingExchange}} >
+    return (<GlobalContext.Provider value={{ handleConnect, buttonText, accountId, chainId, provider, web3, ocean, network: NETWORK }} >
         { children }
     </GlobalContext.Provider>)
 }

@@ -10,7 +10,7 @@ const text = {
     T_SELECT_TOKEN: 'Select a token'
 }
 
-const TokenModal = ({close, onClick}: {close: Function, onClick: Function}) => {
+const TokenModal = ({close, onClick, otherToken}: {close: Function, onClick: Function, otherToken?: string}) => {
 
     const { web3 } =  useContext(GlobalContext)
     const [response, setResponse] = useState<any>([]);
@@ -19,16 +19,15 @@ const TokenModal = ({close, onClick}: {close: Function, onClick: Function}) => {
     const [error, setError] = useState(false)
 
     useEffect(() => {
-        const url = 'https://gateway.pinata.cloud/ipfs/QmQi1sNZVP52urWq4TzLWx9dPRWNrvR4CUFgCEsocGkj5X'
-        console.log(process.env.REACT_APP_PINATA_KEY, process.env.REACT_APP_PINATA_SECRET)
+        // const url = 'https://gateway.pinata.cloud/ipfs/QmQi1sNZVP52urWq4TzLWx9dPRWNrvR4CUFgCEsocGkj5X'
         const tokenList = new TokenList(web3, '4', process.env.REACT_APP_PINATA_KEY || '', process.env.REACT_APP_PINATA_SECRET || '')
-        const getTokenList = async(url: string) => {
+        const getTokenList = async() => {
             try {
                 setError(false)
                 setLoading(true)
                 const res = await tokenList.fetchDataTokenList()
-                setResponse(res.tokens)
-                setTokens(res.tokens)
+                setResponse(res.tokens.filter(t => t.symbol !== otherToken))
+                setTokens(res.tokens.filter(t => t.symbol !== otherToken))
                 setLoading(false)
             } catch (error) {
                 console.log(error)
@@ -37,7 +36,7 @@ const TokenModal = ({close, onClick}: {close: Function, onClick: Function}) => {
             }
         }
         
-        getTokenList(url)
+        getTokenList()
         
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);

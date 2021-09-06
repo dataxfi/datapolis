@@ -1,12 +1,12 @@
 import React from 'react'
 import { BsX } from 'react-icons/bs'
 import HashLoader from 'react-spinners/HashLoader'
-import { useContext } from 'react'
-import { GlobalContext } from '../context/GlobalState'
+// import { useContext } from 'react'
+// import { GlobalContext } from '../context/GlobalState'
 
-const ConfirmModal = ({show, close}: {show: boolean, close: Function}) => {
+const ConfirmModal = ({show, close, token1, token2}: {show: boolean, close: Function, token1: any, token2: any}) => {
 
-    const {token1, token2, token1Value, token2Value} = useContext(GlobalContext)
+    // const {token1, token2, token1Value, token2Value} = useContext(GlobalContext)
 
     if(!show){
         return null
@@ -25,7 +25,7 @@ const ConfirmModal = ({show, close}: {show: boolean, close: Function}) => {
                         Waiting for confirmation
                     </p>
                     <p className="text-type-200 mt-2">
-                        Swapping {token1Value} {token1.symbol} for {token2Value} {token2.symbol}
+                        Swapping {token1.value} {token1.info.symbol} for {token2.value} {token2.info.symbol}
                     </p>
                     <p className="mt-8 text-type-400 text-sm">
                         Confirm this transaction in your wallet

@@ -6,16 +6,16 @@ import ConfirmSwapItem from './ConfirmSwapItem'
 import ConfirmSwapListItem from './ConfirmSwapListItem'
 import {GlobalContext} from '../context/GlobalState'
 
-const ConfirmSwapModal = ({confirm, show, close, token1, token2, postExchange} : {confirm: Function, show: boolean, close: Function, token1: any, token2: any, postExchange: any}) => {
+const ConfirmSwapModal = ({confirm, show, close, token1, token2, postExchange, slippage} : {confirm: Function, show: boolean, close: Function, token1: any, token2: any, postExchange: any, slippage: number | string}) => {
 
-    const {ocean, slippage} = useContext(GlobalContext)
+    const {ocean} = useContext(GlobalContext)
     const [swapFee, setswapFee] = useState(0);
     const [minReceived, setMinReceived] = useState(0)
 
     useEffect(() => {
         if(show){
             const exchange = token2.value || 0
-            setMinReceived(exchange - (exchange * slippage/100))
+            setMinReceived(exchange - (exchange * Number(slippage || 1)/100))
         }
     }, [token2.value, slippage, show]);
 

@@ -8,7 +8,6 @@ import OutsideClickHandler from 'react-outside-click-handler'
 import ConfirmSwapModal from "./ConfirmSwapModal"
 import ConfirmModal from "./ConfirmModal"
 import TransactionDoneModal from "./TransactionDoneModal"
-// import { Config } from "@dataxfi/datax.js"
 
 const text = {
     T_SWAP: 'TradeX',
@@ -16,17 +15,20 @@ const text = {
     T_SWAP_TO: 'You are buying'
 }
 
+const INITIAL_TOKEN_STATE = {info: null, value: '', balance: ''}
+
 const Swap = () => {
 
-    const { handleConnect, buttonText, accountId, loadingExchange, slippage, setSlippage, ocean } =  useContext(GlobalContext)
+    const { handleConnect, buttonText, accountId, ocean } =  useContext(GlobalContext)
     const [showSettings, setShowSettings] = useState(false)
     const [show, setShow] = useState(false)
     const [showConfirmLoader, setShowConfirmLoader] = useState(false)
     const [showTxDone, setShowTxDone] = useState(false)
-    const [token1, setToken1] = useState<any>({info: null, value: '', balance: ''})
-    const [token2, setToken2] = useState<any>({info: null, value: '', balance: ''})
+    const [token1, setToken1] = useState<any>(INITIAL_TOKEN_STATE)
+    const [token2, setToken2] = useState<any>(INITIAL_TOKEN_STATE)
     const [exactToken, setExactToken] = useState<number>(1)
     const [postExchange, setPostExchange] = useState<any>(null)
+    const [slippage, setSlippage] = useState<number | string>(1);
 
 
     const setToken = async (info: Record<any, any>, pos: number) => {
@@ -123,14 +125,22 @@ const Swap = () => {
                     console.log('dt to exact dt')
                     txReceipt = await ocean.swapDtToExactDt(accountId, token1.info.address, token2.info.address, token2.value.toString(), token1.value.toString(), token1.info.pool, token2.info.pool, null, (Number(slippage)/100).toString())
                 }
-            }            
+            }
+            if(txReceipt){
+                setShowConfirmLoader(false)
+                setShowTxDone(true)
+                setToken1(INITIAL_TOKEN_STATE)
+                setToken2(INITIAL_TOKEN_STATE)
+                setPostExchange(null)
+                console.log(txReceipt)   
+            } else {
+                setShowConfirmLoader(false)
+            }
+        
         } catch (error: any) {
+            setShowConfirmLoader(false)
             console.log(error)
         }
-
-        setShowConfirmLoader(false)
-        setShowTxDone(true)
-        console.log(txReceipt)
     }
 
     return (
@@ -156,7 +166,7 @@ const Swap = () => {
                                             <p className="text-type-300 text-sm">Slippage tolerance</p>
                                             <div className="grid grid-flow-col gap-2 items-center">
                                                 <div className="flex justify-between focus:border-secondary-500 bg-primary-700 rounded-lg items-center px-2 py-1">
-                                                    <input type="number" onChange={(e) => setSlippage(e.target.value)} value={slippage} className="text-lg bg-primary-700 outline-none rounded-l-lg w-32"  />
+                                                    <input type="number" onChange={(e) => setSlippage(e.target.value || '')} value={slippage} className="text-lg bg-primary-700 outline-none rounded-l-lg w-32"  />
                                                     <p className="text-type-200 text-lg">%</p>
                                                 </div>
                                                 <div>
@@ -171,23 +181,19 @@ const Swap = () => {
                         }
 
                     </div>
-                    <SwapInput num={token1.value} value={token1.info} balance={token1.balance} title={text.T_SWAP_FROM} pos={1} setToken={setToken} updateNum={(value: number) => { setToken1({...token1, value}); updateOtherTokenValue(true, value) } } loading={token1.loading} />
+                    <SwapInput otherToken={token2.info ? token2.info.symbol : ''} num={token1.value} value={token1.info} balance={token1.balance} title={text.T_SWAP_FROM} pos={1} setToken={setToken} updateNum={(value: number) => { setToken1({...token1, value}); updateOtherTokenValue(true, value) } } loading={token1.loading} />
                     <div className="px-4 relative my-12">
                         <div onClick={() => {swapTokens()}} role="button" tabIndex={0} className="rounded-full border-black border-4 absolute -top-14 bg-primary-800 w-16 h-16 flex items-center justify-center">
                             <IoSwapVertical size="30" className="text-gray-300" />
                         </div>
                     </div>
-                    <SwapInput num={token2.value} value={token2.info} balance={token2.balance} title={text.T_SWAP_TO} pos={2} setToken={setToken} updateNum={(value: number) => { setToken2({...token2, value}); updateOtherTokenValue(false, value) }} loading={token2.loading}  />
+                    <SwapInput otherToken={token1.info ? token1.info.symbol : ''} num={token2.value} value={token2.info} balance={token2.balance} title={text.T_SWAP_TO} pos={2} setToken={setToken} updateNum={(value: number) => { setToken2({...token2, value}); updateOtherTokenValue(false, value) }} loading={token2.loading}  />
 
                     {
-                        token1.info && token2.info && !loadingExchange && !Number.isNaN(postExchange) ?
+                        token1.info && token2.info && !Number.isNaN(postExchange) && Number(postExchange) !== 0 ?
                         <div className="my-4 p-2 bg-primary-800 flex justify-between text-type-400 text-sm rounded-lg">
                             <p>Exchange rate</p>
-
-                            {
-                            loadingExchange ? <p>...</p> :
                             <p>1 {token1.info.symbol} = {Number(postExchange).toLocaleString('en', {maximumFractionDigits: 4})} {token2.info.symbol}</p>
-                            }
                         </div> : <></>
                     }
 
@@ -203,7 +209,7 @@ const Swap = () => {
                         <div className="mt-4">
                             <Button onClick={() => setShow(true)} text="Swap" classes="px-4 py-4 rounded-lg bg-primary-100 bg-opacity-20 hover:bg-opacity-40 w-full text-background-800" />
                         </div>
-                        : accountId && (token1.value || token2.value) ? 
+                        : accountId && (token1.value || token2.value) && !(token1.loading || token2.loading!) ? 
                         <div className="mt-4">
                             <Button onClick={() => setShow(true)} text="Insufficient balance" disabled={true} classes="px-4 py-4 rounded-lg bg-gray-800 w-full text-gray-400 cursor-not-allowed" />
                          </div> : <></>
@@ -212,8 +218,8 @@ const Swap = () => {
                 </div>
             </div>
             
-            <ConfirmSwapModal close={() => setShow(false)} confirm={() => makeTheSwap()} show={show} token1={token1} token2={token2} postExchange={postExchange} />
-            <ConfirmModal show={showConfirmLoader} close={() => setShowConfirmLoader(false)} />
+            <ConfirmSwapModal close={() => setShow(false)} confirm={() => makeTheSwap()} show={show} token1={token1} token2={token2} postExchange={postExchange} slippage={slippage} />
+            <ConfirmModal show={showConfirmLoader} close={() => setShowConfirmLoader(false)} token1={token1} token2={token2} />
             <TransactionDoneModal show={showTxDone} close={() => setShowTxDone(false)} />
         </>
     )

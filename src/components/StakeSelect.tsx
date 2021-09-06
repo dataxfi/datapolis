@@ -38,7 +38,7 @@ const StakeSelect = ({value}: {value: Record<any, any> | null}) => {
                     </div>
                 </div>
             {showModal ? <TokenModal onClick={tokenSelected} close={() => setShowModal(false)} /> : <></> }
-            </div>            
+            </div>
         </div>
     )
 }
