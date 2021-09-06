@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { MdMenu, MdClose } from 'react-icons/md'
 import { useState, useEffect, useContext } from 'react'
+import {ReactComponent as Logo} from '../assets/logo.svg';
 import { GlobalContext } from '../context/GlobalState'
 import Button from './Button'
 
@@ -20,9 +21,9 @@ const MobileNavbar = ({links, text, wallet}: {links: Array<any>, text: Record<an
     }, [location]);
 
     return (
-        <div className="flex md:hidden justify-between items-center py-4 border-b border-gray-800 pl-4 pr-2">
+        <div className="flex md:hidden justify-between items-center py-4 border-gray-800 pl-4 pr-2">
             <div>
-                <img src="http://via.placeholder.com/42x42" className="h-10 w-10" alt="" />
+                <Logo className="logo"/>
             </div>
             <div>
                 { menuVisible ?
@@ -36,7 +37,7 @@ const MobileNavbar = ({links, text, wallet}: {links: Array<any>, text: Record<an
         </div>
         {menuVisible ? <div className="fixed w-full top-20 left-0 bg-primary-900 px-8">
         { links.map((link, idx) => {
-                return <div key={idx} className="py-1.5"><Link onClick={() => toggleMenu(false)} to={link.link} className="hm-link">{link.name}</Link></div>
+                return <div key={idx} className="py-1.5"><Link onClick={() => toggleMenu(false)} to={link.link} className="hm-link product">{link.name}</Link></div>
             }) }
         </div> : <></> }
     </div>

@@ -12,8 +12,8 @@ import TransactionDoneModal from "./TransactionDoneModal"
 
 const text = {
     T_SWAP: 'TradeX',
-    T_SWAP_FROM: 'Swap from',
-    T_SWAP_TO: 'Swap to'
+    T_SWAP_FROM: 'You are selling',
+    T_SWAP_TO: 'You are buying'
 }
 
 const Swap = () => {
@@ -136,7 +136,7 @@ const Swap = () => {
     return (
         <>
             <div className="flex mt-16 w-full items-center mb-20">
-                <div className="max-w-2xl mx-auto bg-primary-900 w-full rounded-lg p-4">
+                <div className="max-w-2xl mx-auto bg-primary-900 w-full rounded-lg p-4 box">
                     <div className="flex justify-between relative">
                         <p className="text-xl">{ text.T_SWAP }</p>
                         <div className="grid grid-flow-col gap-2 items-center">
@@ -194,14 +194,14 @@ const Swap = () => {
                     {
                         !accountId ?
                         <div className="mt-4">
-                            <Button text={buttonText} onClick={() => handleConnect()} classes="px-4 py-4 rounded-lg bg-secondary-500 bg-opacity-20 hover:bg-opacity-40 w-full text-secondary-400" />
+                            <Button text={buttonText} onClick={() => handleConnect()} classes="px-4 py-4 rounded-lg bg-primary-100 bg-opacity-20 hover:bg-opacity-40 w-full text-background-800" />
                         </div> : <></>                    
                     }
 
                     {
                         accountId && token1.info && token2.info && token1.value && token2.value && token1.balance && Number(token1.balance) >= Number(token1.value)  ?
                         <div className="mt-4">
-                            <Button onClick={() => setShow(true)} text="Swap" classes="px-4 py-4 rounded-lg bg-secondary-500 bg-opacity-20 hover:bg-opacity-40 w-full text-secondary-400" />
+                            <Button onClick={() => setShow(true)} text="Swap" classes="px-4 py-4 rounded-lg bg-primary-100 bg-opacity-20 hover:bg-opacity-40 w-full text-background-800" />
                         </div>
                         : accountId && (token1.value || token2.value) ? 
                         <div className="mt-4">
