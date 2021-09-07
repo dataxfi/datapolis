@@ -200,10 +200,23 @@ const Swap = () => {
                     {
                         !accountId ?
                         <div className="mt-4">
-                            <Button text={buttonText} onClick={() => handleConnect()} classes="px-4 py-4 rounded-lg bg-primary-100 bg-opacity-20 hover:bg-opacity-40 w-full text-background-800" />
+                            <Button text="Connect Wallet" onClick={() => handleConnect()} classes="px-4 py-4 rounded-lg bg-primary-100 bg-opacity-20 hover:bg-opacity-40 w-full text-background-800" />
                         </div> : <></>                    
                     }
 
+                    {
+                        accountId && !(token1.info && token2.info) ?
+                        <div className="mt-4">
+                            <Button text="Select Tokens" disabled={true} classes="px-4 py-4 rounded-lg bg-gray-800 w-full text-gray-400 cursor-not-allowed" />
+                        </div> : <></>                    
+                    }
+
+                    {
+                        accountId && token1.info && token2.info && !(token1.value || token2.value) ?
+                        <div className="mt-4">
+                            <Button text="Enter Token Amount" disabled={true} classes="px-4 py-4 rounded-lg bg-gray-800 w-full text-gray-400 cursor-not-allowed" />
+                        </div> : <></>                    
+                    }
                     {
                         accountId && token1.info && token2.info && token1.value && token2.value && token1.balance && Number(token1.balance) >= Number(token1.value)  ?
                         <div className="mt-4">

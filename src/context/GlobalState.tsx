@@ -1,11 +1,12 @@
 import Web3 from "web3";
-import { Ocean } from "@dataxfi/datax.js";
+import { Ocean, Config } from "@dataxfi/datax.js";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import React, {createContext, PropsWithChildren, useEffect, useState} from "react";
 import Core from "web3modal";
 
 const initialState: any = {}
+const CONNECT_TEXT = "Connect Wallet"
 
 export const GlobalContext  = createContext(initialState)
 
@@ -18,8 +19,9 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
     const [provider, setProvider] = useState(null)
     const [web3, setWeb3] = useState<Web3 | null>(null)
     const [ocean, setOcean] = useState<any>(null)
+    const [config, setConfig] = useState<any>(null)
 
-    const [buttonText, setButtonText] = useState<string | undefined>('Connect to a wallet')
+    const [buttonText, setButtonText] = useState<string | undefined>(CONNECT_TEXT)
     
 
     useEffect(() => {
@@ -40,7 +42,7 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
 
           setWeb3Modal(web3Modal)
 
-          const provider = await web3Modal?.connect()
+          /*const provider = await web3Modal?.connect()
           setProvider(provider)
 
           // This is required to get the token list
@@ -53,6 +55,7 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
           // This is required to do wallet-specific functions
           const ocean = new Ocean(web3, '4')
           setOcean(ocean)
+          */
 
         }
     
@@ -61,31 +64,40 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
       }, [accountId, chainId, provider])
 
       async function handleConnect() {
-        web3Modal?.clearCachedProvider()
-        await web3Modal?.toggleModal()
-        setupAccountAndListeners()
-      }
+         const provider = await web3Modal?.connect()
+          setProvider(provider)
 
-    async function setupAccountAndListeners(){
-      if(web3){
-        setAccountId((await web3.eth.getAccounts())[0])
-        setButtonText(accountId ? accountId?.toString() : 'Connect to a wallet')
-        setChainId(await web3.eth.getChainId())
-        setListeners(provider)
+          // This is required to get the token list
+          const web3 = new Web3(provider)
+          setWeb3(web3)
+          let accounts = await web3.eth.getAccounts()
+          setAccountId(accounts[0])
+
+          console.log("Account Id - ", accountId)
+          setButtonText(accounts.length ? accounts[0] : CONNECT_TEXT)
+          setChainId(await web3.eth.getChainId())
+
+          setListeners(provider)
+          
+          // This is required to do wallet-specific functions
+           const ocean = new Ocean(web3, String(chainId))
+           setOcean(ocean)
+           const config =  new Config(web3, String(chainId))
+           setConfig(config)
       }
-    }
 
     async function setListeners(provider: any) {
         provider.on('accountsChanged', (accounts: any) => {
           console.log('Accounts changed to - ', accounts[0])
           console.log('Connected Accounts - ', JSON.stringify(accounts))
           setAccountId(accounts[0])
+          setButtonText(accounts.length && accounts[0] != "" ? accounts[0] : CONNECT_TEXT)
         })
     
         // Subscribe to chainId change
         provider.on('chainChanged', (chainId: any) => {
-          console.log('ChainID changed to - ', chainId)
           setChainId(chainId)
+          setConfig(new Config(web3, String(chainId)))
         })
     
         // Subscribe to provider connection
@@ -100,7 +112,7 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
         })
       }
 
-    return (<GlobalContext.Provider value={{ handleConnect, buttonText, accountId, chainId, provider, web3, ocean, network: NETWORK }} >
+    return (<GlobalContext.Provider value={{ handleConnect, buttonText, accountId, chainId, provider, web3, ocean, network: NETWORK, config}} >
         { children }
     </GlobalContext.Provider>)
 }

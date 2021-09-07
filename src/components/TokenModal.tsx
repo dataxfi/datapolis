@@ -12,7 +12,7 @@ const text = {
 
 const TokenModal = ({close, onClick, otherToken}: {close: Function, onClick: Function, otherToken?: string}) => {
 
-    const { web3 } =  useContext(GlobalContext)
+    const { web3, chainId } =  useContext(GlobalContext)
     const [response, setResponse] = useState<any>([]);
     const [tokens, setTokens] = useState<any>([]);
     const [loading, setLoading] = useState(false)
@@ -25,7 +25,7 @@ const TokenModal = ({close, onClick, otherToken}: {close: Function, onClick: Fun
             try {
                 setError(false)
                 setLoading(true)
-                const res = await tokenList.fetchDataTokenList()
+                const res = await tokenList.fetchDataTokenList(chainId ? chainId : '4')
                 setResponse(res.tokens.filter(t => t.symbol !== otherToken))
                 setTokens(res.tokens.filter(t => t.symbol !== otherToken))
                 setLoading(false)
