@@ -20,8 +20,8 @@ const Navbar = () => {
 
 
     const links = [
-        { name: text.T_SWAP, link: '/' },
-        // { name: text.T_STAKE, link: '/stake' },
+        { name: text.T_SWAP, link: '/tradeX' },
+        { name: text.T_STAKE, link: '/stakeX' },
     ]
 
     return (

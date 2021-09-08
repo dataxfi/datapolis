@@ -19,8 +19,8 @@ function App() {
     <GlobalProvider>
       <Router>
         <Navbar />
-        <Route path='/' component={Swap} />
-        {/* <Route path='/stake' component={Stake} /> */}
+        <Route path='/tradeX' component={Swap} />
+        {/* <Route path='/stakeX' component={Stake} /> */}
         {/* <Snackbar text="Approve LINK" onClose={() => {}} /> */}
         {/* <CreatePoolModal /> */}
         {/* <ConfirmModal /> */}
