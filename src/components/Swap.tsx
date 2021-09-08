@@ -19,7 +19,7 @@ const INITIAL_TOKEN_STATE = {info: null, value: '', balance: ''}
 
 const Swap = () => {
 
-    const { handleConnect, buttonText, accountId, ocean } =  useContext(GlobalContext)
+    const { handleConnect, accountId, ocean } =  useContext(GlobalContext)
     const [showSettings, setShowSettings] = useState(false)
     const [show, setShow] = useState(false)
     const [showConfirmLoader, setShowConfirmLoader] = useState(false)

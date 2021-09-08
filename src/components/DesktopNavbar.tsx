@@ -1,6 +1,6 @@
-import React, {useContext, useEffect, useState} from 'react'
+import React, {useContext} from 'react'
 import { Link } from 'react-router-dom'
-import { Config } from '@dataxfi/datax.js'
+// import { Config } from '@dataxfi/datax.js'
 import {ReactComponent as Logo} from '../assets/logo.svg';
 import Button from './Button'
 import {GlobalContext} from '../context/GlobalState'
