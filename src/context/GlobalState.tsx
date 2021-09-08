@@ -23,47 +23,49 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
     
 
     useEffect(() => {
-        async function init() {
-          const web3Modal = new Web3Modal({
-            // network: 'ropsten', // optional
-            cacheProvider: false, // optional
-            theme: 'dark',
-            providerOptions: {
-                walletconnect: {
-                    package: WalletConnectProvider, // required
-                    options: {
-                    infuraId: process.env.REACT_APP_INFURA_ID // required
-                    }
-                },
-            }, // required
-          })
-
-          setWeb3Modal(web3Modal)
-
-          const provider = await web3Modal?.connect()
-          setProvider(provider)
-
-          // This is required to get the token list
-          const web3 = new Web3(provider)
-          setWeb3(web3)
-
-          web3Modal.clearCachedProvider()
-          setupAccountAndListeners()
-
-          // This is required to do wallet-specific functions
-          const ocean = new Ocean(web3, '4')
-          setOcean(ocean)
-
+        function init() {
+            const web3Modal = new Web3Modal({
+              // network: 'ropsten', // optional
+              cacheProvider: false, // optional
+              theme: 'dark',
+              providerOptions: {
+                  walletconnect: {
+                      package: WalletConnectProvider, // required
+                      options: {
+                      infuraId: process.env.REACT_APP_INFURA_ID // required
+                      }
+                  },
+              }, // required
+            })
+  
+            setWeb3Modal(web3Modal)
         }
     
         init()
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [accountId, chainId, provider])
+      }, [])
+
+      async function setupWeb3AndOcean(){
+        const provider = await web3Modal?.connect()
+        setProvider(provider)
+
+        // This is required to get the token list
+        const web3 = new Web3(provider)
+        setWeb3(web3)
+
+        web3Modal?.clearCachedProvider()
+        setupAccountAndListeners()
+
+        // This is required to do wallet-specific functions
+        const ocean = new Ocean(web3, '4')
+        setOcean(ocean)
+      }
 
       async function handleConnect() {
-        web3Modal?.clearCachedProvider()
-        await web3Modal?.toggleModal()
-        setupAccountAndListeners()
+        await setupWeb3AndOcean()
+        // web3Modal?.clearCachedProvider()
+        // await web3Modal?.toggleModal()
+        // setupAccountAndListeners()
       }
 
     async function setupAccountAndListeners(){

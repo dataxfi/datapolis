@@ -35,8 +35,8 @@ const ConfirmSwapModal = ({confirm, show, close, token1, token2, postExchange, s
         return null
     }
     else return (
-        <div className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-sm w-full z-30 shadow ${show ? 'block':'hidden'}`}>
-            <div className="p-4 bg-primary-900 rounded-lg hm-box">
+        <div className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 sm:max-w-sm w-full z-30 shadow ${show ? 'block':'hidden'}`}>
+            <div className="p-4 bg-primary-900 rounded-lg hm-box mx-3">
                 <div className="flex justify-between items-center">
                     <p className="text-type-300 text-xl">Confirm swap</p>
                     <BsX onClick={() => close()} role="button" size={28} />

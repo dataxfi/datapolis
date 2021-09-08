@@ -7,7 +7,7 @@ import Button from './Button'
 
 const MobileNavbar = ({links, text, wallet}: {links: Array<any>, text: Record<any, any>, wallet: string}) => {
     
-    const {buttonText, handleConnect} = useContext(GlobalContext)
+    const {handleConnect, accountId} = useContext(GlobalContext)
     const [menuVisible, setMenuVisible] = useState(false)
 
     function toggleMenu(state: boolean){
@@ -32,7 +32,10 @@ const MobileNavbar = ({links, text, wallet}: {links: Array<any>, text: Record<an
                 }
             </div>
         <div className="fixed bottom-0 left-0 w-full py-2 md:hidden flex justify-center bg-background">
-            <Button text={buttonText} onClick={() => handleConnect()} classes="hm-btn hm-btn-light" />
+            {
+                accountId ? <Button text="Wallet connected" onClick={() => handleConnect()} classes="hm-btn text-xs" /> :  
+                <></>
+            }
             {/* <Button text={wallet} classes="hm-btn hm-btn-light" onClick={() => connectToWallet()}></Button> */}
         </div>
         {menuVisible ? <div className="fixed w-full top-20 left-0 bg-primary-900 px-8">

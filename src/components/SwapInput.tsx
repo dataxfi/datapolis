@@ -3,15 +3,26 @@ import { BsChevronDown } from 'react-icons/bs'
 import TokenModal from './TokenModal';
 import { DebounceInput } from 'react-debounce-input';
 import PulseLoader from 'react-spinners/PulseLoader'
+import { useContext } from 'react';
+import { GlobalContext } from '../context/GlobalState';
 
 
 const SwapInput = ({title, value, pos, setToken, num, updateNum, balance, loading, otherToken}: {title: string, value: Record<any, any> | null, pos: number, setToken: Function, num: number, updateNum: Function, balance: number, loading: boolean, otherToken: string}) => {
 
     const [showModal, setShowModal] = useState(false);
+    const {accountId, handleConnect} = useContext(GlobalContext)
 
     const tokenSelected = (token: Record<any, any>) => {
         setToken(token, pos)
         setShowModal(false)
+    }
+
+    function connectWalletOrShowlist(){
+        if(accountId){
+            setShowModal(true)
+        } else {
+            handleConnect()
+        }
     }
 
     return (
@@ -23,7 +34,7 @@ const SwapInput = ({title, value, pos, setToken, num, updateNum, balance, loadin
                     <img src={value.logoURI} className="w-14 h-14 rounded-md" alt="" /> :
                     <div className="w-14 h-14 rounded-md bg-background"></div>
                 }
-                <div role="button" tabIndex={0} onClick={() => {setShowModal(true)}}>
+                <div role="button" tabIndex={0} onClick={() => {connectWalletOrShowlist()}}>
                     {/* <button> */}
                         <p className="text-xs text-type-200">{title}</p>
                         { value ? 

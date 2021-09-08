@@ -55,8 +55,8 @@ const TokenModal = ({close, onClick, otherToken}: {close: Function, onClick: Fun
     }
 
     return (
-        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-md w-full z-20">
-                <div className="p-4 bg-background border-primary-500 border w-full rounded-lg hm-box">
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 w-full sm:max-w-sm">
+                <div className="p-4 bg-background border-primary-500 border rounded-lg hm-box mx-3">
                     <div className="flex justify-between items-center">
                         <p className="mb-0 text-type-100 text-2xl">{text.T_SELECT_TOKEN}</p>
                         <MdClose role="button" onClick={() => {close()}} className="text-type-100 text-2xl" />
