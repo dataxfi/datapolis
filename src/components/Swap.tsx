@@ -68,6 +68,7 @@ const Swap = () => {
         }
     }
 
+    // This is easily testable, if we someone writes tests for this in the future, it'll be great
     async function calculateExchange(fromToken1: boolean, amount:number){
       
         if(token1.info.symbol === 'OCEAN'){
@@ -80,7 +81,7 @@ const Swap = () => {
   
         if(token2.info.symbol === 'OCEAN'){
           if(fromToken1){
-            return await ocean.getOceanReceived(token2.info.pool, amount)
+            return await ocean.getOceanReceived(token1.info.pool, amount)
           } else {
             return await ocean.getDtNeeded(token1.info.pool, amount)
           }
@@ -103,12 +104,15 @@ const Swap = () => {
         try {
             if(token1?.info.symbol === 'OCEAN'){
                 if(exactToken === 1){
+                    console.log('exact ocean to dt')
+                    console.log(accountId, token2.info.pool.toString(), token2.value.toString(), token1.value.toString())
                     txReceipt = await ocean.swapExactOceanToDt(accountId, token2.info.pool.toString(), token2.value.toString(), token1.value.toString())
                 } else {
                     console.log('ocean to exact dt')
+                    console.log(accountId, token2.info.pool, token2.value.toString(), token1.value.toString())
                     txReceipt = await ocean.swapOceanToExactDt(accountId, token2.info.pool, token2.value.toString(), token1.value.toString())
                 }
-            } 
+            }
             else if(token2.info.symbol === 'OCEAN'){
                 if(exactToken === 1){
                     console.log('exact dt to ocean')
@@ -116,13 +120,17 @@ const Swap = () => {
                 } else {
                     // Error: Throws not enough datatokens
                     console.log('dt to exact ocean')
+                    console.log(accountId, token1.info.pool, token2.value.toString(), token1.value.toString())
                     txReceipt = await ocean.swapDtToExactOcean(accountId, token1.info.pool, token2.value.toString(), token1.value.toString())
                 }
             } else {
                 if(exactToken === 1){
+                    console.log('exact dt to dt')
+                    console.log(accountId, token1.info.address, token2.info.address, token2.value.toString(), token1.value.toString(), token1.info.pool, token2.info.pool, null, (Number(slippage)/100).toString())
                     txReceipt = await ocean.swapExactDtToDt(accountId, token1.info.address, token2.info.address, token2.value.toString(), token1.value.toString(), token1.info.pool, token2.info.pool, null, (Number(slippage)/100).toString())
-                } else {                  
+                } else {
                     console.log('dt to exact dt')
+                    console.log(accountId, token1.info.address, token2.info.address, token2.value.toString(), token1.value.toString(), token1.info.pool, token2.info.pool, null, (Number(slippage)/100).toString())
                     txReceipt = await ocean.swapDtToExactDt(accountId, token1.info.address, token2.info.address, token2.value.toString(), token1.value.toString(), token1.info.pool, token2.info.pool, null, (Number(slippage)/100).toString())
                 }
             }
