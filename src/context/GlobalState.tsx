@@ -15,7 +15,7 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
     // const [state, dispatch]: [any, Function] = useReducer(AppReducer, initialState)
     const [web3Modal, setWeb3Modal] = useState<Core | null>(null)
     const [accountId, setAccountId] = useState<string | null>(null)
-    const [chainId, setChainId] = useState<number | null>(null)
+    const [chainId, setChainId] = useState<number | undefined>(undefined)
     const [provider, setProvider] = useState(null)
     const [web3, setWeb3] = useState<Web3 | null>(null)
     const [ocean, setOcean] = useState<any>(null)
@@ -27,8 +27,8 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
     useEffect(() => {
         async function init() {
           const web3Modal = new Web3Modal({
-            // network: 'ropsten', // optional
-            cacheProvider: false, // optional
+            network: 'mainnet', // optional
+            cacheProvider: true, // optional
             theme: 'dark',
             providerOptions: {
                 walletconnect: {
@@ -61,7 +61,7 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
     
         init()
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [])
+      }, [web3, chainId])
 
       // async function setupWeb3AndOcean(){
       //   const provider = await web3Modal?.connect()
@@ -84,13 +84,14 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
 
           console.log("Account Id - ", accountId)
           setButtonText(accounts.length ? accounts[0] : CONNECT_TEXT)
-          setChainId(await web3.eth.getChainId())
+          setChainId(parseInt(String(await web3.eth.getChainId())))
 
           setListeners(provider)
           
           // This is required to do wallet-specific functions
           const ocean = new Ocean(web3, String(chainId))
           setOcean(ocean)
+          console.log("chainID - ", chainId)
           const config =  new Config(web3, String(chainId))
           setConfig(config)
       }
@@ -105,8 +106,9 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
     
         // Subscribe to chainId change
         provider.on('chainChanged', (chainId: any) => {
-          setChainId(chainId)
-          setConfig(new Config(web3, String(chainId)))
+          console.log(chainId)
+          console.log("Chain changed to ", parseInt(chainId))
+          setChainId(parseInt(chainId))
         })
     
         // Subscribe to provider connection

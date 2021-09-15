@@ -19,11 +19,12 @@ const INITIAL_TOKEN_STATE = {info: null, value: '', balance: '', percentage: ''}
 
 const Swap = () => {
 
-    const { handleConnect, accountId, ocean, chainId } =  useContext(GlobalContext)
+    const { handleConnect, accountId, ocean, chainId, config } =  useContext(GlobalContext)
     const [showSettings, setShowSettings] = useState(false)
     const [show, setShow] = useState(false)
     const [showConfirmLoader, setShowConfirmLoader] = useState(false)
     const [showTxDone, setShowTxDone] = useState(false)
+    const [recentTxHash, setRecentTxHash] = useState("")
     const [token1, setToken1] = useState<any>(INITIAL_TOKEN_STATE)
     const [token2, setToken2] = useState<any>(INITIAL_TOKEN_STATE)
     const [exactToken, setExactToken] = useState<number>(1)
@@ -121,6 +122,7 @@ const Swap = () => {
     // This is easily testable, if we someone writes tests for this in the future, it'll be great
     async function calculateExchange(fromToken1: boolean, amount:number){
       
+        console.log(ocean.config)
         if(token1.info.symbol === 'OCEAN'){
           if(fromToken1){
             return await ocean.getDtReceived(token2.info.pool, amount)
@@ -156,37 +158,38 @@ const Swap = () => {
                 if(exactToken === 1){
                     console.log('exact ocean to dt')
                     console.log(accountId, token2.info.pool.toString(), token2.value.toString(), token1.value.toString())
-                    txReceipt = await ocean.swapExactOceanToDt(accountId, token2.info.pool.toString(), token2.value.toString(), token1.value.toString())
+                    txReceipt = await ocean.swapExactOceanToDt(accountId, token2.info.pool.toString(), token2.value.toString(), token1.value.toString(), (Number(slippage)/100).toString())
                 } else {
                     console.log('ocean to exact dt')
                     console.log(accountId, token2.info.pool, token2.value.toString(), token1.value.toString())
-                    txReceipt = await ocean.swapOceanToExactDt(accountId, token2.info.pool, token2.value.toString(), token1.value.toString())
+                    txReceipt = await ocean.swapOceanToExactDt(accountId, token2.info.pool, token2.value.toString(), token1.value.toString(), (Number(slippage)/100).toString())
                 }
             }
             else if(token2.info.symbol === 'OCEAN'){
                 if(exactToken === 1){
                     console.log('exact dt to ocean')
-                    txReceipt = await ocean.swapExactDtToOcean(accountId, token1.info.pool, token1.value.toString(), token2.value.toString())
+                    txReceipt = await ocean.swapExactDtToOcean(accountId, token1.info.pool, token2.value.toString(), token1.value.toString(), (Number(slippage)/100).toString())
                 } else {
                     // Error: Throws not enough datatokens
                     console.log('dt to exact ocean')
                     console.log(accountId, token1.info.pool, token2.value.toString(), token1.value.toString())
-                    txReceipt = await ocean.swapDtToExactOcean(accountId, token1.info.pool, token2.value.toString(), token1.value.toString())
+                    txReceipt = await ocean.swapDtToExactOcean(accountId, token1.info.pool, token2.value.toString(), token1.value.toString(), (Number(slippage)/100).toString())
                 }
             } else {
                 if(exactToken === 1){
                     console.log('exact dt to dt')
-                    console.log(accountId, token1.info.address, token2.info.address, token2.value.toString(), token1.value.toString(), token1.info.pool, token2.info.pool, null, (Number(slippage)/100).toString())
-                    txReceipt = await ocean.swapExactDtToDt(accountId, token1.info.address, token2.info.address, token2.value.toString(), token1.value.toString(), token1.info.pool, token2.info.pool, null, (Number(slippage)/100).toString())
+                    console.log(accountId, token1.info.address, token2.info.address, token2.value.toString(), token1.value.toString(), token1.info.pool, token2.info.pool, config.custom[chainId].routerAddress, (Number(slippage)/100).toString())
+                    txReceipt = await ocean.swapExactDtToDt(accountId, token1.info.address, token2.info.address, token2.value.toString(), token1.value.toString(), token1.info.pool, token2.info.pool, config.custom[chainId].routerAddress, (Number(slippage)/100).toString())
                 } else {
                     console.log('dt to exact dt')
-                    console.log(accountId, token1.info.address, token2.info.address, token2.value.toString(), token1.value.toString(), token1.info.pool, token2.info.pool, null, (Number(slippage)/100).toString())
-                    txReceipt = await ocean.swapDtToExactDt(accountId, token1.info.address, token2.info.address, token2.value.toString(), token1.value.toString(), token1.info.pool, token2.info.pool, null, (Number(slippage)/100).toString())
+                    console.log(accountId, token1.info.address, token2.info.address, token2.value.toString(), token1.value.toString(), token1.info.pool, token2.info.pool, config.custom[chainId].routerAddress, (Number(slippage)/100).toString())
+                    txReceipt = await ocean.swapDtToExactDt(accountId, token1.info.address, token2.info.address, token2.value.toString(), token1.value.toString(), token1.info.pool, token2.info.pool, config.custom[chainId].routerAddress, (Number(slippage)/100).toString())
                 }
             }
             if(txReceipt){
                 setShowConfirmLoader(false)
                 setShowTxDone(true)
+                setRecentTxHash(config.default.explorerUri + "/tx/" + txReceipt.transactionHash)
                 setToken1(INITIAL_TOKEN_STATE)
                 setToken2(INITIAL_TOKEN_STATE)
                 setPostExchange(null)
@@ -276,6 +279,7 @@ const Swap = () => {
                         </div> : <></>                    
                     }
                     {
+                        exactToken === 1 ? (
                         accountId && token1.info && token2.info && token1.value && token2.value && token1.balance && Number(token1.balance) >= Number(token1.value)  ?
                         <div className="mt-4">
                             <Button disabled={show || showConfirmLoader} onClick={() => setShow(true)} text="Swap" classes="px-4 py-4 rounded-lg bg-primary-100 bg-opacity-20 hover:bg-opacity-40 w-full text-background-800 disabled:opacity-50" />
@@ -284,6 +288,16 @@ const Swap = () => {
                         <div className="mt-4">
                             <Button onClick={() => setShow(true)} text="Insufficient balance" disabled={true} classes="px-4 py-4 rounded-lg bg-gray-800 w-full text-gray-400 cursor-not-allowed" />
                          </div> : <></>
+                        ) : (
+                            accountId && token1.info && token2.info && token1.value && token2.value && token1.balance && Number(token2.balance) >= Number(token2.value)  ?
+                        <div className="mt-4">
+                            <Button onClick={() => setShow(true)} text="Swap" classes="px-4 py-4 rounded-lg bg-primary-100 bg-opacity-20 hover:bg-opacity-40 w-full text-background-800" />
+                        </div>
+                        : accountId && (token1.value || token2.value) && !(token1.loading || token2.loading!) ? 
+                        <div className="mt-4">
+                            <Button onClick={() => setShow(true)} text="Insufficient balance" disabled={true} classes="px-4 py-4 rounded-lg bg-gray-800 w-full text-gray-400 cursor-not-allowed" />
+                         </div> : <></>
+                        )
                     }
 
                 </div>
@@ -291,7 +305,7 @@ const Swap = () => {
             
             <ConfirmSwapModal close={() => setShow(false)} confirm={() => makeTheSwap()} show={show} token1={token1} token2={token2} postExchange={postExchange} slippage={slippage} />
             <ConfirmModal show={showConfirmLoader} close={() => setShowConfirmLoader(false)} token1={token1} token2={token2} />
-            <TransactionDoneModal show={showTxDone} close={() => setShowTxDone(false)} />
+            <TransactionDoneModal show={showTxDone} txHash={recentTxHash} close={() => setShowTxDone(false)} />
         </>
     )
 }

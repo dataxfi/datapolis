@@ -1,7 +1,9 @@
 import React from 'react'
 import { BsCheckCircle, BsX } from 'react-icons/bs'
 
-const TransactionDoneModal = ({show, close}: {show: boolean, close: Function}) => {
+
+
+const TransactionDoneModal = ({show, txHash, close}: {show: boolean, txHash: string, close: Function}) => {
     if(!show) return null
     return (
         <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 sm:max-w-sm w-full z-20 shadow">
@@ -18,7 +20,7 @@ const TransactionDoneModal = ({show, close}: {show: boolean, close: Function}) =
                         Transaction submitted
                     </p>
                     <p className="text-blue-400 text-center mt-1">
-                        View on explorer
+                        <a target="_blank" href={txHash}>View on explorer</a>
                     </p>
                 </div>
             </div>
