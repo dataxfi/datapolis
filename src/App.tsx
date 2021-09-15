@@ -24,7 +24,7 @@ function App() {
         {/* <Snackbar text="Approve LINK" onClose={() => {}} /> */}
         {/* <CreatePoolModal /> */}
         {/* <ConfirmModal /> */}
-        {/* <TransactionDoneModal /> */}
+        {/* <TransactionDoneModal show={true} close={() => {}} /> */}
         {/* <LiquidityPosition /> */}
         {/* <ConfirmSwapModal /> */}
       </Router>

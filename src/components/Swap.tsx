@@ -1,7 +1,7 @@
 import SwapInput from "./SwapInput"
 import { IoSwapVertical } from "react-icons/io5"
 import {MdTune} from 'react-icons/md'
-import { useState, useContext } from "react"
+import { useState, useContext, useEffect } from "react"
 import {GlobalContext} from '../context/GlobalState'
 import Button from "./Button"
 import OutsideClickHandler from 'react-outside-click-handler'
@@ -15,11 +15,11 @@ const text = {
     T_SWAP_TO: 'You are buying'
 }
 
-const INITIAL_TOKEN_STATE = {info: null, value: '', balance: ''}
+const INITIAL_TOKEN_STATE = {info: null, value: '', balance: '', percentage: ''}
 
 const Swap = () => {
 
-    const { handleConnect, accountId, ocean } =  useContext(GlobalContext)
+    const { handleConnect, accountId, ocean, chainId } =  useContext(GlobalContext)
     const [showSettings, setShowSettings] = useState(false)
     const [show, setShow] = useState(false)
     const [showConfirmLoader, setShowConfirmLoader] = useState(false)
@@ -29,6 +29,54 @@ const Swap = () => {
     const [exactToken, setExactToken] = useState<number>(1)
     const [postExchange, setPostExchange] = useState<any>(null)
     const [slippage, setSlippage] = useState<number | string>(1);
+    const [switched, setSwitched] = useState<Boolean>(false);
+
+    useEffect(() => {
+        setToken1(INITIAL_TOKEN_STATE)
+        setToken2(INITIAL_TOKEN_STATE)
+    }, [chainId]);
+
+    useEffect(() => {
+        if(switched){
+            updateOtherTokenValue(true, token1.value)
+            setSwitched(false)
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [switched]);
+
+    function updateValueFromPercentage(fromToken1: Boolean, value: string){
+        let perc = parseFloat(value)
+        if(Number.isNaN(perc)){
+            if(fromToken1){
+                setToken1({...token1, percentage: ''})
+            } else {
+                setToken2({...token2, percentage: ''})
+            }
+        } else if(perc > 100) {
+            if(fromToken1){
+                setToken1({...token1, percentage: '100', value: '100'})
+                setToken2({...token2, percentage: ''})
+                updateOtherTokenValue(true, 100)
+            } else {
+                setToken2({...token2, percentage: '100', value: '100'})
+                setToken1({...token1, percentage: ''})
+                updateOtherTokenValue(false, 100)
+            }
+        } else {
+            if(fromToken1){
+                const value = token1.balance * (perc/100)
+                setToken1({...token1, percentage: String(perc), value })
+                setToken2({...token2, percentage: ''})
+                updateOtherTokenValue(true, value)
+            } else {
+                const value = token2.balance * (perc/100)
+                setToken2({...token2, percentage: String(perc), value})
+                setToken1({...token1, percentage: ''})     
+                updateOtherTokenValue(false, value)           
+            }
+        }
+    }
+
 
 
     const setToken = async (info: Record<any, any>, pos: number) => {
@@ -43,9 +91,11 @@ const Swap = () => {
     }
 
     function swapTokens() {
-        setToken1(token2)
-        setToken2(token1)
-        calculateExchange(true, token1.value)
+        if(!token1.loading && !token2.loading){
+            setToken1(token2)
+            setToken2(token1)
+            setSwitched(true)
+        }
     }
 
     async function updateOtherTokenValue(fromToken1: boolean, inputAmount: number) {
@@ -189,13 +239,13 @@ const Swap = () => {
                         }
 
                     </div>
-                    <SwapInput otherToken={token2.info ? token2.info.symbol : ''} num={token1.value} value={token1.info} balance={token1.balance} title={text.T_SWAP_FROM} pos={1} setToken={setToken} updateNum={(value: number) => { setToken1({...token1, value}); updateOtherTokenValue(true, value) } } loading={token1.loading} />
+                    <SwapInput perc={token1.percentage} onPerc={(val: string) => updateValueFromPercentage(true, val)} otherToken={token2.info ? token2.info.symbol : ''} num={token1.value} value={token1.info} balance={token1.balance} title={text.T_SWAP_FROM} pos={1} setToken={setToken} updateNum={(value: number) => { setToken1({...token1, value}); updateOtherTokenValue(true, value) } } loading={token1.loading} />
                     <div className="px-4 relative my-12">
                         <div onClick={() => {swapTokens()}} role="button" tabIndex={0} className="rounded-full border-black border-4 absolute -top-14 bg-primary-800 w-16 h-16 flex items-center justify-center">
                             <IoSwapVertical size="30" className="text-gray-300" />
                         </div>
                     </div>
-                    <SwapInput otherToken={token1.info ? token1.info.symbol : ''} num={token2.value} value={token2.info} balance={token2.balance} title={text.T_SWAP_TO} pos={2} setToken={setToken} updateNum={(value: number) => { setToken2({...token2, value}); updateOtherTokenValue(false, value) }} loading={token2.loading}  />
+                    <SwapInput perc={token2.percentage} onPerc={(val: string) => updateValueFromPercentage(false, val)} otherToken={token1.info ? token1.info.symbol : ''} num={token2.value} value={token2.info} balance={token2.balance} title={text.T_SWAP_TO} pos={2} setToken={setToken} updateNum={(value: number) => { setToken2({...token2, value}); updateOtherTokenValue(false, value) }} loading={token2.loading}  />
 
                     {
                         token1.info && token2.info && !Number.isNaN(postExchange) && Number(postExchange) !== 0 ?
@@ -228,7 +278,7 @@ const Swap = () => {
                     {
                         accountId && token1.info && token2.info && token1.value && token2.value && token1.balance && Number(token1.balance) >= Number(token1.value)  ?
                         <div className="mt-4">
-                            <Button onClick={() => setShow(true)} text="Swap" classes="px-4 py-4 rounded-lg bg-primary-100 bg-opacity-20 hover:bg-opacity-40 w-full text-background-800" />
+                            <Button disabled={show || showConfirmLoader} onClick={() => setShow(true)} text="Swap" classes="px-4 py-4 rounded-lg bg-primary-100 bg-opacity-20 hover:bg-opacity-40 w-full text-background-800 disabled:opacity-50" />
                         </div>
                         : accountId && (token1.value || token2.value) && !(token1.loading || token2.loading!) ? 
                         <div className="mt-4">

@@ -5,9 +5,10 @@ import { DebounceInput } from 'react-debounce-input';
 import PulseLoader from 'react-spinners/PulseLoader'
 import { useContext } from 'react';
 import { GlobalContext } from '../context/GlobalState';
+import Button from './Button';
 
 
-const SwapInput = ({title, value, pos, setToken, num, updateNum, balance, loading, otherToken}: {title: string, value: Record<any, any> | null, pos: number, setToken: Function, num: number, updateNum: Function, balance: number, loading: boolean, otherToken: string}) => {
+const SwapInput = ({title, value, pos, setToken, num, updateNum, balance, loading, otherToken, onPerc, perc}: {title: string, value: Record<any, any> | null, pos: number, setToken: Function, num: number, updateNum: Function, balance: number, loading: boolean, otherToken: string, onPerc: Function, perc: string}) => {
 
     const [showModal, setShowModal] = useState(false);
     const {accountId, handleConnect} = useContext(GlobalContext)
@@ -69,7 +70,12 @@ const SwapInput = ({title, value, pos, setToken, num, updateNum, balance, loadin
                                 <div className="text-center">
                                     <PulseLoader color="white" size="4px" margin="5px" /> 
                                 </div>
-                                : <></>
+                                : 
+                                balance ?
+                                <div className="text-sm text-type-300 grid grid-flow-col justify-end gap-2">
+                                    <Button onClick={() => {updateNum(balance)}} text="Max" classes="px-2 py-0 border border-type-300 rounded-full text-xs" />
+                                    <input value={perc} type="number" onChange={(e) => {onPerc(e.target.value)}} className="text-xs text-type-200 placeholder-gray-500 bg-primary-700 py-1 rounded px-1 w-12 outline-none" placeholder="%" />
+                                </div> : <></>
                             }
 
                         </div>
