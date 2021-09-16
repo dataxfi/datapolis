@@ -20,7 +20,7 @@ const TransactionDoneModal = ({show, txHash, close}: {show: boolean, txHash: str
                         Transaction submitted
                     </p>
                     <p className="text-blue-400 text-center mt-1">
-                        <a target="_blank" href={txHash}>View on explorer</a>
+                        <a target="_blank" rel="noreferrer" href={txHash}>View on explorer</a>
                     </p>
                 </div>
             </div>

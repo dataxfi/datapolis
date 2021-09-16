@@ -73,7 +73,7 @@ const SwapInput = ({title, value, pos, setToken, num, updateNum, balance, loadin
                                 : 
                                 balance ?
                                 <div className="text-sm text-type-300 grid grid-flow-col justify-end gap-2">
-                                    <Button onClick={() => {updateNum(balance)}} text="Max" classes="px-2 py-0 border border-type-300 rounded-full text-xs" />
+                                    <Button onClick={() => {onPerc(100)}} text="Max" classes="px-2 py-0 border border-type-300 rounded-full text-xs" />
                                     <input value={perc} type="number" onChange={(e) => {onPerc(e.target.value)}} className="text-xs text-type-200 placeholder-gray-500 bg-primary-700 py-1 rounded px-1 w-12 outline-none" placeholder="%" />
                                 </div> : <></>
                             }

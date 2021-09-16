@@ -55,24 +55,24 @@ const Swap = () => {
             }
         } else if(perc > 100) {
             if(fromToken1){
-                setToken1({...token1, percentage: '100', value: '100'})
-                setToken2({...token2, percentage: ''})
+                setToken1({...token1, percentage: '100', value: token1.balance})
+                // setToken2({...token2, percentage: ''})
                 updateOtherTokenValue(true, 100)
             } else {
-                setToken2({...token2, percentage: '100', value: '100'})
-                setToken1({...token1, percentage: ''})
+                setToken2({...token2, percentage: '100', value: token2.balance})
+                // setToken1({...token1, percentage: ''})
                 updateOtherTokenValue(false, 100)
             }
         } else {
             if(fromToken1){
                 const value = token1.balance * (perc/100)
                 setToken1({...token1, percentage: String(perc), value })
-                setToken2({...token2, percentage: ''})
+                // setToken2({...token2, percentage: ''})
                 updateOtherTokenValue(true, value)
             } else {
                 const value = token2.balance * (perc/100)
                 setToken2({...token2, percentage: String(perc), value})
-                setToken1({...token1, percentage: ''})     
+                // setToken1({...token1, percentage: ''})     
                 updateOtherTokenValue(false, value)           
             }
         }
@@ -106,14 +106,14 @@ const Swap = () => {
             let exchange = await calculateExchange(fromToken1, inputAmount)
             exchange = Number(Number(exchange).toFixed(6))
             setPostExchange((exchange/inputAmount))
-            setToken2({...token2, value: exchange, loading: false})
+            setToken2({...token2, value: exchange, loading: false, percentage: ''})
             setExactToken(1)
           } else {
             setToken1({...token1, loading: true})
             let exchange = await calculateExchange(fromToken1, inputAmount)
             exchange = Number(Number(exchange || 0).toFixed(6))
             setPostExchange((inputAmount/exchange) || 0)
-            setToken1({...token1, value: exchange, loading: false})
+            setToken1({...token1, value: exchange, loading: false, percentage: ''})
             setExactToken(2)
           }
         }
