@@ -66,7 +66,7 @@ const TokenModal = ({close, onClick, otherToken}: {close: Function, onClick: Fun
                     </div>
                     { loading ? <div className="flex justify-center my-4"><HashLoader size={28} color="white" loading={loading} /></div> : 
                               error ? <div className="text-white text-center my-4">There was an error loading the tokens</div>  :   
-                              <div className="mt-4 hm-hide-scrollbar" style={{maxHeight: '60vh'}}>
+                              <div className="mt-4 hm-hide-scrollbar overflow-y-scroll" style={{maxHeight: '60vh'}}>
                                   <ReactList itemRenderer={tokenRenderer} length={tokens.length} type="simple" />
                               </div>           
                     }
