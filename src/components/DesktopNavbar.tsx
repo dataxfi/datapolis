@@ -35,7 +35,7 @@ const DesktopNavbar = ({
         })}
       </div>
       <div className="grid grid-flow-col gap-4 items-center">
-        <div className="hidden md:block capitalize border border-type-400 text-type-200 rounded-md px-4 py-1 hm-box ">
+        <div className="hidden md:block capitalize border border-type-500 text-type-200 rounded-md px-4 py-1 hm-box ">
           <h3>{config ? config.getNetwork(String(chainId)) : "⚠ Unknown"}</h3>
         </div>
         <div className="hidden md:block">
@@ -48,7 +48,7 @@ const DesktopNavbar = ({
                 : buttonText
             }
             onClick={() => handleConnect()}
-            classes="hm-btn hm-btn-light hm-box border border-type-400"
+            classes="hm-btn hm-btn-light hm-box border border-type-500"
           />
         </div>
       </div>
