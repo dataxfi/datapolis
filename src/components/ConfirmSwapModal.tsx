@@ -63,13 +63,14 @@ const ConfirmSwapModal = ({confirm, show, close, token1, token2, postExchange, s
                     <ConfirmSwapListItem name="Minimum received" value={minReceived.toFixed(6)} />
                     {/* <ConfirmSwapListItem name="Price impact" value="-0.62%" valueClass="text-green-500" /> */}
                     <ConfirmSwapListItem name="Swap fee" value={swapFee.toString() + " " + token1.info.symbol} />
+                    <ConfirmSwapListItem name="TradeX fee" value="0" />
                     {/* <ConfirmSwapListItem name="DataX fee" value="0.000000006 ETH" /> */}
                     <ConfirmSwapListItem name="Slippage tolerance" value={slippage + "%"} />
                 </div>
 
                 <div className="mt-4">
                     <p className="text-type-300 text-sm">
-                        Output is estimated. You will receive at least {minReceived.toFixed(6)} {token2.info.symbol} or the transaction will revert
+                        You will receive at least {minReceived.toFixed(6)} {token2.info.symbol} or the transaction will revert
                     </p>
                 </div>
 

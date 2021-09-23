@@ -18,7 +18,7 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
     const [chainId, setChainId] = useState<number | undefined>(undefined)
     const [provider, setProvider] = useState(null)
     const [web3, setWeb3] = useState<Web3 | null>(null)
-    const [ocean, setOcean] = useState<any>(null)
+    const [ocean, setOcean] = useState<Ocean | null>(null)
     const [config, setConfig] = useState<any>(null)
 
     const [buttonText, setButtonText] = useState<string | undefined>(CONNECT_TEXT)
@@ -42,21 +42,6 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
 
           setWeb3Modal(web3Modal)
 
-          /*const provider = await web3Modal?.connect()
-          setProvider(provider)
-
-          // This is required to get the token list
-          const web3 = new Web3(provider)
-          setWeb3(web3)
-
-          web3Modal.clearCachedProvider()
-          setupAccountAndListeners()
-
-          // This is required to do wallet-specific functions
-          const ocean = new Ocean(web3, '4')
-          setOcean(ocean)
-          */
-
         }
     
         init()
@@ -78,25 +63,31 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
 
           // This is required to get the token list
           const web3 = new Web3(provider)
+          console.log("Web3")
+          console.log(web3)
           setWeb3(web3)
           let accounts = await web3.eth.getAccounts()
+          console.log("Pre Account Id - ", accounts[0])
           setAccountId(accounts[0])
 
           console.log("Account Id - ", accountId)
           setButtonText(accounts.length ? accounts[0] : CONNECT_TEXT)
-          setChainId(parseInt(String(await web3.eth.getChainId())))
+          let _chainId = parseInt(String(await web3.eth.getChainId()))
+          setChainId(_chainId)
 
-          setListeners(provider)
+
+          setListeners(provider, web3)
           
           // This is required to do wallet-specific functions
-          const ocean = new Ocean(web3, String(chainId))
+          const ocean = new Ocean(web3, String(_chainId))
           setOcean(ocean)
           console.log("chainID - ", chainId)
-          const config =  new Config(web3, String(chainId))
+          console.log("Pre chainID - ", _chainId)
+          const config =  new Config(web3, String(_chainId))
           setConfig(config)
       }
 
-    async function setListeners(provider: any) {
+    async function setListeners(provider: any, web3: Web3) {
         provider.on('accountsChanged', (accounts: any) => {
           console.log('Accounts changed to - ', accounts[0])
           console.log('Connected Accounts - ', JSON.stringify(accounts))
@@ -109,17 +100,20 @@ export const GlobalProvider = ({ children }: {children: PropsWithChildren<{}>}) 
           console.log(chainId)
           console.log("Chain changed to ", parseInt(chainId))
           setChainId(parseInt(chainId))
+          const config =  new Config(web3, String(parseInt(chainId)))
+          setConfig(config)
+          setOcean(new Ocean(web3, String(parseInt(chainId))))
         })
     
         // Subscribe to provider connection
-        provider.on('connect', (info: any) => {
+        provider.on('connect', (info: { chainId: number }) => {
           console.log('Connect event fired')
+          console.log(info)
         })
     
         // Subscribe to provider disconnection
-        provider.on('disconnect', (error: any) => {
+        provider.on('disconnect', (error: { code: number; message: string }) => {
           console.log(error)
-          alert('Error occured while disconnecting wallet')
         })
       }
 
