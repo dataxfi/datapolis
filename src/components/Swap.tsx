@@ -8,9 +8,9 @@ import OutsideClickHandler from "react-outside-click-handler"
 import ConfirmSwapModal from "./ConfirmSwapModal"
 import ConfirmModal from "./ConfirmModal"
 import TransactionDoneModal from "./TransactionDoneModal"
-import { program } from "@babel/types"
-import { get } from "https"
-import Snackbar from "./Snackbar"
+// import { program } from "@babel/types"
+// import { get } from "https"
+// import Snackbar from "./Snackbar"
 
 const ROUND_OFF = 6
 const text = {
@@ -66,7 +66,7 @@ const Swap = () => {
   useEffect(() => {
     getButtonProperties()
     //if unknown network, reset token selection
-    if (config && config.default.network == "unknown") {
+    if (config && config.default.network === "unknown") {
       setToken1(INITIAL_TOKEN_STATE)
       setToken2(INITIAL_TOKEN_STATE)
       setBtnProps({
@@ -82,11 +82,12 @@ const Swap = () => {
     if (!network) {
       setNetwork(chainId)
     }
-    if (chainId != network) {
+    if (chainId !== network) {
       setToken1(INITIAL_TOKEN_STATE)
       setToken2(INITIAL_TOKEN_STATE)
       setNetwork(chainId)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token1, token2, accountId, config, chainId])
 
   async function swapTokens() {
@@ -190,7 +191,7 @@ const Swap = () => {
 
   function isOCEAN(tokenAddress: string) {
     return (
-      tokenAddress.toLowerCase() ==
+      tokenAddress.toLowerCase() ===
       ocean.config.default.oceanTokenAddress.toLowerCase()
     )
   }
@@ -505,7 +506,7 @@ const Swap = () => {
             <Button
               text={btnProps.text}
               onClick={() => {
-                btnProps.text == "Connect Wallet"
+                btnProps.text === "Connect Wallet"
                   ? handleConnect()
                   : setShow(true)
               }}
