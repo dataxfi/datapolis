@@ -2,41 +2,38 @@ import { AiOutlinePlus } from "react-icons/ai"
 // import { useEffect, useState, useContext } from "react"
 // import {GlobalContext} from '../context/GlobalState'
 import StakeSelect from "./StakeSelect"
-import RemoveAmount from "./RemoveAmount"
-import PositionBox from "./PositionBox"
+// import RemoveAmount from "./RemoveAmount"
+// import PositionBox from "./PositionBox"
+import { useState, useContext } from "react"
+import { GlobalContext } from "../context/GlobalState"
 
 const text = {
-  T_STAKE: "Stake",
+  T_STAKE: "StakeX",
   T_SELECT_TOKEN: "Select token"
 }
 
-const Swap = () => {
-  // const { token1, token2, setToken1, setToken2, swapTokens, handleConnect, buttonText, token1Value, token2Value, setToken1Value, setToken2Value, accountId } =  useContext(GlobalContext)
-  // const [gasPrice, setGasPrice] = useState(0)
+const Stake = () => {
 
-  // useEffect(() => {
+  const {ocean} = useContext(GlobalContext)
+  const [token, setToken] = useState<any>(null);
+  const [dtToOcean, setDtToOcean] = useState<any>(null)
+  const [oceanToDt, setOceanToDt] = useState<any>(null)
+  const [loadingRate, setLoadingRate] = useState<boolean>(false)
+  const [oceanVal, setOceanVal] = useState<string>('')
 
-  //     console.log('Fetching gas prices')
+  async function updateNum(val: string) {
+    setOceanVal(val)
+  }
 
-  //     const getGasPrice = async () => {
-  //         const res = await axios.get(`https://ethgasstation.info/api/ethgasAPI.json?api-key=${process.env.REACT_ENV_DEFI_PULSE}`)
-  //         setGasPrice(parseFloat(res.data.average)/10)
-  //     }
-
-  //     getGasPrice()
-
-  // }, []);
-
-  // const setToken = (token: Record<any, any>, num: number) => {
-  //     if(num === 1){
-  //         setToken1(token)
-  //     } else if (num === 2){
-  //         setToken2(token)
-  //     }
-  // }
-
-  const updateNum = (val: string) => {
-    console.log("Update token val")
+  async function updateToken(val: any){
+    setToken(val)
+    if(val){
+      setLoadingRate(true)
+      const [res1, res2] = await Promise.all([ocean.getOceanPerDt(val.pool), ocean.getDtPerOcean(val.pool)]) 
+      setOceanToDt(res1)
+      setDtToOcean(res2)
+      setLoadingRate(false)
+    }    
   }
 
   return (
@@ -46,7 +43,7 @@ const Swap = () => {
           <div className="flex justify-between">
             <p className="text-xl">{text.T_STAKE}</p>
           </div>
-          <StakeSelect value={null} />
+          <StakeSelect value={token} setToken={(val: any) => {updateToken(val)} } />
           <div className="px-4 relative my-12">
             <div className="rounded-full border-primary-900 border-4 absolute -top-14 bg-primary-800 w-16 h-16 flex items-center justify-center">
               <AiOutlinePlus size="30" className="text-gray-300" />
@@ -56,7 +53,7 @@ const Swap = () => {
             <div className="md:grid md:grid-cols-5">
               <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center">
                 <img
-                  src="https://via.placeholder.com/42x42"
+                  src='https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY'
                   className="w-14 h-14 rounded-md"
                   alt=""
                 />
@@ -71,6 +68,7 @@ const Swap = () => {
               <div className="col-span-3 mt-3 md:mt-0">
                 {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
                 <input
+                  value={oceanVal}
                   onChange={e => updateNum(e.target.value)}
                   onWheel={event => event.currentTarget.blur()}
                   onKeyDown={evt =>
@@ -84,16 +82,20 @@ const Swap = () => {
               </div>
             </div>
           </div>
-          <div className="border border-type-600 mt-4 rounded-lg p-4">
-            <p className="text-type-200 text-xs">500.342 OCEAN per TREPEL</p>
-            <p className="text-type-200 text-xs">0.001242 TREPEL per OCEAN</p>
-          </div>
+          {
+            token && oceanToDt && dtToOcean && !loadingRate ?
+            <div className="border border-type-600 mt-4 rounded-lg p-4">
+              <p className="text-type-200 text-xs">{Number(oceanToDt).toFixed(5)} OCEAN per {token.symbol}</p>
+              <p className="text-type-200 text-xs">{Number(dtToOcean).toFixed(5)} {token.symbol} per OCEAN</p>
+            </div> : <></>
+          }
+
         </div>
       </div>
-      <RemoveAmount />
-      <PositionBox />
+      {/* <RemoveAmount />
+      <PositionBox /> */}
     </>
   )
 }
 
-export default Swap
+export default Stake

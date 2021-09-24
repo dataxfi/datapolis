@@ -1,13 +1,25 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import TokenModal from './TokenModal'
 import { BsChevronDown, BsBoxArrowUpRight } from 'react-icons/bs'
+import { GlobalContext } from '../context/GlobalState'
 
-const StakeSelect = ({value}: {value: Record<any, any> | null}) => {
+const StakeSelect = ({value, setToken}: {value: Record<any, any> | null, setToken: Function}) => {
+
+    const {config, accountId, handleConnect} = useContext(GlobalContext)
 
     const [showModal, setShowModal] = useState(false)
 
-    const tokenSelected = () => {
-        console.log('Token Selected')
+    const tokenSelected = (val: any) => {
+        setToken(val)
+        setShowModal(false)
+    }
+
+    function showTokenModal(){
+        if(accountId){
+            setShowModal(true)
+        } else {
+            handleConnect()
+        }
     }
 
     return (
@@ -19,7 +31,7 @@ const StakeSelect = ({value}: {value: Record<any, any> | null}) => {
                             <img src={value.logoURI} className="w-14 h-14 rounded-md" alt="" /> :
                             <div className="w-14 h-14 rounded-md bg-background"></div>
                         }
-                        <div role="button" tabIndex={0} onClick={() => {setShowModal(true)}}>
+                        <div role="button" tabIndex={0} onClick={() => {showTokenModal()}}>
                                 { value ?
                                 <span className="text-2xl text-type-200 font-bold grid grid-flow-col items-center gap-1">
                                     <span>{value.symbol}</span>
@@ -30,11 +42,16 @@ const StakeSelect = ({value}: {value: Record<any, any> | null}) => {
                         </div>
                     </div>
                     <div className="col-span-3 mt-3 md:mt-0">
-                        <p className="text-type-100 uppercase">Trepel token</p>
-                        <div className="grid grid-flow-col justify-start gap-4">
-                                <a href="https://google.com" target="_blank" rel="noreferrer" className="text-white grid grid-flow-col items-center gap-2 justify-start border-b border-type-300">Pool <BsBoxArrowUpRight /> </a>
-                                <a href="https://google.com" target="_blank" rel="noreferrer" className="text-white grid grid-flow-col items-center gap-2 justify-start border-b border-type-300">Token <BsBoxArrowUpRight /> </a>
-                        </div>
+                        {
+                            value ? 
+                                <div>
+                                    <p className="text-type-100 uppercase">{value.name}</p>
+                                    <div className="grid grid-flow-col justify-start gap-4">
+                                            <a href={config.default.explorerUri + '/address/' + value.pool} target="_blank" rel="noreferrer" className="text-white grid grid-flow-col items-center gap-2 justify-start border-b border-type-300">Pool <BsBoxArrowUpRight /> </a>
+                                            <a href={config.default.explorerUri + '/address/' + value.address} target="_blank" rel="noreferrer" className="text-white grid grid-flow-col items-center gap-2 justify-start border-b border-type-300">Token <BsBoxArrowUpRight /> </a>
+                                    </div>
+                                </div> : <></>                         
+                        }
                     </div>
                 </div>
             {showModal ? <TokenModal onClick={tokenSelected} close={() => setShowModal(false)} /> : <></> }
