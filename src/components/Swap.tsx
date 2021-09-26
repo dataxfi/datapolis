@@ -53,6 +53,7 @@ const Swap = () => {
     disabled: true
   })
   const setToken = async (info: Record<any, any>, pos: number) => {
+    console.log(info.address)
     const balance = await ocean.getBalance(info.address, accountId)
     if (pos === 1) {
       setToken1({ ...token1, info, balance })

@@ -33,10 +33,13 @@ const StakeSelect = ({value, setToken}: {value: Record<any, any> | null, setToke
                         }
                         <div role="button" tabIndex={0} onClick={() => {showTokenModal()}}>
                                 { value ?
-                                <span className="text-2xl text-type-200 font-bold grid grid-flow-col items-center gap-1">
-                                    <span>{value.symbol}</span>
-                                    <BsChevronDown className="text-type-200" size="16" />
-                                </span> :
+                                <div>
+                                    <p className="text-type-100 text-xs">DataToken</p>
+                                    <span className="text-2xl text-type-200 font-bold grid grid-flow-col items-center gap-1">
+                                        <span>{value.symbol}</span>
+                                        <BsChevronDown className="text-type-200" size="16" />
+                                    </span>
+                                </div> :
                                 <p className="text-xs text-type-100 border-type-300 border rounded-full px-2 py-1 mt-1">Select token</p>          
                                 }
                         </div>

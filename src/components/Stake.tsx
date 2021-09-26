@@ -4,22 +4,61 @@ import { AiOutlinePlus } from "react-icons/ai"
 import StakeSelect from "./StakeSelect"
 // import RemoveAmount from "./RemoveAmount"
 // import PositionBox from "./PositionBox"
-import { useState, useContext } from "react"
+import { useState, useContext, useEffect } from "react"
 import { GlobalContext } from "../context/GlobalState"
+import { PulseLoader } from "react-spinners"
+import Button from "./Button"
 
 const text = {
   T_STAKE: "StakeX",
   T_SELECT_TOKEN: "Select token"
 }
 
+interface IPoolLiquidity {
+  dtAmount: string,
+  oceanAmount: string
+}
+
 const Stake = () => {
 
-  const {ocean} = useContext(GlobalContext)
+  const {ocean, accountId} = useContext(GlobalContext)
   const [token, setToken] = useState<any>(null);
   const [dtToOcean, setDtToOcean] = useState<any>(null)
   const [oceanToDt, setOceanToDt] = useState<any>(null)
-  const [loadingRate, setLoadingRate] = useState<boolean>(false)
-  const [oceanVal, setOceanVal] = useState<string>('')
+  const [loadingRate, setLoadingRate] = useState(false)
+  const [oceanVal, setOceanVal] = useState('')
+  const [poolLiquidity, setPoolLiquidity] = useState<IPoolLiquidity | null>(null)
+  const [yourLiquidity, setYourLiquidity] = useState<IPoolLiquidity | null>(null)
+  const [balance, setBalance] = useState<any>(null)
+  const [loading, setLoading] = useState(false)
+  const [perc, setPerc] = useState('')
+
+  useEffect(() => {
+    const OCEAN_ADDRESS = '0x8967bcf84170c91b0d24d4302c2376283b0b3a07'
+
+    async function setOceanBalance(){
+      if(accountId && ocean){
+        setLoading(true)
+        const balance = await ocean.getBalance(OCEAN_ADDRESS, accountId)
+        setBalance(balance)
+        setLoading(false)
+      }
+    }
+
+    setOceanBalance()
+
+  }, [accountId, ocean]);
+
+  async function onPerc(val: any){
+    const perc = parseFloat(val)
+    if(!Number.isNaN(val)){
+      setPerc(String(perc))
+      setOceanVal((balance * perc / 100).toFixed(5))
+    } else {
+      setPerc('')
+      setOceanVal('')
+    }
+  }
 
   async function updateNum(val: string) {
     setOceanVal(val)
@@ -29,11 +68,14 @@ const Stake = () => {
     setToken(val)
     if(val){
       setLoadingRate(true)
-      const [res1, res2] = await Promise.all([ocean.getOceanPerDt(val.pool), ocean.getDtPerOcean(val.pool)]) 
+      const [res1, res2, myPoolShares, totalPoolShares] = await Promise.all([ocean.getOceanPerDt(val.pool), ocean.getDtPerOcean(val.pool), ocean.getMyPoolSharesForPool(val.pool, accountId), ocean.getTotalPoolShares(val.pool)]) 
       setOceanToDt(res1)
       setDtToOcean(res2)
+      const [res4, res5] = await Promise.all([ocean.getTokensRemovedforPoolShares(val.pool, String(myPoolShares)), ocean.getTokensRemovedforPoolShares(val.pool, String(totalPoolShares))])
+      setPoolLiquidity(res4)
+      setYourLiquidity(res5)
       setLoadingRate(false)
-    }    
+    }
   }
 
   return (
@@ -66,29 +108,72 @@ const Stake = () => {
                 </div>
               </div>
               <div className="col-span-3 mt-3 md:mt-0">
-                {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
-                <input
-                  value={oceanVal}
-                  onChange={e => updateNum(e.target.value)}
-                  onWheel={event => event.currentTarget.blur()}
-                  onKeyDown={evt =>
-                    ["e", "E", "+", "-"].includes(evt.key) &&
-                    evt.preventDefault()
-                  }
-                  type="number"
-                  className="h-full w-full rounded-lg bg-primary-900 text-3xl px-2 outline-none focus:placeholder-type-200 placeholder-type-400"
-                  placeholder="0.0"
-                />
+              <div className="h-full w-full rounded-lg bg-primary-900 text-3xl p-2">
+                    <div className="flex justify-between items-center">                
+                      {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
+                      <input
+                        value={oceanVal}
+                        onChange={e => updateNum(e.target.value)}
+                        onWheel={event => event.currentTarget.blur()}
+                        onKeyDown={evt =>
+                          ["e", "E", "+", "-"].includes(evt.key) &&
+                          evt.preventDefault()
+                        }
+                        type="number"
+                        className="h-full w-full rounded-lg bg-primary-900 text-3xl px-2 outline-none focus:placeholder-type-200 placeholder-type-400"
+                        placeholder="0.0"
+                      />
+                      <div>
+                            {
+                                balance ?
+                                <p className="text-sm text-type-400 whitespace-nowrap text-right">
+                                    Balance: {Number(balance).toLocaleString(undefined, {maximumFractionDigits: 4})}
+                                </p> : <></>
+                            }
+                            {
+                                loading ? 
+                                <div className="text-center">
+                                    <PulseLoader color="white" size="4px" margin="5px" /> 
+                                </div>
+                                : 
+                                balance ?
+                                <div className="text-sm text-type-300 grid grid-flow-col justify-end gap-2">
+                                    <Button onClick={() => {onPerc(100)}} text="Max" classes="px-2 py-0 border border-type-300 rounded-full text-xs" />
+                                    <input value={perc} type="number" onChange={(e) => {onPerc(e.target.value)}} className="text-xs text-type-200 placeholder-gray-500 bg-primary-700 py-1 rounded px-1 w-12 outline-none" placeholder="%" />
+                                </div> : <></>
+                            }
+                        </div>
+                      </div>
+                    </div>
               </div>
             </div>
           </div>
-          {
-            token && oceanToDt && dtToOcean && !loadingRate ?
-            <div className="border border-type-600 mt-4 rounded-lg p-4">
-              <p className="text-type-200 text-xs">{Number(oceanToDt).toFixed(5)} OCEAN per {token.symbol}</p>
-              <p className="text-type-200 text-xs">{Number(dtToOcean).toFixed(5)} {token.symbol} per OCEAN</p>
-            </div> : <></>
-          }
+          <div className="grid grid-cols-1 md:grid-cols-3 border border-type-600 mt-4 rounded-lg p-4">
+            {
+              token && oceanToDt && dtToOcean && !loadingRate ?
+              <div>
+                <p className="text-type-300 text-xs">Swap Rate</p>
+                <p className="text-type-200 text-xs">{Number(oceanToDt).toFixed(5)} OCEAN per {token.symbol}</p>
+                <p className="text-type-200 text-xs">{Number(dtToOcean).toFixed(5)} {token.symbol} per OCEAN</p>
+              </div> : <></>
+            }
+            {
+              token && poolLiquidity && !loadingRate ?
+              <div>
+                <p className="text-type-300 text-xs">Pool liquidity</p>
+                <p className="text-type-200 text-xs">{Number(poolLiquidity?.oceanAmount).toFixed(5)} OCEAN</p>
+                <p className="text-type-200 text-xs">{Number(poolLiquidity?.dtAmount).toFixed(5)} {token.symbol}</p>
+              </div> : <></>
+            }    
+            {
+              token && yourLiquidity && !loadingRate ?
+              <div>
+                <p className="text-type-300 text-xs">Your liquidity</p>
+                <p className="text-type-200 text-xs">{Number(yourLiquidity?.oceanAmount).toFixed(5)} OCEAN</p>
+                <p className="text-type-200 text-xs">{Number(yourLiquidity?.dtAmount).toFixed(5)} {token.symbol}</p>
+              </div> : <></>
+            }                        
+          </div>
 
         </div>
       </div>
