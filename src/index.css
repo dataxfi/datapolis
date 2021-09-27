@@ -76,7 +76,6 @@ body {
     rgba(0, 0, 0, 0.22) 0px 15px 12px;
 }
 
-
 /* Hide scrollbar for Chrome, Safari and Opera */
 .hm-hide-scrollbar::-webkit-scrollbar {
   display: none;
@@ -84,6 +83,10 @@ body {
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .hm-hide-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.swap-center {
+  left: 45%;
 }

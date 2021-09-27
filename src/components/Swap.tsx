@@ -463,7 +463,7 @@ const Swap = () => {
               }}
               role="button"
               tabIndex={0}
-              className="rounded-full border-black border-4 absolute -top-14 bg-primary-800 w-16 h-16 flex items-center justify-center"
+              className="rounded-full border-black border-4 absolute -top-14 bg-primary-800 w-16 h-16 flex swap-center items-center justify-center"
             >
               <IoSwapVertical size="30" className="text-gray-300" />
             </div>

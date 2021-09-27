@@ -87,7 +87,7 @@ const Stake = () => {
           </div>
           <StakeSelect value={token} setToken={(val: any) => {updateToken(val)} } />
           <div className="px-4 relative my-12">
-            <div className="rounded-full border-primary-900 border-4 absolute -top-14 bg-primary-800 w-16 h-16 flex items-center justify-center">
+            <div className="rounded-full border-primary-900 border-4 absolute -top-14 bg-primary-800 w-16 h-16 flex items-center justify-center swap-center">
               <AiOutlinePlus size="30" className="text-gray-300" />
             </div>
           </div>
