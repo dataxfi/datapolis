@@ -1,6 +1,4 @@
 import { AiOutlinePlus } from "react-icons/ai"
-// import { useEffect, useState, useContext } from "react"
-// import {GlobalContext} from '../context/GlobalState'
 import StakeSelect from "./StakeSelect"
 // import RemoveAmount from "./RemoveAmount"
 // import PositionBox from "./PositionBox"
@@ -8,6 +6,7 @@ import { useState, useContext, useEffect } from "react"
 import { GlobalContext } from "../context/GlobalState"
 import { PulseLoader } from "react-spinners"
 import Button, {IBtnProps} from "./Button"
+// import LiquidityPosition from "./LiquidityPosition"
 
 const text = {
   T_STAKE: "StakeX",
@@ -241,6 +240,7 @@ const Stake = () => {
       </div>
       {/* <RemoveAmount />
       <PositionBox /> */}
+      {/* <LiquidityPosition /> */}
     </>
   )
 }

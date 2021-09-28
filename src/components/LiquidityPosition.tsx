@@ -84,8 +84,8 @@ const LiquidityPosition = () => {
                     </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2 mt-4">
-                    <Button text="Add" classes="bg-secondary-500 text-type-100 rounded-lg px-4 py-3" />
-                    <Button text="Remove" classes="bg-secondary-500 text-type-100 rounded-lg px-4 py-3" />
+                    <Button text="Add" classes="bg-primary-600 hover:bg-primary-500 text-type-100 rounded-lg px-4 py-3" />
+                    <Button text="Remove" classes="bg-primary-600 hover:bg-primary-500 text-type-100 rounded-lg px-4 py-3" />
                 </div>
             </div> : <></>
             }
