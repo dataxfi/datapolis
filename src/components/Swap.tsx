@@ -3,7 +3,7 @@ import { IoSwapVertical } from "react-icons/io5"
 import { MdTune } from "react-icons/md"
 import { useState, useContext, useEffect } from "react"
 import { GlobalContext } from "../context/GlobalState"
-import Button from "./Button"
+import Button, {IBtnProps} from "./Button"
 import OutsideClickHandler from "react-outside-click-handler"
 import ConfirmSwapModal from "./ConfirmSwapModal"
 import ConfirmModal from "./ConfirmModal"
@@ -19,11 +19,11 @@ const text = {
   T_SWAP_TO: "You are buying"
 }
 
-interface BtnProps {
-  text: string
-  classes: string
-  disabled: boolean
-}
+// interface BtnProps {
+//   text: string
+//   classes: string
+//   disabled: boolean
+// }
 
 const INITIAL_TOKEN_STATE = {
   info: null,
@@ -47,7 +47,7 @@ const Swap = () => {
   const [exactToken, setExactToken] = useState<number>(1)
   const [postExchange, setPostExchange] = useState<any>(null)
   const [slippage, setSlippage] = useState<number | string>(1)
-  const [btnProps, setBtnProps] = useState<BtnProps>({
+  const [btnProps, setBtnProps] = useState<IBtnProps>({
     text: "Select Tokens",
     classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
     disabled: true
