@@ -7,7 +7,7 @@ import StakeSelect from "./StakeSelect"
 import { useState, useContext, useEffect } from "react"
 import { GlobalContext } from "../context/GlobalState"
 import { PulseLoader } from "react-spinners"
-import Button from "./Button"
+import Button, {IBtnProps} from "./Button"
 
 const text = {
   T_STAKE: "StakeX",
@@ -19,9 +19,15 @@ interface IPoolLiquidity {
   oceanAmount: string
 }
 
+const INITIAL_BUTTON_STATE = {
+  text: 'Connect wallet',
+  classes: 'bg-gray-800 text-gray-400',
+  disabled: false
+}
+
 const Stake = () => {
 
-  const {ocean, accountId} = useContext(GlobalContext)
+  const {ocean, accountId, chainId, handleConnect} = useContext(GlobalContext)
   const [token, setToken] = useState<any>(null);
   const [dtToOcean, setDtToOcean] = useState<any>(null)
   const [oceanToDt, setOceanToDt] = useState<any>(null)
@@ -32,22 +38,61 @@ const Stake = () => {
   const [balance, setBalance] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [perc, setPerc] = useState('')
+  const [loadingStake, setLoadingStake] = useState(false)
+  const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE)
 
   useEffect(() => {
-    const OCEAN_ADDRESS = '0x8967bcf84170c91b0d24d4302c2376283b0b3a07'
-
     async function setOceanBalance(){
       if(accountId && ocean){
+        const OCEAN_ADDRESS = ocean.config.default.oceanTokenAddress.toLowerCase()
         setLoading(true)
-        const balance = await ocean.getBalance(OCEAN_ADDRESS, accountId)
-        setBalance(balance)
+        try {
+          const balance = await ocean.getBalance(OCEAN_ADDRESS, accountId)
+          setBalance(balance)
+        } catch (error) {
+          console.log('Error') 
+        }
+
         setLoading(false)
       }
     }
 
     setOceanBalance()
 
-  }, [accountId, ocean]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accountId, ocean, chainId]);
+
+  useEffect(() => {
+    if(!loadingStake){
+      updateToken(token)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadingStake]);
+
+  useEffect(() => {
+    if(!accountId){
+      setBtnProps(INITIAL_BUTTON_STATE)
+    } else if(!token){
+      setBtnProps({...INITIAL_BUTTON_STATE, text: 'Select a token', disabled: true, classes: 'bg-gray-800 text-gray-400 cursor-not-allowed'})
+    } else if(!oceanVal){
+      setBtnProps({...INITIAL_BUTTON_STATE, text: 'Enter an OCEAN value', disabled: true, classes: 'bg-gray-800 text-gray-400 cursor-not-allowed'})
+    } else if(Number(balance) === 0 || Number(oceanVal) > Number(balance)){
+      setBtnProps({...INITIAL_BUTTON_STATE, text: 'Not enough OCEAN balance', disabled: true, classes: 'bg-gray-800 text-gray-400 cursor-not-allowed'})
+    } else if(loadingStake) {
+      setBtnProps({...INITIAL_BUTTON_STATE, text: 'Loading...', disabled: true, classes: 'bg-gray-800 text-gray-400 cursor-not-allowed'})
+    } else {
+      setBtnProps({disabled: false, classes: 'bg-primary-100 bg-opacity-20 hover:bg-opacity-40 text-background-800', text: 'Stake' })
+    }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accountId, ocean, chainId, token, oceanVal, balance, loadingStake]);
+
+  async function stakeX(){
+    setLoadingStake(true)
+    const res = await ocean.stakeOcean(accountId, token.pool, oceanVal)
+    console.log(res)
+    setLoadingStake(false)
+  }
 
   async function onPerc(val: any){
     const perc = parseFloat(val)
@@ -77,6 +122,7 @@ const Stake = () => {
       setLoadingRate(false)
     }
   }
+  
 
   return (
     <>
@@ -182,6 +228,15 @@ const Stake = () => {
                 }
               </div>
           </div>
+          <Button
+              text={btnProps.text}
+              onClick={() => {
+                btnProps.text === 'Connect wallet' ?
+                handleConnect() : stakeX()
+              }}
+              classes={"px-4 py-4 rounded-lg w-full mt-4 " + btnProps.classes}
+              disabled={btnProps.disabled}
+            />          
         </div>
       </div>
       {/* <RemoveAmount />
