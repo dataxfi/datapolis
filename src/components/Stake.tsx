@@ -93,6 +93,18 @@ const Stake = () => {
     setLoadingStake(false)
   }
 
+  async function setMaxStake(){
+    if(!token) return
+    const maxAmount = await ocean.getMaxAddLiquidity(token.pool, ocean.config.default.oceanTokenAddress)
+    console.log("Max Stake Amount - ",maxAmount)
+    const val = parseFloat(maxAmount)
+    if(!Number.isNaN(val)){
+      setOceanVal((val - 1).toFixed(5))
+    } else {
+      setPerc('')
+      setOceanVal('')
+    }
+  }
   async function onPerc(val: any){
     const perc = parseFloat(val)
     if(!Number.isNaN(val)){
@@ -183,8 +195,7 @@ const Stake = () => {
                                 : 
                                 balance ?
                                 <div className="text-sm text-type-300 grid grid-flow-col justify-end gap-2">
-                                    <Button onClick={() => {onPerc(100)}} text="Max" classes="px-2 py-0 border border-type-300 rounded-full text-xs" />
-                                    <input value={perc} type="number" onChange={(e) => {onPerc(e.target.value)}} className="text-xs text-type-200 placeholder-gray-500 bg-primary-700 py-1 rounded px-1 w-12 outline-none" placeholder="%" />
+                                    <Button onClick={() => {setMaxStake()}} text="Max Stake" classes="px-2 py-0 border border-type-300 rounded-full text-xs" />
                                 </div> : <></>
                             }
                         </div>
