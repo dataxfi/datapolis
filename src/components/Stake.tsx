@@ -6,6 +6,8 @@ import { useState, useContext, useEffect } from "react"
 import { GlobalContext } from "../context/GlobalState"
 import { PulseLoader } from "react-spinners"
 import Button, {IBtnProps} from "./Button"
+import ConfirmModal from './ConfirmModal'
+import TransactionDoneModal from './TransactionDoneModal'
 // import LiquidityPosition from "./LiquidityPosition"
 
 const text = {
@@ -36,6 +38,9 @@ const Stake = () => {
   const [yourLiquidity, setYourLiquidity] = useState<IPoolLiquidity | null>(null)
   const [balance, setBalance] = useState<any>(null)
   const [loading, setLoading] = useState(false)
+  const [showConfirmLoader, setShowConfirmLoader] = useState(false)
+  const [showTxDone, setShowTxDone] = useState(false)
+  const [recentTxHash, setRecentTxHash] = useState("")
   const [perc, setPerc] = useState('')
   const [loadingStake, setLoadingStake] = useState(false)
   const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE)
@@ -74,11 +79,11 @@ const Stake = () => {
     } else if(!token){
       setBtnProps({...INITIAL_BUTTON_STATE, text: 'Select a token', disabled: true, classes: 'bg-gray-800 text-gray-400 cursor-not-allowed'})
     } else if(!oceanVal){
-      setBtnProps({...INITIAL_BUTTON_STATE, text: 'Enter an OCEAN value', disabled: true, classes: 'bg-gray-800 text-gray-400 cursor-not-allowed'})
+      setBtnProps({...INITIAL_BUTTON_STATE, text: 'Enter OCEAN Amount', disabled: true, classes: 'bg-gray-800 text-gray-400 cursor-not-allowed'})
     } else if(Number(balance) === 0 || Number(oceanVal) > Number(balance)){
       setBtnProps({...INITIAL_BUTTON_STATE, text: 'Not enough OCEAN balance', disabled: true, classes: 'bg-gray-800 text-gray-400 cursor-not-allowed'})
     } else if(loadingStake) {
-      setBtnProps({...INITIAL_BUTTON_STATE, text: 'Loading...', disabled: true, classes: 'bg-gray-800 text-gray-400 cursor-not-allowed'})
+      setBtnProps({...INITIAL_BUTTON_STATE, text: 'Processing Transaction...', disabled: true, classes: 'bg-gray-800 text-gray-400 cursor-not-allowed'})
     } else {
       setBtnProps({disabled: false, classes: 'bg-primary-100 bg-opacity-20 hover:bg-opacity-40 text-background-800', text: 'Stake' })
     }
@@ -88,8 +93,14 @@ const Stake = () => {
 
   async function stakeX(){
     setLoadingStake(true)
-    const res = await ocean.stakeOcean(accountId, token.pool, oceanVal)
-    console.log(res)
+    setShowConfirmLoader(true)
+    const txReceipt = await ocean.stakeOcean(accountId, token.pool, oceanVal)
+    console.log(txReceipt)
+    setShowTxDone(true)
+    setRecentTxHash(
+      ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash
+    )
+    setShowConfirmLoader(false)
     setLoadingStake(false)
   }
 
@@ -249,6 +260,25 @@ const Stake = () => {
             />          
         </div>
       </div>
+
+      <ConfirmModal
+        show={showConfirmLoader}
+        close={() => setShowConfirmLoader(false)}
+        txs={
+          token
+            ? [
+                `1. Approve StakeX to spend ${oceanVal} OCEAN`,
+                `2. Stake ${oceanVal} OCEAN in ${token.symbol} pool`
+              ]
+            : []
+        }
+      />
+       <TransactionDoneModal
+        show={showTxDone}
+        txHash={recentTxHash}
+        close={() => setShowTxDone(false)}
+      />
+
       {/* <RemoveAmount />
       <PositionBox /> */}
       {/* <LiquidityPosition /> */}

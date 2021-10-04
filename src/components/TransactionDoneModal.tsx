@@ -13,7 +13,7 @@ const TransactionDoneModal = ({
   if (!show) return null
   return (
     <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 sm:max-w-sm w-full z-20 shadow">
-      <div className="bg-primary-900 rounded-lg pb-8 p-4 hm-box mx-3">
+      <div className="bg-primary-900 border rounded-lg pb-8 p-4 hm-box mx-3">
         <div className="flex justify-end">
           <BsX
             onClick={() => close()}
@@ -28,7 +28,7 @@ const TransactionDoneModal = ({
         </div>
         <div>
           <p className="text-center text-type-100 text-lg">
-            Transaction submitted
+            Transaction Processed
           </p>
           <p className="text-blue-400 text-center mt-1">
             <a target="_blank" rel="noreferrer" href={txHash}>
