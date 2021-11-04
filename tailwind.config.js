@@ -7,6 +7,7 @@ module.exports = {
   theme: {
     fontFamily: {
       sans: ["DM Sans", "Helvetica", "Arial", "sans-serif"],
+      pollerOne: ['"Poller One"', 'cursive'],
     },
     extend: {
       //  colors: {
