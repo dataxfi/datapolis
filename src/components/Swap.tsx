@@ -343,6 +343,24 @@ const Swap = () => {
     }
   }
 
+  function getConfirmModalProperties(): string[] {
+    if (token1.info && token2.info) {
+      if (isOCEAN(token1.info.address) || isOCEAN(token2.info.address)) {
+        return [
+          `1. Approve TradeX to spend ${token1.value} ${token1.info.symbol}`,
+          `2. Swap ${token1.value} ${token1.info.symbol} for ${token2.value} 
+  ${token2.info.symbol}`
+        ]
+      } else {
+        return [
+          `Swap ${token1.value} ${token1.info.symbol} for ${token2.value} 
+  ${token2.info.symbol}`
+        ]
+      }
+    }
+    return []
+  }
+
   function getButtonProperties() {
     if (!accountId) {
       setBtnProps({
@@ -542,8 +560,7 @@ const Swap = () => {
       <ConfirmModal
         show={showConfirmLoader}
         close={() => setShowConfirmLoader(false)}
-        token1={token1}
-        token2={token2}
+        txs={getConfirmModalProperties()}
       />
       <TransactionDoneModal
         show={showTxDone}
