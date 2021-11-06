@@ -35,13 +35,13 @@ export const GlobalProvider = ({
     CONNECT_TEXT
   );
 
-  useEffect(()=>{
-    for (let i = 0; i < localStorage.length; i++){
-      const key = localStorage.key(i)
-      const value = localStorage.getItem(key || "")
-      if(value === "pending") localStorage.removeItem(key || "")
+  useEffect(() => {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      const value = localStorage.getItem(key || "");
+      if (value === "pending") localStorage.removeItem(key || "");
     }
-  },[])
+  }, []);
 
   useEffect(() => {
     if (provider && !accountId) {
@@ -124,13 +124,8 @@ export const GlobalProvider = ({
     const localSignature = localStorage.getItem(account ? account : "");
 
     if (localSignature && localSignature !== "pending") {
-      console.log("Pre Account Id - ", accounts[0]);
-      setAccountId(accounts[0]);
-      console.log("Account Id - ", accountId);
-      setButtonText(accounts.length ? accounts[0] : CONNECT_TEXT);
       let _chainId = parseInt(String(await web3.eth.getChainId()));
       setChainId(_chainId);
-      setListeners(provider, web3);
 
       // This is required to do wallet-specific functions
       const ocean = new Ocean(web3, String(_chainId));
@@ -139,16 +134,48 @@ export const GlobalProvider = ({
       console.log("Pre chainID - ", _chainId);
       const config = new Config(web3, String(_chainId));
       setConfig(config);
+
+      if (
+        isSupportedChain(
+          config,
+          String(_chainId),
+          accounts[0] ? accounts[0] : ""
+        )
+      ) {
+      } else {
+        alert(
+          `Please connect to a supported chain: Ethereum Mainnet, Polygon, BSC, Rinkeby.`
+        );
+      }
     } else {
       handleSignature(accounts[0], web3, localSignature);
+    }
+    setListeners(provider, web3);
+  }
+
+  function isSupportedChain(
+    config: Config,
+    chainId: string,
+    account: string | null
+  ) {
+    if (config.getNetwork(chainId) === "unknown") {
+      setAccountId(null);
+      setButtonText(CONNECT_TEXT);
+      return false;
+    } else {
+      console.log("Account Id - ", accountId);
+      console.log("Pre Account Id - ", account);
+      setAccountId(account);
+      setButtonText(account || CONNECT_TEXT);
+      return true;
     }
   }
 
   function setListeners(provider: any, web3: Web3) {
-    provider.on("accountsChanged", async (accounts: any) => {
+    provider.on("accountsChanged", (accounts: any) => {
       let account = accounts[0] ? accounts[0].toLowerCase() : null;
       const localSignature = localStorage.getItem(account ? account : "");
-
+      console.log("accountsChanged");
       if (localSignature && localSignature !== "pending") {
         console.log("Accounts changed to - ", accounts[0]);
         console.log("Connected Accounts - ", JSON.stringify(accounts));
@@ -160,19 +187,20 @@ export const GlobalProvider = ({
         setAccountId(null);
         setButtonText(CONNECT_TEXT);
         setChainId(undefined);
-        setDisclaimerSigned(false)
+        setDisclaimerSigned(false);
         handleSignature(accounts[0], web3, localSignature);
       }
     });
 
     // Subscribe to chainId change
-    provider.on("chainChanged", (chainId: any) => {
+    provider.on("chainChanged", async (chainId: any) => {
       console.log(chainId);
       console.log("Chain changed to ", parseInt(chainId));
       setChainId(parseInt(chainId));
       const config = new Config(web3, String(parseInt(chainId)));
       setConfig(config);
       setOcean(new Ocean(web3, String(parseInt(chainId))));
+      isSupportedChain(config, String(chainId), null);
     });
 
     // Subscribe to provider connection

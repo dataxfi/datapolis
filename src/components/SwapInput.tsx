@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BsChevronDown } from 'react-icons/bs'
 import TokenModal from './TokenModal';
 import { DebounceInput } from 'react-debounce-input';
@@ -14,7 +14,7 @@ const SwapInput = ({title, value, pos, setToken, num, updateNum, balance, loadin
     const {accountId, handleConnect} = useContext(GlobalContext)
 
     const tokenSelected = (token: Record<any, any>) => {
-        setToken(token, pos)
+        setToken(token, pos, true)
         setShowModal(false)
     }
 
@@ -25,6 +25,10 @@ const SwapInput = ({title, value, pos, setToken, num, updateNum, balance, loadin
             handleConnect()
         }
     }
+
+    useEffect(() => {
+      if (value) setToken(value, pos, false);
+    }, [accountId]);
 
     return (
       <div className="mt-4 bg-primary-800 p-4 rounded-lg">

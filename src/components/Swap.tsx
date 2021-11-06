@@ -51,18 +51,21 @@ const Swap = () => {
     classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
     disabled: true,
   });
-  const setToken = async (info: Record<any, any>, pos: number) => {
-    console.log(info.address)
+  const setToken = async (
+    info: Record<any, any>,
+    pos: number,
+    updateOther: boolean
+  ) => {
+    console.log(info.address);
     const balance = await ocean.getBalance(info.address, accountId);
     if (pos === 1) {
       setToken1({ ...token1, info, balance });
-      updateOtherTokenValue(true, token1.value);
+      if (updateOther) updateOtherTokenValue(true, token1.value);
     } else if (pos === 2) {
       setToken2({ ...token2, info, balance });
-      updateOtherTokenValue(false, token2.value);
+      if (updateOther) updateOtherTokenValue(false, token2.value);
     }
   };
-
 
   useEffect(() => {
     getButtonProperties();
@@ -76,7 +79,7 @@ const Swap = () => {
         disabled: true,
       });
     } else if (config) {
-      console.log("Known - ", config)
+      console.log("Known - ", config);
     }
 
     //if chain changes, reset tokens
@@ -216,13 +219,13 @@ const Swap = () => {
     try {
       if (isOCEAN(token1.info.address)) {
         if (exactToken === 1) {
-          console.log("exact ocean to dt")
+          console.log("exact ocean to dt");
           console.log(
             accountId,
             token2.info.pool.toString(),
             token2.value.toString(),
             token1.value.toString()
-          )
+          );
           txReceipt = await ocean.swapExactOceanToDt(
             accountId,
             token2.info.pool.toString(),
@@ -231,13 +234,13 @@ const Swap = () => {
             (Number(slippage) / 100).toString()
           );
         } else {
-          console.log("ocean to exact dt")
+          console.log("ocean to exact dt");
           console.log(
             accountId,
             token2.info.pool,
             token2.value.toString(),
             token1.value.toString()
-          )
+          );
           txReceipt = await ocean.swapExactOceanToDt(
             accountId,
             token2.info.pool,
@@ -258,13 +261,13 @@ const Swap = () => {
           );
         } else {
           //Error: Throws not enough datatokens
-          console.log("dt to exact ocean")
+          console.log("dt to exact ocean");
           console.log(
             accountId,
             token1.info.pool,
             token2.value.toString(),
             token1.value.toString()
-          )
+          );
           txReceipt = await ocean.swapExactDtToOcean(
             accountId,
             token1.info.pool,
@@ -275,7 +278,7 @@ const Swap = () => {
         }
       } else {
         if (exactToken === 1) {
-          console.log("exact dt to dt")
+          console.log("exact dt to dt");
           console.log(
             accountId,
             token1.info.address,
@@ -286,7 +289,7 @@ const Swap = () => {
             token2.info.pool,
             config.default.routerAddress,
             (Number(slippage) / 100).toString()
-          )
+          );
           txReceipt = await ocean.swapExactDtToDt(
             accountId,
             token1.info.address,
@@ -299,7 +302,7 @@ const Swap = () => {
             (Number(slippage) / 100).toString()
           );
         } else {
-          console.log("dt to exact dt")
+          console.log("dt to exact dt");
           console.log(
             accountId,
             token1.info.address,
@@ -310,7 +313,7 @@ const Swap = () => {
             token2.info.pool,
             config.default.routerAddress,
             (Number(slippage) / 100).toString()
-          )
+          );
           txReceipt = await ocean.swapExactDtToDt(
             accountId,
             token1.info.address,
@@ -333,7 +336,7 @@ const Swap = () => {
         setToken1(INITIAL_TOKEN_STATE);
         setToken2(INITIAL_TOKEN_STATE);
         setPostExchange(null);
-        console.log(txReceipt)
+        console.log(txReceipt);
       } else {
         setShowConfirmLoader(false);
       }
@@ -349,16 +352,16 @@ const Swap = () => {
         return [
           `1. Approve TradeX to spend ${token1.value} ${token1.info.symbol}`,
           `2. Swap ${token1.value} ${token1.info.symbol} for ${token2.value} 
-  ${token2.info.symbol}`
-        ]
+  ${token2.info.symbol}`,
+        ];
       } else {
         return [
           `Swap ${token1.value} ${token1.info.symbol} for ${token2.value} 
-  ${token2.info.symbol}`
-        ]
+  ${token2.info.symbol}`,
+        ];
       }
     }
-    return []
+    return [];
   }
 
   function getButtonProperties() {
