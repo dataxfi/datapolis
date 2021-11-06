@@ -24,6 +24,9 @@ module.exports = {
         tertiary: colors.sky,
         type: colors.warmGray,
         background: colors.black,
+        yellow:{
+          DEFAULT:"#f3c429"
+        }
       },
 
       // colors: {

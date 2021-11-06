@@ -34,7 +34,7 @@ const StakeSelect = ({value, setToken}: {value: Record<any, any> | null, setToke
                   alt=""
                 />
               ) : (
-                <div className="w-14 h-14 rounded-md bg-background font-pollerOne text-yellow-300 text-center pt-3 text-2xl">
+                <div className="w-14 h-14 rounded-md bg-background font-pollerOne text-yellow text-center pt-3 text-3xl">
                   X
                 </div>
               )}
