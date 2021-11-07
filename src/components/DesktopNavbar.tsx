@@ -1,22 +1,30 @@
-import React, { useContext } from "react"
-import { Link } from "react-router-dom"
+import React, { useContext, useEffect } from "react";
+import { Link } from "react-router-dom";
 // import { Config } from '@dataxfi/datax.js'
-import { ReactComponent as Logo } from "../assets/logo.svg"
-import Button from "./Button"
-import { GlobalContext } from "../context/GlobalState"
+import { ReactComponent as Logo } from "../assets/logo.svg";
+import Button from "./Button";
+import { GlobalContext } from "../context/GlobalState";
 
 const DesktopNavbar = ({
   links,
   text,
-  wallet
+  wallet,
 }: {
-  links: Array<any>
-  text: Record<any, any>
-  wallet: string
+  links: Array<any>;
+  text: Record<any, any>;
+  wallet: string;
 }) => {
-  const { handleConnect, buttonText, chainId, config, accountId } = useContext(
-    GlobalContext
-  )
+  const { handleConnect, buttonText, chainId, config, accountId } =
+    useContext(GlobalContext);
+
+  function dispNet() {
+    if (config) {
+      const network = config.getNetwork(String(chainId));
+      if (network !== "unknown") return network;
+      return "⚠ Unknown";
+    }
+    return "⚠ Unknown";
+  }
 
   return (
     <div className="md:flex justify-between items-center py-4 border-gray-800 pl-4 pr-2 hidden">
@@ -31,12 +39,12 @@ const DesktopNavbar = ({
             >
               {link.name}
             </Link>
-          )
+          );
         })}
       </div>
       <div className="grid grid-flow-col gap-4 items-center">
         <div className="hidden md:block capitalize border border-type-500 text-type-200 rounded-md px-4 py-1 hm-box ">
-          <h3>{config ? config.getNetwork(String(chainId)) : "⚠ Unknown"}</h3>
+          <h3>{dispNet()}</h3>
         </div>
         <div className="hidden md:block">
           <Button
@@ -53,7 +61,7 @@ const DesktopNavbar = ({
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default DesktopNavbar
+export default DesktopNavbar;

@@ -1,23 +1,23 @@
-import SwapInput from "./SwapInput"
-import { IoSwapVertical } from "react-icons/io5"
-import { MdTune } from "react-icons/md"
-import { useState, useContext, useEffect } from "react"
-import { GlobalContext } from "../context/GlobalState"
-import Button, { IBtnProps } from "./Button"
-import OutsideClickHandler from "react-outside-click-handler"
-import ConfirmSwapModal from "./ConfirmSwapModal"
-import ConfirmModal from "./ConfirmModal"
-import TransactionDoneModal from "./TransactionDoneModal"
+import SwapInput from "./SwapInput";
+import { IoSwapVertical } from "react-icons/io5";
+import { MdTune } from "react-icons/md";
+import { useState, useContext, useEffect } from "react";
+import { GlobalContext } from "../context/GlobalState";
+import Button, { IBtnProps } from "./Button";
+import OutsideClickHandler from "react-outside-click-handler";
+import ConfirmSwapModal from "./ConfirmSwapModal";
+import ConfirmModal from "./ConfirmModal";
+import TransactionDoneModal from "./TransactionDoneModal";
 // import { program } from "@babel/types"
 // import { get } from "https"
 // import Snackbar from "./Snackbar"
 
-const ROUND_OFF = 6
+const ROUND_OFF = 6;
 const text = {
   T_SWAP: "TradeX",
   T_SWAP_FROM: "You are selling",
-  T_SWAP_TO: "You are buying"
-}
+  T_SWAP_TO: "You are buying",
+};
 
 // interface BtnProps {
 //   text: string
@@ -29,149 +29,164 @@ const INITIAL_TOKEN_STATE = {
   info: null,
   value: 0,
   balance: "",
-  percentage: ""
-}
+  percentage: "",
+};
 
 const Swap = () => {
-  const { handleConnect, accountId, ocean, chainId, config } = useContext(
-    GlobalContext
-  )
-  const [showSettings, setShowSettings] = useState(false)
-  const [show, setShow] = useState(false)
-  const [network, setNetwork] = useState(null)
-  const [showConfirmLoader, setShowConfirmLoader] = useState(false)
-  const [showTxDone, setShowTxDone] = useState(false)
-  const [recentTxHash, setRecentTxHash] = useState("")
-  const [token1, setToken1] = useState<any>(INITIAL_TOKEN_STATE)
-  const [token2, setToken2] = useState<any>(INITIAL_TOKEN_STATE)
-  const [exactToken, setExactToken] = useState<number>(1)
-  const [postExchange, setPostExchange] = useState<any>(null)
-  const [slippage, setSlippage] = useState<number | string>(1)
+  const { handleConnect, accountId, ocean, chainId, config } =
+    useContext(GlobalContext);
+  const [showSettings, setShowSettings] = useState(false);
+  const [show, setShow] = useState(false);
+  const [network, setNetwork] = useState(null);
+  const [showConfirmLoader, setShowConfirmLoader] = useState(false);
+  const [showTxDone, setShowTxDone] = useState(false);
+  const [recentTxHash, setRecentTxHash] = useState("");
+  const [token1, setToken1] = useState<any>(INITIAL_TOKEN_STATE);
+  const [token2, setToken2] = useState<any>(INITIAL_TOKEN_STATE);
+  const [exactToken, setExactToken] = useState<number>(1);
+  const [postExchange, setPostExchange] = useState<any>(null);
+  const [slippage, setSlippage] = useState<number | string>(1);
   const [btnProps, setBtnProps] = useState<IBtnProps>({
     text: "Select Tokens",
     classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
-    disabled: true
-  })
-  const setToken = async (info: Record<any, any>, pos: number) => {
-    console.log(info.address)
-    const balance = await ocean.getBalance(info.address, accountId)
+    disabled: true,
+  });
+  const setToken = async (
+    info: Record<any, any>,
+    pos: number,
+    updateOther: boolean
+  ) => {
+    console.log(info.address);
+    const balance = await ocean.getBalance(info.address, accountId);
     if (pos === 1) {
-      setToken1({ ...token1, info, balance })
-      updateOtherTokenValue(true, token1.value)
+      setToken1({ ...token1, info, balance });
+      if (updateOther) updateOtherTokenValue(true, token1.value);
     } else if (pos === 2) {
-      setToken2({ ...token2, info, balance })
-      updateOtherTokenValue(false, token2.value)
+      setToken2({ ...token2, info, balance });
+      if (updateOther) updateOtherTokenValue(false, token2.value);
     }
-  }
+  };
 
   useEffect(() => {
-    getButtonProperties()
+    getButtonProperties();
     //if unknown network, reset token selection
     if (config && config.default.network === "unknown") {
-      setToken1(INITIAL_TOKEN_STATE)
-      setToken2(INITIAL_TOKEN_STATE)
+      setToken1(INITIAL_TOKEN_STATE);
+      setToken2(INITIAL_TOKEN_STATE);
       setBtnProps({
         text: "Network Not Supported",
         classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
-        disabled: true
-      })
+        disabled: true,
+      });
     } else if (config) {
-      console.log("Known - ", config)
+      console.log("Known - ", config);
     }
 
     //if chain changes, reset tokens
     if (!network) {
-      setNetwork(chainId)
+      setNetwork(chainId);
     }
     if (chainId !== network) {
-      setToken1(INITIAL_TOKEN_STATE)
-      setToken2(INITIAL_TOKEN_STATE)
-      setNetwork(chainId)
+      setToken1(INITIAL_TOKEN_STATE);
+      setToken2(INITIAL_TOKEN_STATE);
+      setNetwork(chainId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token1, token2, accountId, config, chainId])
+  }, [token1, token2, accountId, config, chainId]);
 
   async function swapTokens() {
-    setToken1(token2)
-    setToken2({ ...token1, loading: true })
-    let exchange = await calculateExchange(true, token2.value)
-    exchange = Number(Number(exchange).toFixed(ROUND_OFF))
-    setPostExchange(exchange / token2.value)
-    setToken2({ ...token1, value: exchange, loading: false })
-    setExactToken(1)
+    setToken1(token2);
+    setToken2({ ...token1, loading: true });
+    let exchange = await calculateExchange(true, token2.value);
+    exchange = Number(Number(exchange).toFixed(ROUND_OFF));
+    setPostExchange(exchange / token2.value);
+    setToken2({ ...token1, value: exchange, loading: false });
+    setExactToken(1);
   }
 
   function updateValueFromPercentage(fromToken: Boolean, value: string) {
-    let perc = parseFloat(value)
+    let perc = parseFloat(value);
     if (Number.isNaN(perc)) {
       if (fromToken) {
-        setToken1({ ...token1, percentage: "" })
+        setToken1({ ...token1, percentage: "" });
       } else {
-        setToken2({ ...token2, percentage: "" })
+        setToken2({ ...token2, percentage: "" });
       }
     } else if (perc > 100) {
       if (fromToken) {
-        setToken1({ ...token1, percentage: "100", value: token1.balance })
+        setToken1({ ...token1, percentage: "100", value: token1.balance });
         // setToken2({...token2, percentage: ''})
-        updateOtherTokenValue(true, 100)
+        updateOtherTokenValue(true, 100);
       } else {
-        setToken2({ ...token2, percentage: "100", value: token2.balance })
+        setToken2({ ...token2, percentage: "100", value: token2.balance });
         // setToken1({...token1, percentage: ''})
-        updateOtherTokenValue(false, 100)
+        updateOtherTokenValue(false, 100);
       }
     } else {
       if (fromToken) {
-        const value = Number((token1.balance * (perc / 100)).toFixed(ROUND_OFF))
-        setToken1({ ...token1, percentage: String(perc), value })
+        const value = Number(
+          (token1.balance * (perc / 100)).toFixed(ROUND_OFF)
+        );
+        setToken1({
+          ...token1,
+          percentage: String(perc),
+          value: value.toString(),
+        });
         // setToken2({...token2, percentage: ''})
-        updateOtherTokenValue(true, value)
+        updateOtherTokenValue(true, value.toString());
       } else {
-        const value = Number((token2.balance * (perc / 100)).toFixed(ROUND_OFF))
-        setToken2({ ...token2, percentage: String(perc), value })
+        const value = Number(
+          (token2.balance * (perc / 100)).toFixed(ROUND_OFF)
+        );
+        setToken2({
+          ...token2,
+          percentage: String(perc),
+          value: value.toString(),
+        });
         // setToken1({...token1, percentage: ''})
-        updateOtherTokenValue(false, value)
+        updateOtherTokenValue(false, value.toString());
       }
     }
   }
 
-  async function updateOtherTokenValue(from: boolean, inputAmount: number) {
+  async function updateOtherTokenValue(from: boolean, inputAmount: any) {
     if (token1.info && token2.info) {
       if (from) {
-        setToken2({ ...token2, loading: true })
-        let exchange = await calculateExchange(from, inputAmount)
-        exchange = Number(Number(exchange).toFixed(ROUND_OFF))
-        setPostExchange(exchange / inputAmount)
-        setToken2({ ...token2, value: exchange, loading: false })
-        setExactToken(1)
+        setToken2({ ...token2, loading: true });
+        let exchange = await calculateExchange(from, inputAmount);
+        exchange = Number(Number(exchange).toFixed(ROUND_OFF));
+        setPostExchange(exchange / inputAmount);
+        setToken2({ ...token2, value: exchange, loading: false });
+        setExactToken(1);
       } else {
-        setToken1({ ...token1, loading: true })
-        let exchange = await calculateExchange(from, inputAmount)
-        exchange = Number(Number(exchange || 0).toFixed(ROUND_OFF))
-        setPostExchange(inputAmount / exchange || 0)
-        setToken1({ ...token1, value: exchange, loading: false })
-        setExactToken(2)
+        setToken1({ ...token1, loading: true });
+        let exchange = await calculateExchange(from, inputAmount);
+        exchange = Number(Number(exchange || 0).toFixed(ROUND_OFF));
+        setPostExchange(inputAmount / exchange || 0);
+        setToken1({ ...token1, value: exchange, loading: false });
+        setExactToken(2);
       }
     }
   }
 
   // This is easily testable, if we someone writes tests for this in the future, it'll be great
-  async function calculateExchange(from: boolean, amount: number) {
+  async function calculateExchange(from: boolean, amount: any) {
     if (!amount) {
-      return
+      return;
     }
     if (isOCEAN(token1.info.address)) {
       if (from) {
-        return await ocean.getDtReceived(token2.info.pool, amount)
+        return await ocean.getDtReceived(token2.info.pool, amount);
       } else {
-        return await ocean.getOceanNeeded(token2.info.pool, amount)
+        return await ocean.getOceanNeeded(token2.info.pool, amount);
       }
     }
 
     if (isOCEAN(token2.info.address)) {
       if (from) {
-        return await ocean.getOceanReceived(token1.info.pool, amount)
+        return await ocean.getOceanReceived(token1.info.pool, amount);
       } else {
-        return await ocean.getDtNeeded(token1.info.pool, amount)
+        return await ocean.getDtNeeded(token1.info.pool, amount);
       }
     }
 
@@ -180,13 +195,13 @@ const Swap = () => {
         amount.toString(),
         token1.info.pool,
         token2.info.pool
-      )
+      );
     } else {
       return await ocean.getDtNeededForExactDt(
         amount.toString(),
         token1.info.pool,
         token2.info.pool
-      )
+      );
     }
   }
 
@@ -194,76 +209,76 @@ const Swap = () => {
     return (
       tokenAddress.toLowerCase() ===
       ocean.config.default.oceanTokenAddress.toLowerCase()
-    )
+    );
   }
 
   async function makeTheSwap() {
-    let txReceipt = null
-    setShow(false)
-    setShowConfirmLoader(true)
+    let txReceipt = null;
+    setShow(false);
+    setShowConfirmLoader(true);
     try {
       if (isOCEAN(token1.info.address)) {
         if (exactToken === 1) {
-          console.log("exact ocean to dt")
+          console.log("exact ocean to dt");
           console.log(
             accountId,
             token2.info.pool.toString(),
             token2.value.toString(),
             token1.value.toString()
-          )
+          );
           txReceipt = await ocean.swapExactOceanToDt(
             accountId,
             token2.info.pool.toString(),
             token2.value.toString(),
             token1.value.toString(),
             (Number(slippage) / 100).toString()
-          )
+          );
         } else {
-          console.log("ocean to exact dt")
+          console.log("ocean to exact dt");
           console.log(
             accountId,
             token2.info.pool,
             token2.value.toString(),
             token1.value.toString()
-          )
+          );
           txReceipt = await ocean.swapExactOceanToDt(
             accountId,
             token2.info.pool,
             token2.value.toString(),
             token1.value.toString(),
             (Number(slippage) / 100).toString()
-          )
+          );
         }
       } else if (isOCEAN(token2.info.address)) {
         if (exactToken === 1) {
-          console.log("exact dt to ocean")
+          console.log("exact dt to ocean");
           txReceipt = await ocean.swapExactDtToOcean(
             accountId,
             token1.info.pool,
             token2.value.toString(),
             token1.value.toString(),
             (Number(slippage) / 100).toString()
-          )
+          );
         } else {
-          // Error: Throws not enough datatokens
-          console.log("dt to exact ocean")
+          //Error: Throws not enough datatokens
+          console.log("dt to exact ocean");
           console.log(
             accountId,
             token1.info.pool,
             token2.value.toString(),
             token1.value.toString()
-          )
+          );
           txReceipt = await ocean.swapExactDtToOcean(
             accountId,
             token1.info.pool,
             token2.value.toString(),
             token1.value.toString(),
             (Number(slippage) / 100).toString()
-          )
+          );
         }
       } else {
         if (exactToken === 1) {
-          console.log("exact dt to dt")
+          console.log("exact dt to dt");
           console.log(
             accountId,
             token1.info.address,
@@ -274,7 +289,7 @@ const Swap = () => {
             token2.info.pool,
             config.default.routerAddress,
             (Number(slippage) / 100).toString()
-          )
+          );
           txReceipt = await ocean.swapExactDtToDt(
             accountId,
             token1.info.address,
@@ -285,9 +300,9 @@ const Swap = () => {
             token2.info.pool,
             config.default.routerAddress,
             (Number(slippage) / 100).toString()
-          )
+          );
         } else {
-          console.log("dt to exact dt")
+          console.log("dt to exact dt");
           console.log(
             accountId,
             token1.info.address,
@@ -298,7 +313,7 @@ const Swap = () => {
             token2.info.pool,
             config.default.routerAddress,
             (Number(slippage) / 100).toString()
-          )
+          );
           txReceipt = await ocean.swapExactDtToDt(
             accountId,
             token1.info.address,
@@ -309,25 +324,25 @@ const Swap = () => {
             token2.info.pool,
             config.default.routerAddress,
             (Number(slippage) / 100).toString()
-          )
+          );
         }
       }
       if (txReceipt) {
-        setShowConfirmLoader(false)
-        setShowTxDone(true)
+        setShowConfirmLoader(false);
+        setShowTxDone(true);
         setRecentTxHash(
           config.default.explorerUri + "/tx/" + txReceipt.transactionHash
-        )
-        setToken1(INITIAL_TOKEN_STATE)
-        setToken2(INITIAL_TOKEN_STATE)
-        setPostExchange(null)
-        console.log(txReceipt)
+        );
+        setToken1(INITIAL_TOKEN_STATE);
+        setToken2(INITIAL_TOKEN_STATE);
+        setPostExchange(null);
+        console.log(txReceipt);
       } else {
-        setShowConfirmLoader(false)
+        setShowConfirmLoader(false);
       }
     } catch (error) {
-      setShowConfirmLoader(false)
-      console.log(error)
+      setShowConfirmLoader(false);
+      console.log(error);
     }
   }
 
@@ -337,16 +352,16 @@ const Swap = () => {
         return [
           `1. Approve TradeX to spend ${token1.value} ${token1.info.symbol}`,
           `2. Swap ${token1.value} ${token1.info.symbol} for ${token2.value} 
-  ${token2.info.symbol}`
-        ]
+  ${token2.info.symbol}`,
+        ];
       } else {
         return [
           `Swap ${token1.value} ${token1.info.symbol} for ${token2.value} 
-  ${token2.info.symbol}`
-        ]
+  ${token2.info.symbol}`,
+        ];
       }
     }
-    return []
+    return [];
   }
 
   function getButtonProperties() {
@@ -355,16 +370,16 @@ const Swap = () => {
         text: "Connect Wallet",
         classes:
           "bg-primary-100 bg-opacity-20 hover:bg-opacity-40 text-background-800",
-        disabled: false
-      })
+        disabled: false,
+      });
     }
 
     if (accountId && !(token1.info && token2.info)) {
       setBtnProps({
         text: "Select Tokens",
         classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
-        disabled: true
-      })
+        disabled: true,
+      });
     }
 
     if (
@@ -376,8 +391,8 @@ const Swap = () => {
       setBtnProps({
         text: "Enter Token Amount",
         classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
-        disabled: true
-      })
+        disabled: true,
+      });
     }
 
     if (
@@ -393,14 +408,14 @@ const Swap = () => {
           text: "Approve & Swap",
           classes:
             "bg-primary-100 bg-opacity-20 hover:bg-opacity-40 text-background-800",
-          disabled: false
-        })
+          disabled: false,
+        });
       } else {
         setBtnProps({
           text: `Not Enough ${token1.info.symbol}`,
           classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
-          disabled: true
-        })
+          disabled: true,
+        });
       }
     }
   }
@@ -423,7 +438,7 @@ const Swap = () => {
               <div className="absolute top-10 right-0 max-w-sm">
                 <OutsideClickHandler
                   onOutsideClick={() => {
-                    setShowSettings(false)
+                    setShowSettings(false);
                   }}
                 >
                   <div className="bg-primary-900 rounded-lg p-4 w-full">
@@ -436,7 +451,7 @@ const Swap = () => {
                         <div className="flex justify-between focus:border-secondary-500 bg-primary-700 rounded-lg items-center px-2 py-1">
                           <input
                             type="number"
-                            onChange={e => setSlippage(e.target.value || "")}
+                            onChange={(e) => setSlippage(e.target.value || "")}
                             value={slippage}
                             className="text-lg bg-primary-700 outline-none rounded-l-lg w-32"
                           />
@@ -469,15 +484,15 @@ const Swap = () => {
             pos={1}
             setToken={setToken}
             updateNum={(value: number) => {
-              setToken1({ ...token1, value })
-              updateOtherTokenValue(true, value)
+              setToken1({ ...token1, value });
+              updateOtherTokenValue(true, value);
             }}
             loading={token1.loading}
           />
           <div className="px-4 relative my-12">
             <div
               onClick={() => {
-                swapTokens()
+                swapTokens();
               }}
               role="button"
               tabIndex={0}
@@ -497,8 +512,8 @@ const Swap = () => {
             pos={2}
             setToken={setToken}
             updateNum={(value: number) => {
-              setToken2({ ...token2, value })
-              updateOtherTokenValue(false, value)
+              setToken2({ ...token2, value });
+              updateOtherTokenValue(false, value);
             }}
             loading={token2.loading}
           />
@@ -512,7 +527,7 @@ const Swap = () => {
               <p>
                 1 {token1.info.symbol} ={" "}
                 {Number(postExchange).toLocaleString("en", {
-                  maximumFractionDigits: 4
+                  maximumFractionDigits: 4,
                 })}{" "}
                 {token2.info.symbol}
               </p>
@@ -527,7 +542,7 @@ const Swap = () => {
               onClick={() => {
                 btnProps.text === "Connect Wallet"
                   ? handleConnect()
-                  : setShow(true)
+                  : setShow(true);
               }}
               classes={"px-4 py-4 rounded-lg w-full " + btnProps.classes}
               disabled={btnProps.disabled}
@@ -565,7 +580,7 @@ const Swap = () => {
       />
       */}
     </>
-  )
-}
+  );
+};
 
-export default Swap
+export default Swap;

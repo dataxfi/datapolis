@@ -7,6 +7,7 @@ module.exports = {
   theme: {
     fontFamily: {
       sans: ["DM Sans", "Helvetica", "Arial", "sans-serif"],
+      pollerOne: ['"Poller One"', 'cursive'],
     },
     extend: {
       //  colors: {
@@ -23,6 +24,9 @@ module.exports = {
         tertiary: colors.sky,
         type: colors.warmGray,
         background: colors.black,
+        yellow:{
+          DEFAULT:"#f3c429"
+        }
       },
 
       // colors: {
