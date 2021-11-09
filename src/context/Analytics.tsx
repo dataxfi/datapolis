@@ -1,48 +1,74 @@
 import ReactGA from "react-ga4";
 
 export function initializeGA() {
-  ReactGA.initialize(process.env.REACT_APP_GA_PROPERTY_ID || "");
-  ReactGA.send("pageview");
+  try {
+    if (!process.env.REACT_APP_GA_PROPERTY_ID)
+      throw new Error("Missing measurement ID when trying to initialize GA");
+    ReactGA.initialize(process.env.REACT_APP_GA_PROPERTY_ID || "");
+    ReactGA.send("pageview");
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 export function acceptsCookiesGA() {
-  ReactGA.event({
-    category: "Cookies",
-    action: "User Confirmed Cookies",
-    label: "Cookie Event",
-  });
+  try {
+    ReactGA.event({
+      category: "Cookies",
+      action: "User Confirmed Cookies",
+      label: "Cookie Event",
+    });
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 export function deniedCookiesGA() {
-  ReactGA.event({
-    category: "Cookies",
-    action: "User Denied Cookies",
-    label: "Cookie Event",
-  });
+  try {
+    ReactGA.event({
+      category: "Cookies",
+      action: "User Denied Cookies",
+      label: "Cookie Event",
+    });
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 export function connectedWalletGA() {
-  ReactGA.event({
-    category: "Wallet",
-    action: "User Connected Wallet",
-    label: "Wallet Event",
-  });
+  try {
+    ReactGA.event({
+      category: "Wallet",
+      action: "User Connected Wallet",
+      label: "Wallet Event",
+    });
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 export function deniedSignatureGA() {
-  ReactGA.event({
-    category: "Wallet",
-    action: "User Denies Signature",
-    label: "Wallet Event",
-  });
+  try {
+    ReactGA.event({
+      category: "Wallet",
+      action: "User Denies Signature",
+      label: "Wallet Event",
+    });
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 export function connectedMultipleWalletsGA() {
-  ReactGA.event({
-    category: "Wallet",
-    action: "User Has Connected Multiple Wallets",
-    label: "Wallet Event",
-  });
+  try {
+    ReactGA.event({
+      category: "Wallet",
+      action: "User Has Connected Multiple Wallets",
+      label: "Wallet Event",
+    });
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 export function connectedToNetworkGA({
@@ -52,37 +78,25 @@ export function connectedToNetworkGA({
   network: string;
   chainId: string;
 }) {
-  ReactGA.event({
-    category: "Network",
-    action: `User connected to ${network} network (${chainId})`,
-    label: "Network Event",
-  });
+  try {
+    ReactGA.event({
+      category: "Network",
+      action: `User connected to ${network} network (${chainId})`,
+      label: "Network Event",
+    });
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 export function connectedWalletViaGA({ wallet }: { wallet: string | null }) {
-  ReactGA.event({
-    category: "Wallet",
-    action: `User Connected A Wallet with ${wallet}`,
-    label: "Wallet Event",
-  });
-}
-
-export function transactionUsingToken({
-  sold,
-  bought,
-}: {
-  sold: string;
-  bought: string;
-}) {
-  ReactGA.event({
-    category: "Transaction",
-    action: `User Sold ${sold}`,
-    label: "Transaction Event",
-  });
-
-  ReactGA.event({
-    category: "Transaction",
-    action: `User Bought ${bought}`,
-    label: "Transaction Event",
-  });
+  try {
+    ReactGA.event({
+      category: "Wallet",
+      action: `User Connected Wallet: ${wallet}`,
+      label: "Wallet Event",
+    });
+  } catch (error) {
+    console.error(error);
+  }
 }

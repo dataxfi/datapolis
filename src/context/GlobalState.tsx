@@ -202,7 +202,8 @@ export const GlobalProvider = ({
       setAccountId(account);
       setButtonText(account || CONNECT_TEXT);
       connectedWalletGA();
-      const wallet = getInjectedProviderName();
+      const wallet =
+        localStorage.getItem("WEB3_CONNECT_CACHED_PROVIDER") || "unknown";
       connectedWalletViaGA({ wallet });
       return true;
     }
