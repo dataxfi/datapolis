@@ -10,6 +10,7 @@ import React, {
 } from "react";
 import Core from "web3modal";
 import Disclaimer from "../components/Disclaimer";
+import CookiesModal from "../components/CookiesModal";
 
 const initialState: any = {};
 const CONNECT_TEXT = "Connect Wallet";
@@ -34,6 +35,7 @@ export const GlobalProvider = ({
   const [buttonText, setButtonText] = useState<string | undefined>(
     CONNECT_TEXT
   );
+  const [cookiesAllowed, setCookiesAllowed] = useState<boolean>(false)
 
   useEffect(() => {
     for (let i = 0; i < localStorage.length; i++) {
@@ -87,26 +89,41 @@ export const GlobalProvider = ({
     localSignature: string | null
   ): Promise<any> {
     account = account.toLowerCase();
-    try {
-      if (!localSignature) {
-        localStorage.setItem(account, "pending");
-        let signature = await web3.eth.personal.sign(
-          Disclaimer(),
-          account || "",
-          ""
-        );
-        localStorage.setItem(account, signature);
-        setDisclaimerSigned(true);
-      } else if (localSignature === "pending") {
-        alert(
-          "You must open your wallet and sign the pending disclaimer before proceeding."
-        );
+    
+    let cookiesConfirmed
+
+    if(!cookiesAllowed){
+      if(window.confirm('Press "okay" to consent to cookies and connect to your wallet.')){
+        cookiesConfirmed = true
+        localStorage.setItem('cookiesAllowed', "true")
+        setCookiesAllowed(true)
       }
-    } catch (error) {
-      console.error(error);
-      localStorage.removeItem(account);
+    } else {
+      cookiesConfirmed = true
     }
-    return localSignature;
+
+    if(cookiesConfirmed){
+      try {
+        if (!localSignature) {
+          localStorage.setItem(account, "pending");
+          let signature = await web3.eth.personal.sign(
+            Disclaimer(),
+            account || "",
+            ""
+          );
+          localStorage.setItem(account, signature);
+          setDisclaimerSigned(true);
+        } else if (localSignature === "pending") {
+          alert(
+            "You must open your wallet and sign the pending disclaimer before proceeding."
+          );
+        }
+      } catch (error) {
+        console.error(error);
+        localStorage.removeItem(account);
+      }
+      return localSignature;
+    }
   }
 
   async function handleConnect() {
@@ -227,6 +244,7 @@ export const GlobalProvider = ({
         ocean,
         network: NETWORK,
         config,
+        setCookiesAllowed
       }}
     >
       {children}
