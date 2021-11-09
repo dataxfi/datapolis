@@ -1,11 +1,13 @@
-import Navbar from "./components/Navbar"
-import { BrowserRouter as Router, Route } from "react-router-dom"
-import Swap from "./components/Swap"
-import Stake from "./components/Stake"
-import LiquidityPosition from "./components/LiquidityPosition"
-
-import { GlobalProvider } from "./context/GlobalState"
-import RemoveAmount from "./components/RemoveAmount"
+import Navbar from "./components/Navbar";
+import { BrowserRouter as Router, Route } from "react-router-dom";
+import Swap from "./components/Swap";
+import Stake from "./components/Stake";
+import LiquidityPosition from "./components/LiquidityPosition";
+import CookiesModal from "./components/CookiesModal";
+import { GlobalProvider } from "./context/GlobalState";
+import RemoveAmount from "./components/RemoveAmount";
+import { useEffect } from "react";
+import { initializeGA } from "./context/Analytics";
 // import LiquidityPosition from "./components/LiquidityPosition";
 // import TransactionDoneModal from "./components/TransactionDoneModal";
 // import Snackbar from "./components/Snackbar";
@@ -15,6 +17,10 @@ import RemoveAmount from "./components/RemoveAmount"
 // import ConfirmSwapModal from "./components/ConfirmSwapModal";
 
 function App() {
+  useEffect(() => {
+    initializeGA();
+  }, []);
+
   return (
     <>
       <GlobalProvider>
@@ -28,13 +34,14 @@ function App() {
           {/* <CreatePoolModal /> */}
           {/* <ConfirmModal /> */}
           {/* <TransactionDoneModal show={true} close={() => {}} /> */}
-           {/*<LiquidityPosition />*/}
-           {/*<RemoveAmount />*/}
+          {/*<LiquidityPosition />*/}
+          {/*<RemoveAmount />*/}
           {/* <ConfirmSwapModal /> */}
         </Router>
+        <CookiesModal />
       </GlobalProvider>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

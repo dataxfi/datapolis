@@ -1,6 +1,6 @@
 import Web3 from "web3";
 import { Ocean, Config } from "@dataxfi/datax.js";
-import Web3Modal, { local } from "web3modal";
+import Web3Modal, { getInjectedProviderName } from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import React, {
   createContext,
@@ -10,6 +10,15 @@ import React, {
 } from "react";
 import Core from "web3modal";
 import Disclaimer from "../components/Disclaimer";
+import {
+  acceptsCookiesGA,
+  deniedCookiesGA,
+  connectedMultipleWalletsGA,
+  connectedWalletGA,
+  connectedToNetworkGA,
+  deniedSignatureGA,
+  connectedWalletViaGA,
+} from "./Analytics";
 
 const initialState: any = {};
 const CONNECT_TEXT = "Connect Wallet";
@@ -34,6 +43,7 @@ export const GlobalProvider = ({
   const [buttonText, setButtonText] = useState<string | undefined>(
     CONNECT_TEXT
   );
+  const [cookiesAllowed, setCookiesAllowed] = useState<boolean>(false);
 
   useEffect(() => {
     for (let i = 0; i < localStorage.length; i++) {
@@ -87,32 +97,54 @@ export const GlobalProvider = ({
     localSignature: string | null
   ): Promise<any> {
     account = account.toLowerCase();
-    try {
-      if (!localSignature) {
-        localStorage.setItem(account, "pending");
-        let signature = await web3.eth.personal.sign(
-          Disclaimer(),
-          account || "",
-          ""
-        );
-        localStorage.setItem(account, signature);
-        setDisclaimerSigned(true);
-      } else if (localSignature === "pending") {
-        alert(
-          "You must open your wallet and sign the pending disclaimer before proceeding."
-        );
+
+    let cookiesConfirmed;
+
+    if (!cookiesAllowed) {
+      if (
+        window.confirm(
+          'Press "okay" to consent to cookies and connect to your wallet.'
+        )
+      ) {
+        cookiesConfirmed = true;
+        localStorage.setItem("cookiesAllowed", "true");
+        setCookiesAllowed(true);
+        acceptsCookiesGA();
+      } else {
+        deniedCookiesGA();
       }
-    } catch (error) {
-      console.error(error);
-      localStorage.removeItem(account);
+    } else {
+      cookiesConfirmed = true;
     }
-    return localSignature;
+
+    if (cookiesConfirmed) {
+      try {
+        if (!localSignature) {
+          localStorage.setItem(account, "pending");
+          let signature = await web3.eth.personal.sign(
+            Disclaimer(),
+            account || "",
+            ""
+          );
+          localStorage.setItem(account, signature);
+          setDisclaimerSigned(true);
+        } else if (localSignature === "pending") {
+          alert(
+            "You must open your wallet and sign the pending disclaimer before proceeding."
+          );
+        }
+      } catch (error) {
+        console.error(error);
+        localStorage.removeItem(account);
+        deniedSignatureGA();
+      }
+      return localSignature;
+    }
   }
 
   async function handleConnect() {
     const provider = await web3Modal?.connect();
     setProvider(provider);
-
     // // This is required to get the token list
     const web3 = new Web3(provider);
     console.log("Web3");
@@ -158,7 +190,9 @@ export const GlobalProvider = ({
     chainId: string,
     account: string | null
   ) {
-    if (config.getNetwork(chainId) === "unknown") {
+    const network = config.getNetwork(chainId);
+    connectedToNetworkGA({ network, chainId });
+    if (network === "unknown") {
       setAccountId(null);
       setButtonText(CONNECT_TEXT);
       return false;
@@ -167,6 +201,9 @@ export const GlobalProvider = ({
       console.log("Pre Account Id - ", account);
       setAccountId(account);
       setButtonText(account || CONNECT_TEXT);
+      connectedWalletGA();
+      const wallet = getInjectedProviderName();
+      connectedWalletViaGA({ wallet });
       return true;
     }
   }
@@ -183,6 +220,8 @@ export const GlobalProvider = ({
         setButtonText(
           accounts.length && accounts[0] !== "" ? accounts[0] : CONNECT_TEXT
         );
+        connectedMultipleWalletsGA();
+        connectedWalletGA();
       } else {
         setAccountId(null);
         setButtonText(CONNECT_TEXT);
@@ -227,6 +266,7 @@ export const GlobalProvider = ({
         ocean,
         network: NETWORK,
         config,
+        setCookiesAllowed,
       }}
     >
       {children}
