@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { GlobalContext } from "../context/GlobalState";
-
+import {acceptsCookiesGA, deniedCookiesGA} from '../context/Analytics'
 function CookiesModal() {
   const { setCookiesAllowed } = useContext(GlobalContext);
   const [show, setShow] = useState(false);
@@ -26,8 +26,11 @@ function CookiesModal() {
     if (e.target.id === "confirmCookies") {
       localStorage.setItem("cookiesAllowed", "true");
       setCookiesAllowed(true)
+      acceptsCookiesGA()
+      
     } else {
       localStorage.setItem("cookiesAllowed", "false");
+      deniedCookiesGA()
     }
 
     setShow(false)
