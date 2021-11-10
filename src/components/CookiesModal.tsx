@@ -37,12 +37,17 @@ function CookiesModal() {
   }
 
   return (
-    <div className={`w-96 absolute bottom-0 flex flex-col bg-primary-700 p-5 justify-center m-4 rounded-md shadow-2xl ${show? "block" : "hidden"}`}>
+    <div
+      className={`w-96 absolute bottom-0 flex flex-col bg-primary-700 p-5 justify-center m-4 rounded-md filter drop-shadow-2xl transition-all ${
+        show ? "opacity-100" : "opacity-0"
+      }`}
+    >
       <h2 className="font-bold text-xl self-center">Cookie Notice</h2>
       <p className="my-2">
-        DataX stores cookies to enable features and enhance user experience.
-        Please confirm or deny the use of cookies. (You must accept cookies to
-        connect to your wallet.)
+        We collect anonymised and aggregated information about usage stats of
+        DataX products. We do not collect any personally identifiable data about
+        you. Please Click 'Confirm' to help DataX improve and enrich your user
+        experience.
       </p>
       <button
         onClick={confirmOrDeny}
