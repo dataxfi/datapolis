@@ -4,10 +4,11 @@ import Swap from "./components/Swap";
 import Stake from "./components/Stake";
 import LiquidityPosition from "./components/LiquidityPosition";
 import CookiesModal from "./components/CookiesModal";
-import { GlobalProvider } from "./context/GlobalState";
 import RemoveAmount from "./components/RemoveAmount";
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
 import { initializeGA } from "./context/Analytics";
+import UnsupportedNetwork from "./components/UnsupportedNetwork";
+import { GlobalContext } from "./context/GlobalState";
 // import LiquidityPosition from "./components/LiquidityPosition";
 // import TransactionDoneModal from "./components/TransactionDoneModal";
 // import Snackbar from "./components/Snackbar";
@@ -21,9 +22,13 @@ function App() {
     initializeGA();
   }, []);
 
+  const {unsupportedNet} = useContext(GlobalContext);
+
   return (
     <>
-      <GlobalProvider>
+      {unsupportedNet ? (
+        <UnsupportedNetwork />
+      ) : (
         <Router>
           <Navbar />
           <Route path="/" exact component={Swap} />
@@ -38,8 +43,9 @@ function App() {
           {/*<RemoveAmount />*/}
           {/* <ConfirmSwapModal /> */}
         </Router>
-        <CookiesModal />
-      </GlobalProvider>
+      )}
+
+      <CookiesModal />
     </>
   );
 }

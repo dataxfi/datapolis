@@ -1,8 +1,8 @@
 import Web3 from "web3";
 import { Ocean, Config } from "@dataxfi/datax.js";
-import Web3Modal, { getInjectedProviderName } from "web3modal";
+import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-import React, {
+import {
   createContext,
   PropsWithChildren,
   useEffect,
@@ -44,6 +44,7 @@ export const GlobalProvider = ({
     CONNECT_TEXT
   );
   const [cookiesAllowed, setCookiesAllowed] = useState<boolean>(false);
+  const [unsupportedNet, setUnsupportedNet] = useState<boolean>(false);
 
   useEffect(() => {
     for (let i = 0; i < localStorage.length; i++) {
@@ -167,18 +168,11 @@ export const GlobalProvider = ({
       const config = new Config(web3, String(_chainId));
       setConfig(config);
 
-      if (
-        isSupportedChain(
-          config,
-          String(_chainId),
-          accounts[0] ? accounts[0] : ""
-        )
-      ) {
-      } else {
-        alert(
-          `Please connect to a supported chain: Ethereum Mainnet, Polygon, BSC, Rinkeby.`
-        );
-      }
+      isSupportedChain(
+        config,
+        String(_chainId),
+        accounts[0] ? accounts[0] : ""
+      );
     } else {
       handleSignature(accounts[0], web3, localSignature);
     }
@@ -195,10 +189,12 @@ export const GlobalProvider = ({
     if (network === "unknown") {
       setAccountId(null);
       setButtonText(CONNECT_TEXT);
-      return false;
+      setUnsupportedNet(true);
     } else {
+      setUnsupportedNet(false);
       console.log("Account Id - ", accountId);
       console.log("Pre Account Id - ", account);
+      //account is null when chain changes to prevent switching to an unsigned account
       setAccountId(account);
       setButtonText(account || CONNECT_TEXT);
       connectedWalletGA();
@@ -234,13 +230,14 @@ export const GlobalProvider = ({
 
     // Subscribe to chainId change
     provider.on("chainChanged", async (chainId: any) => {
+      const parsedId = String(parseInt(chainId))
       console.log(chainId);
-      console.log("Chain changed to ", parseInt(chainId));
+      console.log("Chain changed to ", parsedId);
       setChainId(parseInt(chainId));
-      const config = new Config(web3, String(parseInt(chainId)));
+      const config = new Config(web3, parsedId);
       setConfig(config);
       setOcean(new Ocean(web3, String(parseInt(chainId))));
-      isSupportedChain(config, String(chainId), null);
+      isSupportedChain(config, parsedId, null);
     });
 
     // Subscribe to provider connection
@@ -268,6 +265,7 @@ export const GlobalProvider = ({
         network: NETWORK,
         config,
         setCookiesAllowed,
+        unsupportedNet
       }}
     >
       {children}
