@@ -42,7 +42,7 @@ function CookiesModal() {
         show ? "opacity-100" : "opacity-0"
       }`}
     >
-      <h2 className="font-bold text-xl self-center">Cookie Notice</h2>
+      <h2 className="font-bold text-xl self-center">Help us improve!</h2>
       <p className="my-2">
         We collect anonymised and aggregated information about usage stats of
         DataX products. We do not collect any personally identifiable data about
