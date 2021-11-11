@@ -2,14 +2,9 @@ import Web3 from "web3";
 import { Ocean, Config } from "@dataxfi/datax.js";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-import {
-  createContext,
-  PropsWithChildren,
-  useEffect,
-  useState,
-} from "react";
+import { createContext, PropsWithChildren, useEffect, useState } from "react";
 import Core from "web3modal";
-import Disclaimer from "../components/Disclaimer";
+import { Disclaimer } from "../components/DisclaimerModal";
 import {
   acceptsCookiesGA,
   deniedCookiesGA,
@@ -39,12 +34,20 @@ export const GlobalProvider = ({
   const [web3, setWeb3] = useState<Web3 | null>(null);
   const [ocean, setOcean] = useState<Ocean | null>(null);
   const [config, setConfig] = useState<any>(null);
-  const [disclaimerSigned, setDisclaimerSigned] = useState<boolean>(false);
+  interface DisclaimerObj {
+    client: boolean;
+    wallet: boolean;
+  }
+  const [disclaimerSigned, setDisclaimerSigned] = useState<DisclaimerObj>({
+    client: false,
+    wallet: false,
+  });
   const [buttonText, setButtonText] = useState<string | undefined>(
     CONNECT_TEXT
   );
   const [cookiesAllowed, setCookiesAllowed] = useState<boolean>(false);
   const [unsupportedNet, setUnsupportedNet] = useState<boolean>(false);
+  const [showDisclaimer, setShowDisclaimer] = useState<boolean>(false);
 
   useEffect(() => {
     for (let i = 0; i < localStorage.length; i++) {
@@ -121,18 +124,22 @@ export const GlobalProvider = ({
     if (cookiesConfirmed) {
       try {
         if (!localSignature) {
-          localStorage.setItem(account, "pending");
-          let signature = await web3.eth.personal.sign(
-            Disclaimer(),
-            account || "",
-            ""
-          );
-          localStorage.setItem(account, signature);
-          setDisclaimerSigned(true);
-        } else if (localSignature === "pending") {
-          alert(
-            "You must open your wallet and sign the pending disclaimer before proceeding."
-          );
+          setShowDisclaimer(true);
+          if (disclaimerSigned.client === true) {
+            localStorage.setItem(account, "pending");
+            let signature = await web3.eth.personal.sign(
+              Disclaimer(),
+              account || "",
+              "",
+              () => {
+                setShowDisclaimer(false);
+              }
+            );
+            localStorage.setItem(account, signature);
+            setDisclaimerSigned({ ...disclaimerSigned, wallet: true });
+          }
+        } else if (localSignature === "pending"){
+          setShowDisclaimer(true)
         }
       } catch (error) {
         console.error(error);
@@ -223,14 +230,14 @@ export const GlobalProvider = ({
         setAccountId(null);
         setButtonText(CONNECT_TEXT);
         setChainId(undefined);
-        setDisclaimerSigned(false);
+        setDisclaimerSigned({ client: false, wallet: false });
         handleSignature(accounts[0], web3, localSignature);
       }
     });
 
     // Subscribe to chainId change
     provider.on("chainChanged", async (chainId: any) => {
-      const parsedId = String(parseInt(chainId))
+      const parsedId = String(parseInt(chainId));
       console.log(chainId);
       console.log("Chain changed to ", parsedId);
       setChainId(parseInt(chainId));
@@ -265,7 +272,11 @@ export const GlobalProvider = ({
         network: NETWORK,
         config,
         setCookiesAllowed,
-        unsupportedNet
+        unsupportedNet,
+        setShowDisclaimer,
+        showDisclaimer,
+        setDisclaimerSigned,
+        disclaimerSigned,
       }}
     >
       {children}
