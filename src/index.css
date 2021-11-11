@@ -17,8 +17,15 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
+
 body {
-  @apply bg-gradient-to-l from-gray-800 via-gray-400 to-gray-800 text-type-100;
+@apply text-type-100; 
+background: rgb(128,140,171);
+background: radial-gradient(circle, rgba(128,140,171,1) 0%, rgba(62,72,103,1) 54%, rgba(11,16,46,1) 100%);
+}
+
+#root{
+  @apply min-h-0
 }
 
 /* Links */
