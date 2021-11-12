@@ -9,13 +9,16 @@ const MobileNavbar = ({
   links,
   text,
   wallet,
+  truncateId
 }: {
   links: Array<any>;
   text: Record<any, any>;
   wallet: string;
+  truncateId: Function 
 }) => {
   const { handleConnect, accountId } = useContext(GlobalContext);
   const [menuVisible, setMenuVisible] = useState(false);
+  const [walletBtnVis, setWalletBtnVis] = useState(false)
 
   function toggleMenu(state: boolean) {
     setMenuVisible(state);
@@ -27,6 +30,10 @@ const MobileNavbar = ({
     toggleMenu(false);
   }, [location]);
 
+  useEffect(()=>{
+    setWalletBtnVis(true)
+  },[accountId])
+  
   return (
     <header className="flex flex-col">
       <div className="flex lg:hidden justify-between items-center pt-2 border-gray-800 pr-4">
@@ -40,46 +47,55 @@ const MobileNavbar = ({
                 onClick={() => toggleMenu(false)}
                 color="#ccc"
                 size="28"
+                className="z-20"
               />
             </button>
           ) : (
-            <button>
-              <MdMenu onClick={() => toggleMenu(true)} color="#ccc" size="28" />{" "}
+            <button >
+              <MdMenu onClick={() => toggleMenu(true)} className="z-20" color="#ccc" size="28" />{" "}
             </button>
           )}
         </div>
-        <div className="fixed bottom-0 left-0 w-full py-2 md:hidden flex justify-center bg-background">
-          {accountId ? (
-            <Button
-              text="Wallet connected"
-              onClick={() => handleConnect()}
-              classes="hm-btn text-xs"
-            />
-          ) : (
-            <></>
-          )}
-          {/* <Button text={wallet} classes="hm-btn hm-btn-light" onClick={() => connectToWallet()}></Button> */}
+      </div>
+      <div
+        className={`w-full bg-primary-700 z-10  mb-5 absolute top-0 transform${
+          menuVisible ? " translate-y-18" : " -translate-y-19"
+        } transition duration-1000 border-t border-b lg:-translate-y-19`}
+      >
+        {links.map((link, idx) => {
+          return (
+            <div key={idx} className="py-1.5 px-8 hover:bg-primary-600">
+              <Link
+                onClick={() => toggleMenu(false)}
+                to={link.link}
+                className="hm-link product"
+              >
+                {link.name}
+              </Link>
+            </div>
+          );
+        })}
+      </div>
+
+      <div
+        className={`fixed bottom-0 left-0 w-full py-2 md:hidden flex justify-center bg-background opacity-80 transform ${
+          walletBtnVis ? "" : "translate-y-12"
+        } transition duration-1000 z-10`}
+      >
+        <div className="flex flex-row w-full justify-between px-3 ">
+          <Button
+            text={`${accountId ? "Wallet:" + truncateId() : "Connect wallet"}`}
+            onClick={() => handleConnect()}
+            classes="hm-btn text-xs w-full"
+          />
+          <MdClose
+            onClick={() => setWalletBtnVis(false)}
+            color="#ccc"
+            size="28"
+            className="mt-1"
+          />
         </div>
       </div>
-        {menuVisible ? (
-          <div className="w-full bg-primary-900 px-8">
-            {links.map((link, idx) => {
-              return (
-                <div key={idx} className="py-1.5">
-                  <Link
-                    onClick={() => toggleMenu(false)}
-                    to={link.link}
-                    className="hm-link product"
-                  >
-                    {link.name}
-                  </Link>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <></>
-        )}
     </header>
   );
 };

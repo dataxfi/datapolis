@@ -148,12 +148,17 @@ const Stake = () => {
 
   return (
     <>
-      <div className="flex mt-16 w-full items-center mb-20">
-        <div className="max-w-2xl mx-auto bg-primary-900 w-full rounded-lg p-4 hm-box">
+      <div className="flex my-3 w-full items-center justify-center lg:h-3/4">
+        <div className="max-w-2xl lg:mx-auto sm:mx-4 mx-3 bg-primary-900 w-full rounded-lg p-4 hm-box ">
           <div className="flex justify-between">
             <p className="text-xl">{text.T_STAKE}</p>
           </div>
-          <StakeSelect value={token} setToken={(val: any) => {updateToken(val)} } />
+          <StakeSelect
+            value={token}
+            setToken={(val: any) => {
+              updateToken(val);
+            }}
+          />
           <div className="px-4 relative my-12">
             <div className="rounded-full border-primary-900 border-4 absolute -top-14 bg-primary-800 w-16 h-16 flex items-center justify-center swap-center">
               <AiOutlinePlus size="30" className="text-gray-300" />
@@ -163,101 +168,123 @@ const Stake = () => {
             <div className="md:grid md:grid-cols-5">
               <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center">
                 <img
-                  src='https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY'
+                  src="https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY"
                   className="w-14 h-14 rounded-md"
                   alt=""
                 />
                 <div>
                   <p className="text-xs text-type-200">Token</p>
-                  <span className="text-2xl text-type-200 font-bold grid grid-flow-col items-center gap-1">
+                  <span className="xs:text-sm sm:text-2xl text-type-200 font-bold grid grid-flow-col items-center gap-1">
                     <span>OCEAN</span>
                   </span>
                   {/* <p className="text-xs text-type-100 border-type-300 border rounded-full px-2 py-1 mt-1">Select token</p>           */}
                 </div>
               </div>
               <div className="col-span-3 mt-3 md:mt-0">
-              <div className="h-full w-full rounded-lg bg-primary-900 text-3xl p-2">
-                    <div className="flex justify-between items-center">                
-                      {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
-                      <input
-                        value={oceanVal}
-                        onChange={e => updateNum(e.target.value)}
-                        onWheel={event => event.currentTarget.blur()}
-                        onKeyDown={evt =>
-                          ["e", "E", "+", "-"].includes(evt.key) &&
-                          evt.preventDefault()
-                        }
-                        type="number"
-                        className="h-full w-full rounded-lg bg-primary-900 text-3xl px-2 outline-none focus:placeholder-type-200 placeholder-type-400"
-                        placeholder="0.0"
-                      />
-                      <div>
-                            {
-                                balance ?
-                                <p className="text-sm text-type-400 whitespace-nowrap text-right">
-                                    Balance: {Number(balance).toLocaleString(undefined, {maximumFractionDigits: 4})}
-                                </p> : <></>
-                            }
-                            {
-                                loading ? 
-                                <div className="text-center">
-                                    <PulseLoader color="white" size="4px" margin="5px" /> 
-                                </div>
-                                : 
-                                balance ?
-                                <div className="text-sm text-type-300 grid grid-flow-col justify-end gap-2">
-                                    <Button onClick={() => {setMaxStake()}} text="Max Stake" classes="px-2 py-0 border border-type-300 rounded-full text-xs" />
-                                </div> : <></>
-                            }
+                <div className="h-full w-full rounded-lg bg-primary-900 text-3xl p-2">
+                  <div className="flex justify-between items-center">
+                    {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
+                    <input
+                      value={oceanVal}
+                      onChange={(e) => updateNum(e.target.value)}
+                      onWheel={(event) => event.currentTarget.blur()}
+                      onKeyDown={(evt) =>
+                        ["e", "E", "+", "-"].includes(evt.key) &&
+                        evt.preventDefault()
+                      }
+                      type="number"
+                      className="h-full w-full rounded-lg bg-primary-900 text-3xl px-2 outline-none focus:placeholder-type-200 placeholder-type-400"
+                      placeholder="0.0"
+                    />
+                    <div>
+                      {balance ? (
+                        <p className="text-sm text-type-400 whitespace-nowrap text-right">
+                          Balance:{" "}
+                          {Number(balance).toLocaleString(undefined, {
+                            maximumFractionDigits: 4,
+                          })}
+                        </p>
+                      ) : (
+                        <></>
+                      )}
+                      {loading ? (
+                        <div className="text-center">
+                          <PulseLoader color="white" size="4px" margin="5px" />
                         </div>
-                      </div>
+                      ) : balance ? (
+                        <div className="text-sm text-type-300 grid grid-flow-col justify-end gap-2">
+                          <Button
+                            onClick={() => {
+                              setMaxStake();
+                            }}
+                            text="Max Stake"
+                            classes="px-2 py-0 border border-type-300 rounded-full text-xs"
+                          />
+                        </div>
+                      ) : (
+                        <></>
+                      )}
                     </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 border border-type-600 mt-4 rounded-lg p-4 justify-center">
-              <div>
-                <p className="text-type-300 text-xs">Swap Rate</p>
-                { token && oceanToDt && dtToOcean && !loadingRate ?
+          <div className="grid grid-cols-1 md:grid-cols-3 border border-type-600 mt-4 rounded-lg p-2 justify-center">
+            <div className="my-1">
+              <p className="text-type-300 text-xs">Swap Rate</p>
+              {token && oceanToDt && dtToOcean && !loadingRate ? (
                 <div>
-                  <p className="text-type-200 text-xs">{Number(oceanToDt).toFixed(5)} OCEAN per {token.symbol}</p>
-                  <p className="text-type-200 text-xs">{Number(dtToOcean).toFixed(5)} {token.symbol} per OCEAN</p>
+                  <p className="text-type-200 text-xs">
+                    {Number(oceanToDt).toFixed(5)} OCEAN per {token.symbol}
+                  </p>
+                  <p className="text-type-200 text-xs">
+                    {Number(dtToOcean).toFixed(5)} {token.symbol} per OCEAN
+                  </p>
                 </div>
-                  : <div> - </div>
-                }
-              </div>
-              <div>
-                <p className="text-type-300 text-xs">Pool liquidity</p>
-                {
-                  token && poolLiquidity && !loadingRate ?
-                  <div>
-                <p className="text-type-200 text-xs">{Number(poolLiquidity?.oceanAmount).toFixed(5)} OCEAN</p>
-                <p className="text-type-200 text-xs">{Number(poolLiquidity?.dtAmount).toFixed(5)} {token.symbol}</p>
-                  </div>  :
-                  <div> - </div>
-                }
-              </div>
-              <div>
-                <p className="text-type-300 text-xs">Your liquidity</p>
-                {
-                  token && yourLiquidity && !loadingRate ?
-                  <div>
-                    <p className="text-type-200 text-xs">{Number(yourLiquidity?.oceanAmount).toFixed(5)} OCEAN</p>
-                    <p className="text-type-200 text-xs">{Number(yourLiquidity?.dtAmount).toFixed(5)} {token.symbol}</p>
-                  </div> :
-                  <div> - </div>
-                }
-              </div>
+              ) : (
+                <div> - </div>
+              )}
+            </div>
+            <div className="my-1">
+              <p className="text-type-300 text-xs">Pool liquidity</p>
+              {token && poolLiquidity && !loadingRate ? (
+                <div>
+                  <p className="text-type-200 text-xs">
+                    {Number(poolLiquidity?.oceanAmount).toFixed(5)} OCEAN
+                  </p>
+                  <p className="text-type-200 text-xs">
+                    {Number(poolLiquidity?.dtAmount).toFixed(5)} {token.symbol}
+                  </p>
+                </div>
+              ) : (
+                <div> - </div>
+              )}
+            </div>
+            <div className="my-1">
+              <p className="text-type-300 text-xs">Your liquidity</p>
+              {token && yourLiquidity && !loadingRate ? (
+                <div>
+                  <p className="text-type-200 text-xs">
+                    {Number(yourLiquidity?.oceanAmount).toFixed(5)} OCEAN
+                  </p>
+                  <p className="text-type-200 text-xs">
+                    {Number(yourLiquidity?.dtAmount).toFixed(5)} {token.symbol}
+                  </p>
+                </div>
+              ) : (
+                <div> - </div>
+              )}
+            </div>
           </div>
           <Button
-              text={btnProps.text}
-              onClick={() => {
-                btnProps.text === 'Connect wallet' ?
-                handleConnect() : stakeX()
-              }}
-              classes={"px-4 py-4 rounded-lg w-full mt-4 " + btnProps.classes}
-              disabled={btnProps.disabled}
-            />          
+            text={btnProps.text}
+            onClick={() => {
+              btnProps.text === "Connect wallet" ? handleConnect() : stakeX();
+            }}
+            classes={"px-4 py-4 rounded-lg w-full mt-4 " + btnProps.classes}
+            disabled={btnProps.disabled}
+          />
         </div>
       </div>
 
@@ -268,12 +295,12 @@ const Stake = () => {
           token
             ? [
                 `1. Approve StakeX to spend ${oceanVal} OCEAN`,
-                `2. Stake ${oceanVal} OCEAN in ${token.symbol} pool`
+                `2. Stake ${oceanVal} OCEAN in ${token.symbol} pool`,
               ]
             : []
         }
       />
-       <TransactionDoneModal
+      <TransactionDoneModal
         show={showTxDone}
         txHash={recentTxHash}
         close={() => setShowTxDone(false)}
@@ -283,7 +310,7 @@ const Stake = () => {
       <PositionBox /> */}
       {/* <LiquidityPosition /> */}
     </>
-  )
+  );
 }
 
 export default Stake

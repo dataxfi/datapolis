@@ -5,25 +5,32 @@ module.exports = {
   purge: ["./src/**/*.{js,jsx,ts,tsx}", "./public/index.html"],
   darkMode: false, // or 'media' or 'class'
   theme: {
-    screens:{
-      'xs': '280px',
-      'sm': '320px',
-      'md': '560px',
-      'lg': '870px',
-      'xl': '1280px',
-      '2xl': '1536px'
+    screens: {
+      xs: "280px",
+      sm: "320px",
+      md: "560px",
+      lg: "870px",
+      xl: "1280px",
+      "2xl": "1536px",
     },
     fontFamily: {
       sans: ["DM Sans", "Helvetica", "Arial", "sans-serif"],
       pollerOne: ['"Poller One"', "cursive"],
     },
-    backgroundSize:{
-      "lg":"300px",
-      "md":"150px",
-      "sm":"100px",
-      "xs":"50px"
+    backgroundSize: {
+      lg: "300px",
+      md: "150px",
+      sm: "100px",
+      xs: "50px",
     },
     extend: {
+      spacing: {
+        18: "4.5rem",
+        19: "4.75rem",
+        98: "25rem",
+        100: "26rem",
+        102: "27rem",
+      },
       //  colors: {
       //   'primary': colors.trueGray,
       //   'secondary': colors.blue,

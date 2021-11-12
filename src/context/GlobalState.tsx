@@ -25,6 +25,10 @@ export const GlobalProvider = ({
 }) => {
   const NETWORK = "mainnet";
   // const [state, dispatch]: [any, Function] = useReducer(AppReducer, initialState)
+  interface DisclaimerObj {
+    client: boolean;
+    wallet: boolean;
+  }
   const [web3Modal, setWeb3Modal] = useState<Core | null>(null);
   const [accountId, setAccountId] = useState<string | null>(null);
   const [chainId, setChainId] = useState<number | undefined>(undefined);
@@ -32,20 +36,18 @@ export const GlobalProvider = ({
   const [web3, setWeb3] = useState<Web3 | null>(null);
   const [ocean, setOcean] = useState<Ocean | null>(null);
   const [config, setConfig] = useState<any>(null);
-  interface DisclaimerObj {
-    client: boolean;
-    wallet: boolean;
-  }
+  const [cookiesAllowed, setCookiesAllowed] = useState<boolean| null> (null);
+  const [unsupportedNet, setUnsupportedNet] = useState<boolean>(false);
+  const [showDisclaimer, setShowDisclaimer] = useState<boolean>(false);
+
   const [disclaimerSigned, setDisclaimerSigned] = useState<DisclaimerObj>({
     client: false,
     wallet: false,
   });
+
   const [buttonText, setButtonText] = useState<string | undefined>(
     CONNECT_TEXT
   );
-  const [cookiesAllowed, setCookiesAllowed] = useState<boolean| null> (null);
-  const [unsupportedNet, setUnsupportedNet] = useState<boolean>(false);
-  const [showDisclaimer, setShowDisclaimer] = useState<boolean>(false);
 
   useEffect(() => {
     for (let i = 0; i < localStorage.length; i++) {

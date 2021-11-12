@@ -49,7 +49,7 @@ const StakeSelect = ({value, setToken}: {value: Record<any, any> | null, setToke
                   <div>
                     <p className="text-type-100 text-xs">DataToken</p>
                     <span className="text-2xl text-type-200 font-bold grid grid-flow-col items-center gap-1">
-                      <span>{value.symbol}</span>
+                      <span className="text-xs sm:text-xl">{value.symbol}</span>
                       <BsChevronDown className="text-type-200" size="16" />
                     </span>
                   </div>
@@ -63,7 +63,7 @@ const StakeSelect = ({value, setToken}: {value: Record<any, any> | null, setToke
             <div className="col-span-3 mt-3 md:mt-0">
               {value ? (
                 <div>
-                  <p className="text-type-100 uppercase">{value.name}</p>
+                  <p className="text-type-100 uppercase text-xs md:text-lg">{value.name}</p>
                   <div className="grid grid-flow-col justify-start gap-4">
                     <a
                       href={

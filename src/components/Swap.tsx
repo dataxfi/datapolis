@@ -421,8 +421,8 @@ const Swap = () => {
   }
   return (
     <>
-      <div className="flex my-3 w-full items-center">
-        <div className="max-w-2xl md:mx-auto sm:mx-4 mx-3 bg-primary-900 w-full rounded-lg p-4 hm-box ">
+      <div className="flex my-3 w-full items-center justify-center md:h-3/4">
+        <div className="max-w-2xl lg:mx-auto sm:mx-4 mx-3 bg-primary-900 w-full rounded-lg p-4 hm-box ">
           <div className="flex justify-between relative">
             <p className="text-xl">{text.T_SWAP}</p>
             <div className="grid grid-flow-col gap-2 items-center">

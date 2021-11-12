@@ -19,17 +19,17 @@ input[type="number"] {
 
 
 body, html {
-@apply text-type-100 bg-no-repeat h-full m-0 bg-fixed;
+@apply text-type-100 bg-no-repeat md:h-full m-0 bg-fixed;
 background: rgb(128,140,171);
 background: radial-gradient(circle, rgba(128,140,171,1) 0%, rgba(62,72,103,1) 54%, rgba(11,16,46,1) 100%);
 }
 
 #root{
-  @apply h-full p-2
+  @apply h-screen md:h-full 
 }
 
 #root:empty, html:empty{
-  @apply bg-center bg-no-repeat bg-fixed bg-dataXgif sm:bg-sm md:bg-lg
+  @apply bg-center bg-no-repeat bg-fixed bg-dataXgif sm:bg-sm md:bg-md
 }
 
 /* Links */
