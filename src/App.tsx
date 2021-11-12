@@ -9,6 +9,7 @@ import { useEffect, useContext } from "react";
 import { initializeGA } from "./context/Analytics";
 import UnsupportedNetwork from "./components/UnsupportedNetwork";
 import { GlobalContext } from "./context/GlobalState";
+import DisclaimerModal from "./components/DisclaimerModal";
 // import LiquidityPosition from "./components/LiquidityPosition";
 // import TransactionDoneModal from "./components/TransactionDoneModal";
 // import Snackbar from "./components/Snackbar";
@@ -18,11 +19,14 @@ import { GlobalContext } from "./context/GlobalState";
 // import ConfirmSwapModal from "./components/ConfirmSwapModal";
 
 function App() {
-  useEffect(() => {
-    initializeGA();
-  }, []);
+  const { unsupportedNet, showDisclaimer, cookiesAllowed } =
+    useContext(GlobalContext);
 
-  const {unsupportedNet} = useContext(GlobalContext);
+  useEffect(() => {
+    if (cookiesAllowed === "true") {
+      initializeGA();
+    }
+  }, []);
 
   return (
     <>
@@ -31,21 +35,26 @@ function App() {
       ) : (
         <Router>
           <Navbar />
-          <Route path="/" exact component={Swap} />
-          <Route path="/stakeX" exact component={Stake} />
-          <Route path="/stakeX/remove" exact component={RemoveAmount} />
-          <Route path="/stakeX/list" exact component={LiquidityPosition} />
-          {/* <Snackbar text="Approve LINK" onClose={() => {}} /> */}
-          {/* <CreatePoolModal /> */}
-          {/* <ConfirmModal /> */}
-          {/* <TransactionDoneModal show={true} close={() => {}} /> */}
-          {/*<LiquidityPosition />*/}
-          {/*<RemoveAmount />*/}
-          {/* <ConfirmSwapModal /> */}
+          {showDisclaimer ? (
+            <DisclaimerModal />
+          ) : (
+            <>
+              <Route path="/" exact component={Swap} />
+              <Route path="/stakeX" exact component={Stake} />
+              <Route path="/stakeX/remove" exact component={RemoveAmount} />
+              <Route path="/stakeX/list" exact component={LiquidityPosition} />
+              {/* <Snackbar text="Approve LINK" onClose={() => {}} /> */}
+              {/* <CreatePoolModal /> */}
+              {/* <ConfirmModal /> */}
+              {/* <TransactionDoneModal show={true} close={() => {}} /> */}
+              {/*<LiquidityPosition />*/}
+              {/*<RemoveAmount />*/}
+              {/* <ConfirmSwapModal /> */}
+            </>
+          )}
         </Router>
       )}
-
-      <CookiesModal />
+      {cookiesAllowed === null ? <CookiesModal /> : null}
     </>
   );
 }
