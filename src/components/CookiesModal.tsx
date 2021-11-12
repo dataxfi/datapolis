@@ -44,11 +44,12 @@ function CookiesModal() {
     >
       <h2 className="font-bold text-xl self-center">Help us improve!</h2>
       <p className="my-2">
-        We collect anonymised and aggregated information about usage stats of
-        DataX products. We do not collect any personally identifiable data about
-        you. Please Click 'Confirm' to help DataX improve and enrich your user
-        experience.
+        We collect anonymised and aggregated usage stats of DataX products. 
+        We do not collect any personally identifiable data. 
+        Please select 'Confirm' to help DataX improve and enrich your user
+        experience. You may also select 'Deny' to only store information essential to the functionality of the application. 
       </p>
+      
       <button
         onClick={confirmOrDeny}
         className="p-2 w-full rounded-sm bg-primary-600 hover:bg-primary-500"

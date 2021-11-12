@@ -5,12 +5,23 @@ module.exports = {
   purge: ["./src/**/*.{js,jsx,ts,tsx}", "./public/index.html"],
   darkMode: false, // or 'media' or 'class'
   theme: {
+    screens:{
+      'xs': '280px',
+      'sm': '320px',
+      'md': '560px',
+      'lg': '870px',
+      'xl': '1280px',
+      '2xl': '1536px'
+    },
     fontFamily: {
       sans: ["DM Sans", "Helvetica", "Arial", "sans-serif"],
       pollerOne: ['"Poller One"', "cursive"],
     },
-    minHeight: {
-      0: "100vmin",
+    backgroundSize:{
+      "lg":"300px",
+      "md":"150px",
+      "sm":"100px",
+      "xs":"50px"
     },
     extend: {
       //  colors: {
@@ -20,7 +31,7 @@ module.exports = {
       //   'type': colors.warmGray,
       //   'background': colors.black
       //  }
-
+      backgroundImage: { dataXgif: 'url("./assets/YellowXLoader.gif")' },
       colors: {
         primary: colors.coolGray,
         secondary: colors.indigo,

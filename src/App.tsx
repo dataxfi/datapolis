@@ -19,11 +19,14 @@ import DisclaimerModal from "./components/DisclaimerModal";
 // import ConfirmSwapModal from "./components/ConfirmSwapModal";
 
 function App() {
-  useEffect(() => {
-    initializeGA();
-  }, []);
+  const { unsupportedNet, showDisclaimer, cookiesAllowed } =
+    useContext(GlobalContext);
 
-  const { unsupportedNet, showDisclaimer } = useContext(GlobalContext);
+  useEffect(() => {
+    if (cookiesAllowed === "true") {
+      initializeGA();
+    }
+  }, []);
 
   return (
     <>
@@ -36,7 +39,6 @@ function App() {
             <DisclaimerModal />
           ) : (
             <>
-              {" "}
               <Route path="/" exact component={Swap} />
               <Route path="/stakeX" exact component={Stake} />
               <Route path="/stakeX/remove" exact component={RemoveAmount} />
@@ -52,8 +54,7 @@ function App() {
           )}
         </Router>
       )}
-
-      <CookiesModal />
+      {cookiesAllowed === null ? <CookiesModal /> : null}
     </>
   );
 }

@@ -27,7 +27,7 @@ const DesktopNavbar = ({
   }
 
   return (
-    <div className="md:flex justify-between items-center py-4 border-gray-800 pl-4 pr-2 hidden">
+    <header className="lg:flex justify-between items-center py-4 border-gray-800 pl-4 pr-2 hidden">
       <div className="grid grid-flow-col gap-8 items-center">
         <Logo className="logo" />
         {links.map((link, idx) => {
@@ -60,7 +60,7 @@ const DesktopNavbar = ({
           />
         </div>
       </div>
-    </div>
+    </header>
   );
 };
 

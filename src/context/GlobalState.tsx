@@ -6,8 +6,6 @@ import { createContext, PropsWithChildren, useEffect, useState } from "react";
 import Core from "web3modal";
 import { Disclaimer } from "../components/DisclaimerModal";
 import {
-  acceptsCookiesGA,
-  deniedCookiesGA,
   connectedMultipleWalletsGA,
   connectedWalletGA,
   connectedToNetworkGA,
@@ -45,7 +43,7 @@ export const GlobalProvider = ({
   const [buttonText, setButtonText] = useState<string | undefined>(
     CONNECT_TEXT
   );
-  const [cookiesAllowed, setCookiesAllowed] = useState<boolean>(false);
+  const [cookiesAllowed, setCookiesAllowed] = useState<boolean| null> (null);
   const [unsupportedNet, setUnsupportedNet] = useState<boolean>(false);
   const [showDisclaimer, setShowDisclaimer] = useState<boolean>(false);
 
@@ -101,27 +99,6 @@ export const GlobalProvider = ({
     localSignature: string | null
   ): Promise<any> {
     account = account.toLowerCase();
-
-    let cookiesConfirmed;
-
-    if (!cookiesAllowed) {
-      if (
-        window.confirm(
-          'Press "okay" to consent to cookies and connect to your wallet.'
-        )
-      ) {
-        cookiesConfirmed = true;
-        localStorage.setItem("cookiesAllowed", "true");
-        setCookiesAllowed(true);
-        acceptsCookiesGA();
-      } else {
-        deniedCookiesGA();
-      }
-    } else {
-      cookiesConfirmed = true;
-    }
-
-    if (cookiesConfirmed) {
       try {
         if (!localSignature) {
           setShowDisclaimer(true);
@@ -147,7 +124,7 @@ export const GlobalProvider = ({
         deniedSignatureGA();
       }
       return localSignature;
-    }
+    
   }
 
   async function handleConnect() {
@@ -277,6 +254,7 @@ export const GlobalProvider = ({
         showDisclaimer,
         setDisclaimerSigned,
         disclaimerSigned,
+        cookiesAllowed
       }}
     >
       {children}
