@@ -55,8 +55,8 @@ const SwapInput = ({title, value, pos, setToken, num, updateNum, balance, loadin
               {/* <button> */}
               <p className="text-xs text-type-200">{title}</p>
               {value ? (
-                <span className="text-2xl text-type-200 font-bold grid grid-flow-col items-center gap-1">
-                  <span>{value.symbol}</span>
+                <span className="text-sm sm:text-2xl text-type-200 font-bold grid grid-flow-col items-center gap-1">
+                  <span className="text-sm sm:text-lg">{value.symbol}</span>
                   <BsChevronDown className="text-type-200" size="16" />
                 </span>
               ) : (

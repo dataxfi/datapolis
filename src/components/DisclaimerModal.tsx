@@ -23,20 +23,17 @@ function DisclaimerModal() {
   const [progress, setProgress] = useState("0");
   const { setDisclaimerSigned, disclaimerSigned, setShowDisclaimer } =
     useContext(GlobalContext);
-  const [buttonsDisabled, setButtonsDisabled] = useState(
-    disclaimerSigned.client === true ? false : true
-  );
   const [showReminder, setShowReminder] = useState(false);
 
   useEffect(() => {
-    if (disclaimerSigned.client === true) setProgress("2/3");
+    if (disclaimerSigned.client === true) setProgress("1/2");
     if (disclaimerSigned.wallet) setProgress("full");
   }, [disclaimerSigned.wallet]);
 
   function approvedDisclaimer() {
     if (!disclaimerSigned.client) {
       setDisclaimerSigned({ ...disclaimerSigned, client: true });
-      setProgress("2/3");
+      setProgress("1/2");
     } else {
       setShowReminder(true);
     }
@@ -46,49 +43,29 @@ function DisclaimerModal() {
     setShowDisclaimer(false);
   }
 
-  function handleScroll(e: any) {
-    console.log("scrolling");
-    const bottom =
-      e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
-    if (bottom && progress === "0") {
-      setButtonsDisabled(false);
-      setProgress("1/3");
-    }
-  }
   return (
-    <div className="flex mt-16 w-full items-center mb-20">
-      <div className="max-w-2xl md:mx-auto sm:mx-4 mx-3 bg-primary-900 w-full rounded-lg p-4 hm-box flex flex-col px-10 py-4  max-h-96">
-        <h2 className="text-2xl self-center">Disclaimer Notice</h2>
-        <div
-          onScroll={handleScroll}
-          className="overflow-scroll h-3/5 w-full p-2 bg-primary-100 rounded text-black"
-        >
-          <p className="whitespace-pre-wrap">{Disclaimer()}</p>
+    <div className="flex sm:mt-6 md:mt-16 w-full items-center justify-center md:mb-20 z-30 ">
+      <div className="h-102 md:h-auto max-w-2xl  sm:mx-4 mx-3 bg-primary-900 w-full rounded-lg p-4 hm-box flex flex-col xs:p-1 sm:p-4 md:px-10 py-4 md:mb-20">
+        <h2 className="md:text-2xl text-xl self-center mb-2">Disclaimer</h2>
+        <div className="h-3/5 overflow-scroll lg:h-auto md:overflow-auto w-full p-2 bg-primary-700 rounded">
+          <p className="whitespace-pre-wrap p-2 text-xs md:text-sm">
+            {Disclaimer()}
+          </p>
         </div>
-        <p className="text-primary-400">
+        <p className="text-primary-400 my-3 text-xs md:text-sm">
           Please sign this disclaimer to connect to your wallet. Your wallet
           will ask for your signature regarding the same disclaimer.
         </p>
         <div className="flex flex-row">
           <button
-            className={`w-1/2 p-3 active:bg-primary-500 rounded-sm mr-1 transition-colors ${
-              buttonsDisabled
-                ? "bg-primary-300 text-primary-500"
-                : "bg-primary-500 hover:bg-primary-400"
-            }`}
+            className="w-1/2 text-xs sm:text-sm p-3 active:bg-primary-500  rounded-sm mr-1 transition-colors bg-primary-500 hover:bg-primary-400"
             onClick={deniedDisclaimer}
-            disabled={buttonsDisabled}
           >
             Cancel
           </button>
           <button
-            className={`w-1/2 p-3 active:bg-primary-500  rounded-sm mr-1 transition-colors ${
-              buttonsDisabled
-                ? "bg-primary-300 text-primary-500"
-                : "bg-primary-500 hover:bg-primary-400"
-            }`}
+            className="w-1/2 text-xs sm:text-sm p-3 active:bg-primary-500  rounded-sm mr-1 transition-colors bg-primary-500 hover:bg-primary-400"
             onClick={approvedDisclaimer}
-            disabled={buttonsDisabled}
           >
             Agree
           </button>
@@ -99,7 +76,7 @@ function DisclaimerModal() {
           ></div>
         </div>
         {showReminder ? (
-          <div className="transition-all ease-in-out duration-500 self-center animate-pulse">
+          <div className="transition-all ease-in-out duration-500 self-center animate-pulse mt-2">
             <p>Sign in your wallet and you will be ready to go!</p>
           </div>
         ) : null}

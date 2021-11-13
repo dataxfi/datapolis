@@ -9,12 +9,14 @@ const DesktopNavbar = ({
   links,
   text,
   wallet,
+  truncateId
 }: {
   links: Array<any>;
   text: Record<any, any>;
   wallet: string;
+  truncateId: Function
 }) => {
-  const { handleConnect, buttonText, chainId, config, accountId } =
+  const { handleConnect, chainId, config, accountId, buttonText } =
     useContext(GlobalContext);
 
   function dispNet() {
@@ -50,9 +52,7 @@ const DesktopNavbar = ({
           <Button
             text={
               accountId
-                ? buttonText.substring(0, 5) +
-                  "..." +
-                  buttonText.substring(buttonText.length - 4, buttonText.length)
+                ? truncateId()
                 : buttonText
             }
             onClick={() => handleConnect()}
