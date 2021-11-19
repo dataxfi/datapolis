@@ -38,7 +38,9 @@ module.exports = {
       //   'type': colors.warmGray,
       //   'background': colors.black
       //  }
-      backgroundImage: { dataXgif: 'url("./assets/YellowXLoader.gif")' },
+      backgroundImage: {
+        dataXgif: 'url("./assets/YellowXLoader.gif")',
+      },
       colors: {
         primary: colors.coolGray,
         secondary: colors.indigo,

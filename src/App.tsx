@@ -5,7 +5,7 @@ import Stake from "./components/Stake";
 import LiquidityPosition from "./components/LiquidityPosition";
 import CookiesModal from "./components/CookiesModal";
 import RemoveAmount from "./components/RemoveAmount";
-import { useEffect, useContext } from "react";
+import { useEffect, useContext, useState } from "react";
 import { initializeGA } from "./context/Analytics";
 import UnsupportedNetwork from "./components/UnsupportedNetwork";
 import { GlobalContext } from "./context/GlobalState";
@@ -22,10 +22,16 @@ function App() {
   const { unsupportedNet, showDisclaimer, cookiesAllowed } =
     useContext(GlobalContext);
 
+
+  document.getElementById("loader")
+
   useEffect(() => {
     if (cookiesAllowed === "true") {
       initializeGA();
     }
+    document.getElementById("loadText")?.remove()
+    document.getElementById("loadCenter")?.remove()
+    document.getElementById("loader")?.remove()
   }, []);
 
   return (

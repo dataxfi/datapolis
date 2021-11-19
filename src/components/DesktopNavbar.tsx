@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 // import { Config } from '@dataxfi/datax.js'
-import { ReactComponent as Logo } from "../assets/logo.svg";
+import { ReactComponent as Logo } from "../assets/logo-beta.svg";
 import Button from "./Button";
 import { GlobalContext } from "../context/GlobalState";
 
@@ -31,7 +31,7 @@ const DesktopNavbar = ({
   return (
     <header className="lg:flex justify-between items-center py-4 border-gray-800 pl-4 pr-2 hidden">
       <div className="grid grid-flow-col gap-8 items-center">
-        <Logo className="logo" />
+        <Logo className="logo" style={{height:"40px"}} />
         {links.map((link, idx) => {
           return (
             <Link

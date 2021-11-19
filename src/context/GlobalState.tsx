@@ -26,8 +26,8 @@ export const GlobalProvider = ({
   const NETWORK = "mainnet";
   // const [state, dispatch]: [any, Function] = useReducer(AppReducer, initialState)
   interface DisclaimerObj {
-    client: boolean;
-    wallet: boolean;
+    client: boolean | null;
+    wallet: boolean | null;
   }
   const [web3Modal, setWeb3Modal] = useState<Core | null>(null);
   const [accountId, setAccountId] = useState<string | null>(null);
@@ -36,13 +36,14 @@ export const GlobalProvider = ({
   const [web3, setWeb3] = useState<Web3 | null>(null);
   const [ocean, setOcean] = useState<Ocean | null>(null);
   const [config, setConfig] = useState<any>(null);
-  const [cookiesAllowed, setCookiesAllowed] = useState<boolean| null> (null);
+  const [cookiesAllowed, setCookiesAllowed] = useState<boolean | null>(null);
   const [unsupportedNet, setUnsupportedNet] = useState<boolean>(false);
   const [showDisclaimer, setShowDisclaimer] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const [disclaimerSigned, setDisclaimerSigned] = useState<DisclaimerObj>({
-    client: false,
-    wallet: false,
+    client: null,
+    wallet: null,
   });
 
   const [buttonText, setButtonText] = useState<string | undefined>(
@@ -61,7 +62,7 @@ export const GlobalProvider = ({
     if (provider && !accountId) {
       handleConnect();
     }
-  }, [disclaimerSigned]);
+  }, [disclaimerSigned.client, disclaimerSigned.wallet]);
 
   useEffect(() => {
     async function init() {
@@ -95,38 +96,42 @@ export const GlobalProvider = ({
   //   setWeb3(web3)
   // }
 
-  async function handleSignature(
+  async function handleSignature(account: string, web3: Web3) {
+    try {
+      localStorage.setItem(account, "pending");
+      let signature = await web3.eth.personal.sign(
+        Disclaimer(),
+        account || "",
+        "",
+        () => {
+          setShowDisclaimer(false);
+        }
+      );
+      localStorage.setItem(account, signature);
+      setDisclaimerSigned({ ...disclaimerSigned, wallet: true });
+      return signature;
+    } catch (error) {
+      console.error(error);
+      localStorage.removeItem(account);
+      deniedSignatureGA();
+    }
+  }
+
+  async function handleDisclaimer(
     account: string,
     web3: Web3,
     localSignature: string | null
   ): Promise<any> {
     account = account.toLowerCase();
-      try {
-        if (!localSignature) {
-          setShowDisclaimer(true);
-          if (disclaimerSigned.client === true) {
-            localStorage.setItem(account, "pending");
-            let signature = await web3.eth.personal.sign(
-              Disclaimer(),
-              account || "",
-              "",
-              () => {
-                setShowDisclaimer(false);
-              }
-            );
-            localStorage.setItem(account, signature);
-            setDisclaimerSigned({ ...disclaimerSigned, wallet: true });
-          }
-        } else if (localSignature === "pending"){
-          setShowDisclaimer(true)
-        }
-      } catch (error) {
-        console.error(error);
-        localStorage.removeItem(account);
-        deniedSignatureGA();
-      }
-      return localSignature;
-    
+    if (!localSignature || localSignature === "pending") {
+      setShowDisclaimer(true);
+    }
+
+    if (disclaimerSigned.client === true) {
+      handleSignature(account, web3);
+    }
+
+    return localSignature;
   }
 
   async function handleConnect() {
@@ -160,7 +165,7 @@ export const GlobalProvider = ({
         accounts[0] ? accounts[0] : ""
       );
     } else {
-      handleSignature(accounts[0], web3, localSignature);
+      handleDisclaimer(accounts[0], web3, localSignature);
     }
     setListeners(provider, web3);
   }
@@ -210,7 +215,7 @@ export const GlobalProvider = ({
         setButtonText(CONNECT_TEXT);
         setChainId(undefined);
         setDisclaimerSigned({ client: false, wallet: false });
-        handleSignature(accounts[0], web3, localSignature);
+        handleDisclaimer(accounts[0], web3, localSignature);
       }
     });
 
@@ -256,7 +261,10 @@ export const GlobalProvider = ({
         showDisclaimer,
         setDisclaimerSigned,
         disclaimerSigned,
-        cookiesAllowed
+        cookiesAllowed,
+        handleSignature,
+        setLoading,
+        loading,
       }}
     >
       {children}
