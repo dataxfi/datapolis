@@ -33,7 +33,7 @@ const INITIAL_TOKEN_STATE = {
 };
 
 const Swap = () => {
-  const { handleConnect, accountId, ocean, chainId, config } =
+  const { handleConnect, accountId, ocean, chainId, config, setLoading } =
     useContext(GlobalContext);
   const [showSettings, setShowSettings] = useState(false);
   const [show, setShow] = useState(false);
@@ -68,6 +68,7 @@ const Swap = () => {
   };
 
   useEffect(() => {
+    setLoading(false)
     getButtonProperties();
     //if unknown network, reset token selection
     if (config && config.default.network === "unknown") {

@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { MdMenu, MdClose } from "react-icons/md";
 import { useState, useEffect, useContext } from "react";
-import { ReactComponent as Logo } from "../assets/logo.svg";
+import { ReactComponent as Logo } from "../assets/logo-beta.svg";
 import { GlobalContext } from "../context/GlobalState";
 import Button from "./Button";
 
@@ -38,7 +38,7 @@ const MobileNavbar = ({
     <header className="flex flex-col">
       <div className="flex lg:hidden justify-between items-center pt-2 border-gray-800 pr-4">
         <div className="flex flex-row justify-start">
-          <Logo className="logo" />
+          <Logo className="logo" style={{ height: "40px" }} />
         </div>
         <div>
           {menuVisible ? (
@@ -51,8 +51,13 @@ const MobileNavbar = ({
               />
             </button>
           ) : (
-            <button >
-              <MdMenu onClick={() => toggleMenu(true)} className="z-20" color="#ccc" size="28" />{" "}
+            <button>
+              <MdMenu
+                onClick={() => toggleMenu(true)}
+                className="z-20"
+                color="#ccc"
+                size="28"
+              />{" "}
             </button>
           )}
         </div>

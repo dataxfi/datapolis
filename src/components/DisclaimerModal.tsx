@@ -20,20 +20,14 @@ export const Disclaimer = (): string => {
 };
 
 function DisclaimerModal() {
-  const [progress, setProgress] = useState("0");
   const { setDisclaimerSigned, disclaimerSigned, setShowDisclaimer } =
     useContext(GlobalContext);
   const [showReminder, setShowReminder] = useState(false);
 
-  useEffect(() => {
-    if (disclaimerSigned.client === true) setProgress("1/2");
-    if (disclaimerSigned.wallet) setProgress("full");
-  }, [disclaimerSigned.wallet]);
 
   function approvedDisclaimer() {
     if (!disclaimerSigned.client) {
       setDisclaimerSigned({ ...disclaimerSigned, client: true });
-      setProgress("1/2");
     } else {
       setShowReminder(true);
     }
@@ -69,11 +63,6 @@ function DisclaimerModal() {
           >
             Agree
           </button>
-        </div>
-        <div className="relative mt-1 rounded bg-primary-800">
-          <div
-            className={`overflow-hidden h-2 text-xs flex rounded bg-primary-300 transition-all ease-out duration-1000  w-${progress}`}
-          ></div>
         </div>
         {showReminder ? (
           <div className="transition-all ease-in-out duration-500 self-center animate-pulse mt-2">
