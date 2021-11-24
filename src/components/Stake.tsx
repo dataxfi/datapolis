@@ -1,154 +1,195 @@
-import { AiOutlinePlus } from "react-icons/ai"
-import StakeSelect from "./StakeSelect"
+import { AiOutlinePlus } from "react-icons/ai";
+import StakeSelect from "./StakeSelect";
 // import RemoveAmount from "./RemoveAmount"
 // import PositionBox from "./PositionBox"
-import { useState, useContext, useEffect } from "react"
-import { GlobalContext } from "../context/GlobalState"
-import { PulseLoader } from "react-spinners"
-import Button, {IBtnProps} from "./Button"
-import ConfirmModal from './ConfirmModal'
-import TransactionDoneModal from './TransactionDoneModal'
+import { useState, useContext, useEffect } from "react";
+import { GlobalContext } from "../context/GlobalState";
+import { PulseLoader } from "react-spinners";
+import Button, { IBtnProps } from "./Button";
+import ConfirmModal from "./ConfirmModal";
+import TransactionDoneModal from "./TransactionDoneModal";
+import { Link } from "react-router-dom";
 // import LiquidityPosition from "./LiquidityPosition"
 
 const text = {
   T_STAKE: "StakeX",
-  T_SELECT_TOKEN: "Select token"
-}
+  T_SELECT_TOKEN: "Select token",
+};
 
 interface IPoolLiquidity {
-  dtAmount: string,
-  oceanAmount: string
+  dtAmount: string;
+  oceanAmount: string;
 }
 
 const INITIAL_BUTTON_STATE = {
-  text: 'Connect wallet',
-  classes: 'bg-gray-800 text-gray-400',
-  disabled: false
-}
+  text: "Connect wallet",
+  classes: "bg-gray-800 text-gray-400",
+  disabled: false,
+};
 
 const Stake = () => {
-
-  const {ocean, accountId, chainId, handleConnect} = useContext(GlobalContext)
+  const { ocean, accountId, chainId, handleConnect } =
+    useContext(GlobalContext);
   const [token, setToken] = useState<any>(null);
-  const [dtToOcean, setDtToOcean] = useState<any>(null)
-  const [oceanToDt, setOceanToDt] = useState<any>(null)
-  const [loadingRate, setLoadingRate] = useState(false)
-  const [oceanVal, setOceanVal] = useState('')
-  const [poolLiquidity, setPoolLiquidity] = useState<IPoolLiquidity | null>(null)
-  const [yourLiquidity, setYourLiquidity] = useState<IPoolLiquidity | null>(null)
-  const [balance, setBalance] = useState<any>(null)
-  const [loading, setLoading] = useState(false)
-  const [showConfirmLoader, setShowConfirmLoader] = useState(false)
-  const [showTxDone, setShowTxDone] = useState(false)
-  const [recentTxHash, setRecentTxHash] = useState("")
-  const [perc, setPerc] = useState('')
-  const [loadingStake, setLoadingStake] = useState(false)
-  const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE)
+  const [dtToOcean, setDtToOcean] = useState<any>(null);
+  const [oceanToDt, setOceanToDt] = useState<any>(null);
+  const [loadingRate, setLoadingRate] = useState(false);
+  const [oceanVal, setOceanVal] = useState("");
+  const [poolLiquidity, setPoolLiquidity] = useState<IPoolLiquidity | null>(
+    null
+  );
+  const [yourLiquidity, setYourLiquidity] = useState<IPoolLiquidity | null>(
+    null
+  );
+  const [balance, setBalance] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [showConfirmLoader, setShowConfirmLoader] = useState(false);
+  const [showTxDone, setShowTxDone] = useState(false);
+  const [recentTxHash, setRecentTxHash] = useState("");
+  const [perc, setPerc] = useState("");
+  const [loadingStake, setLoadingStake] = useState(false);
+  const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
 
   useEffect(() => {
-    async function setOceanBalance(){
-      if(accountId && ocean){
-        const OCEAN_ADDRESS = ocean.config.default.oceanTokenAddress.toLowerCase()
-        setLoading(true)
+    async function setOceanBalance() {
+      if (accountId && ocean) {
+        const OCEAN_ADDRESS =
+          ocean.config.default.oceanTokenAddress.toLowerCase();
+        setLoading(true);
         try {
-          const balance = await ocean.getBalance(OCEAN_ADDRESS, accountId)
-          setBalance(balance)
+          const balance = await ocean.getBalance(OCEAN_ADDRESS, accountId);
+          setBalance(balance);
         } catch (error) {
-          console.log('Error') 
+          console.log("Error");
         }
 
-        setLoading(false)
+        setLoading(false);
       }
     }
 
-    setOceanBalance()
+    setOceanBalance();
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId, ocean, chainId]);
 
   useEffect(() => {
-    if(!loadingStake){
-      updateToken(token)
+    if (!loadingStake) {
+      updateToken(token);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadingStake]);
 
   useEffect(() => {
-    if(!accountId){
-      setBtnProps(INITIAL_BUTTON_STATE)
-    } else if(!token){
-      setBtnProps({...INITIAL_BUTTON_STATE, text: 'Select a token', disabled: true, classes: 'bg-gray-800 text-gray-400 cursor-not-allowed'})
-    } else if(!oceanVal){
-      setBtnProps({...INITIAL_BUTTON_STATE, text: 'Enter OCEAN Amount', disabled: true, classes: 'bg-gray-800 text-gray-400 cursor-not-allowed'})
-    } else if(Number(balance) === 0 || Number(oceanVal) > Number(balance)){
-      setBtnProps({...INITIAL_BUTTON_STATE, text: 'Not enough OCEAN balance', disabled: true, classes: 'bg-gray-800 text-gray-400 cursor-not-allowed'})
-    } else if(loadingStake) {
-      setBtnProps({...INITIAL_BUTTON_STATE, text: 'Processing Transaction...', disabled: true, classes: 'bg-gray-800 text-gray-400 cursor-not-allowed'})
+    if (!accountId) {
+      setBtnProps(INITIAL_BUTTON_STATE);
+    } else if (!token) {
+      setBtnProps({
+        ...INITIAL_BUTTON_STATE,
+        text: "Select a token",
+        disabled: true,
+        classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
+      });
+    } else if (!oceanVal) {
+      setBtnProps({
+        ...INITIAL_BUTTON_STATE,
+        text: "Enter OCEAN Amount",
+        disabled: true,
+        classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
+      });
+    } else if (Number(balance) === 0 || Number(oceanVal) > Number(balance)) {
+      setBtnProps({
+        ...INITIAL_BUTTON_STATE,
+        text: "Not enough OCEAN balance",
+        disabled: true,
+        classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
+      });
+    } else if (loadingStake) {
+      setBtnProps({
+        ...INITIAL_BUTTON_STATE,
+        text: "Processing Transaction...",
+        disabled: true,
+        classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
+      });
     } else {
-      setBtnProps({disabled: false, classes: 'bg-primary-100 bg-opacity-20 hover:bg-opacity-40 text-background-800', text: 'Stake' })
+      setBtnProps({
+        disabled: false,
+        classes:
+          "bg-primary-100 bg-opacity-20 hover:bg-opacity-40 text-background-800",
+        text: "Stake",
+      });
     }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId, ocean, chainId, token, oceanVal, balance, loadingStake]);
 
-  async function stakeX(){
-    setLoadingStake(true)
-    setShowConfirmLoader(true)
-    const txReceipt = await ocean.stakeOcean(accountId, token.pool, oceanVal)
-    console.log(txReceipt)
-    setShowTxDone(true)
+  async function stakeX() {
+    setLoadingStake(true);
+    setShowConfirmLoader(true);
+    const txReceipt = await ocean.stakeOcean(accountId, token.pool, oceanVal);
+    console.log(txReceipt);
+    setShowTxDone(true);
     setRecentTxHash(
       ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash
-    )
-    setShowConfirmLoader(false)
-    setLoadingStake(false)
+    );
+    setShowConfirmLoader(false);
+    setLoadingStake(false);
   }
 
-  async function setMaxStake(){
-    if(!token) return
-    const maxAmount = await ocean.getMaxAddLiquidity(token.pool, ocean.config.default.oceanTokenAddress)
-    console.log("Max Stake Amount - ",maxAmount)
-    const val = parseFloat(maxAmount)
-    if(!Number.isNaN(val)){
-      setOceanVal((val - 1).toFixed(5))
+  async function setMaxStake() {
+    if (!token) return;
+    const maxAmount = await ocean.getMaxAddLiquidity(
+      token.pool,
+      ocean.config.default.oceanTokenAddress
+    );
+    console.log("Max Stake Amount - ", maxAmount);
+    const val = parseFloat(maxAmount);
+    if (!Number.isNaN(val)) {
+      setOceanVal((val - 1).toFixed(5));
     } else {
-      setPerc('')
-      setOceanVal('')
+      setPerc("");
+      setOceanVal("");
     }
   }
-  async function onPerc(val: any){
-    const perc = parseFloat(val)
-    if(!Number.isNaN(val)){
-      setPerc(String(perc))
-      setOceanVal((balance * perc / 100).toFixed(5))
+  async function onPerc(val: any) {
+    const perc = parseFloat(val);
+    if (!Number.isNaN(val)) {
+      setPerc(String(perc));
+      setOceanVal(((balance * perc) / 100).toFixed(5));
     } else {
-      setPerc('')
-      setOceanVal('')
+      setPerc("");
+      setOceanVal("");
     }
   }
 
   async function updateNum(val: string) {
-    setOceanVal(val)
+    setOceanVal(val);
   }
 
-  async function updateToken(val: any){
-    setToken(val)
-    if(val){
-      setLoadingRate(true)
-      const [res1, res2, myPoolShares, totalPoolShares] = await Promise.all([ocean.getOceanPerDt(val.pool), ocean.getDtPerOcean(val.pool), ocean.getMyPoolSharesForPool(val.pool, accountId), ocean.getTotalPoolShares(val.pool)]) 
-      setOceanToDt(res1)
-      setDtToOcean(res2)
-      const [res4, res5] = await Promise.all([ocean.getTokensRemovedforPoolShares(val.pool, String(myPoolShares)), ocean.getTokensRemovedforPoolShares(val.pool, String(totalPoolShares))])
-      setYourLiquidity(res4)
-      setPoolLiquidity(res5)
-      setLoadingRate(false)
+  async function updateToken(val: any) {
+    setToken(val);
+    if (val) {
+      setLoadingRate(true);
+      const [res1, res2, myPoolShares, totalPoolShares] = await Promise.all([
+        ocean.getOceanPerDt(val.pool),
+        ocean.getDtPerOcean(val.pool),
+        ocean.getMyPoolSharesForPool(val.pool, accountId),
+        ocean.getTotalPoolShares(val.pool),
+      ]);
+      setOceanToDt(res1);
+      setDtToOcean(res2);
+      const [res4, res5] = await Promise.all([
+        ocean.getTokensRemovedforPoolShares(val.pool, String(myPoolShares)),
+        ocean.getTokensRemovedforPoolShares(val.pool, String(totalPoolShares)),
+      ]);
+      setYourLiquidity(res4);
+      setPoolLiquidity(res5);
+      setLoadingRate(false);
     }
   }
-  
 
   return (
     <>
-      <div className="flex my-3 w-full items-center justify-center lg:h-3/4">
+      <div className="flex flex-col my-3 w-full items-center justify-center lg:h-3/4">
         <div className="max-w-2xl lg:mx-auto sm:mx-4 mx-3 bg-primary-900 w-full rounded-lg p-4 hm-box ">
           <div className="flex justify-between">
             <p className="text-xl">{text.T_STAKE}</p>
@@ -175,7 +216,7 @@ const Stake = () => {
                 <div>
                   <p className="text-xs text-type-200">Token</p>
                   <span className="xs:text-sm sm:text-2xl text-type-200 font-bold grid grid-flow-col items-center gap-1">
-                    <span>OCEAN</span>
+                    <span className="text-sm sm:text-lg">OCEAN</span>
                   </span>
                   {/* <p className="text-xs text-type-100 border-type-300 border rounded-full px-2 py-1 mt-1">Select token</p>           */}
                 </div>
@@ -285,6 +326,10 @@ const Stake = () => {
             classes={"px-4 py-4 rounded-lg w-full mt-4 " + btnProps.classes}
             disabled={btnProps.disabled}
           />
+          <div className="pt-3"><Link to="/stakeX/list"  className="text-gray-400 hover:text-gray-100 transition-colors">
+            View your liquidity position {">"}
+          </Link></div>
+          
         </div>
       </div>
 
@@ -311,6 +356,6 @@ const Stake = () => {
       {/* <LiquidityPosition /> */}
     </>
   );
-}
+};
 
-export default Stake
+export default Stake;

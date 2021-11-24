@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 // import { Config } from '@dataxfi/datax.js'
-import { ReactComponent as Logo } from "../assets/logo-beta.svg";
+import { ReactComponent as Logo } from "../assets/logo-test.svg";
 import Button from "./Button";
 import { GlobalContext } from "../context/GlobalState";
 
