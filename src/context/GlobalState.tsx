@@ -12,11 +12,25 @@ import {
   deniedSignatureGA,
   connectedWalletViaGA,
 } from "./Analytics";
+import { TokenDetails } from "@dataxfi/datax.js/dist/Ocean";
 
 const initialState: any = {};
 const CONNECT_TEXT = "Connect Wallet";
 
 export const GlobalContext = createContext(initialState);
+
+
+export interface PoolData {
+  accountId: string;
+  address: string;
+  token1: TokenDetails;
+  token2: TokenDetails;
+  shares: string;
+  dtAmount?: string;
+  oceanAmount?: string;
+  totalPoolShares?: string;
+  yourPoolShare?: string;
+}
 
 export const GlobalProvider = ({
   children,
@@ -40,6 +54,8 @@ export const GlobalProvider = ({
   const [unsupportedNet, setUnsupportedNet] = useState<boolean>(false);
   const [showDisclaimer, setShowDisclaimer] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [allStakedPools, setAllStakedPools] = useState<PoolData[] | null>(null);
+
 
   const [disclaimerSigned, setDisclaimerSigned] = useState<DisclaimerObj>({
     client: null,
@@ -255,16 +271,18 @@ export const GlobalProvider = ({
         ocean,
         network: NETWORK,
         config,
-        setCookiesAllowed,
         unsupportedNet,
-        setShowDisclaimer,
-        showDisclaimer,
-        setDisclaimerSigned,
-        disclaimerSigned,
-        cookiesAllowed,
         handleSignature,
-        setLoading,
+        cookiesAllowed,
+        setCookiesAllowed,
+        showDisclaimer,
+        setShowDisclaimer,
+        disclaimerSigned,
+        setDisclaimerSigned,
         loading,
+        setLoading,
+        allStakedPools, 
+        setAllStakedPools
       }}
     >
       {children}
