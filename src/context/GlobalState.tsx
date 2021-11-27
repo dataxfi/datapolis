@@ -19,7 +19,6 @@ const CONNECT_TEXT = "Connect Wallet";
 
 export const GlobalContext = createContext(initialState);
 
-
 export interface PoolData {
   accountId: string;
   address: string;
@@ -55,7 +54,10 @@ export const GlobalProvider = ({
   const [showDisclaimer, setShowDisclaimer] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [allStakedPools, setAllStakedPools] = useState<PoolData[] | null>(null);
-
+  const [currentTokens, setCurrentTokens] = useState<any>([]);
+  const [currentStakeToken, setCurrentStakeToken] = useState<{}>();
+  const [currentStakePool, setCurrentStakePool] = useState<PoolData>();
+  const [tokenResponse, setTokenResponse] = useState<any>([]);
 
   const [disclaimerSigned, setDisclaimerSigned] = useState<DisclaimerObj>({
     client: null,
@@ -237,6 +239,8 @@ export const GlobalProvider = ({
 
     // Subscribe to chainId change
     provider.on("chainChanged", async (chainId: any) => {
+      setCurrentTokens([])
+      setTokenResponse([])
       const parsedId = String(parseInt(chainId));
       console.log(chainId);
       console.log("Chain changed to ", parsedId);
@@ -281,8 +285,16 @@ export const GlobalProvider = ({
         setDisclaimerSigned,
         loading,
         setLoading,
-        allStakedPools, 
-        setAllStakedPools
+        allStakedPools,
+        setAllStakedPools,
+        currentTokens,
+        setCurrentTokens,
+        tokenResponse,
+        setTokenResponse,
+        currentStakeToken,
+        setCurrentStakeToken,
+        currentStakePool, 
+        setCurrentStakePool
       }}
     >
       {children}

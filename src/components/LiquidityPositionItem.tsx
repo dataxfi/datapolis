@@ -1,9 +1,8 @@
-import React, { useState } from "react";
-import { PoolData } from "../context/GlobalState";
+import React, { useContext, useState } from "react";
+import { GlobalContext, PoolData } from "../context/GlobalState";
 import { BsChevronDown, BsChevronUp } from "react-icons/bs";
-import Button from "./Button";
 import { Link } from "react-router-dom";
-
+import {toFixed} from '../utils/equate'
 function LiquidityPositionItem({
   pool,
   index,
@@ -25,9 +24,18 @@ function LiquidityPositionItem({
   } = pool;
 
   const [visible, setVisible] = useState<boolean>(false);
+  const {setCurrentStakeToken, setCurrentStakePool, currentTokens, setLoading} = useContext(GlobalContext)
+  function setTokenAndPool(){
+    setCurrentStakePool(pool)
+    const currentToken = currentTokens.find(
+      (token: { pool: string }) => token.pool === address
+    );
+    setCurrentStakeToken(currentToken)
+    setLoading(true)
+  }
 
   return (
-    <li key={index}>
+    <li key={`index${index}`}>
       <div className="max-w-2xl mx-auto">
         <div
           onClick={() => setVisible(!visible)}
@@ -63,21 +71,21 @@ function LiquidityPositionItem({
             <div className="p-4 bg-primary-800 rounded-lg">
               <div className="grid grid-cols-2 justify-between">
                 <div>
-                  <p className="text-type-300 text-sm">Total pool tokens</p>
+                  <p className="text-type-300 text-sm">Total Shares in Pool</p>
                 </div>
                 <div className="justify-self-end">
                   <p className="text-type-100 text-sm ">
-                    {Number(totalPoolShares).toFixed(5)}
+                    {toFixed(totalPoolShares)}
                   </p>
                 </div>
                 <div>
                   <p className="text-type-300 text-sm">
-                    Pool tokens in rewards pool
+                  Your shares in Pool
                   </p>
                 </div>
                 <div className="justify-self-end">
                   <p className="text-type-100 text-sm ">
-                    {Number(shares).toFixed(5)}
+                    {toFixed(shares)}
                   </p>
                 </div>
                 <div>
@@ -87,7 +95,7 @@ function LiquidityPositionItem({
                 </div>
                 <div className="justify-self-end">
                   <p className="text-type-100 text-sm ">
-                    {Number(dtAmount).toFixed(5)}
+                    {toFixed(dtAmount)}
                   </p>
                 </div>
                 <div>
@@ -97,7 +105,7 @@ function LiquidityPositionItem({
                 </div>
                 <div className="justify-self-end">
                   <p className="text-type-100 text-sm ">
-                    {Number(oceanAmount).toFixed(5)}
+                    {toFixed(oceanAmount)}
                   </p>
                 </div>
                 <div>
@@ -105,7 +113,7 @@ function LiquidityPositionItem({
                 </div>
                 <div className="justify-self-end">
                   <p className="text-type-100 text-sm ">
-                    {Number(yourPoolShare) >= 1 ? yourPoolShare : "< 0 %"}
+                    {Number(yourPoolShare) >= 1 ? toFixed(yourPoolShare) : "< 0 %"}
                   </p>
                 </div>
               </div>
@@ -114,12 +122,14 @@ function LiquidityPositionItem({
               <Link
                 to={`/stakeX?pool=${address}`}
                 className="bg-primary-600 transition-colors hover:bg-primary-500 text-type-100 rounded-lg px-4 py-3 text-center"
+                onClick={setTokenAndPool}
               >
                 Add
               </Link>
               <Link
                 to={`/stakeX/remove?pool=${address}`}
                 className="bg-primary-600 transition-colors hover:bg-primary-500 text-type-100 rounded-lg px-4 py-3 text-center"
+                onClick={setTokenAndPool}
               >
                 Remove
               </Link>

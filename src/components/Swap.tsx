@@ -8,6 +8,7 @@ import OutsideClickHandler from "react-outside-click-handler";
 import ConfirmSwapModal from "./ConfirmSwapModal";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
+import { toFixed } from "../utils/equate";
 // import { program } from "@babel/types"
 // import { get } from "https"
 // import Snackbar from "./Snackbar"
@@ -99,7 +100,7 @@ const Swap = () => {
     setToken1(token2);
     setToken2({ ...token1, loading: true });
     let exchange = await calculateExchange(true, token2.value);
-    exchange = Number(Number(exchange).toFixed(ROUND_OFF));
+    exchange = Number(toFixed(exchange));
     setPostExchange(exchange / token2.value);
     setToken2({ ...token1, value: exchange, loading: false });
     setExactToken(1);
@@ -126,7 +127,7 @@ const Swap = () => {
     } else {
       if (fromToken) {
         const value = Number(
-          (token1.balance * (perc / 100)).toFixed(ROUND_OFF)
+          toFixed((token1.balance * (perc / 100)))
         );
         setToken1({
           ...token1,
@@ -137,7 +138,7 @@ const Swap = () => {
         updateOtherTokenValue(true, value.toString());
       } else {
         const value = Number(
-          (token2.balance * (perc / 100)).toFixed(ROUND_OFF)
+          toFixed((token2.balance * (perc / 100)))
         );
         setToken2({
           ...token2,
@@ -155,14 +156,14 @@ const Swap = () => {
       if (from) {
         setToken2({ ...token2, loading: true });
         let exchange = await calculateExchange(from, inputAmount);
-        exchange = Number(Number(exchange).toFixed(ROUND_OFF));
+        exchange = Number(toFixed(exchange));
         setPostExchange(exchange / inputAmount);
         setToken2({ ...token2, value: exchange, loading: false });
         setExactToken(1);
       } else {
         setToken1({ ...token1, loading: true });
         let exchange = await calculateExchange(from, inputAmount);
-        exchange = Number(Number(exchange || 0).toFixed(ROUND_OFF));
+        exchange = Number(toFixed(exchange || 0));
         setPostExchange(inputAmount / exchange || 0);
         setToken1({ ...token1, value: exchange, loading: false });
         setExactToken(2);
@@ -351,8 +352,8 @@ const Swap = () => {
     if (token1.info && token2.info) {
       if (isOCEAN(token1.info.address) || isOCEAN(token2.info.address)) {
         return [
-          `1. Approve TradeX to spend ${token1.value} ${token1.info.symbol}`,
-          `2. Swap ${token1.value} ${token1.info.symbol} for ${token2.value} 
+          `Approve TradeX to spend ${token1.value} ${token1.info.symbol}`,
+          `Swap ${token1.value} ${token1.info.symbol} for ${token2.value} 
   ${token2.info.symbol}`,
         ];
       } else {

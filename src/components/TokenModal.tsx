@@ -1,10 +1,10 @@
 import { MdClose } from "react-icons/md";
 import TokenItem from "./TokenItem";
 import { useEffect, useState, useContext } from "react";
-import HashLoader from "react-spinners/HashLoader";
+import Loader from "./Loader"
 import ReactList from "react-list";
 import { GlobalContext } from "../context/GlobalState";
-import { TokenList } from "@dataxfi/datax.js";
+import { useTokenList } from "../utils/useTokenList";
 
 const text = {
   T_SELECT_TOKEN: "Select a token",
@@ -19,72 +19,54 @@ const TokenModal = ({
   onClick: Function;
   otherToken?: string;
 }) => {
-  const { web3, chainId } = useContext(GlobalContext);
-  const [response, setResponse] = useState<any>([]);
-  const [tokens, setTokens] = useState<any>([]);
+  const { web3, chainId, currentTokens, setCurrentTokens, tokenResponse, setTokenResponse } =
+  useContext(GlobalContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
+  
+  useTokenList(chainId)
+
+
+  function formatTokenList(tokenResponse: {tokens:{symbol:string}[]}, otherToken: any){
+    const tokenList = tokenResponse.tokens.filter((t) => t.symbol !== otherToken)
+    const oceanToken = tokenList.pop()
+    tokenList.splice(0, 0, oceanToken || {symbol: "OCEAN"})
+    return tokenList
+  }
+
   useEffect(() => {
-    // const url = 'https://gateway.pinata.cloud/ipfs/QmQi1sNZVP52urWq4TzLWx9dPRWNrvR4CUFgCEsocGkj5X'
-    const tokenList = new TokenList(
-      web3,
-      "4",
-      process.env.REACT_APP_PINATA_KEY || "",
-      process.env.REACT_APP_PINATA_KEY || ""
-    );
-
-    const getTokenList = async () => {
-      try {
-        setError(false);
-        setLoading(true);
-        const {
-          REACT_APP_CLIENT_EMAIL = "",
-          REACT_APP_PRIVATE_KEY = "",
-          REACT_APP_TOKEN_URI = "",
-          REACT_APP_SCOPE = "",
-          REACT_APP_PRIVATE_KEY_ID = "",
-        } = process.env;
-
-        const res = await tokenList.fetchPreparedTokenList(
-          chainId ? chainId : "4",
-          REACT_APP_CLIENT_EMAIL,
-          REACT_APP_PRIVATE_KEY,
-          REACT_APP_TOKEN_URI,
-          REACT_APP_SCOPE,
-          REACT_APP_PRIVATE_KEY_ID
-        );
-        console.log(res);
-        setResponse(res.tokens.filter((t) => t.symbol !== otherToken));
-        setTokens(res.tokens.filter((t) => t.symbol !== otherToken));
-        setLoading(false);
-      } catch (error) {
-        console.log(error);
-        setLoading(false);
-        setError(true);
-      }
-    };
-
-    getTokenList();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    setError(false);
+    setLoading(true);
+    if (currentTokens && tokenResponse.tokens) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      setCurrentTokens(formatTokenList(tokenResponse, otherToken));
+      setLoading(false);
+      setError(false);
+    } else if (tokenResponse.message && tokenResponse.message.includes("ERROR")){
+      setError(true)
+      setLoading(false)
+    }
+  }, [tokenResponse]);
 
   const tokenRenderer = (idx: number, key: string | number) => {
-    return <TokenItem onClick={onClick} key={key} token={tokens[idx]} />;
+    return <TokenItem onClick={onClick} key={key} token={currentTokens[idx]} />;
   };
 
   const searchToken = (val: string) => {
     if (val) {
-      setTokens(
-        response.filter(
+      setCurrentTokens(
+        currentTokens.filter(
           (t: any) =>
             t.name.toLowerCase().indexOf(val.toLowerCase()) >= 0 ||
             t.symbol.toLowerCase().indexOf(val.toLowerCase()) >= 0
         )
       );
     } else {
-      setTokens(response);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      setCurrentTokens(formatTokenList(tokenResponse, otherToken));
     }
   };
 
@@ -111,8 +93,8 @@ const TokenModal = ({
         </div>
         {loading ? (
           <div className="flex justify-center my-4">
-            <HashLoader size={28} color="white" loading={loading} />
-          </div>
+              <Loader size = {40} />
+            </div>
         ) : error ? (
           <div className="text-white text-center my-4">
             There was an error loading the tokens
@@ -124,7 +106,7 @@ const TokenModal = ({
           >
             <ReactList
               itemRenderer={tokenRenderer}
-              length={tokens.length}
+              length={currentTokens.length}
               type="simple"
             />
           </div>
