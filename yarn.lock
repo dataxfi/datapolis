@@ -1374,10 +1374,10 @@
   resolved "https://registry.yarnpkg.com/@csstools/normalize.css/-/normalize.css-10.1.0.tgz#f0950bba18819512d42f7197e56c518aa491cf18"
   integrity sha512-ij4wRiunFfaJxjB0BdrYHIH8FxBJpOwNPhhAcunlmPdXudL1WQV1qoP9un6JsEBAgQH+7UXyyjh0g7jTxXK6tg==
 
-"@dataxfi/datax.js@^0.1.15":
-  version "0.1.15"
-  resolved "https://registry.yarnpkg.com/@dataxfi/datax.js/-/datax.js-0.1.15.tgz#b8fbd525a92706ddba7fc419c58d50ef1fc0ef8b"
-  integrity sha512-aXwKj6Pw0TiZgpHaw5ksRzZIjBimY5EELYyLVB8WmapLl+wyKSDRvpMVtt7uKXe/aWO0LUh3n9L3sQAw94uVVA==
+"@dataxfi/datax.js@^0.1.16":
+  version "0.1.16"
+  resolved "https://registry.yarnpkg.com/@dataxfi/datax.js/-/datax.js-0.1.16.tgz#292472127ccd7c22deafa6769344246d463502ad"
+  integrity sha512-n/wXnrZOQWMUo1bwNfRkk8QnD13ZAnVRrqEP0n/v4gnJINCU2aCaGMnFQ5yTtbSBS9c9jiLy9Cf48psTOfp7kw==
   dependencies:
     "@dataxfi/ocean.js" "^0.17.0"
     "@oceanprotocol/contracts" "^0.6.5"
@@ -1389,6 +1389,7 @@
     decimal.js "^10.3.1"
     dotenv "^10.0.0"
     ganache-core "^2.13.2"
+    njwt "^1.1.0"
     typescript "^4.3.5"
     web3 "^1.4.0"
     web3-core "^1.4.0"
@@ -3975,6 +3976,11 @@
   version "12.20.37"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-12.20.37.tgz#abb38afa9d6e8a2f627a8cb52290b3c80fbe61ed"
   integrity sha512-i1KGxqcvJaLQali+WuypQnXwcplhtNtjs66eNsZpp2P2FL/trJJxx/VWsM0YCL2iMoIJrbXje48lvIQAQ4p2ZA==
+
+"@types/node@^15.0.1":
+  version "15.14.9"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-15.14.9.tgz#bc43c990c3c9be7281868bbc7b8fdd6e2b57adfa"
+  integrity sha512-qjd88DrCxupx/kJD5yQgZdcYKZKSIGBVDIBE1/LTGcNm3d2Np/jxojkdePDdfnBHJc5W7vSMpbJ1aB7p/Py69A==
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.1"
@@ -9029,6 +9035,13 @@ ecc-jsbn@~0.1.1:
   dependencies:
     jsbn "~0.1.0"
     safer-buffer "^2.1.0"
+
+ecdsa-sig-formatter@^1.0.5:
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/ecdsa-sig-formatter/-/ecdsa-sig-formatter-1.0.11.tgz#ae0f0fa2d85045ef14a817daa3ce9acd0489e5bf"
+  integrity sha512-nagl3RYrbNv6kQkeJIpt6NJZy8twLB/2vtz6yN9Z4vRKHN4/QZJIEbqohALSgwKdnksuY3k5Addp5lg8sVoVcQ==
+  dependencies:
+    safe-buffer "^5.0.1"
 
 ed2curve@^0.3.0:
   version "0.3.0"
@@ -15716,6 +15729,15 @@ nice-try@^1.0.4:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/nice-try/-/nice-try-1.0.5.tgz#a3378a7696ce7d223e88fc9b764bd7ef1089e366"
   integrity sha512-1nh45deeb5olNY7eX82BkPO7SSxR5SSYJiPTrTdFUVYwAl8CKMA5N9PjTYkHiRjisVcxcQ1HXdLhx2qxxJzLNQ==
+
+njwt@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/njwt/-/njwt-1.1.0.tgz#9ae48b96df915dced5c2f49caebdd93c0950d708"
+  integrity sha512-lL9oQIc9GYy9ILyHpSTSEhcZHiB0yvCDBWf9EDGLYo2D+8oSZwzhIV5WV0bFEfIqmCIL720ZQyDCXyJM6YrpaQ==
+  dependencies:
+    "@types/node" "^15.0.1"
+    ecdsa-sig-formatter "^1.0.5"
+    uuid "^3.3.2"
 
 no-case@^2.2.0, no-case@^2.3.2:
   version "2.3.2"

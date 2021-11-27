@@ -96,6 +96,7 @@ const StakeSelect = ({value, setToken}: {value: Record<any, any> | null, setToke
             <TokenModal
               onClick={tokenSelected}
               close={() => setShowModal(false)}
+              otherToken="OCEAN"
             />
           ) : (
             <></>
