@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { GlobalContext, PoolData } from "../context/GlobalState";
 import { BsChevronDown, BsChevronUp } from "react-icons/bs";
 import { Link } from "react-router-dom";
-import {toFixed} from '../utils/equate'
+import { toFixed } from "../utils/equate";
 function LiquidityPositionItem({
   pool,
   index,
@@ -24,14 +24,27 @@ function LiquidityPositionItem({
   } = pool;
 
   const [visible, setVisible] = useState<boolean>(false);
-  const {setCurrentStakeToken, setCurrentStakePool, currentTokens, setLoading} = useContext(GlobalContext)
-  function setTokenAndPool(){
-    setCurrentStakePool(pool)
-    const currentToken = currentTokens.find(
-      (token: { pool: string }) => token.pool === address
-    );
-    setCurrentStakeToken(currentToken)
-    setLoading(true)
+  const {
+    setCurrentStakeToken,
+    setCurrentStakePool,
+    currentTokens,
+    setLoading,
+  } = useContext(GlobalContext);
+  function setTokenAndPool() {
+    setCurrentStakePool(pool);
+
+    try {
+      if (currentTokens) {
+        const currentToken = currentTokens.find(
+          (token: { pool: string }) => token.pool === address
+        );
+        setCurrentStakeToken(currentToken);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+
+    setLoading(true);
   }
 
   return (
@@ -65,9 +78,7 @@ function LiquidityPositionItem({
           </div>
         </div>
         {visible ? (
-          <div
-            className={`p-4 bg-primary-900 rounded-b-lg mb-2`}
-          >
+          <div className={`p-4 bg-primary-900 rounded-b-lg mb-2`}>
             <div className="p-4 bg-primary-800 rounded-lg">
               <div className="grid grid-cols-2 justify-between">
                 <div>
@@ -79,28 +90,22 @@ function LiquidityPositionItem({
                   </p>
                 </div>
                 <div>
-                  <p className="text-type-300 text-sm">
-                  Your shares in Pool
-                  </p>
+                  <p className="text-type-300 text-sm">Your shares in Pool</p>
                 </div>
                 <div className="justify-self-end">
-                  <p className="text-type-100 text-sm ">
-                    {toFixed(shares)}
-                  </p>
+                  <p className="text-type-100 text-sm ">{toFixed(shares)}</p>
                 </div>
                 <div>
                   <p className="text-type-300 text-sm">
-                    Pooled {token1.symbol}
+                    Total Pooled {token1.symbol}
                   </p>
                 </div>
                 <div className="justify-self-end">
-                  <p className="text-type-100 text-sm ">
-                    {toFixed(dtAmount)}
-                  </p>
+                  <p className="text-type-100 text-sm ">{toFixed(dtAmount)}</p>
                 </div>
                 <div>
                   <p className="text-type-300 text-sm">
-                    Pooled {token2.symbol}
+                    Total Pooled {token2.symbol}
                   </p>
                 </div>
                 <div className="justify-self-end">
@@ -113,7 +118,9 @@ function LiquidityPositionItem({
                 </div>
                 <div className="justify-self-end">
                   <p className="text-type-100 text-sm ">
-                    {Number(yourPoolShare) >= 1 ? toFixed(yourPoolShare) : "< 0 %"}
+                    {Number(yourPoolShare) >= 1
+                      ? toFixed(yourPoolShare)
+                      : "< 0 %"}
                   </p>
                 </div>
               </div>

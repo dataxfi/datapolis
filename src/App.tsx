@@ -5,7 +5,7 @@ import Stake from "./components/Stake";
 import LiquidityPosition from "./components/LiquidityPosition";
 import CookiesModal from "./components/CookiesModal";
 import RemoveAmount from "./components/RemoveAmount";
-import { useEffect, useContext, useState } from "react";
+import { useEffect, useContext } from "react";
 import { initializeGA } from "./context/Analytics";
 import UnsupportedNetwork from "./components/UnsupportedNetwork";
 import { GlobalContext } from "./context/GlobalState";

@@ -13,7 +13,6 @@ import { toFixed } from "../utils/equate";
 // import { get } from "https"
 // import Snackbar from "./Snackbar"
 
-const ROUND_OFF = 6;
 const text = {
   T_SWAP: "TradeX",
   T_SWAP_FROM: "You are selling",

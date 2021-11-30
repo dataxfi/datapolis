@@ -1,6 +1,5 @@
 import { AiOutlinePlus } from "react-icons/ai";
 import StakeSelect from "./StakeSelect";
-// import RemoveAmount from "./RemoveAmount"
 // import PositionBox from "./PositionBox"
 import { useState, useContext, useEffect } from "react";
 import { GlobalContext } from "../context/GlobalState";
@@ -8,11 +7,11 @@ import { PulseLoader } from "react-spinners";
 import Button, { IBtnProps } from "./Button";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
-import { Link, useLocation } from "react-router-dom";
-// import LiquidityPosition from "./LiquidityPosition"
-import { useTokenList } from "../utils/useTokenList";
+import { Link, useLocation, useHistory } from "react-router-dom";
+import getTokenList from "../utils/getTokenList";
 import UserMessageModal from "./UserMessageModal";
 import { toFixed } from "../utils/equate";
+//import setStakePoolStates from "../utils/getAllStakedPools";
 
 const text = {
   T_STAKE: "StakeX",
@@ -38,6 +37,9 @@ const Stake = () => {
     handleConnect,
     currentTokens,
     currentStakeToken,
+    web3,
+    setTokenResponse,
+    setCurrentTokens,
   } = useContext(GlobalContext);
   const [token, setToken] = useState<any>(null);
   const [dtToOcean, setDtToOcean] = useState<any>(null);
@@ -52,19 +54,29 @@ const Stake = () => {
   );
   const [balance, setBalance] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingStake, setLoadingStake] = useState(false);
   const [showConfirmLoader, setShowConfirmLoader] = useState(false);
   const [showTxDone, setShowTxDone] = useState(false);
   const [recentTxHash, setRecentTxHash] = useState("");
   const [perc, setPerc] = useState("");
-  const [loadingStake, setLoadingStake] = useState(false);
   const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
   const [userMessage, setUserMessage] = useState<
     { type: string; message: string } | false
   >(false);
   const location = useLocation();
-  useTokenList(Number(chainId));
+  const history = useHistory()
 
   useEffect(() => {
+    const otherToken = "OCEAN"
+    getTokenList({
+      chainId,
+      web3,
+      setTokenResponse,
+      setCurrentTokens,
+      accountId,
+      otherToken
+    });
+
     async function setOceanBalance() {
       if (accountId && ocean) {
         const OCEAN_ADDRESS =
@@ -74,7 +86,7 @@ const Stake = () => {
           const balance = await ocean.getBalance(OCEAN_ADDRESS, accountId);
           setBalance(balance);
         } catch (error) {
-          console.log("Error");
+          console.error("Error when trying to fetch Balance");
         }
 
         setLoading(false);
@@ -87,27 +99,30 @@ const Stake = () => {
   }, [accountId, ocean, chainId]);
 
   useEffect(() => {
-    if (currentStakeToken) {
-      updateToken(currentStakeToken);
-      console.log("calling update token with ", currentStakeToken);
-    } else {
-      // regular expresssions and URLSearchParams are not supported IE
-      const queryParams = new URLSearchParams(location.search);
-      const poolAddress = queryParams.get("pool");
-      if (poolAddress && currentTokens && accountId) {
-        if (poolAddress) {
-          setUserMessage({ type: "alert", message: "preloading your token" });
-        }
+    // regular expresssions and URLSearchParams are not supported IE
+    const queryParams = new URLSearchParams(location.search);
+    const poolAddress = queryParams.get("pool");
+
+    if (poolAddress && accountId) {
+      setUserMessage({ type: "alert", message: "preloading your token" });
+    }
+
+    if (accountId && currentTokens) {
+      if (currentStakeToken) {
+        console.log("weve already got a current stake token");
+        updateToken(currentStakeToken);
+        setUserMessage(false);
+      } else if (poolAddress && currentTokens.length > 0) {
+        console.log("we need to find the current stake token");
         const currentToken = currentTokens.find(
           (token: { pool: string }) => token.pool === poolAddress
         );
-        if (currentToken) {
-          console.log("calling update token with ", currentToken);
-
+        if (!currentToken) {
+          setUserMessage({ type: "error", message: "Couldnt preload token" });  
+          history.push("/stakeX")
+        } else {
           updateToken(currentToken);
           setUserMessage(false);
-        } else {
-          setUserMessage({ type: "error", message: "Couldnt preload token" });
         }
       }
     }
@@ -195,7 +210,7 @@ const Stake = () => {
     const perc = parseFloat(val);
     if (!Number.isNaN(val)) {
       setPerc(String(perc));
-      setOceanVal((toFixed((balance * perc) / 100)));
+      setOceanVal(toFixed((balance * perc) / 100));
     } else {
       setPerc("");
       setOceanVal("");
@@ -235,21 +250,21 @@ const Stake = () => {
           <div className="max-w-2xl lg:mx-auto sm:mx-4 mx-3 bg-primary-900 w-full rounded-lg p-4 hm-box ">
             <div className="flex justify-between">
               <p className="text-xl">{text.T_STAKE}</p>
-              {userMessage
-                ? userMessage.type === "error"
-                  ? UserMessageModal({
-                      message: userMessage.message,
-                      pulse: true,
-                      container: false,
-                      timeout: { showState: setUserMessage, time: 5000 },
-                    })
-                  : UserMessageModal({
-                      message: userMessage.message,
-                      pulse: false,
-                      container: false,
-                      timeout: null,
-                    })
-                : null}
+              {userMessage != false && userMessage.type === "error" ? (
+                <UserMessageModal
+                  message={userMessage.message}
+                  pulse={true}
+                  container={false}
+                  timeout={{ showState: setUserMessage, time: 5000 }}
+                />
+              ) : userMessage != false ? (
+                <UserMessageModal
+                  message={userMessage.message}
+                  pulse={true}
+                  container={false}
+                  timeout={null}
+                />
+              ) : null}
             </div>
             <StakeSelect
               value={token}
@@ -356,8 +371,7 @@ const Stake = () => {
                       {toFixed(poolLiquidity?.oceanAmount)} OCEAN
                     </p>
                     <p className="text-type-200 text-xs">
-                      {toFixed(poolLiquidity?.dtAmount)}{" "}
-                      {token.symbol}
+                      {toFixed(poolLiquidity?.dtAmount)} {token.symbol}
                     </p>
                   </div>
                 ) : (
@@ -372,8 +386,7 @@ const Stake = () => {
                       {toFixed(yourLiquidity?.oceanAmount)} OCEAN
                     </p>
                     <p className="text-type-200 text-xs">
-                      {toFixed(yourLiquidity?.dtAmount)}{" "}
-                      {token.symbol}
+                      {toFixed(yourLiquidity?.dtAmount)} {token.symbol}
                     </p>
                   </div>
                 ) : (
@@ -419,9 +432,7 @@ const Stake = () => {
         close={() => setShowTxDone(false)}
       />
 
-      {/* <RemoveAmount />
-      <PositionBox /> */}
-      {/* <LiquidityPosition /> */}
+      {/* <PositionBox />  */}
     </>
   );
 };

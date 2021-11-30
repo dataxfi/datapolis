@@ -3,8 +3,7 @@ import { GlobalContext, PoolData } from "../context/GlobalState";
 import LiquidityPositionItem from "./LiquidityPositionItem";
 import YellowXLoader from "../assets/YellowXLoader.gif";
 import UserMessageModal from "./UserMessageModal";
-import getAllStakedPools, {
-  setLocalStorage,
+import setStakePoolStates, {
   getLocalPoolData,
 } from "../utils/getAllStakedPools";
 
@@ -12,24 +11,37 @@ const LiquidityPosition = () => {
   const {
     accountId,
     ocean,
+    chainId,
     loading,
     setLoading,
     allStakedPools,
     setAllStakedPools,
+    bgLoading, 
+    setBgLoading
   } = useContext(GlobalContext);
-  const [bgLoading, setBgLoading] = useState<boolean>(false);
   const [noStakedPools, setNoStakedPools] = useState<boolean>(false);
 
   useEffect(() => {
     setLoading(true);
-    setBgLoading(true);
-    //setAllStakedPools(null);
-
-    let localData;
+    setBgLoading({status:true, operation:"stake"});
+    setAllStakedPools(null);
+    
+    if (ocean && accountId) {
+      setBgLoading({status:true, operation:"stake"})
+      setStakePoolStates({
+        accountId,
+        ocean,
+        chainId,
+        setAllStakedPools,
+        setNoStakedPools,
+        setLoading,
+        setBgLoading,
+      });
+    }
 
     try {
       if (accountId) {
-        localData = getLocalPoolData(accountId);
+        const localData = getLocalPoolData(accountId, chainId);
         if (localData && localData != null) {
           setNoStakedPools(false);
           setAllStakedPools(JSON.parse(localData));
@@ -40,53 +52,23 @@ const LiquidityPosition = () => {
       console.error(error);
     }
 
-    if (ocean && accountId) {
-      setBgLoading(true);
-      getAllStakedPools(accountId, ocean)
-        .then(async (res) => {
-          const settledArr = await Promise.allSettled(res);
-          const allStakedPools = settledArr.map(
-            (promise: PromiseSettledResult<PoolData>) => {
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
-              return promise.value;
-            }
-            );
-            console.log("All staked pools: ",allStakedPools)
-          if (
-            allStakedPools.length > 0 &&
-            accountId === allStakedPools[0].accountId
-          ) {
-            setAllStakedPools(allStakedPools);
-            setLocalStorage(allStakedPools);
-          } else if (allStakedPools.length === 0) {
-            setNoStakedPools(true);
-          }
-          setLoading(false);
-          setBgLoading(false);
-        })
-        .catch((e) => {
-          console.error(e);
-        });
-    }
-
     if (!accountId) setLoading(false);
-  }, [accountId]);
+  }, [accountId, ocean]);
 
   return !accountId ? (
-    UserMessageModal({
-      message: "Connect your wallet to see staked oceans.",
-      pulse: false,
-      container: true,
-      timeout: null,
-    })
+    <UserMessageModal
+      message="Connect your wallet to see staked oceans."
+      pulse={false}
+      container={true}
+      timeout={null}
+    />
   ) : noStakedPools ? (
-    UserMessageModal({
-      message: `You have no stake in any pools, check out StakeX to buy stake!`,
-      pulse: false,
-      container: true,
-      timeout: null,
-    })
+    <UserMessageModal
+      message="You have no stake in any pools, check out StakeX to buy stake!"
+      pulse={false}
+      container={true}
+      timeout={null}
+    />
   ) : loading ? (
     <div className="flex flex-col justify-center text center align-middle items-center h-4/6">
       <img
@@ -99,7 +81,7 @@ const LiquidityPosition = () => {
     </div>
   ) : (
     <div>
-      {bgLoading ? (
+      {bgLoading.status ? (
         <div className="text-xs md:text-base pt-5 w-full text-center px-3">
           loading most recent information in the background . . .
         </div>

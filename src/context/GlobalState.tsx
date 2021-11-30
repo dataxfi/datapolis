@@ -54,11 +54,16 @@ export const GlobalProvider = ({
   const [showDisclaimer, setShowDisclaimer] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [allStakedPools, setAllStakedPools] = useState<PoolData[] | null>(null);
-  const [currentTokens, setCurrentTokens] = useState<any>([]);
-  const [currentStakeToken, setCurrentStakeToken] = useState<{}>();
+  //Pool information associated with pool
   const [currentStakePool, setCurrentStakePool] = useState<PoolData>();
-  const [tokenResponse, setTokenResponse] = useState<any>([]);
-
+  //dToken information associated with pool
+  const [currentStakeToken, setCurrentStakeToken] = useState<{}>();
+  const [currentTokens, setCurrentTokens] = useState<[] | null>(null);
+  const [tokenResponse, setTokenResponse] = useState<{} | null | undefined>();
+  const [bgLoading, setBgLoading] = useState<{
+    status: boolean;
+    operation: string | null;
+  }>({ status: false, operation: null });
   const [disclaimerSigned, setDisclaimerSigned] = useState<DisclaimerObj>({
     client: null,
     wallet: null,
@@ -153,39 +158,43 @@ export const GlobalProvider = ({
   }
 
   async function handleConnect() {
-    const provider = await web3Modal?.connect();
-    setProvider(provider);
-    // // This is required to get the token list
-    const web3 = new Web3(provider);
-    console.log("Web3");
-    console.log(web3);
-    setWeb3(web3);
+    try {
+      const provider = await web3Modal?.connect();
+      setProvider(provider);
+      // // This is required to get the token list
+      const web3 = new Web3(provider);
+      console.log("Web3");
+      console.log(web3);
+      setWeb3(web3);
 
-    let accounts = await web3.eth.getAccounts();
-    let account = accounts[0] ? accounts[0].toLowerCase() : null;
-    const localSignature = localStorage.getItem(account ? account : "");
+      let accounts = await web3.eth.getAccounts();
+      let account = accounts[0] ? accounts[0].toLowerCase() : null;
+      const localSignature = localStorage.getItem(account ? account : "");
 
-    if (localSignature && localSignature !== "pending") {
-      let _chainId = parseInt(String(await web3.eth.getChainId()));
-      setChainId(_chainId);
+      if (localSignature && localSignature !== "pending") {
+        let _chainId = parseInt(String(await web3.eth.getChainId()));
+        setChainId(_chainId);
 
-      // This is required to do wallet-specific functions
-      const ocean = new Ocean(web3, String(_chainId));
-      setOcean(ocean);
-      console.log("chainID - ", chainId);
-      console.log("Pre chainID - ", _chainId);
-      const config = new Config(web3, String(_chainId));
-      setConfig(config);
+        // This is required to do wallet-specific functions
+        const ocean = new Ocean(web3, String(_chainId));
+        setOcean(ocean);
+        console.log("chainID - ", chainId);
+        console.log("Pre chainID - ", _chainId);
+        const config = new Config(web3, String(_chainId));
+        setConfig(config);
 
-      isSupportedChain(
-        config,
-        String(_chainId),
-        accounts[0] ? accounts[0] : ""
-      );
-    } else {
-      handleDisclaimer(accounts[0], web3, localSignature);
+        isSupportedChain(
+          config,
+          String(_chainId),
+          accounts[0] ? accounts[0] : ""
+        );
+      } else {
+        handleDisclaimer(accounts[0], web3, localSignature);
+      }
+      setListeners(provider, web3);
+    } catch (error) {
+      console.error(error);
     }
-    setListeners(provider, web3);
   }
 
   function isSupportedChain(
@@ -193,24 +202,28 @@ export const GlobalProvider = ({
     chainId: string,
     account: string | null
   ) {
-    const network = config.getNetwork(chainId);
-    connectedToNetworkGA({ network, chainId });
-    if (network === "unknown") {
-      setAccountId(null);
-      setButtonText(CONNECT_TEXT);
-      setUnsupportedNet(true);
-    } else {
-      setUnsupportedNet(false);
-      console.log("Account Id - ", accountId);
-      console.log("Pre Account Id - ", account);
-      //account is null when chain changes to prevent switching to an unsigned account
-      setAccountId(account);
-      setButtonText(account || CONNECT_TEXT);
-      connectedWalletGA();
-      const wallet =
-        localStorage.getItem("WEB3_CONNECT_CACHED_PROVIDER") || "unknown";
-      connectedWalletViaGA({ wallet });
-      return true;
+    try {
+      const network = config.getNetwork(chainId);
+      connectedToNetworkGA({ network, chainId });
+      if (network === "unknown") {
+        setAccountId(null);
+        setButtonText(CONNECT_TEXT);
+        setUnsupportedNet(true);
+      } else {
+        setUnsupportedNet(false);
+        console.log("Account Id - ", accountId);
+        console.log("Pre Account Id - ", account);
+        //account is null when chain changes to prevent switching to an unsigned account
+        setAccountId(account);
+        setButtonText(account || CONNECT_TEXT);
+        connectedWalletGA();
+        const wallet =
+          localStorage.getItem("WEB3_CONNECT_CACHED_PROVIDER") || "unknown";
+        connectedWalletViaGA({ wallet });
+        return true;
+      }
+    } catch (error) {
+      console.error(error);
     }
   }
 
@@ -239,8 +252,8 @@ export const GlobalProvider = ({
 
     // Subscribe to chainId change
     provider.on("chainChanged", async (chainId: any) => {
-      setCurrentTokens([])
-      setTokenResponse([])
+      setCurrentTokens(null);
+      setTokenResponse(undefined);
       const parsedId = String(parseInt(chainId));
       console.log(chainId);
       console.log("Chain changed to ", parsedId);
@@ -293,8 +306,10 @@ export const GlobalProvider = ({
         setTokenResponse,
         currentStakeToken,
         setCurrentStakeToken,
-        currentStakePool, 
-        setCurrentStakePool
+        currentStakePool,
+        setCurrentStakePool,
+        bgLoading,
+        setBgLoading,
       }}
     >
       {children}
