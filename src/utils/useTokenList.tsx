@@ -1,43 +1,67 @@
-import { useContext, useEffect } from "react";
-import { GlobalContext } from "../context/GlobalState";
 import { TokenList } from "@dataxfi/datax.js";
-export const useTokenList = async (chainId: number): Promise<any> => {
-  const { web3, setTokenResponse, accountId, chainId: globalChainId } =
-    useContext(GlobalContext);
+export default async function getTokenList({
+  chainId,
+  web3,
+  setTokenResponse,
+  setCurrentTokens,
+  accountId,
+  otherToken, 
+}: {
+  chainId: number;
+  web3: any;
+  setTokenResponse: Function;
+  setCurrentTokens?:Function 
+  accountId: string;
+  otherToken?:string
+}): Promise<any> {
+  if (accountId) {
+    const tokenList = new TokenList(
+      web3,
+      "4",
+      process.env.REACT_APP_PINATA_KEY || "",
+      process.env.REACT_APP_PINATA_KEY || ""
+    );
 
-  useEffect(() => {
-    if (accountId) {
-      const tokenList = new TokenList(
-        web3,
-        "4",
-        process.env.REACT_APP_PINATA_KEY || "",
-        process.env.REACT_APP_PINATA_KEY || ""
-      );
+    const {
+      REACT_APP_CLIENT_EMAIL = "",
+      REACT_APP_PRIVATE_KEY = "",
+      REACT_APP_TOKEN_URI = "",
+      REACT_APP_SCOPE = "",
+      REACT_APP_PRIVATE_KEY_ID = "",
+    } = process.env;
 
-      const {
-        REACT_APP_CLIENT_EMAIL = "",
-        REACT_APP_PRIVATE_KEY = "",
-        REACT_APP_TOKEN_URI = "",
-        REACT_APP_SCOPE = "",
-        REACT_APP_PRIVATE_KEY_ID = "",
-      } = process.env;
+    return tokenList
+      .fetchPreparedTokenList(
+        chainId ? chainId : 4,
+        REACT_APP_CLIENT_EMAIL,
+        REACT_APP_PRIVATE_KEY,
+        REACT_APP_TOKEN_URI,
+        REACT_APP_SCOPE,
+        REACT_APP_PRIVATE_KEY_ID
+      )
+      .then((res) => {
+        //console.log(res);
+        setTokenResponse(res);
+        const formattedList = formatTokenList(res, otherToken)
+        if(setCurrentTokens) setCurrentTokens(formattedList);
+      })
+      .catch((err) => {
+        console.error("An error occurred while fetching the token list.", err);
+        setTokenResponse(null);
+      });
+  }
+}
 
-      tokenList
-        .fetchPreparedTokenList(
-          chainId ? chainId : 4,
-          REACT_APP_CLIENT_EMAIL,
-          REACT_APP_PRIVATE_KEY,
-          REACT_APP_TOKEN_URI,
-          REACT_APP_SCOPE,
-          REACT_APP_PRIVATE_KEY_ID
-        )
-        .then((res) => {
-          console.log(res)
-          setTokenResponse(res);
-        }).catch((err)=>{
-          console.error(err)
-          setTokenResponse(err)
-        })
-    }
-  }, [globalChainId]);
-};
+
+export function formatTokenList(
+  tokenResponse: { tokens: { symbol: string }[] },
+  otherToken: any
+) {
+  console.log("formatting list")
+  const tokenList = tokenResponse.tokens.filter(
+    (t) => t.symbol !== otherToken
+  );
+  const oceanToken = tokenList.pop();
+  tokenList.splice(0, 0, oceanToken || { symbol: "OCEAN" });
+  return tokenList;
+}

@@ -1,20 +1,22 @@
-import React from "react"
-import { BsCheckCircle, BsX } from "react-icons/bs"
+import React from "react";
+import { BsCheckCircle, BsX } from "react-icons/bs";
 
 const Snackbar = ({
   show,
   token1,
   token2,
   onClose,
-  txHash
+  txHash,
 }: {
-  show: boolean
-  token1: any
-  token2: any
-  onClose: Function
-  txHash: string
+  show: boolean;
+  token1: any;
+  token2: any;
+  onClose: Function;
+  txHash: string;
 }) => {
-  if (!show) return null
+  console.log(show, token1, token2, onClose, txHash);
+
+  if (!show) return null;
   return (
     <div className="max-w-xs fixed md:top-8 md:right-8 w-full mx-auto bg-primary-800 rounded-lg p-4">
       <div className="flex justify-between items-start">
@@ -22,8 +24,8 @@ const Snackbar = ({
           <BsCheckCircle size="24" className="text-green-400" />
           <div>
             <p className="text-type-100 text-sm">
-              Swap {token1.value} {token1.info.symbol} for {token2.value}{" "}
-              {token2.info.symbol}
+              {/* Swap {token1.value} {token1.info.symbol} for {token2.value}{" "}
+              {token2.info.symbol} */}
             </p>
             <p className="text-type-300 text-sm">
               <a target="_blank" rel="noreferrrer" href={txHash}>
@@ -37,13 +39,13 @@ const Snackbar = ({
             role="button"
             color="white"
             onClick={() => {
-              onClose()
+              onClose();
             }}
           />
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Snackbar
+export default Snackbar;

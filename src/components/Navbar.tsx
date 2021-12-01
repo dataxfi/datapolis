@@ -24,12 +24,23 @@ const Navbar = () => {
     { name: text.T_STAKE, link: "/stakeX" },
   ];
 
-  const { buttonText } = useContext(GlobalContext);
+  const { buttonText, config, chainId } = useContext(GlobalContext);
 
   function truncateId() {
     return (buttonText.substring(0, 5) +
       "..." +
       buttonText.substring(buttonText.length - 4, buttonText.length))
+  }
+
+  function getNetName() {
+    if (config) {
+      let network = config.getNetwork(String(chainId));
+      if (network !== "unknown") {
+        network = network.charAt(0).toUpperCase() + network.slice(1)
+        return network};
+      return "⚠ Unknown";
+    }
+    return "⚠ Unknown";
   }
 
   return (
@@ -42,12 +53,14 @@ const Navbar = () => {
         text={text}
         wallet={walletText}
         truncateId={truncateId}
+        network = {getNetName()}
       />
       <DesktopNavbar
         links={links}
         text={text}
         wallet={walletText}
         truncateId={truncateId}
+        network= {getNetName()}
       />
     </nav>
   );

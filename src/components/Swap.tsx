@@ -11,9 +11,9 @@ import TransactionDoneModal from "./TransactionDoneModal";
 import { toFixed } from "../utils/equate";
 // import { program } from "@babel/types"
 // import { get } from "https"
-// import Snackbar from "./Snackbar"
+import Snackbar from "./Snackbar";
+import { setTxHistory, deleteRecentTxs } from "../utils/useTxHistory";
 
-const ROUND_OFF = 6;
 const text = {
   T_SWAP: "TradeX",
   T_SWAP_FROM: "You are selling",
@@ -34,8 +34,16 @@ const INITIAL_TOKEN_STATE = {
 };
 
 const Swap = () => {
-  const { handleConnect, accountId, ocean, chainId, config, setLoading } =
-    useContext(GlobalContext);
+  const {
+    handleConnect,
+    accountId,
+    ocean,
+    chainId,
+    config,
+    setLoading,
+    recentTxs,
+    setRecentTxs,
+  } = useContext(GlobalContext);
   const [showSettings, setShowSettings] = useState(false);
   const [show, setShow] = useState(false);
   const [network, setNetwork] = useState(null);
@@ -69,7 +77,7 @@ const Swap = () => {
   };
 
   useEffect(() => {
-    setLoading(false)
+    setLoading(false);
     getButtonProperties();
     //if unknown network, reset token selection
     if (config && config.default.network === "unknown") {
@@ -126,9 +134,7 @@ const Swap = () => {
       }
     } else {
       if (fromToken) {
-        const value = Number(
-          toFixed((token1.balance * (perc / 100)))
-        );
+        const value = Number(toFixed(token1.balance * (perc / 100)));
         setToken1({
           ...token1,
           percentage: String(perc),
@@ -137,9 +143,7 @@ const Swap = () => {
         // setToken2({...token2, percentage: ''})
         updateOtherTokenValue(true, value.toString());
       } else {
-        const value = Number(
-          toFixed((token2.balance * (perc / 100)))
-        );
+        const value = Number(toFixed(token2.balance * (perc / 100)));
         setToken2({
           ...token2,
           percentage: String(perc),
@@ -214,8 +218,13 @@ const Swap = () => {
     );
   }
 
+  useEffect(() => {
+    console.log(recentTxs);
+  }, [recentTxs]);
+
   async function makeTheSwap() {
     let txReceipt = null;
+    let txDateId = null;
     setShow(false);
     setShowConfirmLoader(true);
     try {
@@ -228,6 +237,17 @@ const Swap = () => {
             token2.value.toString(),
             token1.value.toString()
           );
+          txDateId = setTxHistory({
+            chainId,
+            setRecentTxs,
+            recentTxs,
+            accountId: String(accountId),
+            token1,
+            token2,
+            txType: "Ocean to DT",
+            slippage: (Number(slippage) / 100).toString(),
+          });
+
           txReceipt = await ocean.swapExactOceanToDt(
             accountId,
             token2.info.pool.toString(),
@@ -243,6 +263,16 @@ const Swap = () => {
             token2.value.toString(),
             token1.value.toString()
           );
+          txDateId = setTxHistory({
+            chainId,
+            setRecentTxs,
+            recentTxs,
+            accountId: String(accountId),
+            token1,
+            token2,
+            txType: "Ocean to DT",
+            slippage: (Number(slippage) / 100).toString(),
+          });
           txReceipt = await ocean.swapExactOceanToDt(
             accountId,
             token2.info.pool,
@@ -254,6 +284,18 @@ const Swap = () => {
       } else if (isOCEAN(token2.info.address)) {
         if (exactToken === 1) {
           console.log("exact dt to ocean");
+
+          txDateId = setTxHistory({
+            chainId,
+            setRecentTxs,
+            recentTxs,
+            accountId: String(accountId),
+            token1,
+            token2,
+            txType: "DT to Ocean",
+            slippage: (Number(slippage) / 100).toString(),
+          });
+
           txReceipt = await ocean.swapExactDtToOcean(
             accountId,
             token1.info.pool,
@@ -270,6 +312,18 @@ const Swap = () => {
             token2.value.toString(),
             token1.value.toString()
           );
+
+          txDateId = setTxHistory({
+            chainId,
+            setRecentTxs,
+            recentTxs,
+            accountId: String(accountId),
+            token1,
+            token2,
+            txType: "DT to Ocean",
+            slippage: (Number(slippage) / 100).toString(),
+          });
+
           txReceipt = await ocean.swapExactDtToOcean(
             accountId,
             token1.info.pool,
@@ -292,6 +346,18 @@ const Swap = () => {
             config.default.routerAddress,
             (Number(slippage) / 100).toString()
           );
+
+          txDateId = setTxHistory({
+            chainId,
+            setRecentTxs,
+            recentTxs,
+            accountId: String(accountId),
+            token1,
+            token2,
+            txType: "DT to DT",
+            slippage: (Number(slippage) / 100).toString(),
+          });
+
           txReceipt = await ocean.swapExactDtToDt(
             accountId,
             token1.info.address,
@@ -316,6 +382,18 @@ const Swap = () => {
             config.default.routerAddress,
             (Number(slippage) / 100).toString()
           );
+
+          txDateId = setTxHistory({
+            chainId,
+            setRecentTxs,
+            recentTxs,
+            accountId: String(accountId),
+            token1,
+            token2,
+            txType: "DT to DT",
+            slippage: (Number(slippage) / 100).toString(),
+          });
+
           txReceipt = await ocean.swapExactDtToDt(
             accountId,
             token1.info.address,
@@ -335,14 +413,34 @@ const Swap = () => {
         setRecentTxHash(
           config.default.explorerUri + "/tx/" + txReceipt.transactionHash
         );
+
+        setTxHistory({
+          chainId,
+          setRecentTxs,
+          recentTxs,
+          accountId: String(accountId),
+          token1,
+          token2,
+          txType: "DT to DT",
+          slippage: (Number(slippage) / 100).toString(),
+          txDateId,
+          txHash: txReceipt.transactionHash,
+          status: "indexing"
+        });
+
         setToken1(INITIAL_TOKEN_STATE);
         setToken2(INITIAL_TOKEN_STATE);
         setPostExchange(null);
         console.log(txReceipt);
       } else {
         setShowConfirmLoader(false);
+        console.log("User rejected transaction, or it failed in someway.");
+        
+        deleteRecentTxs({txDateId, setRecentTxs, recentTxs, accountId, chainId})
       }
     } catch (error) {
+      console.log("User rejected transaction, or it failed in someway.");
+      deleteRecentTxs({txDateId, setRecentTxs, recentTxs, accountId, chainId})
       setShowConfirmLoader(false);
       console.log(error);
     }
@@ -572,7 +670,7 @@ const Swap = () => {
         txHash={recentTxHash}
         close={() => setShowTxDone(false)}
       />
-      {/*
+
       <Snackbar
         show={showTxDone}
         token1={token1}
@@ -580,7 +678,6 @@ const Swap = () => {
         onClose={() => setShowTxDone(false)}
         txHash={recentTxHash}
       />
-      */}
     </>
   );
 };

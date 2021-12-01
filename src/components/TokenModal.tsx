@@ -1,10 +1,10 @@
 import { MdClose } from "react-icons/md";
 import TokenItem from "./TokenItem";
 import { useEffect, useState, useContext } from "react";
-import Loader from "./Loader"
+import Loader from "./Loader";
 import ReactList from "react-list";
 import { GlobalContext } from "../context/GlobalState";
-import { useTokenList } from "../utils/useTokenList";
+import getTokenList, {formatTokenList} from "../utils/useTokenList";
 
 const text = {
   T_SELECT_TOKEN: "Select a token",
@@ -17,36 +17,49 @@ const TokenModal = ({
 }: {
   close: Function;
   onClick: Function;
-  otherToken?: string;
+  otherToken: string;
 }) => {
-  const { web3, chainId, currentTokens, setCurrentTokens, tokenResponse, setTokenResponse } =
-  useContext(GlobalContext);
+  const {
+    chainId,
+    currentTokens,
+    setCurrentTokens,
+    tokenResponse,
+    web3,
+    setTokenResponse,
+    accountId,
+  } = useContext(GlobalContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
-  
-  useTokenList(chainId)
-
-
-  function formatTokenList(tokenResponse: {tokens:{symbol:string}[]}, otherToken: any){
-    const tokenList = tokenResponse.tokens.filter((t) => t.symbol !== otherToken)
-    const oceanToken = tokenList.pop()
-    tokenList.splice(0, 0, oceanToken || {symbol: "OCEAN"})
-    return tokenList
-  }
 
   useEffect(() => {
-    setError(false);
+
+    console.log("response",tokenResponse)
+
+    if (!tokenResponse) {
+      getTokenList({
+        chainId,
+        web3,
+        setTokenResponse,
+        accountId,
+        setCurrentTokens,
+        otherToken
+      });
+    }
+
     setLoading(true);
-    if (currentTokens && tokenResponse.tokens) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      setCurrentTokens(formatTokenList(tokenResponse, otherToken));
+    setError(false);
+    console.log(currentTokens, tokenResponse)
+    if (tokenResponse && tokenResponse.tokens) {
+      const formattedList = formatTokenList(tokenResponse, otherToken)
+      setCurrentTokens(formattedList)
       setLoading(false);
       setError(false);
-    } else if (tokenResponse.message && tokenResponse.message.includes("ERROR")){
-      setError(true)
-      setLoading(false)
+    } else if (
+      tokenResponse === null
+    ) {
+      setError(true);
+      setLoading(false);
     }
   }, [tokenResponse]);
 
@@ -64,8 +77,6 @@ const TokenModal = ({
         )
       );
     } else {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       setCurrentTokens(formatTokenList(tokenResponse, otherToken));
     }
   };
@@ -93,8 +104,8 @@ const TokenModal = ({
         </div>
         {loading ? (
           <div className="flex justify-center my-4">
-              <Loader size = {40} />
-            </div>
+            <Loader size={40} />
+          </div>
         ) : error ? (
           <div className="text-white text-center my-4">
             There was an error loading the tokens
@@ -106,7 +117,7 @@ const TokenModal = ({
           >
             <ReactList
               itemRenderer={tokenRenderer}
-              length={currentTokens.length}
+              length={currentTokens? currentTokens.length : 0}
               type="simple"
             />
           </div>

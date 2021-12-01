@@ -9,16 +9,18 @@ const MobileNavbar = ({
   links,
   text,
   wallet,
-  truncateId
+  truncateId,
+  network,
 }: {
   links: Array<any>;
   text: Record<any, any>;
   wallet: string;
-  truncateId: Function 
+  truncateId: Function;
+  network: string;
 }) => {
   const { handleConnect, accountId } = useContext(GlobalContext);
   const [menuVisible, setMenuVisible] = useState(false);
-  const [walletBtnVis, setWalletBtnVis] = useState(false)
+  const [walletBtnVis, setWalletBtnVis] = useState(false);
 
   function toggleMenu(state: boolean) {
     setMenuVisible(state);
@@ -30,10 +32,10 @@ const MobileNavbar = ({
     toggleMenu(false);
   }, [location]);
 
-  useEffect(()=>{
-    setWalletBtnVis(true)
-  },[accountId])
-  
+  useEffect(() => {
+    setWalletBtnVis(true);
+  }, [accountId]);
+
   return (
     <header className="flex flex-col">
       <div className="flex lg:hidden justify-between items-center pt-2 border-gray-800 pr-4">
@@ -88,11 +90,20 @@ const MobileNavbar = ({
         } transition duration-1000 z-10`}
       >
         <div className="flex flex-row w-full justify-between px-3 ">
-          <Button
-            text={`${accountId ? "Wallet:" + truncateId() : "Connect wallet"}`}
-            onClick={() => handleConnect()}
-            classes="hm-btn text-xs w-full"
-          />
+          <div className="flex flex-row justify-center align-middle  w-full ">
+            <div className = "flex flex-row bg-primary-900  pl-2 pr-1 py-1 rounded-lg">
+              {" "}
+              <p className="text-xs self-center rounded-l-lg  mr-2 ">
+                {accountId ? `${network}` : null}
+              </p>
+              <Button
+                text={`${accountId ? `${truncateId()}` : "Connect wallet"}`}
+                onClick={() => handleConnect()}
+                classes="hm-btn text-xs px-1 py-1 bg-black"
+              />
+            </div>
+          </div>
+
           <MdClose
             onClick={() => setWalletBtnVis(false)}
             color="#ccc"
