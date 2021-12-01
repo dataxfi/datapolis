@@ -9,24 +9,19 @@ const DesktopNavbar = ({
   links,
   text,
   wallet,
-  truncateId
+  truncateId, 
+  network
 }: {
   links: Array<any>;
   text: Record<any, any>;
   wallet: string;
   truncateId: Function
+  network: string
 }) => {
-  const { handleConnect, chainId, config, accountId, buttonText } =
+  const { handleConnect, accountId, buttonText } =
     useContext(GlobalContext);
 
-  function dispNet() {
-    if (config) {
-      const network = config.getNetwork(String(chainId));
-      if (network !== "unknown") return network;
-      return "⚠ Unknown";
-    }
-    return "⚠ Unknown";
-  }
+ 
 
   return (
     <header className="lg:flex justify-between items-center py-4 border-gray-800 pl-4 pr-2 hidden">
@@ -46,7 +41,7 @@ const DesktopNavbar = ({
       </div>
       <div className="grid grid-flow-col gap-4 items-center">
         <div className="hidden md:block capitalize border border-type-500 text-type-200 rounded-md px-4 py-1 hm-box ">
-          <h3>{dispNet()}</h3>
+          <h3>{network}</h3>
         </div>
         <div className="hidden md:block">
           <Button

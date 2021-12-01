@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
-import { GlobalContext, PoolData } from "../context/GlobalState";
+import { GlobalContext } from "../context/GlobalState";
+import { PoolData } from "../utils/useAllStakedPools";
 import { BsChevronDown, BsChevronUp } from "react-icons/bs";
 import { Link } from "react-router-dom";
 import { toFixed } from "../utils/equate";

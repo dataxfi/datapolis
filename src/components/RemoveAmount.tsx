@@ -3,7 +3,7 @@ import { BsArrowDown } from "react-icons/bs";
 import { useLocation } from "react-router";
 import { Link } from "react-router-dom";
 import { GlobalContext } from "../context/GlobalState";
-import getTokenList from "../utils/getTokenList";
+import getTokenList from "../utils/useTokenList";
 import Button from "./Button";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
@@ -11,8 +11,9 @@ import UserMessageModal from "./UserMessageModal";
 import { toFixed } from "../utils/equate";
 import setStakePoolStates, {
   getLocalPoolData,
-} from "../utils/getAllStakedPools";
+} from "../utils/useAllStakedPools";
 import { PulseLoader } from "react-spinners";
+import { setTxHistory, deleteRecentTxs } from "../utils/useTxHistory";
 
 interface RecieveAmounts {
   dtAmount: string;
@@ -32,8 +33,10 @@ const RemoveAmount = () => {
     ocean,
     web3,
     setTokenResponse,
-    bgLoading, 
-    setBgLoading
+    bgLoading,
+    setBgLoading,
+    recentTxs,
+    setRecentTxs,
   } = useContext(GlobalContext);
   const [noWallet, setNoWallet] = useState<boolean>(false);
   const [removePercent, setRemovePercent] = useState<string>("");
@@ -49,16 +52,16 @@ const RemoveAmount = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const otherToken = "OCEAN"
+    const otherToken = "OCEAN";
     getTokenList({
       chainId,
       web3,
       setTokenResponse,
       accountId,
-      otherToken
+      otherToken,
     });
 
-    setBgLoading({status:true, operation:"stake"});
+    setBgLoading({ status: true, operation: "stake" });
     const queryParams = new URLSearchParams(location.search);
     const poolAddress = queryParams.get("pool");
 
@@ -71,7 +74,7 @@ const RemoveAmount = () => {
             (pool: { address: string }) => pool.address === poolAddress
           )
         );
-        setBgLoading({status:false, operation:null});
+        setBgLoading({ status: false, operation: null });
       }
     }
 
@@ -136,6 +139,7 @@ const RemoveAmount = () => {
   };
 
   const handleWithdrawal = async () => {
+    const txDateId = Date.now();
     try {
       setShowConfirmLoader(true);
       console.log(`unstaking ${removeAmount} shares`);
@@ -145,20 +149,60 @@ const RemoveAmount = () => {
         removeAmount,
         currentStakePool.totalPoolShares
       );
+
+      setTxHistory({
+        chainId,
+        setRecentTxs,
+        recentTxs,
+        accountId: String(accountId),
+        token1: currentStakePool.token1,
+        token2: currentStakePool.token2,
+        txType: "Unstake Ocean",
+        txDateId,
+        status: "pending approval",
+      });
+
       const txReceipt = await ocean.unstakeOcean(
         accountId,
         currentStakePool.address,
         recieveAmounts.oceanAmount,
         currentStakePool.shares
       );
-      setRecentTxHash(
-        ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash
-      );
-      setShowConfirmLoader(false);
-      setShowTxDone(true);
+
+      if (txReceipt) {
+        setTxHistory({
+          chainId,
+          setRecentTxs,
+          recentTxs,
+          accountId: String(accountId),
+          token1: currentStakePool.token1,
+          token2: currentStakePool.token2,
+          txType: "Unstake Ocean",
+          txDateId,
+          status: "indexing",
+          txHash: txReceipt.transactionHash,
+        });
+        setRecentTxHash(
+          ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash
+        );
+        setShowConfirmLoader(false);
+        setShowTxDone(true);
+      } else {
+        setShowConfirmLoader(false);
+        setShowTxDone(false);
+        deleteRecentTxs({
+          txDateId,
+          setRecentTxs,
+          recentTxs,
+          chainId,
+          accountId,
+        });
+      }
     } catch (error) {
       console.error(error);
-      setShowConfirmLoader(false);
+      setShowConfirmLoader(false)
+      setShowTxDone(false)
+      deleteRecentTxs({txDateId, setRecentTxs, recentTxs, chainId, accountId})
     }
   };
 

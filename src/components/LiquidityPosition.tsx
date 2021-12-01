@@ -1,11 +1,12 @@
 import { useContext, useEffect, useState } from "react";
-import { GlobalContext, PoolData } from "../context/GlobalState";
+import { GlobalContext } from "../context/GlobalState";
+import { PoolData } from "../utils/useAllStakedPools";
 import LiquidityPositionItem from "./LiquidityPositionItem";
 import YellowXLoader from "../assets/YellowXLoader.gif";
 import UserMessageModal from "./UserMessageModal";
 import setStakePoolStates, {
   getLocalPoolData,
-} from "../utils/getAllStakedPools";
+} from "../utils/useAllStakedPools";
 
 const LiquidityPosition = () => {
   const {

@@ -1,5 +1,17 @@
 import { percOf } from "./equate";
-import { PoolData } from "../context/GlobalState";
+import { TokenDetails } from "@dataxfi/datax.js/dist/Ocean";
+
+export interface PoolData {
+  accountId: string;
+  address: string;
+  token1: TokenDetails;
+  token2: TokenDetails;
+  shares: string;
+  dtAmount?: string;
+  oceanAmount?: string;
+  totalPoolShares?: string;
+  yourPoolShare?: string;
+}
 
 export async function getAllStakedPools(accountId: string, ocean: any) {
   const poolList = await ocean.getAllStakedPools(accountId);

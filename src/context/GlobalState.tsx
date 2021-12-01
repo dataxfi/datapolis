@@ -12,24 +12,18 @@ import {
   deniedSignatureGA,
   connectedWalletViaGA,
 } from "./Analytics";
-import { TokenDetails } from "@dataxfi/datax.js/dist/Ocean";
+import {TxHistory} from '../utils/useTxHistory'
+import { PoolData } from "../utils/useAllStakedPools";
 
 const initialState: any = {};
 const CONNECT_TEXT = "Connect Wallet";
 
 export const GlobalContext = createContext(initialState);
 
-export interface PoolData {
-  accountId: string;
-  address: string;
-  token1: TokenDetails;
-  token2: TokenDetails;
-  shares: string;
-  dtAmount?: string;
-  oceanAmount?: string;
-  totalPoolShares?: string;
-  yourPoolShare?: string;
-}
+
+
+
+
 
 export const GlobalProvider = ({
   children,
@@ -42,6 +36,9 @@ export const GlobalProvider = ({
     client: boolean | null;
     wallet: boolean | null;
   }
+
+  
+
   const [web3Modal, setWeb3Modal] = useState<Core | null>(null);
   const [accountId, setAccountId] = useState<string | null>(null);
   const [chainId, setChainId] = useState<number | undefined>(undefined);
@@ -68,7 +65,7 @@ export const GlobalProvider = ({
     client: null,
     wallet: null,
   });
-
+  const [recentTxs, setRecentTxs] = useState<TxHistory | null>(null);
   const [buttonText, setButtonText] = useState<string | undefined>(
     CONNECT_TEXT
   );
@@ -310,6 +307,8 @@ export const GlobalProvider = ({
         setCurrentStakePool,
         bgLoading,
         setBgLoading,
+        recentTxs,
+        setRecentTxs,
       }}
     >
       {children}

@@ -8,9 +8,10 @@ import Button, { IBtnProps } from "./Button";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
 import { Link, useLocation, useHistory } from "react-router-dom";
-import getTokenList from "../utils/getTokenList";
+import getTokenList from "../utils/useTokenList";
 import UserMessageModal from "./UserMessageModal";
 import { toFixed } from "../utils/equate";
+import { setTxHistory, deleteRecentTxs } from "../utils/useTxHistory";
 //import setStakePoolStates from "../utils/getAllStakedPools";
 
 const text = {
@@ -40,6 +41,8 @@ const Stake = () => {
     web3,
     setTokenResponse,
     setCurrentTokens,
+    recentTxs,
+    setRecentTxs,
   } = useContext(GlobalContext);
   const [token, setToken] = useState<any>(null);
   const [dtToOcean, setDtToOcean] = useState<any>(null);
@@ -64,17 +67,27 @@ const Stake = () => {
     { type: string; message: string } | false
   >(false);
   const location = useLocation();
-  const history = useHistory()
+  const history = useHistory();
+
+  const otherToken = {
+    chainId: 4,
+    address: "0x8967bcf84170c91b0d24d4302c2376283b0b3a07",
+    symbol: "OCEAN",
+    name: "Ocean Token",
+    decimals: 18,
+    logoURI:
+      "https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY",
+    tags: ["oceantoken"],
+  };
 
   useEffect(() => {
-    const otherToken = "OCEAN"
     getTokenList({
       chainId,
       web3,
       setTokenResponse,
       setCurrentTokens,
       accountId,
-      otherToken
+      otherToken: otherToken.symbol,
     });
 
     async function setOceanBalance() {
@@ -109,17 +122,15 @@ const Stake = () => {
 
     if (accountId && currentTokens) {
       if (currentStakeToken) {
-        console.log("weve already got a current stake token");
         updateToken(currentStakeToken);
         setUserMessage(false);
       } else if (poolAddress && currentTokens.length > 0) {
-        console.log("we need to find the current stake token");
         const currentToken = currentTokens.find(
           (token: { pool: string }) => token.pool === poolAddress
         );
         if (!currentToken) {
-          setUserMessage({ type: "error", message: "Couldnt preload token" });  
-          history.push("/stakeX")
+          setUserMessage({ type: "error", message: "Couldnt preload token" });
+          history.push("/stakeX");
         } else {
           updateToken(currentToken);
           setUserMessage(false);
@@ -179,16 +190,57 @@ const Stake = () => {
   }, [accountId, ocean, chainId, token, oceanVal, balance, loadingStake]);
 
   async function stakeX() {
-    setLoadingStake(true);
-    setShowConfirmLoader(true);
-    const txReceipt = await ocean.stakeOcean(accountId, token.pool, oceanVal);
-    console.log(txReceipt);
-    setShowTxDone(true);
-    setRecentTxHash(
-      ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash
-    );
-    setShowConfirmLoader(false);
-    setLoadingStake(false);
+    const txDateId = Date.now();
+    try {
+      setLoadingStake(true);
+      setShowConfirmLoader(true);
+      setTxHistory({
+        chainId,
+        setRecentTxs,
+        recentTxs,
+        accountId: String(accountId),
+        token1: token,
+        token2: otherToken,
+        txType: "Stake Ocean",
+        txDateId,
+        status: "pending approval",
+      });
+
+      const txReceipt = await ocean.stakeOcean(accountId, token.pool, oceanVal);
+      
+      setTxHistory({
+        chainId,
+        setRecentTxs,
+        recentTxs,
+        accountId: String(accountId),
+        token1: token,
+        token2: otherToken,
+        txType: "Stake Ocean",
+        txDateId,
+        txHash: txReceipt.transactionHash,
+        status: "indexing",
+      });
+      if (txReceipt) {
+        console.log(txReceipt);
+        setShowTxDone(true);
+        setRecentTxHash(
+          ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash
+        );
+      } else {
+        deleteRecentTxs({txDateId, setRecentTxs, recentTxs, accountId, chainId})
+        setShowTxDone(false);
+        setShowConfirmLoader(false);
+        setLoadingStake(false);
+      }
+      setShowConfirmLoader(false);
+      setLoadingStake(false);
+    } catch (error) {
+      deleteRecentTxs({txDateId, setRecentTxs, recentTxs, accountId, chainId})
+      console.error(error);
+      setShowTxDone(false);
+      setShowConfirmLoader(false);
+      setLoadingStake(false);
+    }
   }
 
   async function setMaxStake() {
