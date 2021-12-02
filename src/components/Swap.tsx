@@ -11,8 +11,7 @@ import TransactionDoneModal from "./TransactionDoneModal";
 import { toFixed } from "../utils/equate";
 // import { program } from "@babel/types"
 // import { get } from "https"
-import Snackbar from "./Snackbar";
-import { addTxHistory, deleteRecentTxs, getTxUrl } from "../utils/useTxHistory";
+import { addTxHistory, deleteRecentTxs } from "../utils/useTxHistory";
 
 const text = {
   T_SWAP: "TradeX",
@@ -43,9 +42,7 @@ const Swap = () => {
     setLoading,
     txHistory,
     setTxHistory,
-    lastTxId,
     setLastTxId,
-    showSnackbar,
     setShowSnackbar,
     pendingTxs,
     setPendingTxs,

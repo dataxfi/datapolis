@@ -72,7 +72,7 @@ export function addTxHistory({
       case "pending":
         break;
       case "indexing":
-        const newPendingTxs = pendingTxs.map((tx) => tx != txDateId);
+        const newPendingTxs = pendingTxs.map((tx) => tx !== txDateId);
         setPendingTxs(newPendingTxs);
         setShowSnackbar(true);
         break;

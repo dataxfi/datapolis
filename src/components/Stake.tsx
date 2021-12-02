@@ -65,7 +65,7 @@ const Stake = () => {
   const [showConfirmLoader, setShowConfirmLoader] = useState(false);
   const [showTxDone, setShowTxDone] = useState(false);
   const [recentTxHash, setRecentTxHash] = useState("");
-  const [perc, setPerc] = useState("");
+  //const [perc, setPerc] = useState("");
   const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
   const [userMessage, setUserMessage] = useState<
     { type: string; message: string } | false
@@ -273,20 +273,20 @@ const Stake = () => {
     if (!Number.isNaN(val)) {
       setOceanVal((val - 1).toFixed(5));
     } else {
-      setPerc("");
+      //setPerc("");
       setOceanVal("");
     }
   }
-  async function onPerc(val: any) {
-    const perc = parseFloat(val);
-    if (!Number.isNaN(val)) {
-      setPerc(String(perc));
-      setOceanVal(toFixed((balance * perc) / 100));
-    } else {
-      setPerc("");
-      setOceanVal("");
-    }
-  }
+  // async function onPerc(val: any) {
+  //   const perc = parseFloat(val);
+  //   if (!Number.isNaN(val)) {
+  //     setPerc(String(perc));
+  //     setOceanVal(toFixed((balance * perc) / 100));
+  //   } else {
+  //     setPerc("");
+  //     setOceanVal("");
+  //   }
+  // }
 
   async function updateNum(val: string) {
     setOceanVal(val);
@@ -321,14 +321,14 @@ const Stake = () => {
           <div className="max-w-2xl lg:mx-auto sm:mx-4 mx-3 bg-primary-900 w-full rounded-lg p-4 hm-box ">
             <div className="flex justify-between">
               <p className="text-xl">{text.T_STAKE}</p>
-              {userMessage != false && userMessage.type === "error" ? (
+              {userMessage !== false && userMessage.type === "error" ? (
                 <UserMessageModal
                   message={userMessage.message}
                   pulse={true}
                   container={false}
                   timeout={{ showState: setUserMessage, time: 5000 }}
                 />
-              ) : userMessage != false ? (
+              ) : userMessage !== false ? (
                 <UserMessageModal
                   message={userMessage.message}
                   pulse={true}

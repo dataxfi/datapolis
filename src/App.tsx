@@ -33,6 +33,7 @@ function App() {
     document.getElementById("loadText")?.remove()
     document.getElementById("loadCenter")?.remove()
     document.getElementById("loader")?.remove()
+                // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

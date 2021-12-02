@@ -2,7 +2,6 @@ import { useContext, useEffect, useState } from "react";
 import { BsCheckCircle, BsX } from "react-icons/bs";
 import { GlobalContext } from "../context/GlobalState";
 import { getTxById, TxObject, getTxUrl } from "../utils/useTxHistory";
-import { TokenInfo } from "../utils/useTokenList";
 
 const Snackbar = () => {
   const {
@@ -17,7 +16,7 @@ const Snackbar = () => {
   const [lastTx, setLastTx] = useState<TxObject | null>(null);
   const [url, setUrl] = useState<string>("");
   const [opacity, setOpacity] = useState<string>("0");
-  const [progress, setProgress] = useState<string>("100");
+  //const [progress, setProgress] = useState<string>("100");
   const [tokenInfo, setTokenInfo] = useState<any>(null);
   // TokenInfo[] | null
 
@@ -55,8 +54,8 @@ const Snackbar = () => {
       }
 
       easeInOut();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastTxId, showSnackbar]);
 
   function easeInOut() {
@@ -73,20 +72,20 @@ const Snackbar = () => {
     }, 8000);
   }
 
-  function progressBar() {
-    setTimeout(() => {
-      setProgress("75");
-    }, 1500);
-    setTimeout(() => {
-      setProgress("50");
-    }, 3500);
-    setTimeout(() => {
-      setProgress("25");
-    }, 5500);
-    setTimeout(() => {
-      setProgress("0");
-    }, 75000);
-  }
+  // function progressBar() {
+  //   setTimeout(() => {
+  //     setProgress("75");
+  //   }, 1500);
+  //   setTimeout(() => {
+  //     setProgress("50");
+  //   }, 3500);
+  //   setTimeout(() => {
+  //     setProgress("25");
+  //   }, 5500);
+  //   setTimeout(() => {
+  //     setProgress("0");
+  //   }, 75000);
+  // }
 
   if (!showSnackbar || !lastTx) return null;
   return (
@@ -104,7 +103,7 @@ const Snackbar = () => {
                 : `Trade ${tokenInfo.token1.value} ${tokenInfo.token1.symbol} => ${tokenInfo.token2.value} ${tokenInfo.token2.symbol}`}
             </p>
             <p className="text-type-300 text-sm">
-              <a target="_blank" rel="noreferrrer" href={url}>
+              <a target="_blank" rel="noreferrer"  href={url}>
                 View on explorer
               </a>
             </p>

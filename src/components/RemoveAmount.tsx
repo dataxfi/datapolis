@@ -29,7 +29,6 @@ const RemoveAmount = () => {
     setCurrentStakePool,
     setAllStakedPools,
     setLoading,
-    loading,
     ocean,
     web3,
     setTokenResponse,
