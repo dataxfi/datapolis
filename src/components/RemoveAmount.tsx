@@ -13,7 +13,7 @@ import setStakePoolStates, {
   getLocalPoolData,
 } from "../utils/useAllStakedPools";
 import { PulseLoader } from "react-spinners";
-import { setTxHistory, deleteRecentTxs } from "../utils/useTxHistory";
+import { addTxHistory, deleteRecentTxs } from "../utils/useTxHistory";
 
 interface RecieveAmounts {
   dtAmount: string;
@@ -29,14 +29,17 @@ const RemoveAmount = () => {
     setCurrentStakePool,
     setAllStakedPools,
     setLoading,
-    loading,
     ocean,
     web3,
     setTokenResponse,
     bgLoading,
     setBgLoading,
-    recentTxs,
-    setRecentTxs,
+    txHistory,
+    setTxHistory,
+    pendingTxs, 
+    setPendingTxs,
+    setShowSnackbar, 
+    setLastTxId
   } = useContext(GlobalContext);
   const [noWallet, setNoWallet] = useState<boolean>(false);
   const [removePercent, setRemovePercent] = useState<string>("");
@@ -98,11 +101,12 @@ const RemoveAmount = () => {
         );
       }
     }
+            // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, accountId]);
 
   useEffect(() => {
-    console.log("current pool", currentStakePool);
     accountId ? setNoWallet(false) : setNoWallet(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId, chainId, removeAmount]);
 
   const updateNum = (val: string) => {
@@ -143,23 +147,22 @@ const RemoveAmount = () => {
     try {
       setShowConfirmLoader(true);
       console.log(`unstaking ${removeAmount} shares`);
-      console.log(
-        accountId,
-        currentStakePool.address,
-        removeAmount,
-        currentStakePool.totalPoolShares
-      );
 
-      setTxHistory({
+      addTxHistory({
         chainId,
-        setRecentTxs,
-        recentTxs,
+        setTxHistory,
+        txHistory,
         accountId: String(accountId),
         token1: currentStakePool.token1,
         token2: currentStakePool.token2,
         txType: "Unstake Ocean",
         txDateId,
         status: "pending approval",
+        pendingTxs, 
+        setPendingTxs, 
+        setShowSnackbar,
+        setLastTxId,
+        stakeAmt: removeAmount
       });
 
       const txReceipt = await ocean.unstakeOcean(
@@ -170,10 +173,10 @@ const RemoveAmount = () => {
       );
 
       if (txReceipt) {
-        setTxHistory({
+        addTxHistory({
           chainId,
-          setRecentTxs,
-          recentTxs,
+          setTxHistory,
+          txHistory,
           accountId: String(accountId),
           token1: currentStakePool.token1,
           token2: currentStakePool.token2,
@@ -181,6 +184,11 @@ const RemoveAmount = () => {
           txDateId,
           status: "indexing",
           txHash: txReceipt.transactionHash,
+          pendingTxs, 
+          setPendingTxs,
+          setShowSnackbar,
+          setLastTxId,
+          stakeAmt: removeAmount
         });
         setRecentTxHash(
           ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash
@@ -192,8 +200,8 @@ const RemoveAmount = () => {
         setShowTxDone(false);
         deleteRecentTxs({
           txDateId,
-          setRecentTxs,
-          recentTxs,
+          setTxHistory,
+          txHistory,
           chainId,
           accountId,
         });
@@ -202,7 +210,7 @@ const RemoveAmount = () => {
       console.error(error);
       setShowConfirmLoader(false)
       setShowTxDone(false)
-      deleteRecentTxs({txDateId, setRecentTxs, recentTxs, chainId, accountId})
+      deleteRecentTxs({txDateId, setTxHistory, txHistory, chainId, accountId})
     }
   };
 

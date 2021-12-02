@@ -1,34 +1,109 @@
-import React from "react";
+import { useContext, useEffect, useState } from "react";
 import { BsCheckCircle, BsX } from "react-icons/bs";
+import { GlobalContext } from "../context/GlobalState";
+import { getTxById, TxObject, getTxUrl } from "../utils/useTxHistory";
 
-const Snackbar = ({
-  show,
-  token1,
-  token2,
-  onClose,
-  txHash,
-}: {
-  show: boolean;
-  token1: any;
-  token2: any;
-  onClose: Function;
-  txHash: string;
-}) => {
-  console.log(show, token1, token2, onClose, txHash);
+const Snackbar = () => {
+  const {
+    accountId,
+    chainId,
+    txHistory,
+    showSnackbar,
+    setShowSnackbar,
+    lastTxId,
+    ocean,
+  } = useContext(GlobalContext);
+  const [lastTx, setLastTx] = useState<TxObject | null>(null);
+  const [url, setUrl] = useState<string>("");
+  const [opacity, setOpacity] = useState<string>("0");
+  //const [progress, setProgress] = useState<string>("100");
+  const [tokenInfo, setTokenInfo] = useState<any>(null);
+  // TokenInfo[] | null
 
-  if (!show) return null;
+  useEffect(() => {
+    if (showSnackbar) {
+      const fetchedTx: any = getTxById({
+        accountId,
+        chainId,
+        txDateId: lastTxId,
+        txHistory,
+      });
+      if (fetchedTx) {
+        setLastTx(fetchedTx);
+        const newUrl = getTxUrl({
+          root: ocean.config.default.explorerUri,
+          txHash: fetchedTx.txHash,
+          accountId,
+        });
+        if (newUrl) setUrl(newUrl);
+
+        switch (fetchedTx.txType) {
+          case "Stake Ocean":
+            setTokenInfo({
+              token1: fetchedTx.token1,
+              token2: fetchedTx.token2,
+            });
+            break;
+          default:
+            setTokenInfo({
+              token1: fetchedTx.token1.info,
+              token2: fetchedTx.token2.info,
+            });
+            break;
+        }
+      }
+
+      easeInOut();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastTxId, showSnackbar]);
+
+  function easeInOut() {
+    setTimeout(() => {
+      setOpacity("100");
+    }, 500);
+
+    setTimeout(() => {
+      setOpacity("0");
+    }, 7500);
+
+    setTimeout(() => {
+      setShowSnackbar(false);
+    }, 8000);
+  }
+
+  // function progressBar() {
+  //   setTimeout(() => {
+  //     setProgress("75");
+  //   }, 1500);
+  //   setTimeout(() => {
+  //     setProgress("50");
+  //   }, 3500);
+  //   setTimeout(() => {
+  //     setProgress("25");
+  //   }, 5500);
+  //   setTimeout(() => {
+  //     setProgress("0");
+  //   }, 75000);
+  // }
+
+  if (!showSnackbar || !lastTx) return null;
   return (
-    <div className="max-w-xs fixed md:top-8 md:right-8 w-full mx-auto bg-primary-800 rounded-lg p-4">
+    <div
+      className={`max-w-xs fixed md:top-8 md:right-8 w-full mx-auto bg-primary-800 rounded-lg p-4 transition-opacity ease-in-out opacity-${opacity} duration-500`}
+    >
       <div className="flex justify-between items-start">
         <div className="grid grid-flow-col gap-4 items-center">
           <BsCheckCircle size="24" className="text-green-400" />
           <div>
-            <p className="text-type-100 text-sm">
-              {/* Swap {token1.value} {token1.info.symbol} for {token2.value}{" "}
-              {token2.info.symbol} */}
+            <p className="text-type-100 text-sm">{lastTx.txType}</p>
+            <p>
+              {lastTx.txType.includes("Stake")
+                ? `Stake ${lastTx.stakeAmt} in ${tokenInfo.token1.symbol}/${tokenInfo.token2.symbol} pool`
+                : `Trade ${tokenInfo.token1.value} ${tokenInfo.token1.symbol} => ${tokenInfo.token2.value} ${tokenInfo.token2.symbol}`}
             </p>
             <p className="text-type-300 text-sm">
-              <a target="_blank" rel="noreferrrer" href={txHash}>
+              <a target="_blank" rel="noreferrer"  href={url}>
                 View on explorer
               </a>
             </p>
@@ -39,11 +114,17 @@ const Snackbar = ({
             role="button"
             color="white"
             onClick={() => {
-              onClose();
+              setShowSnackbar(false);
             }}
           />
         </div>
       </div>
+      {/* <div className="relative pt-1">
+        <div className="overflow-hidden h-2 text-xs flex rounded bg-purple-200">
+          <div className="bg-gray-900 h-full w-50"/>
+
+        </div>
+      </div> */}
     </div>
   );
 };

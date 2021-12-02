@@ -28,6 +28,7 @@ const SwapInput = ({title, value, pos, setToken, num, updateNum, balance, loadin
 
     useEffect(() => {
       if (value) setToken(value, pos, false);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [accountId]);
 
     return (

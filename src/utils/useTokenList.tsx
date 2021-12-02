@@ -1,4 +1,15 @@
 import { TokenList } from "@dataxfi/datax.js";
+
+export interface TokenInfo { 
+  address: string 
+  chainId: string | number
+  decimals:string | number 
+  logoURI: string 
+  name: string 
+  symbol: string 
+}
+
+
 export default async function getTokenList({
   chainId,
   web3,
@@ -40,7 +51,6 @@ export default async function getTokenList({
         REACT_APP_PRIVATE_KEY_ID
       )
       .then((res) => {
-        //console.log(res);
         setTokenResponse(res);
         const formattedList = formatTokenList(res, otherToken)
         if(setCurrentTokens) setCurrentTokens(formattedList);
@@ -57,7 +67,6 @@ export function formatTokenList(
   tokenResponse: { tokens: { symbol: string }[] },
   otherToken: any
 ) {
-  console.log("formatting list")
   const tokenList = tokenResponse.tokens.filter(
     (t) => t.symbol !== otherToken
   );

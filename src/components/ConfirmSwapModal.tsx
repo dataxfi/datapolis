@@ -18,6 +18,7 @@ const ConfirmSwapModal = ({confirm, show, close, token1, token2, postExchange, s
             const exchange = token2.value || 0
             setMinReceived(exchange - (exchange * Number(slippage || 1)/100))
         }
+            // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [token2.value, slippage, show]);
 
     useEffect(() => {

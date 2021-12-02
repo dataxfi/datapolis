@@ -20,6 +20,7 @@ function CookiesModal() {
         setShow(true);
         break;
     }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function confirmOrDeny(e: any) {
