@@ -1,21 +1,31 @@
+import { TokenInfo } from "./useTokenList";
+
+export interface TxTokenDetails {
+  balance: string;
+  info: TokenInfo;
+  percentage: string;
+  value: string;
+}
+
 export interface TxObject {
   accountId: string;
-  token1: string;
-  token2: string;
+  token1: TxTokenDetails | TokenInfo;
+  token2: TxTokenDetails | TokenInfo;
   txHash: string | null;
   status: string;
   txType: string;
-  slippage: string;
+  slippage?: string;
+  stakeAmt?:string
 }
 
 export interface TxHistory {
   [txDateId: string]: TxObject;
 }
 
-export function setTxHistory({
+export function addTxHistory({
   chainId,
-  setRecentTxs,
-  recentTxs,
+  setTxHistory,
+  txHistory,
   accountId,
   token1,
   token2,
@@ -24,10 +34,15 @@ export function setTxHistory({
   status,
   slippage,
   txDateId,
+  stakeAmt,
+  pendingTxs,
+  setPendingTxs,
+  setShowSnackbar,
+  setLastTxId,
 }: {
   chainId: string | number;
-  setRecentTxs: Function;
-  recentTxs: TxHistory;
+  setTxHistory: Function;
+  txHistory: TxHistory;
   accountId: string;
   token1?: any;
   token2?: any;
@@ -36,51 +51,96 @@ export function setTxHistory({
   status?: string;
   slippage?: string;
   txDateId?: number | string;
+  pendingTxs: [];
+  setPendingTxs: Function;
+  setShowSnackbar: Function;
+  setLastTxId: Function;
+  stakeAmt?:string
 }) {
   try {
     let localTxHistory = getLocalTxHistory({ chainId, accountId });
 
-    if (!txDateId) txDateId = String(Date.now());
+    if (!txDateId) {
+      txDateId = String(Date.now());
+      setLastTxId(txDateId);
+    }
     if (!txHash) txHash = null;
-    if (!status) status = "pending approval";
+
+    switch (status) {
+      case "successful":
+      case "success":
+      case "pending":
+        break;
+      case "indexing":
+        const newPendingTxs = pendingTxs.map((tx) => tx !== txDateId);
+        setPendingTxs(newPendingTxs);
+        setShowSnackbar(true);
+        break;
+      default:
+        status = "pending approval";
+        setPendingTxs([...pendingTxs, txDateId]);
+        break;
+    }
 
     let existingTx = localTxHistory[txDateId];
     let newTx = {
-        ...existingTx,
-        accountId,
-        token1,
-        token2,
-        txType,
-        txHash,
-        status,
-        slippage,
-      };
+      ...existingTx,
+      accountId,
+      token1,
+      token2,
+      txType,
+      txHash,
+      status,
+      slippage,
+      stakeAmt
+    };
 
-    console.log(newTx);
     const newTxHistory: TxHistory = {
       ...localTxHistory,
-      ...recentTxs,
+      ...txHistory,
       [txDateId]: newTx,
     };
 
-    setRecentTxs(newTxHistory);
-    setLocalTxHistory({ recentTxs: newTxHistory, accountId, chainId });
+    setTxHistory(newTxHistory);
+    setLocalTxHistory({ txHistory: newTxHistory, accountId, chainId });
     return txDateId;
   } catch (error) {
     console.error(error);
   }
 }
 
+export function getTxUrl({
+  root,
+  txHash, 
+  accountId
+}: {
+
+  root: any;
+  txHash?: string | null
+  accountId: string
+}) {
+  try {
+    if (txHash) {
+      return root + "/tx/" + txHash;
+    } else {
+      throw new Error("Couldn't generate transaction URL");
+    }
+  } catch (error) {
+    console.error(error);
+    if (root) return root + "/address/" + accountId
+  }
+}
+
 export function deleteRecentTxs({
   txDateId,
-  setRecentTxs,
-  recentTxs,
+  setTxHistory,
+  txHistory,
   accountId,
   chainId,
 }: {
   txDateId?: string | number | null;
-  setRecentTxs: Function;
-  recentTxs: TxHistory;
+  setTxHistory: Function;
+  txHistory: TxHistory;
   accountId: string;
   chainId: string | number;
 }) {
@@ -88,10 +148,10 @@ export function deleteRecentTxs({
     if (txDateId) {
       let localTxHistory = getLocalTxHistory({ chainId, accountId });
       txDateId = String(txDateId);
-      const newTxHistory = { ...recentTxs, ...localTxHistory };
+      const newTxHistory = { ...txHistory, ...localTxHistory };
       delete newTxHistory[txDateId];
-      setRecentTxs({ ...newTxHistory });
-      setLocalTxHistory({ recentTxs: newTxHistory, accountId, chainId });
+      setTxHistory({ ...newTxHistory });
+      setLocalTxHistory({ txHistory: newTxHistory, accountId, chainId });
     }
   } catch (error) {
     console.error(error);
@@ -99,19 +159,44 @@ export function deleteRecentTxs({
 }
 
 export function setLocalTxHistory({
-  recentTxs,
+  txHistory,
   accountId,
   chainId,
 }: {
-  recentTxs: string | TxHistory;
+  txHistory: string | TxHistory;
   accountId: string;
   chainId: string | number;
 }) {
   try {
     localStorage.setItem(
       `txHistory@${chainId}@${accountId}`,
-      JSON.stringify(recentTxs)
+      JSON.stringify(txHistory)
     );
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export function getTxById({
+  txDateId,
+  txHistory,
+  chainId,
+  accountId,
+}: {
+  txDateId: string | number;
+  txHistory: TxHistory;
+  chainId: string;
+  accountId: string;
+}) {
+  try {
+    let found;
+    if (!txHistory) txHistory = getLocalTxHistory({ chainId, accountId });
+    if (txHistory) found = txHistory[txDateId];
+    if (found) {
+      return found;
+    } else {
+      throw new Error("Couldn't find transaction.");
+    }
   } catch (error) {
     console.error(error);
   }

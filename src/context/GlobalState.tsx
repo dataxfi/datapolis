@@ -12,18 +12,13 @@ import {
   deniedSignatureGA,
   connectedWalletViaGA,
 } from "./Analytics";
-import {TxHistory} from '../utils/useTxHistory'
+import { TxHistory } from "../utils/useTxHistory";
 import { PoolData } from "../utils/useAllStakedPools";
 
 const initialState: any = {};
 const CONNECT_TEXT = "Connect Wallet";
 
 export const GlobalContext = createContext(initialState);
-
-
-
-
-
 
 export const GlobalProvider = ({
   children,
@@ -36,8 +31,6 @@ export const GlobalProvider = ({
     client: boolean | null;
     wallet: boolean | null;
   }
-
-  
 
   const [web3Modal, setWeb3Modal] = useState<Core | null>(null);
   const [accountId, setAccountId] = useState<string | null>(null);
@@ -65,10 +58,16 @@ export const GlobalProvider = ({
     client: null,
     wallet: null,
   });
-  const [recentTxs, setRecentTxs] = useState<TxHistory | null>(null);
+  //all transaction history
+  const [txHistory, setTxHistory] = useState<TxHistory | null>(null);
+  //very last transaction
+  const [lastTxId, setLastTxId] = useState<string | number | null>(null);
+  //array of pending transaction Ids
+  const [pendingTxs, setPendingTxs] = useState<number[]>([])
   const [buttonText, setButtonText] = useState<string | undefined>(
     CONNECT_TEXT
   );
+  const[showSnackbar, setShowSnackbar] = useState<boolean>(false)
 
   useEffect(() => {
     for (let i = 0; i < localStorage.length; i++) {
@@ -82,6 +81,7 @@ export const GlobalProvider = ({
     if (provider && !accountId) {
       handleConnect();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [disclaimerSigned.client, disclaimerSigned.wallet]);
 
   useEffect(() => {
@@ -307,8 +307,14 @@ export const GlobalProvider = ({
         setCurrentStakePool,
         bgLoading,
         setBgLoading,
-        recentTxs,
-        setRecentTxs,
+        txHistory,
+        setTxHistory,
+        lastTxId,
+        setLastTxId,
+        showSnackbar, 
+        setShowSnackbar,
+        pendingTxs, 
+        setPendingTxs
       }}
     >
       {children}
