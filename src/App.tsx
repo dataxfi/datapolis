@@ -10,6 +10,7 @@ import { initializeGA } from "./context/Analytics";
 import UnsupportedNetwork from "./components/UnsupportedNetwork";
 import { GlobalContext } from "./context/GlobalState";
 import DisclaimerModal from "./components/DisclaimerModal";
+import Snackbar from "./components/Snackbar";
 // import LiquidityPosition from "./components/LiquidityPosition";
 // import TransactionDoneModal from "./components/TransactionDoneModal";
 // import Snackbar from "./components/Snackbar";
@@ -61,6 +62,7 @@ function App() {
         </Router>
       )}
       {cookiesAllowed === null ? <CookiesModal /> : null}
+      <Snackbar/>
     </>
   );
 }

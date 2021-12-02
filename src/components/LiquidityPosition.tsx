@@ -54,6 +54,7 @@ const LiquidityPosition = () => {
     }
 
     if (!accountId) setLoading(false);
+            // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId, ocean]);
 
   return !accountId ? (

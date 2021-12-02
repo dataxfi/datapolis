@@ -33,9 +33,6 @@ const TokenModal = ({
 
 
   useEffect(() => {
-
-    console.log("response",tokenResponse)
-
     if (!tokenResponse) {
       getTokenList({
         chainId,
@@ -49,7 +46,6 @@ const TokenModal = ({
 
     setLoading(true);
     setError(false);
-    console.log(currentTokens, tokenResponse)
     if (tokenResponse && tokenResponse.tokens) {
       const formattedList = formatTokenList(tokenResponse, otherToken)
       setCurrentTokens(formattedList)
@@ -61,6 +57,7 @@ const TokenModal = ({
       setError(true);
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokenResponse]);
 
   const tokenRenderer = (idx: number, key: string | number) => {
