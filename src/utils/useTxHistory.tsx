@@ -110,24 +110,24 @@ export function addTxHistory({
 }
 
 export function getTxUrl({
-  root,
+  ocean,
   txHash, 
   accountId
 }: {
 
-  root: any;
+  ocean: any;
   txHash?: string | null
   accountId: string
 }) {
   try {
     if (txHash) {
-      return root + "/tx/" + txHash;
+      return ocean.config.default.explorerUri + "/tx/" + txHash;
     } else {
       throw new Error("Couldn't generate transaction URL");
     }
   } catch (error) {
     console.error(error);
-    if (root) return root + "/address/" + accountId
+    if (ocean) return ocean.config.default.explorerUri + "/address/" + accountId
   }
 }
 

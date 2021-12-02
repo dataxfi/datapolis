@@ -63,12 +63,13 @@ export const GlobalProvider = ({
   //very last transaction
   const [lastTxId, setLastTxId] = useState<string | number | null>(null);
   //array of pending transaction Ids
-  const [pendingTxs, setPendingTxs] = useState<number[]>([])
+  const [pendingTxs, setPendingTxs] = useState<number[]>([]);
   const [buttonText, setButtonText] = useState<string | undefined>(
     CONNECT_TEXT
   );
-  const[showSnackbar, setShowSnackbar] = useState<boolean>(false)
-
+  const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
+  const [showPendingTxsModal, setShowPendingTxsModal] =
+    useState<boolean>(false);
   useEffect(() => {
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
@@ -311,10 +312,12 @@ export const GlobalProvider = ({
         setTxHistory,
         lastTxId,
         setLastTxId,
-        showSnackbar, 
+        showSnackbar,
         setShowSnackbar,
-        pendingTxs, 
-        setPendingTxs
+        pendingTxs,
+        setPendingTxs,
+        showPendingTxsModal,
+        setShowPendingTxsModal,
       }}
     >
       {children}

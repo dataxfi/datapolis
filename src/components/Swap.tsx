@@ -223,6 +223,7 @@ const Swap = () => {
 
   async function makeTheSwap() {
     let txReceipt = null;
+    let txType 
     let txDateId = null;
     setShowConfirmSwapModal(false);
     setShowConfirmModal(true);
@@ -250,6 +251,8 @@ const Swap = () => {
             setShowSnackbar,
             setLastTxId,
           });
+
+          txType = "Ocean to DT"
 
           txReceipt = await ocean.swapExactOceanToDt(
             accountId,
@@ -280,6 +283,9 @@ const Swap = () => {
             setShowSnackbar,
             setLastTxId,
           });
+
+          txType = "Ocean to DT"
+
           txReceipt = await ocean.swapExactOceanToDt(
             accountId,
             token2.info.pool,
@@ -306,6 +312,7 @@ const Swap = () => {
             setShowSnackbar,
             setLastTxId,
           });
+          txType = "DT to Ocean"
 
           txReceipt = await ocean.swapExactDtToOcean(
             accountId,
@@ -338,6 +345,7 @@ const Swap = () => {
             setShowSnackbar,
             setLastTxId,
           });
+          txType = "DT to Ocean"
 
           txReceipt = await ocean.swapExactDtToOcean(
             accountId,
@@ -376,6 +384,7 @@ const Swap = () => {
             setShowSnackbar,
             setLastTxId,
           });
+          txType = "DT to DT"
 
           txReceipt = await ocean.swapExactDtToDt(
             accountId,
@@ -416,6 +425,7 @@ const Swap = () => {
             setShowSnackbar,
             setLastTxId,
           });
+          txType = "DT to DT"
 
           txReceipt = await ocean.swapExactDtToDt(
             accountId,
@@ -447,7 +457,7 @@ const Swap = () => {
           accountId: String(accountId),
           token1,
           token2,
-          txType: "DT to DT",
+          txType,
           slippage: (Number(slippage) / 100).toString(),
           txDateId,
           txHash: txReceipt.transactionHash,

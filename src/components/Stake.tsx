@@ -43,10 +43,10 @@ const Stake = () => {
     setCurrentTokens,
     txHistory,
     setTxHistory,
-    pendingTxs, 
+    pendingTxs,
     setPendingTxs,
     setShowSnackbar,
-    setLastTxId
+    setLastTxId,
   } = useContext(GlobalContext);
   const [token, setToken] = useState<any>(null);
   const [dtToOcean, setDtToOcean] = useState<any>(null);
@@ -195,7 +195,7 @@ const Stake = () => {
   }, [accountId, ocean, chainId, token, oceanVal, balance, loadingStake]);
 
   async function stakeX() {
-    let txDateId
+    let txDateId;
 
     try {
       setLoadingStake(true);
@@ -209,18 +209,16 @@ const Stake = () => {
         token2: otherToken,
         txType: "Stake Ocean",
         status: "pending approval",
-        pendingTxs, 
+        pendingTxs,
         setPendingTxs,
         setShowSnackbar,
         setLastTxId,
-        stakeAmt:oceanVal
+        stakeAmt: oceanVal,
       });
 
       const txReceipt = await ocean.stakeOcean(accountId, token.pool, oceanVal);
-      
-      
-      if (txReceipt) {
 
+      if (txReceipt) {
         addTxHistory({
           chainId,
           setTxHistory,
@@ -232,33 +230,45 @@ const Stake = () => {
           txDateId,
           txHash: txReceipt.transactionHash,
           status: "indexing",
-          pendingTxs, 
+          pendingTxs,
           setPendingTxs,
           setShowSnackbar,
           setLastTxId,
-          stakeAmt:oceanVal
+          stakeAmt: oceanVal,
         });
 
-      //  if(showConfirmLoader){
-          setShowConfirmLoader(false)
-          setShowTxDone(true);
-          setRecentTxHash(
-            ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash
-          );
-       // }
+        //  if(showConfirmLoader){
+        setShowConfirmLoader(false);
+        setShowTxDone(true);
+        setRecentTxHash(
+          ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash
+        );
+        // }
       } else {
-        deleteRecentTxs({txDateId, setTxHistory, txHistory, accountId, chainId})
+        deleteRecentTxs({
+          txDateId,
+          setTxHistory,
+          txHistory,
+          accountId,
+          chainId,
+        });
         setShowTxDone(false);
         setLoadingStake(false);
-        setShowConfirmLoader(false)
+        setShowConfirmLoader(false);
       }
       setLoadingStake(false);
     } catch (error) {
-      deleteRecentTxs({txDateId, setTxHistory, txHistory, accountId, chainId})
+      deleteRecentTxs({
+        txDateId,
+        setTxHistory,
+        txHistory,
+        accountId,
+        chainId,
+      });
       console.error(error);
       setShowTxDone(false);
       setLoadingStake(false);
-      setShowConfirmLoader(false)
+      setShowConfirmLoader(false);
     }
   }
 
@@ -271,12 +281,17 @@ const Stake = () => {
     console.log("Max Stake Amount - ", maxAmount);
     const val = parseFloat(maxAmount);
     if (!Number.isNaN(val)) {
-      setOceanVal((val - 1).toFixed(5));
+      if (Number(balance) < val) {
+        setOceanVal(toFixed(balance));
+      } else {
+        setOceanVal(toFixed((val - 1)));
+      }
     } else {
       //setPerc("");
       setOceanVal("");
     }
   }
+  
   // async function onPerc(val: any) {
   //   const perc = parseFloat(val);
   //   if (!Number.isNaN(val)) {
@@ -316,9 +331,9 @@ const Stake = () => {
 
   return (
     <>
-      <div className="flex flex-col my-3 w-full items-center justify-center lg:h-3/4">
+      <div className="flex flex-col my-3 w-full items-center justify-center lg:h-3/4 px-4">
         <div>
-          <div className="max-w-2xl lg:mx-auto sm:mx-4 mx-3 bg-primary-900 w-full rounded-lg p-4 hm-box ">
+          <div className="max-w-2xl lg:mx-auto sm:mx-4 mx-3 bg-primary-900 w-full rounded-lg p-4 phm-box ">
             <div className="flex justify-between">
               <p className="text-xl">{text.T_STAKE}</p>
               {userMessage !== false && userMessage.type === "error" ? (
