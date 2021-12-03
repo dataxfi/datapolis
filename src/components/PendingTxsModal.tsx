@@ -7,6 +7,7 @@ import {
   getLocalTxHistory,
   TxHistory,
   getTxUrl,
+  addTxHistory,
 } from "../utils/useTxHistory";
 
 function PendingTxsModal() {
@@ -21,6 +22,7 @@ function PendingTxsModal() {
     ocean,
     watcher,
     web3,
+    setPendingTxs,
   } = useContext(GlobalContext);
 
   interface TxSelection extends TxObject {
@@ -33,18 +35,74 @@ function PendingTxsModal() {
   const [txsByDate, setTxsByDate] = useState<TxSelection[]>([]);
   const [noTxHistory, setNoTxHistory] = useState<boolean>(false);
 
-  // useEffect(() => {
-  //   console.log("Tx selection changed", txSelection);
-  //   if (watcher && txSelection && txSelection[0] && txSelection[0].txReceipt && web3) {
-  //     console.log("Watcher function call on", txSelection[0].txReceipt);
-  //     console.log(watcher.isSuccessfulTransaction(txSelection[0].txReceipt))
-  //     const txHashSelection = txSelection.map((tx) => tx.txHash);
-  //     console.log(txHashSelection);
-  //     console.log(watcher.waitTransaction(web3, txHashSelection, {interval:0, blocksToWait:500}))
-  //   }
-  // }, [txSelection, watcher]);
+  useEffect(() => {
+    console.log("Tx selection changed", txSelection);
+    if (
+      watcher &&
+      txSelection &&
+      txSelection[0] &&
+      txSelection[0].txReceipt &&
+      web3
+    ) {
+      console.log("Watcher function call on", txSelection[0].txReceipt);
+
+      txSelection.forEach((tx) => {
+        const {
+          accountId,
+          token1,
+          token2,
+          txHash,
+          status,
+          txType,
+          slippage,
+          stakeAmt,
+          txReceipt,
+          txDateId,
+        } = tx;
+
+        if (watcher.isSuccessfulTransaction(txReceipt) && status !== "Success") {
+          addTxHistory({
+            chainId,
+            setTxHistory,
+            txHistory,
+            accountId,
+            token1,
+            token2,
+            txType,
+            txHash,
+            status: "Success",
+            slippage,
+            txDateId,
+            stakeAmt,
+            pendingTxs,
+            setPendingTxs,
+            txReceipt,
+          });
+        }
+      });
+
+      // const txHashSelection = txSelection.map((tx) => tx.txHash);
+      // console.log(txHashSelection);
+      // const promises: any[] = [];
+      // const response: any = watcher.waitTransaction(web3, txHashSelection[0], {
+      //   interval: 1000,
+      //   blocksToWait: 500,
+      // });
+      // console.log(response);
+      // txHashSelection.forEach(async (tx) =>{
+      //   console.log(tx)
+      //  const response:any = watcher.waitTransaction(web3, tx, {interval:1000, blocksToWait:500})
+      //  promises.push(response)
+      //   console.log(response)
+      // })
+      // console.log(promises)
+      // const fulfilled = Promise.all(promises)
+      // console.log(fulfilled)
+    }
+  }, [txSelection, watcher]);
 
   function parseHistory(history: TxHistory) {
+    if(!history) return 
     const txsByDate = [];
     for (let [txDateId, tx] of Object.entries(history)) {
       let txLink = getTxUrl({
@@ -68,6 +126,7 @@ function PendingTxsModal() {
       if (txHistory) {
         console.log("setting tx selection", txHistory);
         const parsedHistory = parseHistory(txHistory);
+        if(!parsedHistory) return
         setTxsByDate(parsedHistory);
         const selection = parsedHistory.slice(page[0], page[1]);
         setTxSelection(selection);
@@ -78,10 +137,11 @@ function PendingTxsModal() {
         if (localHistory) {
           setTxHistory(localHistory);
           const parsedHistory = parseHistory(txHistory);
+          if(!parsedHistory) return
           setTxsByDate(parsedHistory);
           const selection = parsedHistory.slice(page[0], page[1]);
           setTxSelection(selection);
-          setNoTxHistory(false)
+          setNoTxHistory(false);
         } else {
           setNoTxHistory(true);
         }
@@ -105,7 +165,7 @@ function PendingTxsModal() {
 
   function pageRange() {
     if (page[1] > txSelection.length)
-      return `${page[0] + 1} - ${txSelection.length}`;
+      return `${page[0] + 1} - ${txSelection.length + page[0]}`;
     return `${page[0] + 1} - ${page[1]}`;
   }
 
@@ -130,22 +190,27 @@ function PendingTxsModal() {
           <>
             <ul>
               {txSelection.map((tx, index) => (
-                <li key={`tx${index}`} className="flex flex-col mb-2 justify-center bg-gray-800 rounded-lg p-2 hover:bg-gray-900 border border-transparent hover:border-gray-600">
+                <li
+                  key={`tx${index}`}
+                  className="flex flex-col mb-2 justify-center bg-gray-800 rounded-lg p-2 hover:bg-gray-900 border border-transparent hover:border-gray-600"
+                >
                   <div className="flex flex-row w-full justify-between">
                     <div className="flex">
                       <h4>{tx.txType}: </h4>
                       <p
                         className={`ml-1 ${
-                          tx.status === "success"
+                          tx.status === "Success"
                             ? "text-green-400"
                             : "text-primary-400"
                         } `}
                       >
                         {tx.status}
                       </p>
-                      <div className="pt-.5">
-                        <PulseLoader size="3px" color="white" />
-                      </div>
+                      {tx.status === "Success" ? null : (
+                        <div className="pt-.5">
+                          <PulseLoader size="3px" color="white" />
+                        </div>
+                      )}
                     </div>
                     <a
                       href={tx.txLink}

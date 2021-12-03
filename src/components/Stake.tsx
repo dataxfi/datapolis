@@ -252,6 +252,8 @@ const Stake = () => {
           txHistory,
           accountId,
           chainId,
+          pendingTxs, 
+          setPendingTxs
         });
         setShowTxDone(false);
         setLoadingStake(false);
@@ -265,6 +267,8 @@ const Stake = () => {
         txHistory,
         accountId,
         chainId,
+        pendingTxs, 
+        setPendingTxs
       });
       console.error(error);
       setShowTxDone(false);

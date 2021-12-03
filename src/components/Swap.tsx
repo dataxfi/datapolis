@@ -220,10 +220,9 @@ const Swap = () => {
     );
   }
 
-
   async function makeTheSwap() {
     let txReceipt = null;
-    let txType 
+    let txType;
     let txDateId = null;
     setShowConfirmSwapModal(false);
     setShowConfirmModal(true);
@@ -252,7 +251,7 @@ const Swap = () => {
             setLastTxId,
           });
 
-          txType = "Ocean to DT"
+          txType = "Ocean to DT";
 
           txReceipt = await ocean.swapExactOceanToDt(
             accountId,
@@ -284,7 +283,7 @@ const Swap = () => {
             setLastTxId,
           });
 
-          txType = "Ocean to DT"
+          txType = "Ocean to DT";
 
           txReceipt = await ocean.swapExactOceanToDt(
             accountId,
@@ -312,7 +311,7 @@ const Swap = () => {
             setShowSnackbar,
             setLastTxId,
           });
-          txType = "DT to Ocean"
+          txType = "DT to Ocean";
 
           txReceipt = await ocean.swapExactDtToOcean(
             accountId,
@@ -345,7 +344,7 @@ const Swap = () => {
             setShowSnackbar,
             setLastTxId,
           });
-          txType = "DT to Ocean"
+          txType = "DT to Ocean";
 
           txReceipt = await ocean.swapExactDtToOcean(
             accountId,
@@ -384,7 +383,7 @@ const Swap = () => {
             setShowSnackbar,
             setLastTxId,
           });
-          txType = "DT to DT"
+          txType = "DT to DT";
 
           txReceipt = await ocean.swapExactDtToDt(
             accountId,
@@ -425,7 +424,7 @@ const Swap = () => {
             setShowSnackbar,
             setLastTxId,
           });
-          txType = "DT to DT"
+          txType = "DT to DT";
 
           txReceipt = await ocean.swapExactDtToDt(
             accountId,
@@ -441,13 +440,12 @@ const Swap = () => {
         }
       }
       if (txReceipt) {
-
         //if (showConfirmModal && txReceipt) {
-          setShowConfirmModal(false);
-          setShowTxDone(true);
-          setLastTxUrl(
-            config.default.explorerUri + "/tx/" + txReceipt.transactionHash
-          );
+        setShowConfirmModal(false);
+        setShowTxDone(true);
+        setLastTxUrl(
+          config.default.explorerUri + "/tx/" + txReceipt.transactionHash
+        );
         //}
 
         addTxHistory({
@@ -466,7 +464,7 @@ const Swap = () => {
           setPendingTxs,
           setShowSnackbar,
           setLastTxId,
-          txReceipt
+          txReceipt,
         });
         setToken1(INITIAL_TOKEN_STATE);
         setToken2(INITIAL_TOKEN_STATE);
@@ -482,6 +480,8 @@ const Swap = () => {
           txHistory,
           accountId,
           chainId,
+          pendingTxs,
+          setPendingTxs,
         });
       }
     } catch (error) {
@@ -492,11 +492,12 @@ const Swap = () => {
         txHistory,
         accountId,
         chainId,
+        pendingTxs,
+        setPendingTxs,
       });
       setShowConfirmModal(false);
       console.log(error);
     }
-
   }
 
   function getConfirmModalProperties(): string[] {

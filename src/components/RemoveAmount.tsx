@@ -205,13 +205,15 @@ const RemoveAmount = () => {
           txHistory,
           chainId,
           accountId,
+          pendingTxs, 
+          setPendingTxs
         });
       }
     } catch (error) {
       console.error(error);
       setShowConfirmLoader(false)
       setShowTxDone(false)
-      deleteRecentTxs({txDateId, setTxHistory, txHistory, chainId, accountId})
+      deleteRecentTxs({txDateId, setTxHistory, txHistory, chainId, accountId, pendingTxs, setPendingTxs})
     }
   };
 

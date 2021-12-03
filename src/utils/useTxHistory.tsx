@@ -1,5 +1,5 @@
 import { TokenInfo } from "./useTokenList";
-import { TransactionReceipt } from 'web3-core'
+import { TransactionReceipt } from "web3-core";
 
 export interface TxTokenDetails {
   balance: string;
@@ -16,8 +16,8 @@ export interface TxObject {
   status: string;
   txType: string;
   slippage?: string;
-  stakeAmt?:string
-  txReceipt?: TransactionReceipt
+  stakeAmt?: string;
+  txReceipt?: TransactionReceipt;
 }
 
 export interface TxHistory {
@@ -41,7 +41,7 @@ export function addTxHistory({
   setPendingTxs,
   setShowSnackbar,
   setLastTxId,
-  txReceipt
+  txReceipt,
 }: {
   chainId: string | number;
   setTxHistory: Function;
@@ -55,30 +55,30 @@ export function addTxHistory({
   slippage?: string;
   txDateId?: number | string;
   pendingTxs: [];
-  txReceipt?: TransactionReceipt
+  txReceipt?: TransactionReceipt;
   setPendingTxs: Function;
-  setShowSnackbar: Function;
-  setLastTxId: Function;
-  stakeAmt?:string
+  setShowSnackbar?: Function;
+  setLastTxId?: Function;
+  stakeAmt?: string;
 }) {
   try {
     let localTxHistory = getLocalTxHistory({ chainId, accountId });
 
     if (!txDateId) {
       txDateId = String(Date.now());
-      setLastTxId(txDateId);
+      if (setLastTxId) setLastTxId(txDateId);
     }
     if (!txHash) txHash = null;
 
     switch (status) {
-      case "successful":
-      case "success":
+      case "Success":
+        break;
       case "pending":
         break;
       case "indexing":
         const newPendingTxs = pendingTxs.map((tx) => tx !== txDateId);
         setPendingTxs(newPendingTxs);
-        setShowSnackbar(true);
+        if (setShowSnackbar) setShowSnackbar(true);
         break;
       default:
         status = "pending approval";
@@ -97,7 +97,7 @@ export function addTxHistory({
       status,
       slippage,
       stakeAmt,
-      txReceipt
+      txReceipt,
     };
 
     const newTxHistory: TxHistory = {
@@ -116,23 +116,23 @@ export function addTxHistory({
 
 export function getTxUrl({
   ocean,
-  txHash, 
-  accountId
+  txHash,
+  accountId,
 }: {
-
   ocean: any;
-  txHash?: string | null
-  accountId: string
+  txHash?: string | null;
+  accountId: string;
 }) {
   try {
-    if (txHash) {
+    if (txHash && ocean && accountId) {
       return ocean.config.default.explorerUri + "/tx/" + txHash;
+    } else if (ocean && accountId) {
+      return ocean.config.default.explorerUri + "/address/" + accountId;
     } else {
       throw new Error("Couldn't generate transaction URL");
     }
   } catch (error) {
     console.error(error);
-    if (ocean) return ocean.config.default.explorerUri + "/address/" + accountId
   }
 }
 
@@ -142,12 +142,16 @@ export function deleteRecentTxs({
   txHistory,
   accountId,
   chainId,
+  pendingTxs,
+  setPendingTxs,
 }: {
   txDateId?: string | number | null;
   setTxHistory: Function;
   txHistory: TxHistory;
   accountId: string;
   chainId: string | number;
+  pendingTxs: number[];
+  setPendingTxs: Function;
 }) {
   try {
     if (txDateId) {
@@ -157,6 +161,8 @@ export function deleteRecentTxs({
       delete newTxHistory[txDateId];
       setTxHistory({ ...newTxHistory });
       setLocalTxHistory({ txHistory: newTxHistory, accountId, chainId });
+      const newPendingTxs = pendingTxs.map((tx) => txDateId !== tx);
+      setPendingTxs(newPendingTxs);
     }
   } catch (error) {
     console.error(error);
@@ -214,6 +220,7 @@ export function getLocalTxHistory({
   chainId: string | number;
   accountId: string;
 }) {
+  if(!accountId) return 
   try {
     const localTxHistory = localStorage.getItem(
       `txHistory@${chainId}@${accountId.toLowerCase()}`
@@ -224,4 +231,3 @@ export function getLocalTxHistory({
     console.error(error);
   }
 }
-
