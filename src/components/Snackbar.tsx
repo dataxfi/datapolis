@@ -18,7 +18,8 @@ const Snackbar = () => {
   const [opacity, setOpacity] = useState<string>("0");
   //const [progress, setProgress] = useState<string>("100");
   const [tokenInfo, setTokenInfo] = useState<any>(null);
-  // TokenInfo[] | null
+
+
 
   useEffect(() => {
     if (showSnackbar) {
@@ -30,13 +31,7 @@ const Snackbar = () => {
       });
       if (fetchedTx) {
         setLastTx(fetchedTx);
-        const newUrl = getTxUrl({
-          root: ocean.config.default.explorerUri,
-          txHash: fetchedTx.txHash,
-          accountId,
-        });
-        if (newUrl) setUrl(newUrl);
-
+        
         switch (fetchedTx.txType) {
           case "Stake Ocean":
             setTokenInfo({
@@ -44,13 +39,20 @@ const Snackbar = () => {
               token2: fetchedTx.token2,
             });
             break;
-          default:
-            setTokenInfo({
-              token1: fetchedTx.token1.info,
-              token2: fetchedTx.token2.info,
+            default:
+              console.log("FETCHEDTX",fetchedTx)
+              setTokenInfo({
+                token1: {...fetchedTx.token1.info, value:fetchedTx.token1.value },
+                token2: {...fetchedTx.token2.info, value:fetchedTx.token2.value }
+              });
+              break;
+            }
+            const newUrl = getTxUrl({
+              ocean,
+              txHash: fetchedTx.txHash,
+              accountId,
             });
-            break;
-        }
+            if (newUrl) setUrl(newUrl);
       }
 
       easeInOut();
@@ -99,8 +101,8 @@ const Snackbar = () => {
             <p className="text-type-100 text-sm">{lastTx.txType}</p>
             <p>
               {lastTx.txType.includes("Stake")
-                ? `Stake ${lastTx.stakeAmt} in ${tokenInfo.token1.symbol}/${tokenInfo.token2.symbol} pool`
-                : `Trade ${tokenInfo.token1.value} ${tokenInfo.token1.symbol} => ${tokenInfo.token2.value} ${tokenInfo.token2.symbol}`}
+                ? `Stake ${lastTx.stakeAmt} OCEAN in ${tokenInfo.token1.symbol}/${tokenInfo.token2.symbol} pool`
+                : `Trade ${tokenInfo.token1.value} ${tokenInfo.token1.symbol} for ${tokenInfo.token2.value} ${tokenInfo.token2.symbol}`}
             </p>
             <p className="text-type-300 text-sm">
               <a target="_blank" rel="noreferrer"  href={url}>

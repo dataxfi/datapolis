@@ -64,7 +64,7 @@ const RemoveAmount = () => {
       otherToken,
     });
 
-    setBgLoading({ status: true, operation: "stake" });
+    setBgLoading({ status: true, operation: "pool" });
     const queryParams = new URLSearchParams(location.search);
     const poolAddress = queryParams.get("pool");
 
@@ -188,7 +188,8 @@ const RemoveAmount = () => {
           setPendingTxs,
           setShowSnackbar,
           setLastTxId,
-          stakeAmt: removeAmount
+          stakeAmt: removeAmount,
+          txReceipt
         });
         setRecentTxHash(
           ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash
@@ -257,7 +258,7 @@ const RemoveAmount = () => {
                   <PulseLoader color="white" size="4px" margin="5px" />
                 )}
               </div>
-              {bgLoading.status ? (
+              {bgLoading.status && bgLoading.operation === "pool" ? (
                 <UserMessageModal
                   message="Loading your token"
                   pulse={true}

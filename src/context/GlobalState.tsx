@@ -14,6 +14,7 @@ import {
 } from "./Analytics";
 import { TxHistory } from "../utils/useTxHistory";
 import { PoolData } from "../utils/useAllStakedPools";
+import Watcher from '@dataxfi/datax.js/dist/Watcher'
 
 const initialState: any = {};
 const CONNECT_TEXT = "Connect Wallet";
@@ -63,11 +64,15 @@ export const GlobalProvider = ({
   //very last transaction
   const [lastTxId, setLastTxId] = useState<string | number | null>(null);
   //array of pending transaction Ids
-  const [pendingTxs, setPendingTxs] = useState<number[]>([])
+  const [pendingTxs, setPendingTxs] = useState<number[]>([]);
   const [buttonText, setButtonText] = useState<string | undefined>(
     CONNECT_TEXT
   );
-  const[showSnackbar, setShowSnackbar] = useState<boolean>(false)
+  const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
+  const [showPendingTxsModal, setShowPendingTxsModal] =
+    useState<boolean>(false);
+  const [watcher, setWatcher] = useState<any | null>(null)
+
 
   useEffect(() => {
     for (let i = 0; i < localStorage.length; i++) {
@@ -179,6 +184,9 @@ export const GlobalProvider = ({
         console.log("Pre chainID - ", _chainId);
         const config = new Config(web3, String(_chainId));
         setConfig(config);
+
+        const watcher = new Watcher(web3, String(_chainId))
+        setWatcher(watcher)
 
         isSupportedChain(
           config,
@@ -311,10 +319,14 @@ export const GlobalProvider = ({
         setTxHistory,
         lastTxId,
         setLastTxId,
-        showSnackbar, 
+        showSnackbar,
         setShowSnackbar,
-        pendingTxs, 
-        setPendingTxs
+        pendingTxs,
+        setPendingTxs,
+        showPendingTxsModal,
+        setShowPendingTxsModal,
+        watcher, 
+        setWatcher
       }}
     >
       {children}

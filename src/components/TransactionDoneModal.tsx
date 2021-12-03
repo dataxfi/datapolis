@@ -24,14 +24,14 @@ const TransactionDoneModal = ({
         </div>
 
         <div className="mt-4 flex justify-center">
-          <BsCheckCircle size={56} className="text-blue-500" />
+          <BsCheckCircle size={56} className="text-green-400" />
         </div>
         <div>
           <p className="text-center text-type-100 text-lg">
             Transaction Processed
           </p>
           <p className="text-blue-400 text-center mt-1">
-            <a target="_blank" rel="noreferrer" href={txHash}>
+            <a target="_blank" rel="noreferrer" className="text-green-400" href={txHash}>
               View on explorer
             </a>
           </p>

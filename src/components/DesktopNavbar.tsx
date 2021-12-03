@@ -19,8 +19,12 @@ const DesktopNavbar = ({
   truncateId: Function;
   network: string;
 }) => {
-  const { handleConnect, accountId, buttonText, pendingTxs } =
+  const { handleConnect, accountId, buttonText, pendingTxs, setShowPendingTxsModal } =
     useContext(GlobalContext);
+
+    function handleModalOrConnect(){
+      accountId ? setShowPendingTxsModal(true): handleConnect()
+    }
 
   return (
     <header className="lg:flex justify-between items-center py-4 border-gray-800 pl-4 pr-2 hidden">
@@ -57,7 +61,7 @@ const DesktopNavbar = ({
                 buttonText
               )
             }
-            onClick={() => handleConnect()}
+            onClick={handleModalOrConnect}
             classes="hm-btn hm-btn-light hm-box border border-type-500"
           />
         </div>
