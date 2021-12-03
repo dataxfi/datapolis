@@ -235,6 +235,7 @@ const Stake = () => {
           setShowSnackbar,
           setLastTxId,
           stakeAmt: oceanVal,
+          txReceipt
         });
 
         //  if(showConfirmLoader){

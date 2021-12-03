@@ -466,6 +466,7 @@ const Swap = () => {
           setPendingTxs,
           setShowSnackbar,
           setLastTxId,
+          txReceipt
         });
         setToken1(INITIAL_TOKEN_STATE);
         setToken2(INITIAL_TOKEN_STATE);

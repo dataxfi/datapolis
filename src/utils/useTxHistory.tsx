@@ -1,4 +1,5 @@
 import { TokenInfo } from "./useTokenList";
+import { TransactionReceipt } from 'web3-core'
 
 export interface TxTokenDetails {
   balance: string;
@@ -16,6 +17,7 @@ export interface TxObject {
   txType: string;
   slippage?: string;
   stakeAmt?:string
+  txReceipt?: TransactionReceipt
 }
 
 export interface TxHistory {
@@ -39,6 +41,7 @@ export function addTxHistory({
   setPendingTxs,
   setShowSnackbar,
   setLastTxId,
+  txReceipt
 }: {
   chainId: string | number;
   setTxHistory: Function;
@@ -52,6 +55,7 @@ export function addTxHistory({
   slippage?: string;
   txDateId?: number | string;
   pendingTxs: [];
+  txReceipt?: TransactionReceipt
   setPendingTxs: Function;
   setShowSnackbar: Function;
   setLastTxId: Function;
@@ -92,7 +96,8 @@ export function addTxHistory({
       txHash,
       status,
       slippage,
-      stakeAmt
+      stakeAmt,
+      txReceipt
     };
 
     const newTxHistory: TxHistory = {
@@ -169,7 +174,7 @@ export function setLocalTxHistory({
 }) {
   try {
     localStorage.setItem(
-      `txHistory@${chainId}@${accountId}`,
+      `txHistory@${chainId}@${accountId.toLowerCase()}`,
       JSON.stringify(txHistory)
     );
   } catch (error) {
@@ -211,7 +216,7 @@ export function getLocalTxHistory({
 }) {
   try {
     const localTxHistory = localStorage.getItem(
-      `txHistory@${chainId}@${accountId}`
+      `txHistory@${chainId}@${accountId.toLowerCase()}`
     );
     if (localTxHistory) return JSON.parse(localTxHistory);
     return {};
@@ -219,3 +224,4 @@ export function getLocalTxHistory({
     console.error(error);
   }
 }
+

@@ -14,6 +14,7 @@ import {
 } from "./Analytics";
 import { TxHistory } from "../utils/useTxHistory";
 import { PoolData } from "../utils/useAllStakedPools";
+import Watcher from '@dataxfi/datax.js/dist/Watcher'
 
 const initialState: any = {};
 const CONNECT_TEXT = "Connect Wallet";
@@ -70,6 +71,9 @@ export const GlobalProvider = ({
   const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
   const [showPendingTxsModal, setShowPendingTxsModal] =
     useState<boolean>(false);
+  const [watcher, setWatcher] = useState<any | null>(null)
+
+
   useEffect(() => {
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
@@ -180,6 +184,9 @@ export const GlobalProvider = ({
         console.log("Pre chainID - ", _chainId);
         const config = new Config(web3, String(_chainId));
         setConfig(config);
+
+        const watcher = new Watcher(web3, String(_chainId))
+        setWatcher(watcher)
 
         isSupportedChain(
           config,
@@ -318,6 +325,8 @@ export const GlobalProvider = ({
         setPendingTxs,
         showPendingTxsModal,
         setShowPendingTxsModal,
+        watcher, 
+        setWatcher
       }}
     >
       {children}
