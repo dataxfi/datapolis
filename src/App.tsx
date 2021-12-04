@@ -12,6 +12,7 @@ import { GlobalContext } from "./context/GlobalState";
 import DisclaimerModal from "./components/DisclaimerModal";
 import Snackbar from "./components/Snackbar";
 import PendingTxsModal from "./components/PendingTxsModal";
+import Footer from "./components/Footer";
 // import LiquidityPosition from "./components/LiquidityPosition";
 // import TransactionDoneModal from "./components/TransactionDoneModal";
 // import Snackbar from "./components/Snackbar";
@@ -66,6 +67,7 @@ function App() {
       {cookiesAllowed === null ? <CookiesModal /> : null}
       <Snackbar/>
       <PendingTxsModal/>
+      <Footer/>
     </>
   );
 }

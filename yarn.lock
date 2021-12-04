@@ -1374,17 +1374,17 @@
   resolved "https://registry.yarnpkg.com/@csstools/normalize.css/-/normalize.css-10.1.0.tgz#f0950bba18819512d42f7197e56c518aa491cf18"
   integrity sha512-ij4wRiunFfaJxjB0BdrYHIH8FxBJpOwNPhhAcunlmPdXudL1WQV1qoP9un6JsEBAgQH+7UXyyjh0g7jTxXK6tg==
 
-"@dataxfi/datax.js@^0.1.16":
-  version "0.1.16"
-  resolved "https://registry.yarnpkg.com/@dataxfi/datax.js/-/datax.js-0.1.16.tgz#292472127ccd7c22deafa6769344246d463502ad"
-  integrity sha512-n/wXnrZOQWMUo1bwNfRkk8QnD13ZAnVRrqEP0n/v4gnJINCU2aCaGMnFQ5yTtbSBS9c9jiLy9Cf48psTOfp7kw==
+"@dataxfi/datax.js@^0.1.21":
+  version "0.1.21"
+  resolved "https://registry.yarnpkg.com/@dataxfi/datax.js/-/datax.js-0.1.21.tgz#97005a213f4d66d37e43892355b06bccba57b901"
+  integrity sha512-b41c5sOl0RHyUcazJ30D9Bdw7Pd9B/CByjdcvzS/53ig5Vd8t2TeVPiyfyYbv6iJEE4yHgEeYrf3aLTub4aFzA==
   dependencies:
-    "@dataxfi/ocean.js" "^0.17.0"
+    "@dataxfi/ocean.js" "^0.17.2"
     "@oceanprotocol/contracts" "^0.6.5"
     "@uniswap/token-lists" "^1.0.0-beta.25"
     abi-decoder "^2.4.0"
     ajv "^8.6.2"
-    axios "^0.21.1"
+    axios "^0.21.4"
     bignumber.js "^9.0.1"
     decimal.js "^10.3.1"
     dotenv "^10.0.0"
@@ -1395,10 +1395,10 @@
     web3-core "^1.4.0"
     web3-utils "^1.4.0"
 
-"@dataxfi/ocean.js@^0.17.0":
-  version "0.17.0"
-  resolved "https://registry.yarnpkg.com/@dataxfi/ocean.js/-/ocean.js-0.17.0.tgz#4cd60e779cadfd7cab2d1872cf9a8f6d9d6775c5"
-  integrity sha512-EvsmMuacfu3HbFBcIBLTeZipvIQFvMBBgW+t5/qzyfrjq00nR3hvSan17rQTulFHjm6S33l1K38V2jxZIFTl1A==
+"@dataxfi/ocean.js@^0.17.2":
+  version "0.17.2"
+  resolved "https://registry.yarnpkg.com/@dataxfi/ocean.js/-/ocean.js-0.17.2.tgz#1af3425725fff2b1f637951d1d53bb8412b2b9e9"
+  integrity sha512-8mQuCW7Lxy84GppicTcjInYQsxp37kXzYCWSsMhI0pp1jIyA9IprqGRPoPqgRba3oS0VAR3aVACOQl3qsn/vmQ==
   dependencies:
     "@ethereum-navigator/navigator" "^0.5.3"
     "@oceanprotocol/contracts" "^0.6.5"
@@ -1963,6 +1963,32 @@
     "@ethersproject/logger" "^5.5.0"
     "@ethersproject/properties" "^5.5.0"
     "@ethersproject/strings" "^5.5.0"
+
+"@fortawesome/fontawesome-common-types@^0.2.36":
+  version "0.2.36"
+  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-0.2.36.tgz#b44e52db3b6b20523e0c57ef8c42d315532cb903"
+  integrity sha512-a/7BiSgobHAgBWeN7N0w+lAhInrGxksn13uK7231n2m8EDPE3BMCl9NZLTGrj9ZXfCmC6LM0QLqXidIizVQ6yg==
+
+"@fortawesome/fontawesome-svg-core@^1.2.36":
+  version "1.2.36"
+  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-svg-core/-/fontawesome-svg-core-1.2.36.tgz#4f2ea6f778298e0c47c6524ce2e7fd58eb6930e3"
+  integrity sha512-YUcsLQKYb6DmaJjIHdDWpBIGCcyE/W+p/LMGvjQem55Mm2XWVAP5kWTMKWLv9lwpCVjpLxPyOMOyUocP1GxrtA==
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "^0.2.36"
+
+"@fortawesome/free-brands-svg-icons@^5.15.4":
+  version "5.15.4"
+  resolved "https://registry.yarnpkg.com/@fortawesome/free-brands-svg-icons/-/free-brands-svg-icons-5.15.4.tgz#ec8a44dd383bcdd58aa7d1c96f38251e6fec9733"
+  integrity sha512-f1witbwycL9cTENJegcmcZRYyawAFbm8+c6IirLmwbbpqz46wyjbQYLuxOc7weXFXfB7QR8/Vd2u5R3q6JYD9g==
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "^0.2.36"
+
+"@fortawesome/react-fontawesome@^0.1.16":
+  version "0.1.16"
+  resolved "https://registry.yarnpkg.com/@fortawesome/react-fontawesome/-/react-fontawesome-0.1.16.tgz#ce7665490214e20f929368d6b65f68884a99276a"
+  integrity sha512-aLmzDwC9rEOAJv2UJdMns89VZR5Ry4IHu5dQQh24Z/lWKEm44lfQr1UNalZlkUaQN8d155tNh+CS7ntntj1VMA==
+  dependencies:
+    prop-types "^15.7.2"
 
 "@gar/promisify@^1.0.1":
   version "1.1.2"
@@ -5599,7 +5625,7 @@ axios@^0.20.0:
   dependencies:
     follow-redirects "^1.10.0"
 
-axios@^0.21.1:
+axios@^0.21.1, axios@^0.21.4:
   version "0.21.4"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.4.tgz#c67b90dc0568e5c1cf2b0b858c43ba28e2eda575"
   integrity sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==

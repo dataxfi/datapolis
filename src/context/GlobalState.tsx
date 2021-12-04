@@ -326,7 +326,7 @@ export const GlobalProvider = ({
         showPendingTxsModal,
         setShowPendingTxsModal,
         watcher, 
-        setWatcher
+        setWatcher,
       }}
     >
       {children}

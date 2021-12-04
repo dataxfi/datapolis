@@ -271,7 +271,7 @@ const RemoveAmount = () => {
             </div>
             <div className="md:grid md:grid-cols-5 bg-primary-800 p-4 rounded">
               <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center">
-                <p className="text-type-100">Amount to remove</p>
+                <p className="text-type-100">Amount to unstake</p>
               </div>
               <div className="col-span-3 flex justify-end mt-3 md:mt-0 bg-primary-900 rounded-lg p-2">
                 <div>
@@ -327,7 +327,7 @@ const RemoveAmount = () => {
             <div className="flex mt-4">
               {/* <div className="bg-gradient"></div> */}
               <Button
-                text={"Approve and withdrawal"}
+                text={"Approve and Withdrawal"}
                 onClick={handleWithdrawal}
                 classes={`px-4 py-4 rounded-lg w-full ${
                   Number(removeAmount) > 0

@@ -338,7 +338,7 @@ const Stake = () => {
     <>
       <div className="flex flex-col my-3 w-full items-center justify-center lg:h-3/4 px-4">
         <div>
-          <div className="max-w-2xl lg:mx-auto sm:mx-4 mx-3 bg-primary-900 w-full rounded-lg p-4 phm-box ">
+          <div className="max-w-2xl lg:mx-auto bg-primary-900 w-full rounded-lg p-4 phm-box ">
             <div className="flex justify-between">
               <p className="text-xl">{text.T_STAKE}</p>
               {userMessage !== false && userMessage.type === "error" ? (

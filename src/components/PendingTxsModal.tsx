@@ -36,7 +36,6 @@ function PendingTxsModal() {
   const [noTxHistory, setNoTxHistory] = useState<boolean>(false);
 
   useEffect(() => {
-    console.log("Tx selection changed", txSelection);
     if (
       watcher &&
       txSelection &&
@@ -44,9 +43,9 @@ function PendingTxsModal() {
       txSelection[0].txReceipt &&
       web3
     ) {
-      console.log("Watcher function call on", txSelection[0].txReceipt);
 
       txSelection.forEach((tx) => {
+
         const {
           accountId,
           token1,
@@ -59,6 +58,8 @@ function PendingTxsModal() {
           txReceipt,
           txDateId,
         } = tx;
+
+        console.log(web3.eth.getTransactionReceipt(txHash))
 
         if (watcher.isSuccessfulTransaction(txReceipt) && status !== "Success") {
           addTxHistory({
@@ -79,6 +80,8 @@ function PendingTxsModal() {
             txReceipt,
           });
         }
+
+        console.log("Wait for tx to confirm",  Promise.resolve(watcher.waitTransaction(web3, tx.txHash, {interval:1000, blocksToWait:500})))
       });
 
       // const txHashSelection = txSelection.map((tx) => tx.txHash);
@@ -117,14 +120,12 @@ function PendingTxsModal() {
     txsByDate.sort(
       (date1, date2) => Number(date2.txDateId) - Number(date1.txDateId)
     );
-    console.log(txsByDate);
     return txsByDate;
   }
 
   useEffect(() => {
     try {
       if (txHistory) {
-        console.log("setting tx selection", txHistory);
         const parsedHistory = parseHistory(txHistory);
         if(!parsedHistory) return
         setTxsByDate(parsedHistory);
@@ -133,7 +134,6 @@ function PendingTxsModal() {
         setNoTxHistory(false);
       } else {
         const localHistory = getLocalTxHistory({ chainId, accountId });
-        console.log("Local History", localHistory);
         if (localHistory) {
           setTxHistory(localHistory);
           const parsedHistory = parseHistory(txHistory);
