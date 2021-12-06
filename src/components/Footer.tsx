@@ -6,7 +6,7 @@ import { faTelegram } from "@fortawesome/free-brands-svg-icons";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 export default function Footer() {
   return (
-    <footer className="flex flex-row w-full justify-center">
+    <footer className="absolute bottom-0 pb-2 w-full justify-center z-0 mt-5">
       <div className="flex flex-col text-center">
         <ul className="inline-flex text-2xl justify-center">
           <li className="list-inline-item mr-2">

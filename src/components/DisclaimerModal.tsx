@@ -50,7 +50,7 @@ function DisclaimerModal() {
           Please sign this disclaimer to connect to your wallet. Your wallet
           will ask for your signature regarding the same disclaimer.
         </p>
-        <div className="flex flex-row">
+        <div className="flex flex-row w-full">
           <button
             className="w-1/2 text-xs sm:text-sm p-3 active:bg-primary-500  rounded-sm mr-1 transition-colors bg-primary-500 hover:bg-primary-400"
             onClick={deniedDisclaimer}

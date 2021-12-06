@@ -41,7 +41,7 @@ const UserMessageModal = ({
   );
 
   return container ? (
-    <div className="w-full h-4/5 flex flex-row justify-center p-4">
+    <div className="w-full h-4/5 flex flex-row justify-center p-4 pt-24">
       <div
         className={`h-1/3 text-center bg-gray-900 px-10 py-20 rounded-lg self-center `}
       >

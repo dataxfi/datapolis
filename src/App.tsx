@@ -39,7 +39,7 @@ function App() {
   }, []);
 
   return (
-    <>
+    <div className="min-h-full relative">
       {unsupportedNet ? (
         <UnsupportedNetwork />
       ) : (
@@ -48,7 +48,7 @@ function App() {
           {showDisclaimer ? (
             <DisclaimerModal />
           ) : (
-            <>
+            <div className="pb-16 md:pt-10 h-full">
               <Route path="/" exact component={Swap} />
               <Route path="/stakeX" exact component={Stake} />
               <Route path="/stakeX/remove" exact component={RemoveAmount} />
@@ -60,7 +60,7 @@ function App() {
               {/*<LiquidityPosition />*/}
               {/*<RemoveAmount />*/}
               {/* <ConfirmSwapModal /> */}
-            </>
+            </div>
           )}
         </Router>
       )}
@@ -68,7 +68,7 @@ function App() {
       <Snackbar/>
       <PendingTxsModal/>
       <Footer/>
-    </>
+    </div>
   );
 }
 

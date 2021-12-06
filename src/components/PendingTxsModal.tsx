@@ -59,9 +59,9 @@ function PendingTxsModal() {
           txDateId,
         } = tx;
 
-        console.log(web3.eth.getTransactionReceipt(txHash))
+        //console.log(web3.eth.getTransactionReceipt(txHash))
 
-        if (watcher.isSuccessfulTransaction(txReceipt) && status !== "Success") {
+        if (/*watcher.isSuccessfulTransaction(txReceipt) &&*/ status !== "Success") {
           addTxHistory({
             chainId,
             setTxHistory,
@@ -81,7 +81,7 @@ function PendingTxsModal() {
           });
         }
 
-        console.log("Wait for tx to confirm",  Promise.resolve(watcher.waitTransaction(web3, tx.txHash, {interval:1000, blocksToWait:500})))
+       // console.log("Wait for tx to confirm",  Promise.resolve(watcher.waitTransaction(web3, tx.txHash, {interval:1000, blocksToWait:500})))
       });
 
       // const txHashSelection = txSelection.map((tx) => tx.txHash);

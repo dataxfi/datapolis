@@ -5,7 +5,7 @@ import { useContext, useEffect, useState } from 'react'
 import ConfirmSwapItem from './ConfirmSwapItem'
 import ConfirmSwapListItem from './ConfirmSwapListItem'
 import {GlobalContext} from '../context/GlobalState'
-import { toFixed } from '../utils/equate'
+import { toFixed5 } from '../utils/equate'
 
 const ConfirmSwapModal = ({confirm, show, close, token1, token2, postExchange, slippage} : {confirm: Function, show: boolean, close: Function, token1: any, token2: any, postExchange: any, slippage: number | string}) => {
 
@@ -55,14 +55,14 @@ const ConfirmSwapModal = ({confirm, show, close, token1, token2, postExchange, s
                         Exchange rate
                     </p>
                     <p className="text-type-400 text-sm grid grid-flow-col items-center gap-2">
-                        1 {token1?.symbol} = {toFixed(postExchange)} {token2.info.symbol}
+                        1 {token1?.symbol} = {toFixed5(postExchange)} {token2.info.symbol}
                         <BsShuffle size={12} />
                     </p>
                 </div>
 
                 <div className="mt-4">
                     {/* <ConfirmSwapListItem name="Route" value="ETH > KNC" /> */}
-                    <ConfirmSwapListItem name="Minimum received" value={toFixed(minReceived)} />
+                    <ConfirmSwapListItem name="Minimum received" value={toFixed5(minReceived)} />
                     {/* <ConfirmSwapListItem name="Price impact" value="-0.62%" valueClass="text-green-500" /> */}
                     <ConfirmSwapListItem name="Swap fee" value={swapFee.toString() + " " + token1.info.symbol} />
                     <ConfirmSwapListItem name="TradeX fee" value="0" />
@@ -72,7 +72,7 @@ const ConfirmSwapModal = ({confirm, show, close, token1, token2, postExchange, s
 
                 <div className="mt-4">
                     <p className="text-type-300 text-sm">
-                        You will receive at least {toFixed(minReceived)} {token2.info.symbol} or the transaction will revert.
+                        You will receive at least {toFixed5(minReceived)} {token2.info.symbol} or the transaction will revert.
                     </p>
                 </div>
 

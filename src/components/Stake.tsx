@@ -10,9 +10,8 @@ import TransactionDoneModal from "./TransactionDoneModal";
 import { Link, useLocation, useHistory } from "react-router-dom";
 import getTokenList from "../utils/useTokenList";
 import UserMessageModal from "./UserMessageModal";
-import { toFixed } from "../utils/equate";
+import { toFixed5 } from "../utils/equate";
 import { addTxHistory, deleteRecentTxs } from "../utils/useTxHistory";
-//import setStakePoolStates from "../utils/getAllStakedPools";
 
 const text = {
   T_STAKE: "StakeX",
@@ -287,9 +286,9 @@ const Stake = () => {
     const val = parseFloat(maxAmount);
     if (!Number.isNaN(val)) {
       if (Number(balance) < val) {
-        setOceanVal(toFixed(balance));
+        setOceanVal(toFixed5(balance));
       } else {
-        setOceanVal(toFixed((val - 1)));
+        setOceanVal(toFixed5((val - 1)));
       }
     } else {
       //setPerc("");
@@ -444,10 +443,10 @@ const Stake = () => {
                 {token && oceanToDt && dtToOcean && !loadingRate ? (
                   <div>
                     <p className="text-type-200 text-xs">
-                      {toFixed(oceanToDt)} OCEAN per {token.symbol}
+                      {toFixed5(oceanToDt)} OCEAN per {token.symbol}
                     </p>
                     <p className="text-type-200 text-xs">
-                      {toFixed(dtToOcean)} {token.symbol} per OCEAN
+                      {toFixed5(dtToOcean)} {token.symbol} per OCEAN
                     </p>
                   </div>
                 ) : (
@@ -459,10 +458,10 @@ const Stake = () => {
                 {token && poolLiquidity && !loadingRate ? (
                   <div>
                     <p className="text-type-200 text-xs">
-                      {toFixed(poolLiquidity?.oceanAmount)} OCEAN
+                      {toFixed5(poolLiquidity?.oceanAmount)} OCEAN
                     </p>
                     <p className="text-type-200 text-xs">
-                      {toFixed(poolLiquidity?.dtAmount)} {token.symbol}
+                      {toFixed5(poolLiquidity?.dtAmount)} {token.symbol}
                     </p>
                   </div>
                 ) : (
@@ -474,10 +473,10 @@ const Stake = () => {
                 {token && yourLiquidity && !loadingRate ? (
                   <div>
                     <p className="text-type-200 text-xs">
-                      {toFixed(yourLiquidity?.oceanAmount)} OCEAN
+                      {toFixed5(yourLiquidity?.oceanAmount)} OCEAN
                     </p>
                     <p className="text-type-200 text-xs">
-                      {toFixed(yourLiquidity?.dtAmount)} {token.symbol}
+                      {toFixed5(yourLiquidity?.dtAmount)} {token.symbol}
                     </p>
                   </div>
                 ) : (

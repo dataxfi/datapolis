@@ -89,11 +89,11 @@ const MobileNavbar = ({
       </div>
 
       <div
-        className={`fixed bottom-0 left-0 w-full py-2 lg:hidden flex justify-center bg-background opacity-80 transform ${
+        className={`fixed bottom-0 left-0 w-full py-2 lg:hidden flex justify-center bg-background opacity-95 transform ${
           walletBtnVis ? "" : "translate-y-12"
         } transition duration-1000 z-10`}
       >
-        <div className="flex flex-row w-full justify-between px-3 ">
+        <div className="flex flex-row w-full justify-between px-3">
           <div className="flex flex-row justify-center align-middle  w-full ">
             <div className = {`flex flex-row bg-primary-900 ${accountId? "pl-2": ""}  pr-1 py-1 rounded-lg`}>
               {" "}

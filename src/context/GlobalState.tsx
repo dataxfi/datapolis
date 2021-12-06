@@ -14,12 +14,34 @@ import {
 } from "./Analytics";
 import { TxHistory } from "../utils/useTxHistory";
 import { PoolData } from "../utils/useAllStakedPools";
-import Watcher from '@dataxfi/datax.js/dist/Watcher'
+import Watcher from "@dataxfi/datax.js/dist/Watcher";
 
 const initialState: any = {};
 const CONNECT_TEXT = "Connect Wallet";
 
 export const GlobalContext = createContext(initialState);
+
+
+//use these states to ensure proper management of bgLoading ops
+export const bgLoadingStates = {
+  allStakedPools: "stake",
+  tokenList: "tokens",
+  singlePool: "pool",
+  allTxHistory: "history",
+  singleTx: "tx",
+  txPending: "txPending",
+  maxStake: "maxStake",
+  maxUnstake: "maxUnstake",
+  balance: "balance",
+};
+
+export function removeBgLoadingState(
+  bgLoading: string[],
+  state: string
+): string[] {
+  const newBgLoading = bgLoading.filter((s: string) => s !== state);
+  return newBgLoading;
+}
 
 export const GlobalProvider = ({
   children,
@@ -28,11 +50,8 @@ export const GlobalProvider = ({
 }) => {
   const NETWORK = "mainnet";
   // const [state, dispatch]: [any, Function] = useReducer(AppReducer, initialState)
-  interface DisclaimerObj {
-    client: boolean | null;
-    wallet: boolean | null;
-  }
 
+  // essential states for connection to web3, user wallet, ocean operations, and DataX configurations
   const [web3Modal, setWeb3Modal] = useState<Core | null>(null);
   const [accountId, setAccountId] = useState<string | null>(null);
   const [chainId, setChainId] = useState<number | undefined>(undefined);
@@ -40,40 +59,53 @@ export const GlobalProvider = ({
   const [web3, setWeb3] = useState<Web3 | null>(null);
   const [ocean, setOcean] = useState<Ocean | null>(null);
   const [config, setConfig] = useState<any>(null);
-  const [cookiesAllowed, setCookiesAllowed] = useState<boolean | null>(null);
+  const [watcher, setWatcher] = useState<any | null>(null);
   const [unsupportedNet, setUnsupportedNet] = useState<boolean>(false);
+
+  //states responsible for user info collection
+  const [cookiesAllowed, setCookiesAllowed] = useState<boolean | null>(null);
   const [showDisclaimer, setShowDisclaimer] = useState<boolean>(false);
+  const [disclaimerSigned, setDisclaimerSigned] = useState<{
+    client: boolean | null;
+    wallet: boolean | null;
+  }>({
+    client: null,
+    wallet: null,
+  });
+
+  // loading state is to be used when the app needs to finish loading before a page can render (i.e. show loading screen)
   const [loading, setLoading] = useState<boolean>(true);
+
+  // bg loading is to be used when the app can render the page without needing to finish loading
+  // when using bg loading push a loading item with the operation name (using bgLoadingStates)
+  // consider using type Set<string>
+  const [bgLoading, setBgLoading] = useState<string[]>([]);
+
+  //array of pending transaction Ids
+  const [pendingTxs, setPendingTxs] = useState<number[]>([]);
+  const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
+  const [showPendingTxsModal, setShowPendingTxsModal] =
+    useState<boolean>(false);
+
+  //all stake pool information for the current user
   const [allStakedPools, setAllStakedPools] = useState<PoolData[] | null>(null);
   //Pool information associated with pool
   const [currentStakePool, setCurrentStakePool] = useState<PoolData>();
   //dToken information associated with pool
   const [currentStakeToken, setCurrentStakeToken] = useState<{}>();
+  //currentTokens to be rendered in token modal
   const [currentTokens, setCurrentTokens] = useState<[] | null>(null);
+  //response from token fetch operation
   const [tokenResponse, setTokenResponse] = useState<{} | null | undefined>();
-  const [bgLoading, setBgLoading] = useState<{
-    status: boolean;
-    operation: string | null;
-  }>({ status: false, operation: null });
-  const [disclaimerSigned, setDisclaimerSigned] = useState<DisclaimerObj>({
-    client: null,
-    wallet: null,
-  });
   //all transaction history
   const [txHistory, setTxHistory] = useState<TxHistory | null>(null);
   //very last transaction
   const [lastTxId, setLastTxId] = useState<string | number | null>(null);
-  //array of pending transaction Ids
-  const [pendingTxs, setPendingTxs] = useState<number[]>([]);
   const [buttonText, setButtonText] = useState<string | undefined>(
     CONNECT_TEXT
   );
-  const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
-  const [showPendingTxsModal, setShowPendingTxsModal] =
-    useState<boolean>(false);
-  const [watcher, setWatcher] = useState<any | null>(null)
 
-
+  // remove all pending signatures to instantiate disclaimer flow upon user reconnection
   useEffect(() => {
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
@@ -82,6 +114,8 @@ export const GlobalProvider = ({
     }
   }, []);
 
+  // recall handle connect if the provider is set but there is no account id
+  // essential for disclaimer flow
   useEffect(() => {
     if (provider && !accountId) {
       handleConnect();
@@ -89,6 +123,7 @@ export const GlobalProvider = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [disclaimerSigned.client, disclaimerSigned.wallet]);
 
+  // intitialize web3modal to use to connect to provider
   useEffect(() => {
     async function init() {
       const web3Modal = new Web3Modal({
@@ -112,15 +147,15 @@ export const GlobalProvider = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [web3, chainId]);
 
-  // async function setupWeb3AndOcean(){
-  //   const provider = await web3Modal?.connect()
-  //   setProvider(provider)
-
-  //   // This is required to get the token list
-  //   const web3 = new Web3(provider)
-  //   setWeb3(web3)
-  // }
-
+  /**
+   *
+   * Handles wallet side disclaimer signature.
+   *
+   * @param account
+   * @param web3
+   * @returns
+   * signature hash from wallet
+   */
   async function handleSignature(account: string, web3: Web3) {
     try {
       localStorage.setItem(account, "pending");
@@ -142,6 +177,17 @@ export const GlobalProvider = ({
     }
   }
 
+  /**
+   *
+   * Handles client side disclaimer approval.
+   *
+   * @param account
+   * @param web3
+   * @param localSignature
+   * @returns
+   * current localSignature value
+   */
+
   async function handleDisclaimer(
     account: string,
     web3: Web3,
@@ -159,6 +205,9 @@ export const GlobalProvider = ({
     return localSignature;
   }
 
+  /**
+   * Handles connection to web3 and user wallet.
+   */
   async function handleConnect() {
     try {
       const provider = await web3Modal?.connect();
@@ -185,8 +234,8 @@ export const GlobalProvider = ({
         const config = new Config(web3, String(_chainId));
         setConfig(config);
 
-        const watcher = new Watcher(web3, String(_chainId))
-        setWatcher(watcher)
+        const watcher = new Watcher(web3, String(_chainId));
+        setWatcher(watcher);
 
         isSupportedChain(
           config,
@@ -201,6 +250,15 @@ export const GlobalProvider = ({
       console.error(error);
     }
   }
+
+  /**
+   * Verifies the chain the current wallet is on is supported by DataX before connecting.
+   *
+   * @param config
+   * @param chainId
+   * @param account
+   * @returns
+   */
 
   function isSupportedChain(
     config: Config,
@@ -231,6 +289,13 @@ export const GlobalProvider = ({
       console.error(error);
     }
   }
+
+  /**
+   * Sets listeners events on: accountId, chainId, provider connection, provider disconnection.
+   *
+   * @param provider
+   * @param web3
+   */
 
   function setListeners(provider: any, web3: Web3) {
     provider.on("accountsChanged", (accounts: any) => {
@@ -325,7 +390,7 @@ export const GlobalProvider = ({
         setPendingTxs,
         showPendingTxsModal,
         setShowPendingTxsModal,
-        watcher, 
+        watcher,
         setWatcher,
       }}
     >
