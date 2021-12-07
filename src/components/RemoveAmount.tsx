@@ -62,6 +62,10 @@ const RemoveAmount = () => {
   const [btnText, setBtnText] = useState("Approve and Withdrawal");
   const location = useLocation();
 
+  // useEffect(()=>{
+  //   console.log("Shares updated",currentStakePool.shares);
+  // }, currentStakePool.shares)
+
   useEffect(() => {
     console.log(bgLoading);
     /*if (bgLoading.includes("stake")) {
@@ -233,6 +237,7 @@ const RemoveAmount = () => {
           bgLoading,
           setNoStakedPools,
           setAllStakedPools,
+          setCurrentStakePool
         });
       } else {
         setShowConfirmLoader(false);
@@ -480,6 +485,7 @@ const RemoveAmount = () => {
         txs={
           currentStakePool
             ? [
+              `Approve StakeX to deposit ${toFixed5(recieveAmounts.oceanAmount)} OCEAN`,
                 `Approve DataX to unstake ${toFixed5(
                   recieveAmounts.oceanAmount
                 )} OCEAN from the ${
