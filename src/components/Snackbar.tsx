@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { BsCheckCircle, BsX } from "react-icons/bs";
 import { GlobalContext } from "../context/GlobalState";
+import { toFixed5 } from "../utils/equate";
 import { getTxById, TxObject, getTxUrl } from "../utils/useTxHistory";
 
 const Snackbar = () => {
@@ -16,10 +17,8 @@ const Snackbar = () => {
   const [lastTx, setLastTx] = useState<TxObject | null>(null);
   const [url, setUrl] = useState<string>("");
   const [opacity, setOpacity] = useState<string>("0");
-  //const [progress, setProgress] = useState<string>("100");
+  // const [progress, setProgress] = useState<string>("100");
   const [tokenInfo, setTokenInfo] = useState<any>(null);
-
-
 
   useEffect(() => {
     if (showSnackbar) {
@@ -29,33 +28,43 @@ const Snackbar = () => {
         txDateId: lastTxId,
         txHistory,
       });
+      console.log(fetchedTx);
       if (fetchedTx) {
         setLastTx(fetchedTx);
-        
+
         switch (fetchedTx.txType) {
+          case "Unstake Ocean":
           case "Stake Ocean":
             setTokenInfo({
               token1: fetchedTx.token1,
               token2: fetchedTx.token2,
             });
             break;
-            default:
-              console.log("FETCHEDTX",fetchedTx)
-              setTokenInfo({
-                token1: {...fetchedTx.token1.info, value:fetchedTx.token1.value },
-                token2: {...fetchedTx.token2.info, value:fetchedTx.token2.value }
-              });
-              break;
-            }
-            const newUrl = getTxUrl({
-              ocean,
-              txHash: fetchedTx.txHash,
-              accountId,
+          default:
+            console.log("FETCHEDTX", fetchedTx);
+            setTokenInfo({
+              token1: {
+                ...fetchedTx.token1.info,
+                value: fetchedTx.token1.value,
+              },
+              token2: {
+                ...fetchedTx.token2.info,
+                value: fetchedTx.token2.value,
+              },
             });
-            if (newUrl) setUrl(newUrl);
+            break;
+        }
+        const newUrl = getTxUrl({
+          ocean,
+          txHash: fetchedTx.txHash,
+          accountId,
+        });
+        if (newUrl) setUrl(newUrl);
       }
 
+      // progressBar()
       easeInOut();
+      
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastTxId, showSnackbar]);
@@ -98,14 +107,16 @@ const Snackbar = () => {
         <div className="grid grid-flow-col gap-4 items-center">
           <BsCheckCircle size="24" className="text-green-400" />
           <div>
-            <p className="text-type-100 text-sm">{lastTx.txType}</p>
+            {/* <p className="text-type-100 text-sm">{lastTx.txType}</p> */}
             <p>
               {lastTx.txType.includes("Stake")
-                ? `Stake ${lastTx.stakeAmt} OCEAN in ${tokenInfo.token1.symbol}/${tokenInfo.token2.symbol} pool`
+                ? `Stake ${toFixed5(lastTx.stakeAmt)} OCEAN in ${tokenInfo.token1.symbol}/${tokenInfo.token2.symbol} pool`
+                : lastTx.txType.includes("Unstake")
+                ? `Unstake ${toFixed5(lastTx.stakeAmt)} OCEAN from ${tokenInfo.token1.symbol}/${tokenInfo.token2.symbol} pool`
                 : `Trade ${tokenInfo.token1.value} ${tokenInfo.token1.symbol} for ${tokenInfo.token2.value} ${tokenInfo.token2.symbol}`}
             </p>
             <p className="text-type-300 text-sm">
-              <a target="_blank" rel="noreferrer"  href={url}>
+              <a target="_blank" rel="noreferrer" href={url} className="hover:text-white">
                 View on explorer
               </a>
             </p>
@@ -122,9 +133,8 @@ const Snackbar = () => {
         </div>
       </div>
       {/* <div className="relative pt-1">
-        <div className="overflow-hidden h-2 text-xs flex rounded bg-purple-200">
-          <div className="bg-gray-900 h-full w-50"/>
-
+        <div className="overflow-hidden h-2 text-xs flex rounded bg-gray-400">
+          <div className="bg-gray-900 h-full w-1/2"> </div>
         </div>
       </div> */}
     </div>

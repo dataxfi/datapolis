@@ -8,7 +8,7 @@ import OutsideClickHandler from "react-outside-click-handler";
 import ConfirmSwapModal from "./ConfirmSwapModal";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
-import { toFixed } from "../utils/equate";
+import { toFixed5 } from "../utils/equate";
 // import { program } from "@babel/types"
 // import { get } from "https"
 import { addTxHistory, deleteRecentTxs } from "../utils/useTxHistory";
@@ -110,7 +110,7 @@ const Swap = () => {
     setToken1(token2);
     setToken2({ ...token1, loading: true });
     let exchange = await calculateExchange(true, token2.value);
-    exchange = Number(toFixed(exchange));
+    exchange = Number(toFixed5(exchange));
     setPostExchange(exchange / token2.value);
     setToken2({ ...token1, value: exchange, loading: false });
     setExactToken(1);
@@ -136,7 +136,7 @@ const Swap = () => {
       }
     } else {
       if (fromToken) {
-        const value = Number(toFixed(token1.balance * (perc / 100)));
+        const value = Number(toFixed5(token1.balance * (perc / 100)));
         setToken1({
           ...token1,
           percentage: String(perc),
@@ -145,7 +145,7 @@ const Swap = () => {
         // setToken2({...token2, percentage: ''})
         updateOtherTokenValue(true, value.toString());
       } else {
-        const value = Number(toFixed(token2.balance * (perc / 100)));
+        const value = Number(toFixed5(token2.balance * (perc / 100)));
         setToken2({
           ...token2,
           percentage: String(perc),
@@ -162,14 +162,14 @@ const Swap = () => {
       if (from) {
         setToken2({ ...token2, loading: true });
         let exchange = await calculateExchange(from, inputAmount);
-        exchange = Number(toFixed(exchange));
+        exchange = Number(toFixed5(exchange));
         setPostExchange(exchange / inputAmount);
         setToken2({ ...token2, value: exchange, loading: false });
         setExactToken(1);
       } else {
         setToken1({ ...token1, loading: true });
         let exchange = await calculateExchange(from, inputAmount);
-        exchange = Number(toFixed(exchange || 0));
+        exchange = Number(toFixed5(exchange || 0));
         setPostExchange(inputAmount / exchange || 0);
         setToken1({ ...token1, value: exchange, loading: false });
         setExactToken(2);
@@ -220,10 +220,9 @@ const Swap = () => {
     );
   }
 
-
   async function makeTheSwap() {
     let txReceipt = null;
-    let txType 
+    let txType;
     let txDateId = null;
     setShowConfirmSwapModal(false);
     setShowConfirmModal(true);
@@ -252,7 +251,7 @@ const Swap = () => {
             setLastTxId,
           });
 
-          txType = "Ocean to DT"
+          txType = "Ocean to DT";
 
           txReceipt = await ocean.swapExactOceanToDt(
             accountId,
@@ -284,7 +283,7 @@ const Swap = () => {
             setLastTxId,
           });
 
-          txType = "Ocean to DT"
+          txType = "Ocean to DT";
 
           txReceipt = await ocean.swapExactOceanToDt(
             accountId,
@@ -312,7 +311,7 @@ const Swap = () => {
             setShowSnackbar,
             setLastTxId,
           });
-          txType = "DT to Ocean"
+          txType = "DT to Ocean";
 
           txReceipt = await ocean.swapExactDtToOcean(
             accountId,
@@ -345,7 +344,7 @@ const Swap = () => {
             setShowSnackbar,
             setLastTxId,
           });
-          txType = "DT to Ocean"
+          txType = "DT to Ocean";
 
           txReceipt = await ocean.swapExactDtToOcean(
             accountId,
@@ -384,7 +383,7 @@ const Swap = () => {
             setShowSnackbar,
             setLastTxId,
           });
-          txType = "DT to DT"
+          txType = "DT to DT";
 
           txReceipt = await ocean.swapExactDtToDt(
             accountId,
@@ -425,7 +424,7 @@ const Swap = () => {
             setShowSnackbar,
             setLastTxId,
           });
-          txType = "DT to DT"
+          txType = "DT to DT";
 
           txReceipt = await ocean.swapExactDtToDt(
             accountId,
@@ -441,13 +440,12 @@ const Swap = () => {
         }
       }
       if (txReceipt) {
-
         //if (showConfirmModal && txReceipt) {
-          setShowConfirmModal(false);
-          setShowTxDone(true);
-          setLastTxUrl(
-            config.default.explorerUri + "/tx/" + txReceipt.transactionHash
-          );
+        setShowConfirmModal(false);
+        setShowTxDone(true);
+        setLastTxUrl(
+          config.default.explorerUri + "/tx/" + txReceipt.transactionHash
+        );
         //}
 
         addTxHistory({
@@ -466,7 +464,7 @@ const Swap = () => {
           setPendingTxs,
           setShowSnackbar,
           setLastTxId,
-          txReceipt
+          txReceipt,
         });
         setToken1(INITIAL_TOKEN_STATE);
         setToken2(INITIAL_TOKEN_STATE);
@@ -482,6 +480,8 @@ const Swap = () => {
           txHistory,
           accountId,
           chainId,
+          pendingTxs,
+          setPendingTxs,
         });
       }
     } catch (error) {
@@ -492,11 +492,12 @@ const Swap = () => {
         txHistory,
         accountId,
         chainId,
+        pendingTxs,
+        setPendingTxs,
       });
       setShowConfirmModal(false);
       console.log(error);
     }
-
   }
 
   function getConfirmModalProperties(): string[] {
@@ -574,7 +575,7 @@ const Swap = () => {
   }
   return (
     <>
-      <div className="flex my-3 w-full items-center justify-center md:h-3/4">
+      <div className="flex my-3 w-full h-full items-center justify-center ">
         <div className="max-w-2xl lg:mx-auto sm:mx-4 mx-3 bg-primary-900 w-full rounded-lg p-4 hm-box ">
           <div className="flex justify-between relative">
             <p className="text-xl">{text.T_SWAP}</p>

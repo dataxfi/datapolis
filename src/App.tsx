@@ -11,7 +11,8 @@ import UnsupportedNetwork from "./components/UnsupportedNetwork";
 import { GlobalContext } from "./context/GlobalState";
 import DisclaimerModal from "./components/DisclaimerModal";
 import Snackbar from "./components/Snackbar";
-import PendingTxsModal from "./components/PendingTxsModal";
+import TxHistoryModal from "./components/TxsHistoryModal";
+import Footer from "./components/Footer";
 // import LiquidityPosition from "./components/LiquidityPosition";
 // import TransactionDoneModal from "./components/TransactionDoneModal";
 // import Snackbar from "./components/Snackbar";
@@ -38,7 +39,7 @@ function App() {
   }, []);
 
   return (
-    <>
+    <div className="min-h-full relative">
       {unsupportedNet ? (
         <UnsupportedNetwork />
       ) : (
@@ -47,7 +48,7 @@ function App() {
           {showDisclaimer ? (
             <DisclaimerModal />
           ) : (
-            <>
+            <div className="pb-16 md:pt-10 h-full">
               <Route path="/" exact component={Swap} />
               <Route path="/stakeX" exact component={Stake} />
               <Route path="/stakeX/remove" exact component={RemoveAmount} />
@@ -59,14 +60,15 @@ function App() {
               {/*<LiquidityPosition />*/}
               {/*<RemoveAmount />*/}
               {/* <ConfirmSwapModal /> */}
-            </>
+            </div>
           )}
         </Router>
       )}
       {cookiesAllowed === null ? <CookiesModal /> : null}
       <Snackbar/>
-      <PendingTxsModal/>
-    </>
+      <TxHistoryModal/>
+      <Footer/>
+    </div>
   );
 }
 

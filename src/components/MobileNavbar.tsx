@@ -4,6 +4,7 @@ import { useState, useEffect, useContext } from "react";
 import { ReactComponent as Logo } from "../assets/logo-test.svg";
 import { GlobalContext } from "../context/GlobalState";
 import Button from "./Button";
+import PendingTxsIndicator from "./PendingTxsIndicator";
 
 const MobileNavbar = ({
   links,
@@ -43,8 +44,9 @@ const MobileNavbar = ({
         <div className="flex flex-row justify-start">
           <Logo className="logo" style={{ height: "40px" }} />
         </div>
-        <div>
-          {menuVisible ? (
+        <div className="flex">
+          <PendingTxsIndicator /> 
+          <div className="pl-5">{menuVisible ? (
             <button>
               <MdClose
                 onClick={() => toggleMenu(false)}
@@ -62,7 +64,8 @@ const MobileNavbar = ({
                 size="28"
               />{" "}
             </button>
-          )}
+          )}</div>
+          
         </div>
       </div>
       <div
@@ -86,11 +89,11 @@ const MobileNavbar = ({
       </div>
 
       <div
-        className={`fixed bottom-0 left-0 w-full py-2 md:hidden flex justify-center bg-background opacity-80 transform ${
+        className={`fixed bottom-0 left-0 w-full py-2 lg:hidden flex justify-center bg-background opacity-95 transform ${
           walletBtnVis ? "" : "translate-y-12"
         } transition duration-1000 z-10`}
       >
-        <div className="flex flex-row w-full justify-between px-3 ">
+        <div className="flex flex-row w-full justify-between px-3">
           <div className="flex flex-row justify-center align-middle  w-full ">
             <div className = {`flex flex-row bg-primary-900 ${accountId? "pl-2": ""}  pr-1 py-1 rounded-lg`}>
               {" "}

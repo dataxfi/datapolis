@@ -3,7 +3,7 @@ import { GlobalContext } from "../context/GlobalState";
 import { PoolData } from "../utils/useAllStakedPools";
 import { BsChevronDown, BsChevronUp } from "react-icons/bs";
 import { Link } from "react-router-dom";
-import { toFixed } from "../utils/equate";
+import { toFixed5 } from "../utils/equate";
 function LiquidityPositionItem({
   pool,
   index,
@@ -20,7 +20,7 @@ function LiquidityPositionItem({
     shares,
     dtAmount,
     oceanAmount,
-    yourPoolShare,
+    yourPoolSharePerc,
     totalPoolShares,
   } = pool;
 
@@ -49,8 +49,8 @@ function LiquidityPositionItem({
   }
 
   return (
-    <li key={`index${index}`}>
-      <div className="max-w-2xl mx-auto">
+    <li key={`LP${index}`}>
+      <div className="max-w-2xl mx-auto z-0">
         <div
           onClick={() => setVisible(!visible)}
           className={`flex justify-between p-4  ${
@@ -87,14 +87,14 @@ function LiquidityPositionItem({
                 </div>
                 <div className="justify-self-end">
                   <p className="text-type-100 text-sm ">
-                    {toFixed(totalPoolShares)}
+                    {toFixed5(totalPoolShares)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-type-300 text-sm">Your shares in Pool</p>
+                  <p className="text-type-300 text-sm">Your Shares in Pool</p>
                 </div>
                 <div className="justify-self-end">
-                  <p className="text-type-100 text-sm ">{toFixed(shares)}</p>
+                  <p className="text-type-100 text-sm ">{toFixed5(shares)}</p>
                 </div>
                 <div>
                   <p className="text-type-300 text-sm">
@@ -102,7 +102,7 @@ function LiquidityPositionItem({
                   </p>
                 </div>
                 <div className="justify-self-end">
-                  <p className="text-type-100 text-sm ">{toFixed(dtAmount)}</p>
+                  <p className="text-type-100 text-sm ">{toFixed5(dtAmount)}</p>
                 </div>
                 <div>
                   <p className="text-type-300 text-sm">
@@ -111,7 +111,7 @@ function LiquidityPositionItem({
                 </div>
                 <div className="justify-self-end">
                   <p className="text-type-100 text-sm ">
-                    {toFixed(oceanAmount)}
+                    {toFixed5(oceanAmount)}
                   </p>
                 </div>
                 <div>
@@ -119,8 +119,8 @@ function LiquidityPositionItem({
                 </div>
                 <div className="justify-self-end">
                   <p className="text-type-100 text-sm ">
-                    {Number(yourPoolShare) >= 1
-                      ? toFixed(yourPoolShare)
+                    {Number(yourPoolSharePerc) >= 1
+                      ? `${toFixed5(yourPoolSharePerc)} %`
                       : "< 0 %"}
                   </p>
                 </div>
@@ -144,7 +144,7 @@ function LiquidityPositionItem({
             </div>
           </div>
         ) : (
-          <></>
+          null
         )}
       </div>
     </li>

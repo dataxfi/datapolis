@@ -3,13 +3,14 @@ import { BsBoxArrowUpRight, BsX } from "react-icons/bs";
 import { PulseLoader } from "react-spinners";
 import { GlobalContext } from "../context/GlobalState";
 import {
-  TxObject,
+  TxSelection,
   getLocalTxHistory,
   TxHistory,
   getTxUrl,
+  watchTx,
 } from "../utils/useTxHistory";
 
-function PendingTxsModal() {
+function TxHistoryModal() {
   const {
     pendingTxs,
     txHistory,
@@ -21,30 +22,35 @@ function PendingTxsModal() {
     ocean,
     watcher,
     web3,
+    setPendingTxs,
+    lastTxId,
   } = useContext(GlobalContext);
-
-  interface TxSelection extends TxObject {
-    txDateId: string | number;
-    txLink: string;
-  }
 
   const [page, setPage] = useState([0, 5]);
   const [txSelection, setTxSelection] = useState<TxSelection[]>([]);
   const [txsByDate, setTxsByDate] = useState<TxSelection[]>([]);
   const [noTxHistory, setNoTxHistory] = useState<boolean>(false);
 
-  // useEffect(() => {
-  //   console.log("Tx selection changed", txSelection);
-  //   if (watcher && txSelection && txSelection[0] && txSelection[0].txReceipt && web3) {
-  //     console.log("Watcher function call on", txSelection[0].txReceipt);
-  //     console.log(watcher.isSuccessfulTransaction(txSelection[0].txReceipt))
-  //     const txHashSelection = txSelection.map((tx) => tx.txHash);
-  //     console.log(txHashSelection);
-  //     console.log(watcher.waitTransaction(web3, txHashSelection, {interval:0, blocksToWait:500}))
-  //   }
-  // }, [txSelection, watcher]);
+  useEffect(() => {
+    if (showPendingTxsModal && watcher && txSelection && web3) {
+      // watchTx(txSelection[0])
+      txSelection.forEach((tx) => {
+        watchTx({
+          tx,
+          watcher,
+          web3,
+          chainId,
+          setTxHistory,
+          txHistory,
+          pendingTxs,
+          setPendingTxs,
+        });
+      });
+    }
+  }, [txSelection, watcher, txHistory, web3]);
 
   function parseHistory(history: TxHistory) {
+    if (!history) return;
     const txsByDate = [];
     for (let [txDateId, tx] of Object.entries(history)) {
       let txLink = getTxUrl({
@@ -59,29 +65,28 @@ function PendingTxsModal() {
     txsByDate.sort(
       (date1, date2) => Number(date2.txDateId) - Number(date1.txDateId)
     );
-    console.log(txsByDate);
     return txsByDate;
   }
 
   useEffect(() => {
     try {
       if (txHistory) {
-        console.log("setting tx selection", txHistory);
         const parsedHistory = parseHistory(txHistory);
+        if (!parsedHistory) return;
         setTxsByDate(parsedHistory);
         const selection = parsedHistory.slice(page[0], page[1]);
         setTxSelection(selection);
         setNoTxHistory(false);
       } else {
         const localHistory = getLocalTxHistory({ chainId, accountId });
-        console.log("Local History", localHistory);
         if (localHistory) {
           setTxHistory(localHistory);
           const parsedHistory = parseHistory(txHistory);
+          if (!parsedHistory) return;
           setTxsByDate(parsedHistory);
           const selection = parsedHistory.slice(page[0], page[1]);
           setTxSelection(selection);
-          setNoTxHistory(false)
+          setNoTxHistory(false);
         } else {
           setNoTxHistory(true);
         }
@@ -105,7 +110,7 @@ function PendingTxsModal() {
 
   function pageRange() {
     if (page[1] > txSelection.length)
-      return `${page[0] + 1} - ${txSelection.length}`;
+      return `${page[0] + 1} - ${txSelection.length + page[0]}`;
     return `${page[0] + 1} - ${page[1]}`;
   }
 
@@ -130,22 +135,30 @@ function PendingTxsModal() {
           <>
             <ul>
               {txSelection.map((tx, index) => (
-                <li key={`tx${index}`} className="flex flex-col mb-2 justify-center bg-gray-800 rounded-lg p-2 hover:bg-gray-900 border border-transparent hover:border-gray-600">
+                <li
+                  key={`tx${index}`}
+                  className="flex flex-col mb-2 justify-center bg-gray-800 rounded-lg p-2 hover:bg-gray-900 border border-transparent hover:border-gray-600"
+                >
                   <div className="flex flex-row w-full justify-between">
                     <div className="flex">
                       <h4>{tx.txType}: </h4>
                       <p
                         className={`ml-1 ${
-                          tx.status === "success"
+                          tx.status === "Success"
                             ? "text-green-400"
+                            : tx.status === "Failure"
+                            ? "text-red-600"
                             : "text-primary-400"
                         } `}
                       >
                         {tx.status}
                       </p>
-                      <div className="pt-.5">
-                        <PulseLoader size="3px" color="white" />
-                      </div>
+                      {tx.status === "Success" ||
+                      tx.status === "Failure" ? null : (
+                        <div className="pt-.5">
+                          <PulseLoader size="3px" color="white" />
+                        </div>
+                      )}
                     </div>
                     <a
                       href={tx.txLink}
@@ -182,4 +195,4 @@ function PendingTxsModal() {
   ) : null;
 }
 
-export default PendingTxsModal;
+export default TxHistoryModal;

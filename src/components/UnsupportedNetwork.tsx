@@ -8,7 +8,7 @@ function UnsupportedNetwork() {
           ⚠ DataX is not yet deployed to this chain.
         </h2>
         <p className="mt-3 mb-1">Please connect to a supported network.</p>
-        <p>(Ethereum Mainnet, Polygon, Rinkeby, BSC)</p>
+        <p>(Ethereum Mainnet, Polygon, Rinkeby, BSC, Moonriver, Energyweb)</p>
       </div>
     </div>
   );

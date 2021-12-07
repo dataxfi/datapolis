@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { ReactComponent as Logo } from "../assets/logo-test.svg";
 import Button from "./Button";
 import { GlobalContext } from "../context/GlobalState";
-import { RingLoader } from "react-spinners";
+import PendingTxsIndicator from "./PendingTxsIndicator";
 
 const DesktopNavbar = ({
   links,
@@ -19,12 +19,17 @@ const DesktopNavbar = ({
   truncateId: Function;
   network: string;
 }) => {
-  const { handleConnect, accountId, buttonText, pendingTxs, setShowPendingTxsModal } =
-    useContext(GlobalContext);
+  const {
+    handleConnect,
+    accountId,
+    buttonText,
+    pendingTxs,
+    setShowPendingTxsModal,
+  } = useContext(GlobalContext);
 
-    function handleModalOrConnect(){
-      accountId ? setShowPendingTxsModal(true): handleConnect()
-    }
+  function handleModalOrConnect() {
+    accountId ? setShowPendingTxsModal(true) : handleConnect();
+  }
 
   return (
     <header className="lg:flex justify-between items-center py-4 border-gray-800 pl-4 pr-2 hidden">
@@ -43,24 +48,13 @@ const DesktopNavbar = ({
         })}
       </div>
       <div className="grid grid-flow-col gap-4 items-center">
+       <PendingTxsIndicator/>
         <div className="hidden md:block capitalize border border-type-500 text-type-200 rounded-md px-4 py-1 hm-box ">
           <h3>{network}</h3>
         </div>
         <div className="hidden md:block">
           <Button
-            text={
-              accountId ? (
-                pendingTxs.length > 0 ? (
-                  <div className="pr-3 flex flex-row">
-                    {`${pendingTxs.length} Pending`} <div className="pt-1 pl-1"><RingLoader size="20px" color="#f3c429" /></div>
-                  </div>
-                ) : (
-                  truncateId()
-                )
-              ) : (
-                buttonText
-              )
-            }
+            text={accountId ? truncateId() : buttonText}
             onClick={handleModalOrConnect}
             classes="hm-btn hm-btn-light hm-box border border-type-500"
           />
