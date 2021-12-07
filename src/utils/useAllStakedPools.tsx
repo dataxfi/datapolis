@@ -100,7 +100,8 @@ export default function setPoolDataFromOcean({
   console.log(accountId)
   getAllStakedPools(accountId, ocean)
     .then(async (res: any) => {
-      const settledArr: any = await Promise.allSettled(res);
+
+      const settledArr: any = await Promise.allSettled(res);      
       const allStakedPools = settledArr.map(
         (promise: PromiseSettledResult<PoolData>) => {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment

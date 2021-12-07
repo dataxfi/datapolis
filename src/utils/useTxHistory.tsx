@@ -1,5 +1,8 @@
 import { TokenInfo } from "./useTokenList";
 import { TransactionReceipt } from "web3-core";
+import Web3 from "web3";
+import Watcher from "@dataxfi/datax.js/dist/Watcher";
+
 
 export interface TxTokenDetails {
   balance: string;
@@ -22,6 +25,11 @@ export interface TxObject {
 
 export interface TxHistory {
   [txDateId: string]: TxObject;
+}
+
+export interface TxSelection extends TxObject {
+  txDateId: string | number;
+  txLink: string;
 }
 
 export function addTxHistory({
@@ -230,4 +238,64 @@ export function getLocalTxHistory({
   } catch (error) {
     console.error(error);
   }
+}
+
+export async function watchTx({tx, watcher, web3, chainId, setTxHistory, txHistory, pendingTxs, setPendingTxs}:{tx:TxSelection, watcher: Watcher, web3: Web3, chainId: string | number, setTxHistory: Function, txHistory: TxHistory, pendingTxs:[], setPendingTxs: Function }) {
+  const {
+    accountId,
+    token1,
+    token2,
+    txHash,
+    status,
+    txType,
+    slippage,
+    stakeAmt,
+    txReceipt,
+    txDateId,
+  } = tx;
+
+  const response = txHash? await watcher.waitTransaction(web3, txHash, {
+    interval: 1000,
+    blocksToWait: 1,
+  }): null
+
+  if (status !== "Success" && response && response.status === true) {
+    addTxHistory({
+      chainId,
+      setTxHistory,
+      txHistory,
+      accountId,
+      token1,
+      token2,
+      txType,
+      txHash,
+      status: "Success",
+      slippage,
+      txDateId,
+      stakeAmt,
+      pendingTxs,
+      setPendingTxs,
+      txReceipt,
+    });
+  } else if(response && response.status === false) {
+    addTxHistory({
+      chainId,
+      setTxHistory,
+      txHistory,
+      accountId,
+      token1,
+      token2,
+      txType,
+      txHash,
+      status: "Failure",
+      slippage,
+      txDateId,
+      stakeAmt,
+      pendingTxs,
+      setPendingTxs,
+      txReceipt,
+    });
+  }
+
+  return response;
 }

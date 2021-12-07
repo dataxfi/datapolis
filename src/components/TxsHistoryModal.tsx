@@ -3,14 +3,14 @@ import { BsBoxArrowUpRight, BsX } from "react-icons/bs";
 import { PulseLoader } from "react-spinners";
 import { GlobalContext } from "../context/GlobalState";
 import {
-  TxObject,
+  TxSelection,
   getLocalTxHistory,
   TxHistory,
   getTxUrl,
-  addTxHistory,
+  watchTx,
 } from "../utils/useTxHistory";
 
-function PendingTxsModal() {
+function TxHistoryModal() {
   const {
     pendingTxs,
     txHistory,
@@ -23,12 +23,8 @@ function PendingTxsModal() {
     watcher,
     web3,
     setPendingTxs,
+    lastTxId,
   } = useContext(GlobalContext);
-
-  interface TxSelection extends TxObject {
-    txDateId: string | number;
-    txLink: string;
-  }
 
   const [page, setPage] = useState([0, 5]);
   const [txSelection, setTxSelection] = useState<TxSelection[]>([]);
@@ -36,76 +32,25 @@ function PendingTxsModal() {
   const [noTxHistory, setNoTxHistory] = useState<boolean>(false);
 
   useEffect(() => {
-    if (
-      watcher &&
-      txSelection &&
-      txSelection[0] &&
-      txSelection[0].txReceipt &&
-      web3
-    ) {
-
+    if (showPendingTxsModal && watcher && txSelection && web3) {
+      // watchTx(txSelection[0])
       txSelection.forEach((tx) => {
-
-        const {
-          accountId,
-          token1,
-          token2,
-          txHash,
-          status,
-          txType,
-          slippage,
-          stakeAmt,
-          txReceipt,
-          txDateId,
-        } = tx;
-
-        //console.log(web3.eth.getTransactionReceipt(txHash))
-
-        if (/*watcher.isSuccessfulTransaction(txReceipt) &&*/ status !== "Success") {
-          addTxHistory({
-            chainId,
-            setTxHistory,
-            txHistory,
-            accountId,
-            token1,
-            token2,
-            txType,
-            txHash,
-            status: "Success",
-            slippage,
-            txDateId,
-            stakeAmt,
-            pendingTxs,
-            setPendingTxs,
-            txReceipt,
-          });
-        }
-
-       // console.log("Wait for tx to confirm",  Promise.resolve(watcher.waitTransaction(web3, tx.txHash, {interval:1000, blocksToWait:500})))
+        watchTx({
+          tx,
+          watcher,
+          web3,
+          chainId,
+          setTxHistory,
+          txHistory,
+          pendingTxs,
+          setPendingTxs,
+        });
       });
-
-      // const txHashSelection = txSelection.map((tx) => tx.txHash);
-      // console.log(txHashSelection);
-      // const promises: any[] = [];
-      // const response: any = watcher.waitTransaction(web3, txHashSelection[0], {
-      //   interval: 1000,
-      //   blocksToWait: 500,
-      // });
-      // console.log(response);
-      // txHashSelection.forEach(async (tx) =>{
-      //   console.log(tx)
-      //  const response:any = watcher.waitTransaction(web3, tx, {interval:1000, blocksToWait:500})
-      //  promises.push(response)
-      //   console.log(response)
-      // })
-      // console.log(promises)
-      // const fulfilled = Promise.all(promises)
-      // console.log(fulfilled)
     }
-  }, [txSelection, watcher]);
+  }, [txSelection, watcher, txHistory, web3]);
 
   function parseHistory(history: TxHistory) {
-    if(!history) return 
+    if (!history) return;
     const txsByDate = [];
     for (let [txDateId, tx] of Object.entries(history)) {
       let txLink = getTxUrl({
@@ -127,7 +72,7 @@ function PendingTxsModal() {
     try {
       if (txHistory) {
         const parsedHistory = parseHistory(txHistory);
-        if(!parsedHistory) return
+        if (!parsedHistory) return;
         setTxsByDate(parsedHistory);
         const selection = parsedHistory.slice(page[0], page[1]);
         setTxSelection(selection);
@@ -137,7 +82,7 @@ function PendingTxsModal() {
         if (localHistory) {
           setTxHistory(localHistory);
           const parsedHistory = parseHistory(txHistory);
-          if(!parsedHistory) return
+          if (!parsedHistory) return;
           setTxsByDate(parsedHistory);
           const selection = parsedHistory.slice(page[0], page[1]);
           setTxSelection(selection);
@@ -201,12 +146,15 @@ function PendingTxsModal() {
                         className={`ml-1 ${
                           tx.status === "Success"
                             ? "text-green-400"
+                            : tx.status === "Failure"
+                            ? "text-red-600"
                             : "text-primary-400"
                         } `}
                       >
                         {tx.status}
                       </p>
-                      {tx.status === "Success" ? null : (
+                      {tx.status === "Success" ||
+                      tx.status === "Failure" ? null : (
                         <div className="pt-.5">
                           <PulseLoader size="3px" color="white" />
                         </div>
@@ -247,4 +195,4 @@ function PendingTxsModal() {
   ) : null;
 }
 
-export default PendingTxsModal;
+export default TxHistoryModal;

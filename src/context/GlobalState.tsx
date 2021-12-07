@@ -1,4 +1,6 @@
 import Web3 from "web3";
+import Watcher from "@dataxfi/datax.js/dist/Watcher";
+
 import { Ocean, Config } from "@dataxfi/datax.js";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
@@ -14,7 +16,6 @@ import {
 } from "./Analytics";
 import { TxHistory } from "../utils/useTxHistory";
 import { PoolData } from "../utils/useAllStakedPools";
-import Watcher from "@dataxfi/datax.js/dist/Watcher";
 
 const initialState: any = {};
 const CONNECT_TEXT = "Connect Wallet";
