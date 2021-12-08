@@ -46,6 +46,7 @@ const RemoveAmount = () => {
     setShowSnackbar,
     setLastTxId,
     loading,
+    config
   } = useContext(GlobalContext);
   const [noWallet, setNoWallet] = useState<boolean>(false);
   const [removePercent, setRemovePercent] = useState<string>("");
@@ -126,6 +127,9 @@ const RemoveAmount = () => {
         setNoStakedPools,
         bgLoading,
         setLoading,
+        config,
+        web3,
+        allStakedPools
       });
 
       if (allStakedPools) {
@@ -237,7 +241,10 @@ const RemoveAmount = () => {
           bgLoading,
           setNoStakedPools,
           setAllStakedPools,
-          setCurrentStakePool
+          setCurrentStakePool,
+          config,
+          web3,
+          allStakedPools
         });
       } else {
         setShowConfirmLoader(false);
