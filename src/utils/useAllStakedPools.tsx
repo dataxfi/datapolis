@@ -1,6 +1,9 @@
 import { percOf } from "./equate";
 import { TokenDetails } from "@dataxfi/datax.js/dist/Ocean";
 import { removeBgLoadingState, bgLoadingStates } from "../context/GlobalState";
+import { PoolShare } from "@dataxfi/datax.js/dist/Ocean";
+import Web3 from "web3";
+
 export interface PoolData {
   //user wallet ID (hash)
   accountId: string;
@@ -30,51 +33,72 @@ export interface PoolData {
  * ocean instance set in global state
  * @returns <PoolData>[]
  */
-export async function getAllStakedPools(accountId: string, ocean: any) {
-  const poolList = await ocean.getAllStakedPools(accountId);
-  const userPoolData: Promise<PoolData>[] = poolList.map(
-    async ({
-      shares,
-      poolAddress,
-    }: {
-      shares: string;
-      poolAddress: string;
-    }) => {
-      const address = poolAddress;
-      const { tokens } = await ocean.getPoolDetails(address);
-      const token1 = await ocean.getTokenDetails(tokens[0]);
-      const token2 = await ocean.getTokenDetails(tokens[1]);
-      const totalPoolShares = await ocean.getTotalPoolShares(poolAddress);
-      const yourPoolSharePerc = percOf(shares, totalPoolShares);
-      const { dtAmount, oceanAmount } =
-        await ocean.getTokensRemovedforPoolShares(
-          address,
-          String(totalPoolShares)
-        );
 
-      return {
-        address,
-        token1,
-        token2,
+export async function getAllStakedPools({
+  accountId,
+  fromBlock,
+  ocean,
+  toBlock,
+}: {
+  accountId: string;
+  fromBlock: number;
+  ocean: any;
+  toBlock: number;
+}) {
+  try {
+    const poolList = await ocean.getAllStakedPools(
+      accountId,
+      fromBlock,
+      toBlock
+    );
+    if (poolList.length === 0) return poolList;
+    console.log("Recieved response from allStakedPools (1)", poolList);
+    const userPoolData: Promise<PoolData>[] = poolList.map(
+      async ({
         shares,
-        dtAmount,
-        oceanAmount,
-        totalPoolShares,
-        yourPoolSharePerc,
-        accountId,
-      };
-    }
-  );
-  return userPoolData;
+        poolAddress,
+      }: {
+        shares: string;
+        poolAddress: string;
+      }) => {
+        const address = poolAddress;
+        const { tokens } = await ocean.getPoolDetails(address);
+        const token1 = await ocean.getTokenDetails(tokens[0]);
+        const token2 = await ocean.getTokenDetails(tokens[1]);
+        const totalPoolShares = await ocean.getTotalPoolShares(poolAddress);
+        const yourPoolSharePerc = percOf(shares, totalPoolShares);
+        const { dtAmount, oceanAmount } =
+          await ocean.getTokensRemovedforPoolShares(
+            address,
+            String(totalPoolShares)
+          );
+
+        return {
+          address,
+          token1,
+          token2,
+          shares,
+          dtAmount,
+          oceanAmount,
+          totalPoolShares,
+          yourPoolSharePerc,
+          accountId,
+        };
+      }
+    );
+    return userPoolData;
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 /**
  * Manages all states related to all and current pool information by calling ocean functions.
- *  
+ *
  * @returns void | caught error
  */
 
-export default function setPoolDataFromOcean({
+export default async function setPoolDataFromOcean({
   accountId,
   ocean,
   chainId,
@@ -85,6 +109,9 @@ export default function setPoolDataFromOcean({
   setNoStakedPools,
   bgLoading,
   setLoading,
+  config,
+  web3,
+  allStakedPools,
 }: {
   accountId: string;
   ocean: any;
@@ -96,49 +123,104 @@ export default function setPoolDataFromOcean({
   setNoStakedPools: Function;
   bgLoading: string[];
   setLoading?: Function;
+  config: any;
+  web3: Web3;
+  allStakedPools: PoolData[];
 }) {
-  console.log(accountId)
-  getAllStakedPools(accountId, ocean)
-    .then(async (res: any) => {
+  //recursively call getAllstake pools
+  //continousouly update the state upon response
 
-      const settledArr: any = await Promise.allSettled(res);      
-      const allStakedPools = settledArr.map(
-        (promise: PromiseSettledResult<PoolData>) => {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          return promise.value;
-        }
-      );
-      if (
-        allStakedPools.length > 0
-      ) {
-        setAllStakedPools(allStakedPools);
-        setLocalPoolDataStorage(allStakedPools, chainId);
-        if (poolAddress && setCurrentStakePool) {
-          const pool = allStakedPools.find(
-            (pool: PoolData) => pool.address === poolAddress
+  const firstBlock: number = config.default.startBlock || 0
+  console.log("First block is:", firstBlock);
+  let toBlock: number = await web3.eth.getBlockNumber();
+  console.log("Latest block is:", toBlock);
+  let fromBlock = toBlock - 5000;
+  let fetchCount: number = 0;
+  const initalLocation = window.location.href;
+  let fetchedStakePools: PoolData[] = [];
+  let interval: number;
+  let blockRange: number;
+  let promises: any = []
+  switch (chainId) {
+    case 56:
+      interval = 1250;
+      blockRange = 5000
+      break;
+    default:
+      interval = 0;
+      blockRange = 10000
+      break;
+  }
+
+  let stop = true
+
+  function timeout(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  if (firstBlock)
+    while (firstBlock < fromBlock && initalLocation === window.location.href && stop) {
+      console.log(`Fetching from ${fromBlock} to ${toBlock}`);
+      promises.push(getAllStakedPools({ accountId, fromBlock, toBlock, ocean })
+        .then(async (res: any) => {
+          if (res.length === 0) return;
+          console.log("Recieve Response from getAllStakedPools:", res);
+          const settledArr: any = await Promise.allSettled(res);
+          const newData = settledArr.map(
+            (promise: PromiseSettledResult<PoolData>) => {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              return promise.value;
+            }
           );
-          setCurrentStakePool(pool);
-        }
-      } else if (allStakedPools.length === 0) {
-        setNoStakedPools(true);
-      }
-      if (setLoading) setLoading(false);
-      if (setBgLoading) {
-          setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.allStakedPools))
-      }
-    })
-    .catch((e: any) => {
-      console.error(e);
-      return e
-    });
+          if (newData.length > 0) {
+            fetchedStakePools = [...fetchedStakePools, ...newData];
+            console.log("Fetched stake pools:", fetchedStakePools);
+            setAllStakedPools(fetchedStakePools);
+            setLocalPoolDataStorage(fetchedStakePools, chainId);
+            if (poolAddress && setCurrentStakePool) {
+              const pool = fetchedStakePools.find(
+                (pool: PoolData) => pool.address === poolAddress
+              );
+              setCurrentStakePool(pool);
+            }
+          }
+        })
+        .catch((e: any) => {
+          console.error(e);
+          return e;
+        }))
+      fromBlock = fromBlock - blockRange;
+      toBlock = toBlock - blockRange;
+      fetchCount++;
+      //call timeout function to delay next loop
+      if (interval) await Promise.resolve(timeout(interval));
+      //if (chainId === 56) stop = false
+    }
+    console.log("Final fetch count:", fetchCount);
+
+    console.log(promises)
+  await Promise.all(promises)
+  console.log("All promises settled")
+
+  if (fetchedStakePools.length === 0) {
+    setNoStakedPools(true);
+  }
+
+
+  if (setBgLoading) {
+    setBgLoading(
+      removeBgLoadingState(bgLoading, bgLoadingStates.allStakedPools)
+    );
+  }
+  if (setLoading) setLoading(false);
 }
 
 /**
  * Set local pool data storage.
- * 
- * @param allStakedPools 
- * @param chainId 
+ *
+ * @param allStakedPools
+ * @param chainId
  */
 
 export function setLocalPoolDataStorage(
@@ -151,10 +233,10 @@ export function setLocalPoolDataStorage(
 
 /**
  * Get local pool data storage.
- * 
- * @param accountId 
- * @param chainId 
- * @returns 
+ *
+ * @param accountId
+ * @param chainId
+ * @returns
  */
 export function getLocalPoolData(accountId: string, chainId: string | number) {
   const lowerCaseId = accountId.toLowerCase();
@@ -163,10 +245,10 @@ export function getLocalPoolData(accountId: string, chainId: string | number) {
 
 /**
  * Attempts to find pool data for given pool address from given local pool data. Sets proper states if data is found.
- * Sets allStakedPools state with given pool data regardless. 
- * 
- * @param param0 
- * @returns Boolean (Whether single local data was found and set.) 
+ * Sets allStakedPools state with given pool data regardless.
+ *
+ * @param param0
+ * @returns Boolean (Whether single local data was found and set.)
  */
 export function setPoolDataFromLocal({
   localStoragePoolData,
@@ -189,7 +271,7 @@ export function setPoolDataFromLocal({
   const found = poolData.find(
     (pool: { address: string }) => pool.address === poolAddress
   );
-  
+
   if (found) {
     setCurrentStakePool(found);
     setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.singlePool));

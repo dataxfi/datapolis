@@ -234,7 +234,7 @@ export const GlobalProvider = ({
         console.log("Pre chainID - ", _chainId);
         const config = new Config(web3, String(_chainId));
         setConfig(config);
-
+        console.log(config)
         const watcher = new Watcher(web3, String(_chainId));
         setWatcher(watcher);
 

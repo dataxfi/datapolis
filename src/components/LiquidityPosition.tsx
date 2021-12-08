@@ -19,6 +19,8 @@ const LiquidityPosition = () => {
     setAllStakedPools,
     bgLoading,
     setBgLoading,
+    config,
+    web3
   } = useContext(GlobalContext);
   const [noStakedPools, setNoStakedPools] = useState<boolean>(false);
 
@@ -36,6 +38,9 @@ const LiquidityPosition = () => {
         setLoading,
         bgLoading,
         setBgLoading,
+        config, 
+        web3,
+        allStakedPools
       });
     }
 
