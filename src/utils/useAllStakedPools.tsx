@@ -51,8 +51,8 @@ export async function getAllStakedPools({
       fromBlock,
       toBlock
     );
-    if (poolList.length === 0) return poolList;
-    console.log("Recieved response from allStakedPools (1)", poolList);
+    if (!poolList || poolList.length === 0) return poolList;
+    console.log("Recieved response from oceean.allStakedPools", poolList);
     const userPoolData: Promise<PoolData>[] = poolList.map(
       async ({
         shares,
@@ -87,8 +87,10 @@ export async function getAllStakedPools({
       }
     );
     return userPoolData;
-  } catch (error) {
+  } catch (error: any) {
+    console.log("Caught Error in call to ocean.getAllStakedPools")
     console.error(error);
+    throw new Error(error)
   }
 }
 
@@ -112,6 +114,7 @@ export default async function setPoolDataFromOcean({
   config,
   web3,
   allStakedPools,
+  setError,
 }: {
   accountId: string;
   ocean: any;
@@ -126,11 +129,12 @@ export default async function setPoolDataFromOcean({
   config: any;
   web3: Web3;
   allStakedPools: PoolData[];
+  setError?: Function;
 }) {
-  //recursively call getAllstake pools
+  //recursively call getAllstaked pools
   //continousouly update the state upon response
 
-  const firstBlock: number = config.default.startBlock || 0
+  const firstBlock: number = config.default.startBlock || 0;
   console.log("First block is:", firstBlock);
   let toBlock: number = await web3.eth.getBlockNumber();
   console.log("Latest block is:", toBlock);
@@ -140,56 +144,69 @@ export default async function setPoolDataFromOcean({
   let fetchedStakePools: PoolData[] = [];
   let interval: number;
   let blockRange: number;
-  let promises: any = []
+  let promises: any = [];
+
   switch (chainId) {
     case 56:
-      interval = 1250;
-      blockRange = 5000
+      interval = 1500;
+      blockRange = 5000;
       break;
     default:
       interval = 0;
-      blockRange = 10000
+      blockRange = 5000;
       break;
   }
 
-  let stop = true
+  let internalError = false;
 
   function timeout(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   if (firstBlock)
-    while (firstBlock < fromBlock && initalLocation === window.location.href && stop) {
+    while (
+      firstBlock < fromBlock &&
+      initalLocation === window.location.href &&
+      !internalError
+    ) {
       console.log(`Fetching from ${fromBlock} to ${toBlock}`);
-      promises.push(getAllStakedPools({ accountId, fromBlock, toBlock, ocean })
-        .then(async (res: any) => {
-          if (res.length === 0) return;
-          console.log("Recieve Response from getAllStakedPools:", res);
-          const settledArr: any = await Promise.allSettled(res);
-          const newData = settledArr.map(
-            (promise: PromiseSettledResult<PoolData>) => {
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
-              return promise.value;
+      promises.push(
+        getAllStakedPools({ accountId, fromBlock, toBlock, ocean })
+          .then(async (res: any) => {
+            if (!res || res.length === 0) return;
+            console.log(
+              "Recieve response from getAllStakedPools in dapp:",
+              res
+            );
+            const settledArr: any = await Promise.allSettled(res);
+            const newData = settledArr.map(
+              (promise: PromiseSettledResult<PoolData>) => {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                return promise.value;
+              }
+            );
+            if (newData.length > 0) {
+              fetchedStakePools = [...fetchedStakePools, ...newData];
+              console.log("Fetched stake pools:", fetchedStakePools);
+              setAllStakedPools(fetchedStakePools);
+              setLocalPoolDataStorage(fetchedStakePools, chainId);
             }
-          );
-          if (newData.length > 0) {
-            fetchedStakePools = [...fetchedStakePools, ...newData];
-            console.log("Fetched stake pools:", fetchedStakePools);
-            setAllStakedPools(fetchedStakePools);
-            setLocalPoolDataStorage(fetchedStakePools, chainId);
-            if (poolAddress && setCurrentStakePool) {
-              const pool = fetchedStakePools.find(
-                (pool: PoolData) => pool.address === poolAddress
-              );
-              setCurrentStakePool(pool);
-            }
-          }
-        })
-        .catch((e: any) => {
-          console.error(e);
-          return e;
-        }))
+          })
+          .catch((e: any) => {
+            console.log("Error Caught in call to getAllStakedPools in dapp: ")
+            console.error(e);
+            internalError = true;
+            if (setError)
+              setError({
+                message:
+                  "We could retireve your pool share information. Reach out on our discord for support!",
+                link: "https://discord.com/invite/b974xHrUGV",
+                type:"error"
+              });
+            //throw new Error(e);
+          })
+      );
       fromBlock = fromBlock - blockRange;
       toBlock = toBlock - blockRange;
       fetchCount++;
@@ -197,16 +214,22 @@ export default async function setPoolDataFromOcean({
       if (interval) await Promise.resolve(timeout(interval));
       //if (chainId === 56) stop = false
     }
-    console.log("Final fetch count:", fetchCount);
+  console.log("Final fetch count:", fetchCount);
 
-    console.log(promises)
-  await Promise.all(promises)
-  console.log("All promises settled")
+  console.log(promises);
+  await Promise.all(promises);
+  console.log("All promises settled");
 
-  if (fetchedStakePools.length === 0) {
+  if (!fetchedStakePools.length && !allStakedPools && !internalError) {
     setNoStakedPools(true);
   }
 
+  if (poolAddress && setCurrentStakePool) {
+    const pool = fetchedStakePools.find(
+      (pool: PoolData) => pool.address === poolAddress
+    );
+    setCurrentStakePool(pool);
+  }
 
   if (setBgLoading) {
     setBgLoading(
