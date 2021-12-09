@@ -11,7 +11,7 @@ import getTokenList from "../utils/useTokenList";
 import Button from "./Button";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
-import UserMessageModal from "./UserMessageModal";
+import UserMessageModal, { userMessage } from "./UserMessageModal";
 import { toFixed18, toFixed5 } from "../utils/equate";
 import setPoolDataFromOcean, {
   getLocalPoolData,
@@ -63,6 +63,7 @@ const RemoveAmount = () => {
   const [btnText, setBtnText] = useState("Approve and Withdrawal");
   const [poolAddress, setPoolAddress] = useState<string>();
   const [pendingUnstakeTx, setPendingUnstakeTx] = useState<number | string>();
+  const [userMessage, setUserMessage] = useState<userMessage | null>()
   const location = useLocation();
 
   useEffect(() => {
@@ -254,6 +255,12 @@ const RemoveAmount = () => {
           allStakedPools,
         });
       } else {
+        setPendingUnstakeTx(undefined);
+        setUserMessage({
+          message:"User rejected transaction signature.",
+          link: null,
+          type: "alert",
+        });
         setShowConfirmLoader(false);
         setShowTxDone(false);
         deleteRecentTxs({
@@ -266,7 +273,13 @@ const RemoveAmount = () => {
           setPendingTxs,
         });
       }
-    } catch (error) {
+    } catch (error:any) {
+      setPendingUnstakeTx(undefined);
+      setUserMessage({
+        message:error.message,
+        link: null,
+        type: "alert",
+      });
       console.error(error);
       setShowConfirmLoader(false);
       setShowTxDone(false);
@@ -522,6 +535,15 @@ const RemoveAmount = () => {
         txHash={recentTxHash}
         close={() => setShowTxDone(false)}
       />
+
+      {userMessage ? (
+        <UserMessageModal
+          message={userMessage}
+          pulse={false}
+          container={false}
+          timeout={{ showState: setUserMessage, time: 5000 }}
+        />
+      ) : null}
     </>
   ) : null;
 };

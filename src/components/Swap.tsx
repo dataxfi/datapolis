@@ -12,6 +12,7 @@ import { toFixed5 } from "../utils/equate";
 // import { program } from "@babel/types"
 // import { get } from "https"
 import { addTxHistory, deleteRecentTxs } from "../utils/useTxHistory";
+import UserMessageModal, { userMessage } from "../components/UserMessageModal";
 
 const text = {
   T_SWAP: "TradeX",
@@ -63,6 +64,8 @@ const Swap = () => {
     classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
     disabled: true,
   });
+
+  const [userMessage, setUserMessage] = useState<string | userMessage>("");
   const setToken = async (
     info: Record<any, any>,
     pos: number,
@@ -426,17 +429,17 @@ const Swap = () => {
           });
           txType = "DT to DT";
 
-          txReceipt = await ocean.swapExactDtToDt(
-            accountId,
-            token1.info.address,
-            token2.info.address,
-            token2.value.toString(),
-            token1.value.toString(),
-            token1.info.pool,
-            token2.info.pool,
-            config.default.routerAddress,
-            (Number(slippage) / 100).toString()
-          );
+            txReceipt = await ocean.swapExactDtToDt(
+              accountId,
+              token1.info.address,
+              token2.info.address,
+              token2.value.toString(),
+              token1.value.toString(),
+              token1.info.pool,
+              token2.info.pool,
+              config.default.routerAddress,
+              (Number(slippage) / 100).toString()
+            );
         }
       }
       if (txReceipt) {
@@ -472,8 +475,11 @@ const Swap = () => {
         console.log(txReceipt);
       } else {
         setShowConfirmModal(false);
-        console.log("User rejected transaction, or it failed in someway.");
-
+        setUserMessage({
+          message:"User rejected transaction signature.",
+          link: null,
+          type: "alert",
+        });
         deleteRecentTxs({
           txDateId,
           setTxHistory,
@@ -484,8 +490,12 @@ const Swap = () => {
           setPendingTxs,
         });
       }
-    } catch (error) {
-      console.log("User rejected transaction, or it failed in someway.");
+    } catch (error:any) {
+      setUserMessage({
+        message: error.message,
+        link: null,
+        type: "alert",
+      });
       deleteRecentTxs({
         txDateId,
         setTxHistory,
@@ -724,6 +734,14 @@ const Swap = () => {
         txHash={lastTxUrl}
         close={() => setShowTxDone(false)}
       />
+      {userMessage ? (
+        <UserMessageModal
+          message={userMessage}
+          pulse={false}
+          container={false}
+          timeout={{ showState: setUserMessage, time: 5000 }}
+        />
+      ) : null}
     </>
   );
 };

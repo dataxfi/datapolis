@@ -9,7 +9,7 @@ import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
 import { Link, useLocation, useHistory } from "react-router-dom";
 import getTokenList from "../utils/useTokenList";
-import UserMessageModal from "./UserMessageModal";
+import UserMessageModal, { userMessage } from "./UserMessageModal";
 import { toFixed5 } from "../utils/equate";
 import { addTxHistory, deleteRecentTxs } from "../utils/useTxHistory";
 
@@ -66,9 +66,7 @@ const Stake = () => {
   const [recentTxHash, setRecentTxHash] = useState("");
   //const [perc, setPerc] = useState("");
   const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
-  const [userMessage, setUserMessage] = useState<
-    { type: string; message: string } | false
-  >(false);
+  const [userMessage, setUserMessage] = useState<userMessage | false>(false);
   const location = useLocation();
   const history = useHistory();
 
@@ -120,7 +118,11 @@ const Stake = () => {
     const poolAddress = queryParams.get("pool");
 
     if (poolAddress && accountId) {
-      setUserMessage({ type: "alert", message: "preloading your token" });
+      setUserMessage({
+        type: "message",
+        message: "preloading your token",
+        link: null,
+      });
     }
 
     if (accountId && currentTokens) {
@@ -132,7 +134,11 @@ const Stake = () => {
           (token: { pool: string }) => token.pool === poolAddress
         );
         if (!currentToken) {
-          setUserMessage({ type: "error", message: "Couldnt preload token" });
+          setUserMessage({
+            type: "error",
+            message: "Couldnt preload token",
+            link: null,
+          });
           history.push("/stakeX");
         } else {
           updateToken(currentToken);
@@ -234,7 +240,7 @@ const Stake = () => {
           setShowSnackbar,
           setLastTxId,
           stakeAmt: oceanVal,
-          txReceipt
+          txReceipt,
         });
 
         //  if(showConfirmLoader){
@@ -245,29 +251,40 @@ const Stake = () => {
         );
         // }
       } else {
+        setUserMessage({
+          message: "User rejected transaction signature.",
+          link: null,
+          type: "alert",
+        });
+
         deleteRecentTxs({
           txDateId,
           setTxHistory,
           txHistory,
           accountId,
           chainId,
-          pendingTxs, 
-          setPendingTxs
+          pendingTxs,
+          setPendingTxs,
         });
         setShowTxDone(false);
         setLoadingStake(false);
         setShowConfirmLoader(false);
       }
       setLoadingStake(false);
-    } catch (error) {
+    } catch (error: any) {
+      setUserMessage({
+        message: error.message,
+        link: null,
+        type: "alert",
+      });
       deleteRecentTxs({
         txDateId,
         setTxHistory,
         txHistory,
         accountId,
         chainId,
-        pendingTxs, 
-        setPendingTxs
+        pendingTxs,
+        setPendingTxs,
       });
       console.error(error);
       setShowTxDone(false);
@@ -278,7 +295,7 @@ const Stake = () => {
 
   async function setMaxStake() {
     if (!token) return;
-    console.log(ocean)
+    console.log(ocean);
     const maxAmount = await ocean.getMaxStakeAmount(
       token.pool,
       ocean.config.default.oceanTokenAddress
@@ -289,14 +306,14 @@ const Stake = () => {
       if (Number(balance) < val) {
         setOceanVal(toFixed5(balance));
       } else {
-        setOceanVal(toFixed5((val - 1)));
+        setOceanVal(toFixed5(val - 1));
       }
     } else {
       //setPerc("");
       setOceanVal("");
     }
   }
-  
+
   // async function onPerc(val: any) {
   //   const perc = parseFloat(val);
   //   if (!Number.isNaN(val)) {
@@ -341,14 +358,14 @@ const Stake = () => {
           <div className="max-w-2xl lg:mx-auto bg-primary-900 w-full rounded-lg p-4 phm-box ">
             <div className="flex justify-between">
               <p className="text-xl">{text.T_STAKE}</p>
-              {userMessage !== false && userMessage.type === "error" ? (
+              {userMessage && userMessage.type === "error" ? (
                 <UserMessageModal
                   message={userMessage.message}
                   pulse={true}
                   container={false}
                   timeout={{ showState: setUserMessage, time: 5000 }}
                 />
-              ) : userMessage !== false ? (
+              ) : userMessage && userMessage.type === "message" ? (
                 <UserMessageModal
                   message={userMessage.message}
                   pulse={true}
@@ -523,6 +540,14 @@ const Stake = () => {
         close={() => setShowTxDone(false)}
       />
 
+      {userMessage && userMessage.type === "alert" ? (
+        <UserMessageModal
+          message={userMessage}
+          pulse={false}
+          container={false}
+          timeout={{ showState: setUserMessage, time: 5000 }}
+        />
+      ) : null}
       {/* <PositionBox />  */}
     </>
   );
