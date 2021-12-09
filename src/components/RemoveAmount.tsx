@@ -47,24 +47,38 @@ const RemoveAmount = () => {
     setLastTxId,
     loading,
     config,
+    showConfirmModal,
+    setShowConfirmModal,
+    showTxDone,
+    setShowTxDone,
   } = useContext(GlobalContext);
   const [noWallet, setNoWallet] = useState<boolean>(false);
   const [removePercent, setRemovePercent] = useState<string>("");
-  const [recieveAmounts, setRecieveAmounts] = useState<RecieveAmounts>({
-    dtAmount: "0",
-    oceanAmount: "0",
-  });
   const [removeAmount, setRemoveAmount] = useState<string>("0");
-  const [showConfirmLoader, setShowConfirmLoader] = useState(false);
-  const [showTxDone, setShowTxDone] = useState(false);
   const [recentTxHash, setRecentTxHash] = useState("");
   const [noStakedPools, setNoStakedPools] = useState<boolean>(false);
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
   const [btnText, setBtnText] = useState("Approve and Withdrawal");
   const [poolAddress, setPoolAddress] = useState<string>();
   const [pendingUnstakeTx, setPendingUnstakeTx] = useState<number | string>();
-  const [userMessage, setUserMessage] = useState<userMessage | null>()
+  const [userMessage, setUserMessage] = useState<userMessage | null>();
+  const [txReceipt, setTxReceipt] = useState<any | null>(null);
+  const [recieveAmounts, setRecieveAmounts] = useState<RecieveAmounts>({
+    dtAmount: "0",
+    oceanAmount: "0",
+  });
   const location = useLocation();
+
+  // custom hook??
+  useEffect(() => {
+    if (txReceipt) {
+      console.log("A succesful txReceipt has been set in Unstake\n", txReceipt);
+      if (showConfirmModal) {
+        setShowConfirmModal(false);
+        setShowTxDone(true);
+      }
+    }
+  }, [txReceipt]);
 
   useEffect(() => {
     console.log(bgLoading);
@@ -186,8 +200,8 @@ const RemoveAmount = () => {
 
   const handleWithdrawal = async () => {
     let txDateId;
+    setShowConfirmModal(true);
     try {
-      setShowConfirmLoader(true);
       console.log(`unstaking ${recieveAmounts.oceanAmount} ocean`);
 
       txDateId = addTxHistory({
@@ -214,6 +228,10 @@ const RemoveAmount = () => {
       );
 
       if (txReceipt) {
+        setRecentTxHash(
+          ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash
+        );
+
         setPendingUnstakeTx(undefined);
         addTxHistory({
           chainId,
@@ -233,11 +251,7 @@ const RemoveAmount = () => {
           stakeAmt: removeAmount,
           txReceipt,
         });
-        setRecentTxHash(
-          ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash
-        );
-        setShowConfirmLoader(false);
-        setShowTxDone(true);
+
         setBgLoading([...bgLoading, bgLoadingStates.allStakedPools]);
         console.log("current pool Address", poolAddress);
         setPoolDataFromOcean({
@@ -257,11 +271,11 @@ const RemoveAmount = () => {
       } else {
         setPendingUnstakeTx(undefined);
         setUserMessage({
-          message:"User rejected transaction signature.",
+          message: "User rejected transaction signature.",
           link: null,
           type: "alert",
         });
-        setShowConfirmLoader(false);
+        setShowConfirmModal(false);
         setShowTxDone(false);
         deleteRecentTxs({
           txDateId,
@@ -273,15 +287,15 @@ const RemoveAmount = () => {
           setPendingTxs,
         });
       }
-    } catch (error:any) {
+    } catch (error: any) {
+      console.error(error);
       setPendingUnstakeTx(undefined);
       setUserMessage({
-        message:error.message,
+        message: error.message,
         link: null,
         type: "alert",
       });
-      console.error(error);
-      setShowConfirmLoader(false);
+      setShowConfirmModal(false);
       setShowTxDone(false);
       deleteRecentTxs({
         txDateId,
@@ -491,7 +505,10 @@ const RemoveAmount = () => {
               {/* <div className="bg-gradient"></div> */}
               <Button
                 text={btnText}
-                onClick={handleWithdrawal}
+                onClick={() => {
+                  setShowConfirmModal(true);
+                  handleWithdrawal();
+                }}
                 classes={`px-4 py-4 rounded-lg w-full ${
                   btnDisabled
                     ? "bg-gray-800 text-gray-400 cursor-not-allowed"
@@ -513,8 +530,8 @@ const RemoveAmount = () => {
       </div>
 
       <ConfirmModal
-        show={showConfirmLoader}
-        close={() => setShowConfirmLoader(false)}
+        show={showConfirmModal}
+        close={() => setShowConfirmModal(false)}
         txs={
           currentStakePool
             ? [

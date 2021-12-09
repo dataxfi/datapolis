@@ -13,12 +13,24 @@ const Snackbar = () => {
     setShowSnackbar,
     lastTxId,
     ocean,
+    showConfirmModal,
+    showTxDone,
   } = useContext(GlobalContext);
   const [lastTx, setLastTx] = useState<TxObject | null>(null);
   const [url, setUrl] = useState<string>("");
   const [opacity, setOpacity] = useState<string>("0");
   // const [progress, setProgress] = useState<string>("100");
   const [tokenInfo, setTokenInfo] = useState<any>(null);
+
+  //store whether the txdone modal showed at anypoint
+  const [txDoneHasntShowed, setTxDoneHasntShowed] = useState<boolean>(true);
+
+  useEffect(() => {
+    console.log(showTxDone);
+    // this ensures that if the txDoneModal shows and is exited, the snackbar wont show after
+    if (showTxDone) setTxDoneHasntShowed(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showTxDone]);
 
   useEffect(() => {
     if (showSnackbar) {
@@ -28,10 +40,8 @@ const Snackbar = () => {
         txDateId: lastTxId,
         txHistory,
       });
-      console.log(fetchedTx);
       if (fetchedTx) {
         setLastTx(fetchedTx);
-
         switch (fetchedTx.txType) {
           case "Unstake Ocean":
           case "Stake Ocean":
@@ -41,7 +51,6 @@ const Snackbar = () => {
             });
             break;
           default:
-            console.log("FETCHEDTX", fetchedTx);
             setTokenInfo({
               token1: {
                 ...fetchedTx.token1.info,
@@ -62,12 +71,13 @@ const Snackbar = () => {
         if (newUrl) setUrl(newUrl);
       }
 
-      // progressBar()
-      easeInOut();
-      
+      //console.log(txDoneHasntShowed, !showConfirmModal, showSnackbar);
+      if (showSnackbar && !showConfirmModal && txDoneHasntShowed) {
+        easeInOut();
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lastTxId, showSnackbar]);
+  }, [lastTxId, showSnackbar, showConfirmModal]);
 
   function easeInOut() {
     setTimeout(() => {
@@ -80,6 +90,8 @@ const Snackbar = () => {
 
     setTimeout(() => {
       setShowSnackbar(false);
+      setTxDoneHasntShowed(true);
+      setLastTx(null)
     }, 8000);
   }
 
@@ -98,7 +110,7 @@ const Snackbar = () => {
   //   }, 75000);
   // }
 
-  if (!showSnackbar || !lastTx) return null;
+  if (!showSnackbar || !lastTx || showTxDone || showConfirmModal) return null;
   return (
     <div
       className={`max-w-xs fixed md:top-8 md:right-8 w-full mx-auto bg-primary-800 rounded-lg p-4 transition-opacity ease-in-out opacity-${opacity} duration-500`}
@@ -110,13 +122,22 @@ const Snackbar = () => {
             {/* <p className="text-type-100 text-sm">{lastTx.txType}</p> */}
             <p>
               {lastTx.txType.includes("Stake")
-                ? `Stake ${toFixed5(lastTx.stakeAmt)} OCEAN in ${tokenInfo.token1.symbol}/${tokenInfo.token2.symbol} pool`
+                ? `Stake ${toFixed5(lastTx.stakeAmt)} OCEAN in ${
+                    tokenInfo.token1.symbol
+                  }/${tokenInfo.token2.symbol} pool`
                 : lastTx.txType.includes("Unstake")
-                ? `Unstake ${toFixed5(lastTx.stakeAmt)} OCEAN from ${tokenInfo.token1.symbol}/${tokenInfo.token2.symbol} pool`
+                ? `Unstake ${toFixed5(lastTx.stakeAmt)} OCEAN from ${
+                    tokenInfo.token1.symbol
+                  }/${tokenInfo.token2.symbol} pool`
                 : `Trade ${tokenInfo.token1.value} ${tokenInfo.token1.symbol} for ${tokenInfo.token2.value} ${tokenInfo.token2.symbol}`}
             </p>
             <p className="text-type-300 text-sm">
-              <a target="_blank" rel="noreferrer" href={url} className="hover:text-green-400">
+              <a
+                target="_blank"
+                rel="noreferrer"
+                href={url}
+                className="hover:text-green-400"
+              >
                 View on explorer
               </a>
             </p>

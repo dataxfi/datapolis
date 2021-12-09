@@ -46,27 +46,30 @@ const Stake = () => {
     setPendingTxs,
     setShowSnackbar,
     setLastTxId,
+    showConfirmModal,
+    setShowConfirmModal,
+    showTxDone,
+    setShowTxDone,
   } = useContext(GlobalContext);
   const [token, setToken] = useState<any>(null);
   const [dtToOcean, setDtToOcean] = useState<any>(null);
   const [oceanToDt, setOceanToDt] = useState<any>(null);
   const [loadingRate, setLoadingRate] = useState(false);
   const [oceanVal, setOceanVal] = useState("");
+  const [txReceipt, setTxReceipt] = useState<any | null>(null);
+  const [balance, setBalance] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [loadingStake, setLoadingStake] = useState(false);
+  const [recentTxHash, setRecentTxHash] = useState("");
+  const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
+  const [userMessage, setUserMessage] = useState<userMessage | false>(false);
+  //const [perc, setPerc] = useState("");
   const [poolLiquidity, setPoolLiquidity] = useState<IPoolLiquidity | null>(
     null
   );
   const [yourLiquidity, setYourLiquidity] = useState<IPoolLiquidity | null>(
     null
   );
-  const [balance, setBalance] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [loadingStake, setLoadingStake] = useState(false);
-  const [showConfirmLoader, setShowConfirmLoader] = useState(false);
-  const [showTxDone, setShowTxDone] = useState(false);
-  const [recentTxHash, setRecentTxHash] = useState("");
-  //const [perc, setPerc] = useState("");
-  const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
-  const [userMessage, setUserMessage] = useState<userMessage | false>(false);
   const location = useLocation();
   const history = useHistory();
 
@@ -80,6 +83,17 @@ const Stake = () => {
       "https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY",
     tags: ["oceantoken"],
   };
+
+  // custom hook??
+  useEffect(() => {
+    if (txReceipt) {
+      console.log("A succesful txReceipt has been set in StakeX\n", txReceipt);
+      if (showConfirmModal) {
+        setShowConfirmModal(false);
+        setShowTxDone(true);
+      }
+    }
+  }, [txReceipt]);
 
   useEffect(() => {
     getTokenList({
@@ -204,7 +218,6 @@ const Stake = () => {
 
     try {
       setLoadingStake(true);
-      setShowConfirmLoader(true);
       txDateId = addTxHistory({
         chainId,
         setTxHistory,
@@ -224,6 +237,7 @@ const Stake = () => {
       const txReceipt = await ocean.stakeOcean(accountId, token.pool, oceanVal);
 
       if (txReceipt) {
+        setTxReceipt(txReceipt);
         addTxHistory({
           chainId,
           setTxHistory,
@@ -242,14 +256,9 @@ const Stake = () => {
           stakeAmt: oceanVal,
           txReceipt,
         });
-
-        //  if(showConfirmLoader){
-        setShowConfirmLoader(false);
-        setShowTxDone(true);
         setRecentTxHash(
           ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash
         );
-        // }
       } else {
         setUserMessage({
           message: "User rejected transaction signature.",
@@ -266,9 +275,7 @@ const Stake = () => {
           pendingTxs,
           setPendingTxs,
         });
-        setShowTxDone(false);
         setLoadingStake(false);
-        setShowConfirmLoader(false);
       }
       setLoadingStake(false);
     } catch (error: any) {
@@ -287,9 +294,7 @@ const Stake = () => {
         setPendingTxs,
       });
       console.error(error);
-      setShowTxDone(false);
       setLoadingStake(false);
-      setShowConfirmLoader(false);
     }
   }
 
@@ -505,7 +510,13 @@ const Stake = () => {
             <Button
               text={btnProps.text}
               onClick={() => {
-                btnProps.text === "Connect wallet" ? handleConnect() : stakeX();
+                if (btnProps.text === "Connect wallet") {
+                  handleConnect();
+                }
+                {
+                  setShowConfirmModal(true);
+                  stakeX();
+                }
               }}
               classes={"px-4 py-4 rounded-lg w-full mt-4 " + btnProps.classes}
               disabled={btnProps.disabled}
@@ -523,8 +534,8 @@ const Stake = () => {
       </div>
 
       <ConfirmModal
-        show={showConfirmLoader}
-        close={() => setShowConfirmLoader(false)}
+        show={showConfirmModal}
+        close={() => setShowConfirmModal(false)}
         txs={
           token
             ? [

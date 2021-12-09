@@ -47,25 +47,39 @@ const Swap = () => {
     setShowSnackbar,
     pendingTxs,
     setPendingTxs,
+    showConfirmModal,
+    setShowConfirmModal,
+    showTxDone,
+    setShowTxDone,
   } = useContext(GlobalContext);
   const [showSettings, setShowSettings] = useState(false);
   const [showConfirmSwapModal, setShowConfirmSwapModal] = useState(false);
   const [network, setNetwork] = useState(null);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [showTxDone, setShowTxDone] = useState(false);
   const [lastTxUrl, setLastTxUrl] = useState("");
+  const [txReceipt, setTxReceipt] = useState<any | null>(null);
   const [token1, setToken1] = useState<any>(INITIAL_TOKEN_STATE);
   const [token2, setToken2] = useState<any>(INITIAL_TOKEN_STATE);
   const [exactToken, setExactToken] = useState<number>(1);
   const [postExchange, setPostExchange] = useState<any>(null);
   const [slippage, setSlippage] = useState<number | string>(1);
+  const [userMessage, setUserMessage] = useState<string | userMessage>("");
   const [btnProps, setBtnProps] = useState<IBtnProps>({
     text: "Select Tokens",
     classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
     disabled: true,
   });
 
-  const [userMessage, setUserMessage] = useState<string | userMessage>("");
+  // custom hook??
+  useEffect(() => {
+    if (txReceipt) {
+      console.log("A succesful txReceipt has been set in TradeX\n", txReceipt);
+      if (showConfirmModal) {
+        setShowConfirmModal(false);
+        setShowTxDone(true);
+      }
+    }
+  }, [txReceipt]);
+
   const setToken = async (
     info: Record<any, any>,
     pos: number,
@@ -227,8 +241,6 @@ const Swap = () => {
     let txReceipt = null;
     let txType;
     let txDateId = null;
-    setShowConfirmSwapModal(false);
-    setShowConfirmModal(true);
     try {
       if (isOCEAN(token1.info.address)) {
         if (exactToken === 1) {
@@ -255,7 +267,6 @@ const Swap = () => {
           });
 
           txType = "Ocean to DT";
-
           txReceipt = await ocean.swapExactOceanToDt(
             accountId,
             token2.info.pool.toString(),
@@ -287,7 +298,6 @@ const Swap = () => {
           });
 
           txType = "Ocean to DT";
-
           txReceipt = await ocean.swapExactOceanToDt(
             accountId,
             token2.info.pool,
@@ -299,7 +309,6 @@ const Swap = () => {
       } else if (isOCEAN(token2.info.address)) {
         if (exactToken === 1) {
           console.log("exact dt to ocean");
-
           txDateId = addTxHistory({
             chainId,
             setTxHistory,
@@ -315,7 +324,6 @@ const Swap = () => {
             setLastTxId,
           });
           txType = "DT to Ocean";
-
           txReceipt = await ocean.swapExactDtToOcean(
             accountId,
             token1.info.pool,
@@ -332,7 +340,6 @@ const Swap = () => {
             token2.value.toString(),
             token1.value.toString()
           );
-
           txDateId = addTxHistory({
             chainId,
             setTxHistory,
@@ -348,7 +355,6 @@ const Swap = () => {
             setLastTxId,
           });
           txType = "DT to Ocean";
-
           txReceipt = await ocean.swapExactDtToOcean(
             accountId,
             token1.info.pool,
@@ -387,7 +393,6 @@ const Swap = () => {
             setLastTxId,
           });
           txType = "DT to DT";
-
           txReceipt = await ocean.swapExactDtToDt(
             accountId,
             token1.info.address,
@@ -429,28 +434,24 @@ const Swap = () => {
           });
           txType = "DT to DT";
 
-            txReceipt = await ocean.swapExactDtToDt(
-              accountId,
-              token1.info.address,
-              token2.info.address,
-              token2.value.toString(),
-              token1.value.toString(),
-              token1.info.pool,
-              token2.info.pool,
-              config.default.routerAddress,
-              (Number(slippage) / 100).toString()
-            );
+          txReceipt = await ocean.swapExactDtToDt(
+            accountId,
+            token1.info.address,
+            token2.info.address,
+            token2.value.toString(),
+            token1.value.toString(),
+            token1.info.pool,
+            token2.info.pool,
+            config.default.routerAddress,
+            (Number(slippage) / 100).toString()
+          );
         }
       }
       if (txReceipt) {
-        //if (showConfirmModal && txReceipt) {
-        setShowConfirmModal(false);
-        setShowTxDone(true);
+        setTxReceipt(txReceipt);
         setLastTxUrl(
           config.default.explorerUri + "/tx/" + txReceipt.transactionHash
         );
-        //}
-
         addTxHistory({
           chainId,
           setTxHistory,
@@ -472,11 +473,10 @@ const Swap = () => {
         setToken1(INITIAL_TOKEN_STATE);
         setToken2(INITIAL_TOKEN_STATE);
         setPostExchange(null);
-        console.log(txReceipt);
       } else {
         setShowConfirmModal(false);
         setUserMessage({
-          message:"User rejected transaction signature.",
+          message: "User rejected transaction signature.",
           link: null,
           type: "alert",
         });
@@ -490,7 +490,9 @@ const Swap = () => {
           setPendingTxs,
         });
       }
-    } catch (error:any) {
+    } catch (error: any) {
+      setShowConfirmModal(false);
+      console.log(error);
       setUserMessage({
         message: error.message,
         link: null,
@@ -505,8 +507,6 @@ const Swap = () => {
         pendingTxs,
         setPendingTxs,
       });
-      setShowConfirmModal(false);
-      console.log(error);
     }
   }
 
@@ -717,7 +717,11 @@ const Swap = () => {
 
       <ConfirmSwapModal
         close={() => setShowConfirmSwapModal(false)}
-        confirm={() => makeTheSwap()}
+        confirm={() => {
+          makeTheSwap();
+          setShowConfirmSwapModal(false);
+          setShowConfirmModal(true);
+        }}
         show={showConfirmSwapModal}
         token1={token1}
         token2={token2}

@@ -15,8 +15,8 @@ function TxHistoryModal() {
     pendingTxs,
     txHistory,
     setTxHistory,
-    showPendingTxsModal,
-    setShowPendingTxsModal,
+    showTxHistoryModal,
+    setShowTxHistoryModal,
     chainId,
     accountId,
     ocean,
@@ -24,6 +24,10 @@ function TxHistoryModal() {
     web3,
     setPendingTxs,
     lastTxId,
+    setShowConfirmModal,
+    setShowTxDone,
+    showTxDone,
+    showConfirmModal,
   } = useContext(GlobalContext);
 
   const [page, setPage] = useState([0, 5]);
@@ -32,7 +36,14 @@ function TxHistoryModal() {
   const [noTxHistory, setNoTxHistory] = useState<boolean>(false);
 
   useEffect(() => {
-    if (showPendingTxsModal && watcher && txSelection && web3) {
+    if (showTxHistoryModal) {
+      if (showConfirmModal) setShowConfirmModal(false);
+      if (showTxDone) setShowTxDone(false);
+    }
+  }, [showConfirmModal, showTxDone, showTxHistoryModal]);
+
+  useEffect(() => {
+    if (showTxHistoryModal && watcher && txSelection && web3) {
       // watchTx(txSelection[0])
       txSelection.forEach((tx) => {
         watchTx({
@@ -114,13 +125,13 @@ function TxHistoryModal() {
     return `${page[0] + 1} - ${page[1]}`;
   }
 
-  return showPendingTxsModal ? (
+  return showTxHistoryModal ? (
     <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 sm:max-w-sm w-full z-20 shadow">
       <div className="bg-primary-900 border rounded-lg p-4 hm-box mx-3">
         <div className="flex justify-between mb-2">
           <h3>Recent Transactions</h3>
           <BsX
-            onClick={() => setShowPendingTxsModal(false)}
+            onClick={() => setShowTxHistoryModal(false)}
             size={28}
             className="text-type-200"
             role="button"

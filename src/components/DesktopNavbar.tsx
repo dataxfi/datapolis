@@ -24,11 +24,12 @@ const DesktopNavbar = ({
     accountId,
     buttonText,
     pendingTxs,
-    setShowPendingTxsModal,
+    setShowTxHistoryModal,
   } = useContext(GlobalContext);
 
   function handleModalOrConnect() {
-    accountId ? setShowPendingTxsModal(true) : handleConnect();
+    accountId ? setShowTxHistoryModal(true) : handleConnect();
+    
   }
 
   return (
@@ -48,7 +49,7 @@ const DesktopNavbar = ({
         })}
       </div>
       <div className="grid grid-flow-col gap-4 items-center">
-       <PendingTxsIndicator/>
+        <PendingTxsIndicator />
         <div className="hidden md:block capitalize border border-type-500 text-type-200 rounded-md px-4 py-1 hm-box ">
           <h3>{network}</h3>
         </div>

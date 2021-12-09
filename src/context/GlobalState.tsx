@@ -84,9 +84,19 @@ export const GlobalProvider = ({
 
   //array of pending transaction Ids
   const [pendingTxs, setPendingTxs] = useState<number[]>([]);
+
+  //Transaction and tx modal states
   const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
-  const [showPendingTxsModal, setShowPendingTxsModal] =
+  const [showTxHistoryModal, setShowTxHistoryModal] =
     useState<boolean>(false);
+  //all transaction history
+  const [txHistory, setTxHistory] = useState<TxHistory | null>(null);
+  //very last transaction
+  const [lastTxId, setLastTxId] = useState<string | number | null>(null);
+
+  // (user)confirmModal and txDone state for specific transactions
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showTxDone, setShowTxDone] = useState(false);
 
   //all stake pool information for the current user
   const [allStakedPools, setAllStakedPools] = useState<PoolData[] | null>(null);
@@ -98,13 +108,11 @@ export const GlobalProvider = ({
   const [currentTokens, setCurrentTokens] = useState<[] | null>(null);
   //response from token fetch operation
   const [tokenResponse, setTokenResponse] = useState<{} | null | undefined>();
-  //all transaction history
-  const [txHistory, setTxHistory] = useState<TxHistory | null>(null);
-  //very last transaction
-  const [lastTxId, setLastTxId] = useState<string | number | null>(null);
   const [buttonText, setButtonText] = useState<string | undefined>(
     CONNECT_TEXT
   );
+
+
 
   // remove all pending signatures to instantiate disclaimer flow upon user reconnection
   useEffect(() => {
@@ -389,10 +397,14 @@ export const GlobalProvider = ({
         setShowSnackbar,
         pendingTxs,
         setPendingTxs,
-        showPendingTxsModal,
-        setShowPendingTxsModal,
+        showTxHistoryModal,
+        setShowTxHistoryModal,
         watcher,
         setWatcher,
+        showConfirmModal, 
+        setShowConfirmModal, 
+        showTxDone,
+        setShowTxDone, 
       }}
     >
       {children}
