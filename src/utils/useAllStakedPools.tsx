@@ -225,6 +225,7 @@ export default async function setPoolDataFromOcean({
   }
 
   if (poolAddress && setCurrentStakePool) {
+    console.log("Current pool and setCurrentStakePool function found, setting currentStakePool", poolAddress, setCurrentStakePool);
     const pool = fetchedStakePools.find(
       (pool: PoolData) => pool.address === poolAddress
     );

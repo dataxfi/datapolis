@@ -61,21 +61,26 @@ const RemoveAmount = () => {
   const [noStakedPools, setNoStakedPools] = useState<boolean>(false);
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
   const [btnText, setBtnText] = useState("Approve and Withdrawal");
+  const [poolAddress, setPoolAddress] = useState<string>();
+  const [pendingUnstakeTx, setPendingUnstakeTx] = useState<number | string>();
   const location = useLocation();
 
   useEffect(() => {
     console.log(bgLoading);
-    /*if (bgLoading.includes("stake")) {
+    if (bgLoading.includes("stake")) {
       setBtnDisabled(true);
       setBtnText("Loading your liquidity information.");
-    } else*/ if (Number(removeAmount) == 0) {
+    } else if (pendingUnstakeTx) {
+      setBtnDisabled(true);
+      setBtnText("Awaiting transaction for current pool.");
+    } else if (Number(removeAmount) == 0) {
       setBtnDisabled(true);
       setBtnText("Approve and Withdrawal");
     } else {
       setBtnDisabled(false);
       setBtnText("Approve and Withdrawal");
     }
-  }, [bgLoading.length, removeAmount]);
+  }, [bgLoading.length, removeAmount, pendingUnstakeTx]);
 
   useEffect(() => {
     const otherToken = "OCEAN";
@@ -89,15 +94,18 @@ const RemoveAmount = () => {
 
     setBgLoading([...bgLoading, "pool"]);
     const queryParams = new URLSearchParams(location.search);
-    const poolAddress = queryParams.get("pool");
+    const poolAddressParam = queryParams.get("pool");
+
+    if (poolAddressParam) setPoolAddress(poolAddressParam);
+
     let foundInLocal;
 
     if (accountId) {
       const localStoragePoolData = getLocalPoolData(accountId, chainId);
-      if (localStoragePoolData && poolAddress) {
+      if (localStoragePoolData && poolAddressParam) {
         foundInLocal = setPoolDataFromLocal({
           localStoragePoolData,
-          poolAddress,
+          poolAddress: poolAddressParam,
           setAllStakedPools,
           setCurrentStakePool,
           setBgLoading,
@@ -117,7 +125,7 @@ const RemoveAmount = () => {
         accountId,
         chainId,
         ocean,
-        poolAddress,
+        poolAddress: poolAddressParam,
         setAllStakedPools,
         setCurrentStakePool,
         setNoStakedPools,
@@ -131,7 +139,7 @@ const RemoveAmount = () => {
       if (allStakedPools) {
         setCurrentStakePool(
           allStakedPools.find(
-            (pool: { address: string }) => pool.address === poolAddress
+            (pool: { address: string }) => pool.address === poolAddressParam
           )
         );
       }
@@ -196,7 +204,7 @@ const RemoveAmount = () => {
         setLastTxId,
         stakeAmt: removeAmount,
       });
-
+      setPendingUnstakeTx(txDateId);
       const txReceipt = await ocean.unstakeOcean(
         accountId,
         currentStakePool.address,
@@ -205,6 +213,7 @@ const RemoveAmount = () => {
       );
 
       if (txReceipt) {
+        setPendingUnstakeTx(undefined);
         addTxHistory({
           chainId,
           setTxHistory,
@@ -229,12 +238,14 @@ const RemoveAmount = () => {
         setShowConfirmLoader(false);
         setShowTxDone(true);
         setBgLoading([...bgLoading, bgLoadingStates.allStakedPools]);
+        console.log("current pool Address", poolAddress);
         setPoolDataFromOcean({
           accountId,
           ocean,
           chainId,
           setBgLoading,
           bgLoading,
+          poolAddress,
           setNoStakedPools,
           setAllStakedPools,
           setCurrentStakePool,
@@ -378,7 +389,11 @@ const RemoveAmount = () => {
               <div className="col-span-3 flex justify-between mt-3 md:mt-0 bg-primary-900 rounded-lg p-2">
                 <div className="flex w-full items-center">
                   {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
-                  <span className={`text-2xl ${removeAmount? "text-primary-400":null}`}>
+                  <span
+                    className={`text-2xl ${
+                      removeAmount ? "text-primary-400" : null
+                    }`}
+                  >
                     <input
                       step="1"
                       onChange={(e) => updateNum(e.target.value)}
