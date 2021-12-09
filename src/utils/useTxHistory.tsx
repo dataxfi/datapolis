@@ -78,22 +78,6 @@ export function addTxHistory({
     }
     if (!txHash) txHash = null;
 
-    switch (status) {
-      case "Success":
-        break;
-      case "pending":
-        break;
-      case "indexing":
-        const newPendingTxs = pendingTxs.map((tx) => tx !== txDateId);
-        setPendingTxs(newPendingTxs);
-        if (setShowSnackbar) setShowSnackbar(true);
-        break;
-      default:
-        status = "pending approval";
-        setPendingTxs([...pendingTxs, txDateId]);
-        break;
-    }
-
     let existingTx = localTxHistory[txDateId];
     let newTx = {
       ...existingTx,
@@ -116,6 +100,22 @@ export function addTxHistory({
 
     setTxHistory(newTxHistory);
     setLocalTxHistory({ txHistory: newTxHistory, accountId, chainId });
+
+    switch (status) {
+      case "Success":
+        break;
+      case "pending":
+        break;
+      case "indexing":
+        const newPendingTxs = pendingTxs.map((tx) => tx !== txDateId);
+        setPendingTxs(newPendingTxs);
+        if (setShowSnackbar) setShowSnackbar(true);
+        break;
+      default:
+        status = "pending approval";
+        setPendingTxs([...pendingTxs, txDateId]);
+        break;
+    }
     return txDateId;
   } catch (error) {
     console.error(error);

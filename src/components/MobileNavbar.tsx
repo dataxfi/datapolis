@@ -35,7 +35,7 @@ const MobileNavbar = ({
 
   useEffect(() => {
     setWalletBtnVis(true);
-            // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId]);
 
   return (
@@ -45,27 +45,28 @@ const MobileNavbar = ({
           <Logo className="logo" style={{ height: "40px" }} />
         </div>
         <div className="flex">
-          <PendingTxsIndicator /> 
-          <div className="pl-5">{menuVisible ? (
-            <button>
-              <MdClose
-                onClick={() => toggleMenu(false)}
-                color="#ccc"
-                size="28"
-                className="z-20"
-              />
-            </button>
-          ) : (
-            <button>
-              <MdMenu
-                onClick={() => toggleMenu(true)}
-                className="z-20"
-                color="#ccc"
-                size="28"
-              />{" "}
-            </button>
-          )}</div>
-          
+          <PendingTxsIndicator />
+          <div className="pl-5">
+            {menuVisible ? (
+              <button>
+                <MdClose
+                  onClick={() => toggleMenu(false)}
+                  color="#ccc"
+                  size="28"
+                  className="z-20"
+                />
+              </button>
+            ) : (
+              <button>
+                <MdMenu
+                  onClick={() => toggleMenu(true)}
+                  className="z-20"
+                  color="#ccc"
+                  size="28"
+                />{" "}
+              </button>
+            )}
+          </div>
         </div>
       </div>
       <div
@@ -75,15 +76,15 @@ const MobileNavbar = ({
       >
         {links.map((link, idx) => {
           return (
-            <div key={idx} className="py-1.5 px-8 hover:bg-primary-600">
-              <Link
-                onClick={() => toggleMenu(false)}
-                to={link.link}
-                className="hm-link product"
-              >
+            <Link
+              onClick={() => toggleMenu(false)}
+              to={link.link}
+              className="hm-link product"
+            >
+              <div key={idx} className="py-1.5 px-8 hover:bg-primary-600">
                 {link.name}
-              </Link>
-            </div>
+              </div>
+            </Link>
           );
         })}
       </div>
@@ -95,7 +96,11 @@ const MobileNavbar = ({
       >
         <div className="flex flex-row w-full justify-between px-3">
           <div className="flex flex-row justify-center align-middle  w-full ">
-            <div className = {`flex flex-row bg-primary-900 ${accountId? "pl-2": ""}  pr-1 py-1 rounded-lg`}>
+            <div
+              className={`flex flex-row bg-primary-900 ${
+                accountId ? "pl-2" : ""
+              }  pr-1 py-1 rounded-lg`}
+            >
               {" "}
               <p className="text-xs self-center rounded-l-lg  mr-2 ">
                 {accountId ? `${network}` : null}
@@ -103,7 +108,9 @@ const MobileNavbar = ({
               <Button
                 text={`${accountId ? `${truncateId()}` : "Connect wallet"}`}
                 onClick={() => handleConnect()}
-                classes={`hm-btn text-xs  ${accountId? "px-1": ""}py-1 bg-black`}
+                classes={`hm-btn text-xs  ${
+                  accountId ? "px-1" : ""
+                }py-1 bg-black`}
               />
             </div>
           </div>

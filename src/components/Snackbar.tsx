@@ -116,7 +116,7 @@ const Snackbar = () => {
                 : `Trade ${tokenInfo.token1.value} ${tokenInfo.token1.symbol} for ${tokenInfo.token2.value} ${tokenInfo.token2.symbol}`}
             </p>
             <p className="text-type-300 text-sm">
-              <a target="_blank" rel="noreferrer" href={url} className="hover:text-white">
+              <a target="_blank" rel="noreferrer" href={url} className="hover:text-green-400">
                 View on explorer
               </a>
             </p>
