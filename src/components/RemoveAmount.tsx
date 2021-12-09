@@ -46,7 +46,7 @@ const RemoveAmount = () => {
     setShowSnackbar,
     setLastTxId,
     loading,
-    config
+    config,
   } = useContext(GlobalContext);
   const [noWallet, setNoWallet] = useState<boolean>(false);
   const [removePercent, setRemovePercent] = useState<string>("");
@@ -63,18 +63,14 @@ const RemoveAmount = () => {
   const [btnText, setBtnText] = useState("Approve and Withdrawal");
   const location = useLocation();
 
-  // useEffect(()=>{
-  //   console.log("Shares updated",currentStakePool.shares);
-  // }, currentStakePool.shares)
-
   useEffect(() => {
     console.log(bgLoading);
     /*if (bgLoading.includes("stake")) {
       setBtnDisabled(true);
       setBtnText("Loading your liquidity information.");
     } else*/ if (Number(removeAmount) == 0) {
-      setBtnDisabled(true)
-      setBtnText("Approve and Withdrawal")
+      setBtnDisabled(true);
+      setBtnText("Approve and Withdrawal");
     } else {
       setBtnDisabled(false);
       setBtnText("Approve and Withdrawal");
@@ -129,7 +125,7 @@ const RemoveAmount = () => {
         setLoading,
         config,
         web3,
-        allStakedPools
+        allStakedPools,
       });
 
       if (allStakedPools) {
@@ -148,7 +144,7 @@ const RemoveAmount = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId, chainId, removeAmount]);
 
-  const updateNum = (val: string) => {
+  const updateNum = (val: any) => {
     const numberAmt = Number(val);
     if (numberAmt <= 100) {
       let b = val;
@@ -180,12 +176,12 @@ const RemoveAmount = () => {
   };
 
   const handleWithdrawal = async () => {
-    let txDateId 
+    let txDateId;
     try {
       setShowConfirmLoader(true);
       console.log(`unstaking ${recieveAmounts.oceanAmount} ocean`);
 
-     txDateId = addTxHistory({
+      txDateId = addTxHistory({
         chainId,
         setTxHistory,
         txHistory,
@@ -244,7 +240,7 @@ const RemoveAmount = () => {
           setCurrentStakePool,
           config,
           web3,
-          allStakedPools
+          allStakedPools,
         });
       } else {
         setShowConfirmLoader(false);
@@ -382,20 +378,22 @@ const RemoveAmount = () => {
               <div className="col-span-3 flex justify-between mt-3 md:mt-0 bg-primary-900 rounded-lg p-2">
                 <div className="flex w-full items-center">
                   {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
-                  <input
-                    step="1"
-                    onChange={(e) => updateNum(e.target.value)}
-                    onWheel={(event) => event.currentTarget.blur()}
-                    onKeyDown={(evt) =>
-                      ["e", "E", "+", "-"].includes(evt.key) &&
-                      evt.preventDefault()
-                    }
-                    type="number"
-                    className="h-full w-14 rounded-lg bg-primary-900 text-2xl px-2 outline-none focus:placeholder-type-200 placeholder-type-400 text-left"
-                    placeholder="0.0"
-                    value={removePercent}
-                  />
-                  <p className="text-type-300 text-2xl">%</p>
+                  <span className={`text-2xl ${removeAmount? "text-primary-400":null}`}>
+                    <input
+                      step="1"
+                      onChange={(e) => updateNum(e.target.value)}
+                      onWheel={(event) => event.currentTarget.blur()}
+                      onKeyDown={(evt) =>
+                        ["e", "E", "+", "-"].includes(evt.key) &&
+                        evt.preventDefault()
+                      }
+                      type="number"
+                      className="h-full w-20 rounded-lg bg-primary-900 text-2xl px-2 outline-none focus:placeholder-type-200 placeholder-type-400 text-right"
+                      placeholder="0.00"
+                      value={removePercent}
+                    />
+                    %
+                  </span>
                 </div>
                 <div>
                   {currentStakePool.shares ? (
@@ -492,7 +490,9 @@ const RemoveAmount = () => {
         txs={
           currentStakePool
             ? [
-              `Approve StakeX to deposit ${toFixed5(recieveAmounts.oceanAmount)} OCEAN`,
+                `Approve StakeX to deposit ${toFixed5(
+                  recieveAmounts.oceanAmount
+                )} OCEAN`,
                 `Approve DataX to unstake ${toFixed5(
                   recieveAmounts.oceanAmount
                 )} OCEAN from the ${
