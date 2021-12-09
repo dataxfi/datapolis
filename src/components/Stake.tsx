@@ -278,7 +278,8 @@ const Stake = () => {
 
   async function setMaxStake() {
     if (!token) return;
-    const maxAmount = await ocean.getMaxAddLiquidity(
+    console.log(ocean)
+    const maxAmount = await ocean.getMaxStakeAmount(
       token.pool,
       ocean.config.default.oceanTokenAddress
     );
