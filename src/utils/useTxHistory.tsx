@@ -67,7 +67,7 @@ export function addTxHistory({
   setPendingTxs: Function;
   setShowSnackbar?: Function;
   setLastTxId?: Function;
-  stakeAmt?: string;
+  stakeAmt?: string | number;
 }) {
   try {
     let localTxHistory = getLocalTxHistory({ chainId, accountId });

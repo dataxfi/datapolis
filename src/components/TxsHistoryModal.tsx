@@ -61,7 +61,7 @@ function TxHistoryModal() {
   }, [txSelection, watcher, txHistory, web3]);
 
   function parseHistory(history: TxHistory) {
-    if (!history) return;
+    if (!history || !showTxHistoryModal) return;
     const txsByDate = [];
     for (let [txDateId, tx] of Object.entries(history)) {
       let txLink = getTxUrl({

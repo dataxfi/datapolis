@@ -12,18 +12,18 @@ import Button from "./Button";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
 import UserMessageModal, { userMessage } from "./UserMessageModal";
-import { toFixed18, toFixed5 } from "../utils/equate";
+import {
+  toFixed18,
+  toFixed2,
+  toFixed5,
+  limitDecimalsInInput,
+} from "../utils/equate";
 import setPoolDataFromOcean, {
   getLocalPoolData,
   setPoolDataFromLocal,
 } from "../utils/useAllStakedPools";
 import { PulseLoader } from "react-spinners";
 import { addTxHistory, deleteRecentTxs } from "../utils/useTxHistory";
-
-interface RecieveAmounts {
-  dtAmount: string | number;
-  oceanAmount: string | number;
-}
 
 const RemoveAmount = () => {
   const {
@@ -53,8 +53,6 @@ const RemoveAmount = () => {
     setShowTxDone,
   } = useContext(GlobalContext);
   const [noWallet, setNoWallet] = useState<boolean>(false);
-  const [removePercent, setRemovePercent] = useState<string>("");
-  const [removeAmount, setRemoveAmount] = useState<string>("0");
   const [recentTxHash, setRecentTxHash] = useState("");
   const [noStakedPools, setNoStakedPools] = useState<boolean>(false);
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
@@ -63,11 +61,47 @@ const RemoveAmount = () => {
   const [pendingUnstakeTx, setPendingUnstakeTx] = useState<number | string>();
   const [userMessage, setUserMessage] = useState<userMessage | null>();
   const [txReceipt, setTxReceipt] = useState<any | null>(null);
-  const [recieveAmounts, setRecieveAmounts] = useState<RecieveAmounts>({
-    dtAmount: "0",
-    oceanAmount: "0",
-  });
+
+  //Percent of shares from input field
+  const [sharesPercToRemove, setSharesPercToRemove] = useState<string | number>(
+    ""
+  );
+  //Remove amount in shares
+  const [sharesToRemove, setSharesToRemove] = useState<number>(0);
+  //Amount to be recieved from remove amount (this might not be neccessary)
+  const [oceanToReceive, setOceanToReceive] = useState<number>(0);
+  //Max possible amount of OCEAN to remove
+  const [maxOceanRemove, setMaxOceanRemove] = useState<{
+    OCEAN: number;
+    shares: number;
+  }>({ OCEAN: 0, shares: 0 });
+
   const location = useLocation();
+
+  async function getMaxOceanUnstake() {
+    const oceanAmt = await ocean.getMaxUnstakeAmount(
+      currentStakePool.address,
+      ocean.config.default.oceanTokenAddress
+    );
+
+    const shareAmt = await ocean.getPoolSharesRequiredToUnstake(
+      currentStakePool.address,
+      ocean.config.default.oceanTokenAddress,
+      oceanAmt
+    );
+    return { OCEAN: Number(oceanAmt), shares: shareAmt };
+  }
+
+  useEffect(() => {
+    if (ocean && currentStakePool) {
+      getMaxOceanUnstake()
+        .then((res: any) => {
+          setMaxOceanRemove(res);
+          console.log("Max unstake amount set at:", res);
+        })
+        .catch(console.log);
+    }
+  }, [ocean, currentStakePool]);
 
   // custom hook??
   useEffect(() => {
@@ -88,14 +122,14 @@ const RemoveAmount = () => {
     } else if (pendingUnstakeTx) {
       setBtnDisabled(true);
       setBtnText("Awaiting transaction for current pool.");
-    } else if (Number(removeAmount) == 0) {
+    } else if (Number(sharesToRemove) == 0) {
       setBtnDisabled(true);
       setBtnText("Approve and Withdrawal");
     } else {
       setBtnDisabled(false);
       setBtnText("Approve and Withdrawal");
     }
-  }, [bgLoading.length, removeAmount, pendingUnstakeTx]);
+  }, [bgLoading.length, sharesToRemove, pendingUnstakeTx]);
 
   useEffect(() => {
     const otherToken = "OCEAN";
@@ -165,44 +199,90 @@ const RemoveAmount = () => {
   useEffect(() => {
     accountId ? setNoWallet(false) : setNoWallet(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountId, chainId, removeAmount]);
+  }, [accountId, chainId, sharesToRemove]);
 
-  const updateNum = (val: any) => {
-    const numberAmt = Number(val);
-    if (numberAmt <= 100) {
-      let b = val;
-      let c = val;
-      c =
-        b.indexOf(".") >= 0
-          ? b.substr(0, b.indexOf(".")) + b.substr(b.indexOf("."), 3)
-          : b;
-      setRemovePercent(String(c));
-      if (numberAmt >= 100) setRemovePercent("100");
-      if (numberAmt <= 0) setRemovePercent("");
-      if (numberAmt > 0 && numberAmt <= 100) {
-        const sharesToRemove = currentStakePool.shares * (numberAmt / 100);
-        setRemoveAmount(String(sharesToRemove));
-        ocean
-          .getTokensRemovedforPoolShares(
-            currentStakePool.address,
-            sharesToRemove
-          )
-          .then((res: RecieveAmounts) => {
-            let { dtAmount, oceanAmount } = res;
-            setRecieveAmounts({ dtAmount, oceanAmount });
-          })
-          .catch(console.error);
-      } else {
-        setRecieveAmounts({ dtAmount: "0", oceanAmount: "0" });
-      }
+  const updateNum = async (val: any) => {
+    const percInput = Number(val);
+    val = limitDecimalsInInput(val);
+    setSharesPercToRemove(val);
+
+    if (percInput >= 100) setSharesPercToRemove("100");
+    if (percInput <= 0) setSharesPercToRemove("");
+    if (percInput > 0 && percInput <= 100) setSharesPercToRemove(val);
+
+    const userTotalStakedOcean = await ocean.getOceanRemovedforPoolShares(
+      currentStakePool.address,
+      currentStakePool.shares
+    );
+
+    console.log("Current user shares", currentStakePool.shares);
+
+    const oceanFromPerc = userTotalStakedOcean * (percInput / 100);
+
+    const sharesNeeded = await ocean.getPoolSharesRequiredToUnstake(
+      currentStakePool.address,
+      ocean.config.default.oceanTokenAddress,
+      String(oceanFromPerc)
+    );
+
+    console.log("User shares from percentage", sharesNeeded);
+    if (maxOceanRemove.OCEAN > oceanFromPerc) {
+      console.log("User share input are less than max unstake");
+      setOceanToReceive(oceanFromPerc);
+      setSharesToRemove(sharesNeeded);
+    } else {
+      console.log("User share input are greater than max unstake");
+      setOceanToReceive(maxOceanRemove.OCEAN);
+      setSharesToRemove(maxOceanRemove.shares);
+      setSharesPercToRemove(
+        toFixed2((maxOceanRemove.OCEAN / userTotalStakedOcean) * 100)
+      );
     }
   };
+
+  async function setMaxUnstake() {
+    if (!maxOceanRemove) return;
+    setBgLoading([...bgLoading, bgLoadingStates.maxUnstake]);
+
+    console.log(maxOceanRemove.OCEAN);
+
+    //find whether user staked oceans is greater or lesser than max unstake
+    const userTotalStakedOcean = await ocean.getOceanRemovedforPoolShares(
+      currentStakePool.address,
+      currentStakePool.shares
+    );
+
+    console.log("Total user shares in ocean", userTotalStakedOcean);
+
+    //find the lesser token amount from above
+    if (Number(userTotalStakedOcean) > Number(maxOceanRemove.OCEAN)) {
+      console.log("User has more tokens than max unstake.");
+      setOceanToReceive(Number(toFixed18(maxOceanRemove.OCEAN)));
+      setSharesToRemove(maxOceanRemove.shares);
+      setSharesPercToRemove(
+        toFixed2((maxOceanRemove.OCEAN / userTotalStakedOcean) * 100)
+      );
+      setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.maxUnstake));
+      return;
+    } else {
+      console.log("User has less tokens than max unstake.");
+      setOceanToReceive(Number(toFixed18(userTotalStakedOcean)));
+      const sharesNeeded = await ocean.getPoolSharesRequiredToUnstake(
+        currentStakePool.address,
+        ocean.config.default.oceanTokenAddress,
+        String(userTotalStakedOcean)
+      );
+      setSharesToRemove(sharesNeeded);
+      setSharesPercToRemove("100");
+      setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.maxUnstake));
+    }
+  }
 
   const handleWithdrawal = async () => {
     let txDateId;
     setShowConfirmModal(true);
     try {
-      console.log(`unstaking ${recieveAmounts.oceanAmount} ocean`);
+      console.log(`unstaking ${oceanToReceive} ocean`);
 
       txDateId = addTxHistory({
         chainId,
@@ -217,13 +297,19 @@ const RemoveAmount = () => {
         setPendingTxs,
         setShowSnackbar,
         setLastTxId,
-        stakeAmt: removeAmount,
+        stakeAmt: sharesToRemove,
       });
       setPendingUnstakeTx(txDateId);
+      console.log(
+        "Unstaking with params",
+        currentStakePool.address,
+        oceanToReceive,
+        currentStakePool.shares
+      );
       const txReceipt = await ocean.unstakeOcean(
         accountId,
         currentStakePool.address,
-        toFixed18(recieveAmounts.oceanAmount),
+        toFixed18(String(oceanToReceive)),
         currentStakePool.shares
       );
 
@@ -248,7 +334,7 @@ const RemoveAmount = () => {
           setPendingTxs,
           setShowSnackbar,
           setLastTxId,
-          stakeAmt: removeAmount,
+          stakeAmt: sharesToRemove,
           txReceipt,
         });
 
@@ -268,6 +354,9 @@ const RemoveAmount = () => {
           web3,
           allStakedPools,
         });
+
+        setSharesPercToRemove(0);
+        setOceanToReceive(0);
       } else {
         setPendingUnstakeTx(undefined);
         setUserMessage({
@@ -308,47 +397,6 @@ const RemoveAmount = () => {
       });
     }
   };
-
-  async function setMaxUnstake() {
-    setBgLoading([...bgLoading, bgLoadingStates.maxUnstake]);
-
-    let maxUnstake;
-
-    //find how much can possible be removed from pool
-    const maxPossibleUnstake = await ocean.getMaxUnstakeAmount(
-      currentStakePool.address,
-      ocean.config.default.oceanTokenAddress
-    );
-
-    //find whether user staked oceans is greater or lesser than max unstake
-    const userTotalStakedTokens = await ocean.getTokensRemovedforPoolShares(
-      currentStakePool.address,
-      currentStakePool.shares
-    );
-
-    //find no. of shares needed to unstake the lesser token amount from above
-    if (
-      Number(maxPossibleUnstake) > Number(userTotalStakedTokens.oceanAmount)
-    ) {
-      maxUnstake = Number(userTotalStakedTokens.oceanAmount).toFixed(18);
-      setRecieveAmounts(userTotalStakedTokens);
-    } else {
-      maxUnstake = maxPossibleUnstake;
-      setRecieveAmounts({ dtAmount: "0", oceanAmount: maxPossibleUnstake });
-    }
-
-    // https://github.com/dataxfi/datax.js/blob/main/src/Ocean.ts#L930 is this function needed? It returns the number of shares to remove a particular amount of tokens
-    // console.log("Shares needed", ocean.getPoolSharesRequiredToUnstake(currentStakePool.address, ocean.config.default.oceanTokenAddress, maxPossibleUnstake))
-
-    //update unstake amount (removeAmount) with the possible max unstake for a user
-    setRemoveAmount(maxUnstake);
-
-    //calculate removePercent from remove amount
-    const maxUnstakePerc =
-      (Number(maxUnstake) / Number(userTotalStakedTokens.oceanAmount)) * 100;
-    setRemovePercent(toFixed5(Number(maxUnstakePerc)));
-    setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.maxUnstake));
-  }
 
   return noWallet ? (
     <UserMessageModal
@@ -418,7 +466,7 @@ const RemoveAmount = () => {
                   {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
                   <span
                     className={`text-2xl ${
-                      removeAmount ? "text-primary-400" : null
+                      sharesToRemove ? "text-primary-400" : null
                     }`}
                   >
                     <input
@@ -430,9 +478,9 @@ const RemoveAmount = () => {
                         evt.preventDefault()
                       }
                       type="number"
-                      className="h-full w-20 rounded-lg bg-primary-900 text-2xl px-2 outline-none focus:placeholder-type-200 placeholder-type-400 text-right"
+                      className="h-full w-24 rounded-lg bg-primary-900 text-2xl pl-2 pr-1 outline-none focus:placeholder-type-200 placeholder-type-400 text-right"
                       placeholder="0.00"
-                      value={removePercent}
+                      value={sharesPercToRemove}
                     />
                     %
                   </span>
@@ -491,7 +539,7 @@ const RemoveAmount = () => {
                     </div>
                     <div>
                       <p className="text-type-100">
-                        {toFixed5(recieveAmounts.oceanAmount) || 0}
+                        {toFixed5(oceanToReceive) || 0}
                       </p>
                       <p className="text-xs text-type-100">
                         {currentStakePool?.token2.symbol}
@@ -535,11 +583,9 @@ const RemoveAmount = () => {
         txs={
           currentStakePool
             ? [
-                `Approve StakeX to deposit ${toFixed5(
-                  recieveAmounts.oceanAmount
-                )} OCEAN`,
+                `Approve StakeX to spend ${toFixed5(sharesToRemove)} shares`,
                 `Approve DataX to unstake ${toFixed5(
-                  recieveAmounts.oceanAmount
+                  oceanToReceive
                 )} OCEAN from the ${
                   currentStakePool.token1.symbol || "OCEAN"
                 } pool.`,

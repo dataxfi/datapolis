@@ -10,7 +10,10 @@ import TransactionDoneModal from "./TransactionDoneModal";
 import { Link, useLocation, useHistory } from "react-router-dom";
 import getTokenList from "../utils/useTokenList";
 import UserMessageModal, { userMessage } from "./UserMessageModal";
-import { toFixed5 } from "../utils/equate";
+import {
+  toFixed5,
+  toFixed18,
+} from "../utils/equate";
 import { addTxHistory, deleteRecentTxs } from "../utils/useTxHistory";
 
 const text = {
@@ -55,7 +58,8 @@ const Stake = () => {
   const [dtToOcean, setDtToOcean] = useState<any>(null);
   const [oceanToDt, setOceanToDt] = useState<any>(null);
   const [loadingRate, setLoadingRate] = useState(false);
-  const [oceanVal, setOceanVal] = useState("");
+  const [oceanValInput, setOceanValInput] = useState<string | number>();
+  const [oceanValToStake, setOceanValToStake] = useState<string | number>();
   const [txReceipt, setTxReceipt] = useState<any | null>(null);
   const [balance, setBalance] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -70,8 +74,26 @@ const Stake = () => {
   const [yourLiquidity, setYourLiquidity] = useState<IPoolLiquidity | null>(
     null
   );
+  const [maxStakeAmt, setMaxStakeAmt] = useState<number>();
   const location = useLocation();
   const history = useHistory();
+
+  async function getMaxStakeAmt() {
+    if (ocean && token) {
+      return await ocean.getMaxStakeAmount(
+        token.pool,
+        ocean.config.default.oceanTokenAddress
+      );
+    }
+  }
+
+  useEffect(() => {
+    getMaxStakeAmt()
+      .then((res: string) => setMaxStakeAmt(Number(res)))
+      .catch(console.error);
+    setOceanValInput(0);
+    setOceanValToStake(0);
+  }, [ocean, token]);
 
   const otherToken = {
     chainId: 4,
@@ -180,14 +202,17 @@ const Stake = () => {
         disabled: true,
         classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
       });
-    } else if (!oceanVal) {
+    } else if (!oceanValToStake) {
       setBtnProps({
         ...INITIAL_BUTTON_STATE,
         text: "Enter OCEAN Amount",
         disabled: true,
         classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
       });
-    } else if (Number(balance) === 0 || Number(oceanVal) > Number(balance)) {
+    } else if (
+      Number(balance) === 0 ||
+      Number(oceanValToStake) > Number(balance)
+    ) {
       setBtnProps({
         ...INITIAL_BUTTON_STATE,
         text: "Not enough OCEAN balance",
@@ -211,7 +236,15 @@ const Stake = () => {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountId, ocean, chainId, token, oceanVal, balance, loadingStake]);
+  }, [
+    accountId,
+    ocean,
+    chainId,
+    token,
+    oceanValToStake,
+    balance,
+    loadingStake,
+  ]);
 
   async function stakeX() {
     let txDateId;
@@ -231,10 +264,14 @@ const Stake = () => {
         setPendingTxs,
         setShowSnackbar,
         setLastTxId,
-        stakeAmt: oceanVal,
+        stakeAmt: oceanValToStake,
       });
 
-      const txReceipt = await ocean.stakeOcean(accountId, token.pool, oceanVal);
+      const txReceipt = await ocean.stakeOcean(
+        accountId,
+        token.pool,
+        oceanValToStake
+      );
 
       if (txReceipt) {
         setTxReceipt(txReceipt);
@@ -253,7 +290,7 @@ const Stake = () => {
           setPendingTxs,
           setShowSnackbar,
           setLastTxId,
-          stakeAmt: oceanVal,
+          stakeAmt: oceanValToStake,
           txReceipt,
         });
         setRecentTxHash(
@@ -305,17 +342,23 @@ const Stake = () => {
       token.pool,
       ocean.config.default.oceanTokenAddress
     );
+    console.log(
+      "Max Ocean add amount - ",
+      await ocean.getMaxOceanAddAmount(token.pool)
+    );
     console.log("Max Stake Amount - ", maxAmount);
     const val = parseFloat(maxAmount);
     if (!Number.isNaN(val)) {
       if (Number(balance) < val) {
-        setOceanVal(toFixed5(balance));
+        setOceanValInput(toFixed5(balance));
+        setOceanValToStake(toFixed18(balance));
       } else {
-        setOceanVal(toFixed5(val - 1));
+        setOceanValInput(toFixed5(val - 1));
+        setOceanValToStake(toFixed18(val - 1));
       }
     } else {
       //setPerc("");
-      setOceanVal("");
+      setOceanValInput("");
     }
   }
 
@@ -330,8 +373,21 @@ const Stake = () => {
   //   }
   // }
 
-  async function updateNum(val: string) {
-    setOceanVal(val);
+  async function updateNum(val: string | number) {
+    if (!val) {
+      setOceanValToStake(0);
+      setOceanValInput(undefined);
+      return;
+    }
+    if (maxStakeAmt) {
+      if (maxStakeAmt < val) {
+        setOceanValInput(toFixed5(maxStakeAmt));
+        setOceanValToStake(toFixed18(maxStakeAmt))
+      } else {
+        setOceanValInput(toFixed5(val));
+        setOceanValToStake(toFixed18(val))
+      }
+    } 
   }
 
   async function updateToken(val: any) {
@@ -411,7 +467,7 @@ const Stake = () => {
                     <div className="flex justify-between items-center">
                       {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
                       <input
-                        value={oceanVal}
+                        value={oceanValInput}
                         onChange={(e) => updateNum(e.target.value)}
                         onWheel={(event) => event.currentTarget.blur()}
                         onKeyDown={(evt) =>
@@ -539,8 +595,8 @@ const Stake = () => {
         txs={
           token
             ? [
-                `Approve StakeX to spend ${oceanVal} OCEAN`,
-                `Stake ${oceanVal} OCEAN in ${token.symbol} pool`,
+                `Approve StakeX to spend ${oceanValInput} OCEAN`,
+                `Stake ${oceanValInput} OCEAN in ${token.symbol} pool`,
               ]
             : []
         }

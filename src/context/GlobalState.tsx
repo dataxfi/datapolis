@@ -338,6 +338,7 @@ export const GlobalProvider = ({
       console.log("Chain changed to ", parsedId);
       setChainId(parseInt(chainId));
       const config = new Config(web3, parsedId);
+      console.log("Config for new chain:")
       setConfig(config);
       setOcean(new Ocean(web3, String(parseInt(chainId))));
       isSupportedChain(config, parsedId, null);
