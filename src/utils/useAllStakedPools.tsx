@@ -200,8 +200,8 @@ export default async function setPoolDataFromOcean({
             if (setError)
               setError({
                 message:
-                  "We couldnt retrieve your pool share information. Reach out on our discord for support!",
-                link: "https://discord.com/invite/b974xHrUGV",
+                  "We couldnt retrieve your pool share information.",
+                link: {href: "https://discord.com/invite/b974xHrUGV", desc: "Reach out on our discord for support!" },
                 type:"error"
               });
             //throw new Error(e);

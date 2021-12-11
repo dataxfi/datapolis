@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { BsXCircle, BsX } from "react-icons/bs";
 export interface userMessage {
   message: string;
-  link: string | null;
+  link: string |  { href: string; desc: string } |null;
   type: string;
 }
 
@@ -17,39 +17,46 @@ const UserMessageModal = ({
   container: boolean;
   timeout: null | { showState: Function; time: number };
 }) => {
-  let link;
+  let link: any;
   let userMessage;
   let type;
+  let href;
+  let desc;
 
-  if (typeof message != "string") {
+  if (typeof message !== "string") {
     userMessage = message.message;
     link = message.link;
     type = message.type;
   }
 
+  if (link && typeof link !== "string") {
+    href = link.href;
+    desc = link.desc;
+  }
+
   const [messageOpacity, setMessageOpacity] = useState<number>(0);
 
   function easeInOut(time: number, state: Function) {
-    setTimeout(()=>{
-      setMessageOpacity(100)
-    }, 500)
+    setTimeout(() => {
+      setMessageOpacity(100);
+    }, 500);
 
     setTimeout(() => {
       setMessageOpacity(0);
-    }, time-500);
+    }, time - 500);
 
     setTimeout(() => {
       state(false);
     }, time);
   }
 
-  useEffect(()=>{
-    if (timeout) { 
+  useEffect(() => {
+    if (timeout) {
       easeInOut(timeout.time, timeout.showState);
     } else {
-      setMessageOpacity(100)
+      setMessageOpacity(100);
     }
-  },[])
+  }, []);
 
   const stdMessageEl = (
     <div className="flex flex-col text-center">
@@ -59,7 +66,7 @@ const UserMessageModal = ({
         </div>
       ) : null}
       <p
-        className={` max-w-sm ${type === "error"? "mb-4":null} ${
+        className={` max-w-sm ${type === "error" ? "mb-4" : null} ${
           pulse ? "animate-pulse" : ""
         } opacity-${messageOpacity} transition-opacity duration-500`}
       >
@@ -69,9 +76,9 @@ const UserMessageModal = ({
         <a
           target="_blank"
           className="text-primary-400 hover:text-primary-50"
-          href={link}
+          href={href ? href : link}
         >
-          {link}
+          {desc ? desc : link}
         </a>
       ) : null}
     </div>

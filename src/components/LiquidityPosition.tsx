@@ -65,10 +65,10 @@ const LiquidityPosition = () => {
       console.error(error);
       setUserMessage({
         message:
-          "We could retireve your pool share information. Reach out on our discord for support!",
-        link: "https://discord.com/invite/b974xHrUGV",
-        type: "error"
-      });
+          "We couldnt retrieve your pool share information.",
+        link: {href: "https://discord.com/invite/b974xHrUGV", desc: "Reach out on our discord for support!" },
+        type:"error"
+      })
     }
 
     if (!accountId) {
