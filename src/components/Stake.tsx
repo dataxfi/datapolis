@@ -10,10 +10,7 @@ import TransactionDoneModal from "./TransactionDoneModal";
 import { Link, useLocation, useHistory } from "react-router-dom";
 import getTokenList from "../utils/useTokenList";
 import UserMessageModal, { userMessage } from "./UserMessageModal";
-import {
-  toFixed5,
-  toFixed18,
-} from "../utils/equate";
+import { toFixed5, toFixed18 } from "../utils/equate";
 import { addTxHistory, deleteRecentTxs } from "../utils/useTxHistory";
 
 const text = {
@@ -67,6 +64,14 @@ const Stake = () => {
   const [recentTxHash, setRecentTxHash] = useState("");
   const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
   const [userMessage, setUserMessage] = useState<userMessage | false>(false);
+  const [oceanToken, setOceanToken] = useState<any>({
+    symbol: "OCEAN",
+    name: "Ocean Token",
+    decimals: 18,
+    logoURI:
+      "https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY",
+    tags: ["oceantoken"],
+  });
   //const [perc, setPerc] = useState("");
   const [poolLiquidity, setPoolLiquidity] = useState<IPoolLiquidity | null>(
     null
@@ -87,6 +92,22 @@ const Stake = () => {
     }
   }
 
+  async function setOceanBalance() {
+    if (accountId && ocean) {
+      const OCEAN_ADDRESS =
+        ocean.config.default.oceanTokenAddress.toLowerCase();
+      setLoading(true);
+      try {
+        const balance = await ocean.getBalance(OCEAN_ADDRESS, accountId);
+        setBalance(balance);
+      } catch (error) {
+        console.error("Error when trying to fetch Balance");
+      }
+
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     getMaxStakeAmt()
       .then((res: string) => setMaxStakeAmt(Number(res)))
@@ -95,16 +116,14 @@ const Stake = () => {
     setOceanValToStake(0);
   }, [ocean, token]);
 
-  const otherToken = {
-    chainId: 4,
-    address: "0x8967bcf84170c91b0d24d4302c2376283b0b3a07",
-    symbol: "OCEAN",
-    name: "Ocean Token",
-    decimals: 18,
-    logoURI:
-      "https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY",
-    tags: ["oceantoken"],
-  };
+  useEffect(() => {
+    if (ocean)
+      setOceanToken({
+        ...oceanToken,
+        chainId: chainId,
+        address: ocean.config.default.oceanTokenAddress,
+      });
+  }, [ocean, currentTokens]);
 
   // custom hook??
   useEffect(() => {
@@ -115,6 +134,7 @@ const Stake = () => {
         setShowTxDone(true);
       }
     }
+    setOceanBalance()
   }, [txReceipt]);
 
   useEffect(() => {
@@ -124,24 +144,10 @@ const Stake = () => {
       setTokenResponse,
       setCurrentTokens,
       accountId,
-      otherToken: otherToken.symbol,
+      otherToken: oceanToken.symbol,
     });
 
-    async function setOceanBalance() {
-      if (accountId && ocean) {
-        const OCEAN_ADDRESS =
-          ocean.config.default.oceanTokenAddress.toLowerCase();
-        setLoading(true);
-        try {
-          const balance = await ocean.getBalance(OCEAN_ADDRESS, accountId);
-          setBalance(balance);
-        } catch (error) {
-          console.error("Error when trying to fetch Balance");
-        }
-
-        setLoading(false);
-      }
-    }
+    
 
     setOceanBalance();
 
@@ -257,7 +263,7 @@ const Stake = () => {
         txHistory,
         accountId: String(accountId),
         token1: token,
-        token2: otherToken,
+        token2: oceanToken,
         txType: "Stake Ocean",
         status: "pending approval",
         pendingTxs,
@@ -281,7 +287,7 @@ const Stake = () => {
           txHistory,
           accountId: String(accountId),
           token1: token,
-          token2: otherToken,
+          token2: oceanToken,
           txType: "Stake Ocean",
           txDateId,
           txHash: txReceipt.transactionHash,
@@ -382,12 +388,12 @@ const Stake = () => {
     if (maxStakeAmt) {
       if (maxStakeAmt < val) {
         setOceanValInput(toFixed5(maxStakeAmt));
-        setOceanValToStake(toFixed18(maxStakeAmt))
+        setOceanValToStake(toFixed18(maxStakeAmt));
       } else {
         setOceanValInput(toFixed5(val));
-        setOceanValToStake(toFixed18(val))
+        setOceanValToStake(toFixed18(val));
       }
-    } 
+    }
   }
 
   async function updateToken(val: any) {
