@@ -476,7 +476,7 @@ const Swap = () => {
       } else {
         setShowConfirmModal(false);
         setUserMessage({
-          message: "User rejected transaction signature.",
+          message: "User rejected transaction.",
           link: null,
           type: "alert",
         });

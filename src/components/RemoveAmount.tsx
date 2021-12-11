@@ -360,7 +360,7 @@ const RemoveAmount = () => {
       } else {
         setPendingUnstakeTx(undefined);
         setUserMessage({
-          message: "User rejected transaction signature.",
+          message: "User rejected transaction.",
           link: null,
           type: "alert",
         });

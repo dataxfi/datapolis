@@ -298,7 +298,7 @@ const Stake = () => {
         );
       } else {
         setUserMessage({
-          message: "User rejected transaction signature.",
+          message: "User rejected transaction.",
           link: null,
           type: "alert",
         });
