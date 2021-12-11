@@ -50,3 +50,4 @@ export function limitDecimalsInInput(val: string | number): string {
 export function percOf(value: string, total: string): string {
   return ((Number(value) / Number(total)) * 100).toString();
 }
+

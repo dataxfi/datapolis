@@ -102,6 +102,9 @@ export const GlobalProvider = ({
   const [allStakedPools, setAllStakedPools] = useState<PoolData[] | null>(null);
   //Pool information associated with pool
   const [currentStakePool, setCurrentStakePool] = useState<PoolData>();
+  //Stake pool sync timeout
+  const [stakeFetchTimeout, setStakeFetchTimeout] = useState<boolean>(false)
+
   //dToken information associated with pool
   const [currentStakeToken, setCurrentStakeToken] = useState<{}>();
   //currentTokens to be rendered in token modal
@@ -406,6 +409,8 @@ export const GlobalProvider = ({
         setShowConfirmModal, 
         showTxDone,
         setShowTxDone, 
+        stakeFetchTimeout, 
+        setStakeFetchTimeout
       }}
     >
       {children}

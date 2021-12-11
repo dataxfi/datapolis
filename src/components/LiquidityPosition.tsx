@@ -21,6 +21,9 @@ const LiquidityPosition = () => {
     setBgLoading,
     config,
     web3,
+    stakeFetchTimeout, 
+    setStakeFetchTimeout
+
   } = useContext(GlobalContext);
   const [noStakedPools, setNoStakedPools] = useState<boolean>(false);
   const [userMessage, setUserMessage] = useState<string | userMessage | null>(
@@ -32,7 +35,6 @@ const LiquidityPosition = () => {
     try {
       if (ocean && accountId) {
         // consider a conditional that checks if stake is already loading or using a set for bgLoading
-        setBgLoading([...bgLoading, bgLoadingStates.allStakedPools]);
         setPoolDataFromOcean({
           accountId,
           ocean,
@@ -45,7 +47,9 @@ const LiquidityPosition = () => {
           config,
           web3,
           allStakedPools,
-          setError: setUserMessage
+          setError: setUserMessage,
+          stakeFetchTimeout, 
+          setStakeFetchTimeout
         });
         setUserMessage(null)
       }

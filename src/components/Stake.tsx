@@ -12,6 +12,7 @@ import getTokenList from "../utils/useTokenList";
 import UserMessageModal, { userMessage } from "./UserMessageModal";
 import { toFixed5, toFixed18 } from "../utils/equate";
 import { addTxHistory, deleteRecentTxs } from "../utils/useTxHistory";
+import setPoolDataFromOcean from "../utils/useAllStakedPools";
 
 const text = {
   T_STAKE: "StakeX",
@@ -50,6 +51,16 @@ const Stake = () => {
     setShowConfirmModal,
     showTxDone,
     setShowTxDone,
+    setBgLoading,
+    bgLoading,
+    poolAddress,
+    setNoStakedPools,
+    setAllStakedPools,
+    setCurrentStakePool,
+    config,
+    allStakedPools,
+    stakeFetchTimeout,
+    setStakeFetchTimeout,
   } = useContext(GlobalContext);
   const [token, setToken] = useState<any>(null);
   const [dtToOcean, setDtToOcean] = useState<any>(null);
@@ -134,7 +145,7 @@ const Stake = () => {
         setShowTxDone(true);
       }
     }
-    setOceanBalance()
+    setOceanBalance();
   }, [txReceipt]);
 
   useEffect(() => {
@@ -146,8 +157,6 @@ const Stake = () => {
       accountId,
       otherToken: oceanToken.symbol,
     });
-
-    
 
     setOceanBalance();
 
@@ -299,6 +308,24 @@ const Stake = () => {
           stakeAmt: oceanValToStake,
           txReceipt,
         });
+
+        setPoolDataFromOcean({
+          accountId,
+          ocean,
+          chainId,
+          setBgLoading,
+          bgLoading,
+          poolAddress,
+          setNoStakedPools,
+          setAllStakedPools,
+          setCurrentStakePool,
+          config,
+          allStakedPools,
+          stakeFetchTimeout,
+          setStakeFetchTimeout,
+          web3,
+          newTx: true,
+        });
         setRecentTxHash(
           ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash
         );
@@ -347,10 +374,6 @@ const Stake = () => {
     const maxAmount = await ocean.getMaxStakeAmount(
       token.pool,
       ocean.config.default.oceanTokenAddress
-    );
-    console.log(
-      "Max Ocean add amount - ",
-      await ocean.getMaxOceanAddAmount(token.pool)
     );
     console.log("Max Stake Amount - ", maxAmount);
     const val = parseFloat(maxAmount);

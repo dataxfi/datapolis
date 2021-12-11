@@ -51,6 +51,8 @@ const RemoveAmount = () => {
     setShowConfirmModal,
     showTxDone,
     setShowTxDone,
+    stakeFetchTimeout, 
+    setStakeFetchTimeout
   } = useContext(GlobalContext);
   const [noWallet, setNoWallet] = useState<boolean>(false);
   const [recentTxHash, setRecentTxHash] = useState("");
@@ -183,6 +185,8 @@ const RemoveAmount = () => {
         config,
         web3,
         allStakedPools,
+        stakeFetchTimeout, 
+        setStakeFetchTimeout
       });
 
       if (allStakedPools) {
@@ -317,7 +321,7 @@ const RemoveAmount = () => {
         setRecentTxHash(
           ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash
         );
-
+          setTxReceipt(txReceipt)
         setPendingUnstakeTx(undefined);
         addTxHistory({
           chainId,
@@ -338,7 +342,6 @@ const RemoveAmount = () => {
           txReceipt,
         });
 
-        setBgLoading([...bgLoading, bgLoadingStates.allStakedPools]);
         console.log("current pool Address", poolAddress);
         setPoolDataFromOcean({
           accountId,
@@ -353,6 +356,9 @@ const RemoveAmount = () => {
           config,
           web3,
           allStakedPools,
+          stakeFetchTimeout, 
+          setStakeFetchTimeout,
+          newTx:true
         });
 
         setSharesPercToRemove(0);
@@ -581,7 +587,7 @@ const RemoveAmount = () => {
         show={showConfirmModal}
         close={() => setShowConfirmModal(false)}
         txs={
-          currentStakePool
+          currentStakePool && sharesToRemove && oceanToReceive
             ? [
                 `Approve DataX to spend ${toFixed5(sharesToRemove)} shares`,
                 `Approve DataX to unstake ${toFixed5(

@@ -24,6 +24,17 @@ export interface PoolData {
   yourPoolSharePerc?: string;
 }
 
+export function stakeFetchCooldown(setStakeFetchTimeout: Function) {
+  setStakeFetchTimeout(true);
+  setTimeout(() => {
+    setStakeFetchTimeout(false);
+  }, 300000);
+}
+
+export function timeout(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 /**
  * Gets all stake pool data for a parcticular accountId. Ocean instance already knows the current chain.
  *
@@ -88,9 +99,9 @@ export async function getAllStakedPools({
     );
     return userPoolData;
   } catch (error: any) {
-    console.log("Caught Error in call to ocean.getAllStakedPools")
+    console.log("Caught Error in call to ocean.getAllStakedPools");
     console.error(error);
-    throw new Error(error)
+    throw new Error(error);
   }
 }
 
@@ -115,6 +126,9 @@ export default async function setPoolDataFromOcean({
   web3,
   allStakedPools,
   setError,
+  setStakeFetchTimeout,
+  stakeFetchTimeout,
+  newTx = false,
 }: {
   accountId: string;
   ocean: any;
@@ -130,9 +144,27 @@ export default async function setPoolDataFromOcean({
   web3: Web3;
   allStakedPools: PoolData[];
   setError?: Function;
+  setStakeFetchTimeout: Function;
+  stakeFetchTimeout: boolean;
+  newTx?: boolean;
 }) {
   //recursively call getAllstaked pools
   //continousouly update the state upon response
+
+  console.log(
+    "Stake fetch time out is",
+    (stakeFetchTimeout &&
+    bgLoading.includes(bgLoadingStates.allStakedPools)),
+    "newTx",
+   !newTx
+  );
+  if (!newTx || stakeFetchTimeout && bgLoading.includes(bgLoadingStates.allStakedPools))
+    return;
+
+
+  stakeFetchCooldown(setStakeFetchTimeout);
+  if (setBgLoading)
+    setBgLoading([...bgLoading, bgLoadingStates.allStakedPools]);
 
   const firstBlock: number = config.default.startBlock || 0;
   console.log("First block is:", firstBlock);
@@ -158,10 +190,6 @@ export default async function setPoolDataFromOcean({
   }
 
   let internalError = false;
-
-  function timeout(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
 
   if (firstBlock)
     while (
@@ -194,15 +222,17 @@ export default async function setPoolDataFromOcean({
             }
           })
           .catch((e: any) => {
-            console.log("Error Caught in call to getAllStakedPools in dapp: ")
+            console.log("Error Caught in call to getAllStakedPools in dapp: ");
             console.error(e);
             internalError = true;
             if (setError)
               setError({
-                message:
-                  "We couldnt retrieve your pool share information.",
-                link: {href: "https://discord.com/invite/b974xHrUGV", desc: "Reach out on our discord for support!" },
-                type:"error"
+                message: "We couldnt retrieve your pool share information.",
+                link: {
+                  href: "https://discord.com/invite/b974xHrUGV",
+                  desc: "Reach out on our discord for support!",
+                },
+                type: "error",
               });
             //throw new Error(e);
           })
