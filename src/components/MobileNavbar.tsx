@@ -12,12 +12,14 @@ const MobileNavbar = ({
   wallet,
   truncateId,
   network,
+  handleModalOrConnect
 }: {
   links: Array<any>;
   text: Record<any, any>;
   wallet: string;
   truncateId: Function;
   network: string;
+  handleModalOrConnect: Function
 }) => {
   const { handleConnect, accountId } = useContext(GlobalContext);
   const [menuVisible, setMenuVisible] = useState(false);
@@ -107,7 +109,7 @@ const MobileNavbar = ({
               </p>
               <Button
                 text={`${accountId ? `${truncateId()}` : "Connect wallet"}`}
-                onClick={() => handleConnect()}
+                onClick={() => handleModalOrConnect()}
                 classes={`hm-btn text-xs  ${
                   accountId ? "px-1" : ""
                 }py-1 bg-black`}

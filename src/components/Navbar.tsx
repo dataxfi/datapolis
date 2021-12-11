@@ -24,7 +24,7 @@ const Navbar = () => {
     { name: text.T_STAKE, link: "/stakeX" },
   ];
 
-  const { buttonText, config, chainId } = useContext(GlobalContext);
+  const { buttonText, config, chainId, accountId, setShowTxHistoryModal, handleConnect } = useContext(GlobalContext);
 
   function truncateId() {
     return (buttonText.substring(0, 5) +
@@ -43,6 +43,11 @@ const Navbar = () => {
     return "⚠ Unknown";
   }
 
+  function handleModalOrConnect() {
+    accountId ? setShowTxHistoryModal(true) : handleConnect();
+    
+  }
+
   return (
     <nav>
       {/* Separating the UI logic because figuring out code reuse here will take more time. 
@@ -54,6 +59,7 @@ const Navbar = () => {
         wallet={walletText}
         truncateId={truncateId}
         network = {getNetName()}
+        handleModalOrConnect = {handleModalOrConnect}
       />
       <DesktopNavbar
         links={links}
@@ -61,6 +67,8 @@ const Navbar = () => {
         wallet={walletText}
         truncateId={truncateId}
         network= {getNetName()}
+        handleModalOrConnect = {handleModalOrConnect}
+
       />
     </nav>
   );

@@ -583,7 +583,7 @@ const RemoveAmount = () => {
         txs={
           currentStakePool
             ? [
-                `Approve StakeX to spend ${toFixed5(sharesToRemove)} shares`,
+                `Approve DataX to spend ${toFixed5(sharesToRemove)} shares`,
                 `Approve DataX to unstake ${toFixed5(
                   oceanToReceive
                 )} OCEAN from the ${

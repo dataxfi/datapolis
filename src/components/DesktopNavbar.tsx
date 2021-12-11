@@ -12,12 +12,14 @@ const DesktopNavbar = ({
   wallet,
   truncateId,
   network,
+  handleModalOrConnect
 }: {
   links: Array<any>;
   text: Record<any, any>;
   wallet: string;
   truncateId: Function;
   network: string;
+  handleModalOrConnect: Function
 }) => {
   const {
     handleConnect,
@@ -27,10 +29,7 @@ const DesktopNavbar = ({
     setShowTxHistoryModal,
   } = useContext(GlobalContext);
 
-  function handleModalOrConnect() {
-    accountId ? setShowTxHistoryModal(true) : handleConnect();
-    
-  }
+  
 
   return (
     <header className="lg:flex justify-between items-center py-4 border-gray-800 pl-4 pr-2 hidden">
@@ -56,7 +55,7 @@ const DesktopNavbar = ({
         <div className="hidden md:block">
           <Button
             text={accountId ? truncateId() : buttonText}
-            onClick={handleModalOrConnect}
+            onClick={() => handleModalOrConnect()}
             classes="hm-btn hm-btn-light hm-box border border-type-500"
           />
         </div>

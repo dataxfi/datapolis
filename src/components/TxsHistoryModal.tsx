@@ -43,7 +43,7 @@ function TxHistoryModal() {
   }, [showConfirmModal, showTxDone, showTxHistoryModal]);
 
   useEffect(() => {
-    if (showTxHistoryModal && watcher && txSelection && web3) {
+    if (watcher && txSelection && web3) {
       // watchTx(txSelection[0])
       txSelection.forEach((tx) => {
         watchTx({
@@ -58,7 +58,7 @@ function TxHistoryModal() {
         });
       });
     }
-  }, [txSelection, watcher, txHistory, web3]);
+  }, [txSelection, watcher, web3]);
 
   function parseHistory(history: TxHistory) {
     if (!history || !showTxHistoryModal) return;
