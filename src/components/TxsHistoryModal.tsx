@@ -43,45 +43,27 @@ function TxHistoryModal() {
   }, [showConfirmModal, showTxDone, showTxHistoryModal]);
 
   useEffect(() => {
-    if (watcher && txSelection && web3) {
+    if (ocean && watcher && txSelection && web3 && accountId) {
       // watchTx(txSelection[0])
       txSelection.forEach((tx) => {
-        watchTx({
-          tx,
-          watcher,
-          web3,
-          chainId,
-          setTxHistory,
-          txHistory,
-          pendingTxs,
-          setPendingTxs,
-        });
+        if (tx.status !== "Success")
+          watchTx({
+            tx,
+            watcher,
+            web3,
+            chainId,
+            setTxHistory,
+            txHistory,
+            pendingTxs,
+            setPendingTxs,
+          });
       });
     }
-  }, [txSelection, watcher, web3]);
-
-  function parseHistory(history: TxHistory) {
-    if (!history || !showTxHistoryModal) return;
-    const txsByDate = [];
-    for (let [txDateId, tx] of Object.entries(history)) {
-      let txLink = getTxUrl({
-        ocean,
-        txHash: tx.txHash,
-        accountId,
-      });
-      if (!txLink) txLink = "/";
-      txsByDate.push({ txDateId, ...tx, txLink });
-    }
-    //@ts-ignore
-    txsByDate.sort(
-      (date1, date2) => Number(date2.txDateId) - Number(date1.txDateId)
-    );
-    return txsByDate;
-  }
+  }, [txSelection, watcher, web3, accountId]);
 
   useEffect(() => {
     try {
-      if (txHistory) {
+      if (accountId && txHistory && Object.keys(txHistory).length !== 0) {
         const parsedHistory = parseHistory(txHistory);
         if (!parsedHistory) return;
         setTxsByDate(parsedHistory);
@@ -90,7 +72,11 @@ function TxHistoryModal() {
         setNoTxHistory(false);
       } else {
         const localHistory = getLocalTxHistory({ chainId, accountId });
-        if (localHistory) {
+        if (
+          accountId &&
+          localHistory &&
+          Object.keys(localHistory).length !== 0
+        ) {
           setTxHistory(localHistory);
           const parsedHistory = parseHistory(txHistory);
           if (!parsedHistory) return;
@@ -109,6 +95,25 @@ function TxHistoryModal() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [txHistory, pendingTxs, chainId, accountId, page, ocean]);
 
+  function parseHistory(history: TxHistory) {
+    if (!history) return;
+    const txsByDate = [];
+    for (let [txDateId, tx] of Object.entries(history)) {
+      let txLink = getTxUrl({
+        ocean,
+        txHash: tx.txHash,
+        accountId,
+      });
+      if (!txLink) txLink = "/";
+      txsByDate.push({ txDateId, ...tx, txLink });
+    }
+    //@ts-ignore
+    txsByDate.sort(
+      (date1, date2) => Number(date2.txDateId) - Number(date1.txDateId)
+    );
+    return txsByDate;
+  }
+
   function lastPage() {
     if (page[0] === 0) return;
     setPage([page[0] - 5, page[1] - 5]);
@@ -125,7 +130,17 @@ function TxHistoryModal() {
     return `${page[0] + 1} - ${page[1]}`;
   }
 
-  return showTxHistoryModal ? (
+  function exactTime(tx: any) {
+    const stamp = new Date(Number(tx.txDateId));
+    const hours24 = stamp.getHours();
+    const amPm = hours24 > 12 ? "Pm" : "Am";
+    const hours12 = hours24 > 12 ? hours24 - 12 : hours24;
+    const minutes = stamp.getMinutes();
+    return `${hours12}:${minutes} ${amPm}`;
+  }
+
+  if (!showTxHistoryModal) return null;
+  return (
     <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 sm:max-w-sm w-full z-20 shadow">
       <div className="bg-primary-900 border rounded-lg p-4 hm-box mx-3">
         <div className="flex justify-between mb-2">
@@ -183,9 +198,10 @@ function TxHistoryModal() {
                     </a>
                   </div>
                   <div className="flex flex-row">
-                    <p className="text-xs text-primary-400">
-                      {new Date(Number(tx.txDateId)).toDateString()}
+                    <p className="text-xs text-primary-400 pr-1">
+                      {new Date(Number(tx.txDateId)).toDateString()} at
                     </p>
+                    <p className="text-xs text-primary-400">{exactTime(tx)}</p>
                   </div>
                 </li>
               ))}
@@ -203,7 +219,7 @@ function TxHistoryModal() {
         )}
       </div>
     </div>
-  ) : null;
+  );
 }
 
 export default TxHistoryModal;

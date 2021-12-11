@@ -80,21 +80,6 @@ const Swap = () => {
     }
   }, [txReceipt]);
 
-  const setToken = async (
-    info: Record<any, any>,
-    pos: number,
-    updateOther: boolean
-  ) => {
-    const balance = await ocean.getBalance(info.address, accountId);
-    if (pos === 1) {
-      setToken1({ ...token1, info, balance });
-      if (updateOther) updateOtherTokenValue(true, token1.value);
-    } else if (pos === 2) {
-      setToken2({ ...token2, info, balance });
-      if (updateOther) updateOtherTokenValue(false, token2.value);
-    }
-  };
-
   useEffect(() => {
     setLoading(false);
     getButtonProperties();
@@ -122,6 +107,21 @@ const Swap = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token1, token2, accountId, config, chainId]);
+
+  const setToken = async (
+    info: Record<any, any>,
+    pos: number,
+    updateOther: boolean
+  ) => {
+    const balance = await ocean.getBalance(info.address, accountId);
+    if (pos === 1) {
+      setToken1({ ...token1, info, balance });
+      if (updateOther) updateOtherTokenValue(true, token1.value);
+    } else if (pos === 2) {
+      setToken2({ ...token2, info, balance });
+      if (updateOther) updateOtherTokenValue(false, token2.value);
+    }
+  };
 
   async function swapTokens() {
     setToken1(token2);
@@ -264,6 +264,7 @@ const Swap = () => {
             setPendingTxs,
             setShowSnackbar,
             setLastTxId,
+            status: "pending approval",
           });
 
           txType = "Ocean to DT";
@@ -295,6 +296,7 @@ const Swap = () => {
             setPendingTxs,
             setShowSnackbar,
             setLastTxId,
+            status: "pending approval",
           });
 
           txType = "Ocean to DT";
@@ -322,6 +324,7 @@ const Swap = () => {
             setPendingTxs,
             setShowSnackbar,
             setLastTxId,
+            status: "pending approval",
           });
           txType = "DT to Ocean";
           txReceipt = await ocean.swapExactDtToOcean(
@@ -353,6 +356,7 @@ const Swap = () => {
             setPendingTxs,
             setShowSnackbar,
             setLastTxId,
+            status: "pending approval",
           });
           txType = "DT to Ocean";
           txReceipt = await ocean.swapExactDtToOcean(
@@ -391,6 +395,7 @@ const Swap = () => {
             setPendingTxs,
             setShowSnackbar,
             setLastTxId,
+            status: "pending approval",
           });
           txType = "DT to DT";
           txReceipt = await ocean.swapExactDtToDt(
@@ -431,6 +436,7 @@ const Swap = () => {
             setPendingTxs,
             setShowSnackbar,
             setLastTxId,
+            status: "pending approval",
           });
           txType = "DT to DT";
 

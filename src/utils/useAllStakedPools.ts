@@ -151,16 +151,11 @@ export default async function setPoolDataFromOcean({
   //recursively call getAllstaked pools
   //continousouly update the state upon response
 
-  console.log(
-    "Stake fetch time out is",
-    (stakeFetchTimeout &&
-    bgLoading.includes(bgLoadingStates.allStakedPools)),
-    "newTx",
-   !newTx
-  );
-  if (!newTx || stakeFetchTimeout && bgLoading.includes(bgLoadingStates.allStakedPools))
-    return;
 
+  if(!newTx){
+    if(stakeFetchTimeout || bgLoading.includes(bgLoadingStates.allStakedPools))
+    return
+  }
 
   stakeFetchCooldown(setStakeFetchTimeout);
   if (setBgLoading)

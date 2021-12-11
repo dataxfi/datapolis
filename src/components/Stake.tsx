@@ -149,6 +149,8 @@ const Stake = () => {
   }, [txReceipt]);
 
   useEffect(() => {
+    setToken(null);
+    setOceanValInput(0);
     getTokenList({
       chainId,
       web3,
