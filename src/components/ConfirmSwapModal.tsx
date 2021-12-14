@@ -1,4 +1,3 @@
-import React from 'react'
 import { BsArrowDown, BsShuffle, BsX } from 'react-icons/bs'
 import Button from './Button'
 import { useContext, useEffect, useState } from 'react'

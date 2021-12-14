@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import { useState, useContext } from 'react'
 import TokenModal from './TokenModal'
 import { BsChevronDown, BsBoxArrowUpRight } from 'react-icons/bs'
 import { GlobalContext } from '../context/GlobalState'

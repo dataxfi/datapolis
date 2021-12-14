@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { RingLoader } from "react-spinners";
 import { GlobalContext } from "../context/GlobalState";
 

@@ -12,7 +12,6 @@ import { toFixed5 } from "../utils/equate";
 // import { program } from "@babel/types"
 // import { get } from "https"
 import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
-import UserMessageModal, { userMessage } from "../components/UserMessageModal";
 import useTxModalToggler from "../hooks/useTxModalToggler";
 import usePTxManager from "../hooks/usePTxManager";
 
@@ -62,7 +61,6 @@ const Swap = () => {
   const [exactToken, setExactToken] = useState<number>(1);
   const [postExchange, setPostExchange] = useState<any>(null);
   const [slippage, setSlippage] = useState<number | string>(1);
-  const [userMessage, setUserMessage] = useState<string | userMessage>("");
   //very last transaction
   const [lastTxId, setLastTxId] = useState<any>(null);
   const [btnProps, setBtnProps] = useState<IBtnProps>({
@@ -451,8 +449,6 @@ const Swap = () => {
           txHash: txReceipt.transactionHash,
           status: "indexing",
           txReceipt,
-          notifications,
-          setNotifications,
         });
         setToken1(INITIAL_TOKEN_STATE);
         setToken2(INITIAL_TOKEN_STATE);

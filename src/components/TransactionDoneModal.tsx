@@ -1,4 +1,3 @@
-import React from "react"
 import { BsCheckCircle, BsX } from "react-icons/bs"
 
 const TransactionDoneModal = ({

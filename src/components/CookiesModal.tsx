@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { GlobalContext } from "../context/GlobalState";
 import {acceptsCookiesGA, deniedCookiesGA} from '../context/Analytics'
 function CookiesModal() {

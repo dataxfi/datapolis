@@ -3,8 +3,6 @@ import DesktopNavbar from "./DesktopNavbar";
 import { useContext } from "react";
 import { GlobalContext } from "../context/GlobalState";
 // import { web3Network, checkAccounts } from '../utils'
-// import { useEffect } from 'react'
-// import { useState } from 'react'
 // import Emitter from '../emitter'
 
 const text = {

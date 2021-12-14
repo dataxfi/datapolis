@@ -1,5 +1,3 @@
-import React from 'react'
-
 const ConfirmSwapItem = ({img, value, name}: {img: string, value: string, name: string }) => {
     return (
         <div className="flex justify-between items-center">

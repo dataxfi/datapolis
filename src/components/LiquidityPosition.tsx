@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { GlobalContext, bgLoadingStates } from "../context/GlobalState";
+import { GlobalContext } from "../context/GlobalState";
 import { PoolData } from "../utils/stakedPoolsUtils";
 import LiquidityPositionItem from "./LiquidityPositionItem";
 import YellowXLoader from "../assets/YellowXLoader.gif";

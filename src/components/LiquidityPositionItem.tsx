@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import { useContext, useState } from "react";
 import { GlobalContext } from "../context/GlobalState";
 import { PoolData } from "../utils/stakedPoolsUtils";
 import { BsChevronDown, BsChevronUp } from "react-icons/bs";

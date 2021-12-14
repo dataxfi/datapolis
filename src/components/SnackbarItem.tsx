@@ -23,12 +23,14 @@ const SnackbarItem = ({
     setUrl(getTxUrl({ ocean, accountId, txHash: tx.txHash }));
     setTokenInfo(conformTx(tx));
     setTxDetails(tx);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tx]);
 
   useEffect(() => {
     if (txDetails) {
       display();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [txDetails]);
 
   function display() {

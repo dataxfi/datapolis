@@ -35,7 +35,7 @@ const UserMessageModal = ({
     desc = link.desc;
   }
 
-  const {notifications, setNotifications} = useContext(GlobalContext)
+  const { notifications, setNotifications } = useContext(GlobalContext);
   const [messageOpacity, setMessageOpacity] = useState<number>(0);
 
   function easeInOut(time: number, state: Function) {
@@ -65,6 +65,7 @@ const UserMessageModal = ({
     } else {
       setMessageOpacity(100);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const stdMessageEl = (

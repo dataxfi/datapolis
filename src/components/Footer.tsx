@@ -6,7 +6,6 @@ import {
   faGithub,
 } from "@fortawesome/free-brands-svg-icons";
 import { FaBook } from "react-icons/fa";
-import { ReactComponent as DataXIconGrey150 } from "../assets/DataXIconGrey150.svg";
 export default function Footer() {
   return (
     <footer className="absolute bottom-0 pb-2 w-full justify-center z-0 mt-5">

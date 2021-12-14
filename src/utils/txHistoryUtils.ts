@@ -2,7 +2,6 @@ import { TokenInfo } from "./tokenListUtils";
 import { TransactionReceipt } from "web3-core";
 import Web3 from "web3";
 import Watcher from "@dataxfi/datax.js/dist/Watcher";
-import SnackbarItem from "../components/SnackbarItem";
 
 export interface TxTokenDetails {
   balance: string;
@@ -46,8 +45,6 @@ export function addTxHistory({
   txDateId,
   stakeAmt,
   txReceipt,
-  notifications,
-  setNotifications,
 }: {
   chainId: string | number;
   setTxHistory: Function;
@@ -62,8 +59,6 @@ export function addTxHistory({
   txDateId?: number | string;
   txReceipt?: TransactionReceipt;
   stakeAmt?: string | number;
-  notifications?: any;
-  setNotifications?: Function;
 }) {
   try {
     let localTxHistory = getLocalTxHistory({ chainId, accountId });

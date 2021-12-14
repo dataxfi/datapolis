@@ -39,6 +39,7 @@ function TxHistoryModal() {
       if (showConfirmModal) setShowConfirmModal(false);
       if (showTxDone) setShowTxDone(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showConfirmModal, showTxDone, showTxHistoryModal]);
 
   useEffect(() => {
@@ -56,6 +57,7 @@ function TxHistoryModal() {
           });
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [txSelection, watcher, web3, accountId]);
 
   useEffect(() => {
@@ -137,16 +139,16 @@ function TxHistoryModal() {
   }
 
   function txItemTitle(tx: any) {
-    const {type} = tx 
-    const {token1, token2} = conformTx(tx)
+    const { type } = tx;
+    const { token1, token2 } = conformTx(tx);
 
     switch (type) {
       case "stake":
-        return `Stake in ${token1.symbol}/${token2.symbol}`
+        return `Stake in ${token1.symbol}/${token2.symbol}`;
       case "unstake":
-        return `Unstake from ${token1.symbol}/${token2.symbol}`
+        return `Unstake from ${token1.symbol}/${token2.symbol}`;
       default:
-        return `${token1.symbol} to ${token2.symbol}`
+        return `${token1.symbol} to ${token2.symbol}`;
     }
   }
 

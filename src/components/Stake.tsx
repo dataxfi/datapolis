@@ -131,6 +131,7 @@ const Stake = () => {
       .catch(console.error);
     setOceanValInput(0);
     setOceanValToStake(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ocean, token]);
 
   useEffect(() => {
@@ -140,6 +141,7 @@ const Stake = () => {
         chainId: chainId,
         address: ocean.config.default.oceanTokenAddress,
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ocean, currentTokens]);
 
   // custom hook??
@@ -152,6 +154,7 @@ const Stake = () => {
       }
     }
     setOceanBalance();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [txReceipt]);
 
   useEffect(() => {
@@ -307,8 +310,6 @@ const Stake = () => {
           status: "indexing",
           stakeAmt: oceanValToStake,
           txReceipt,
-          notifications,
-          setNotifications,
         });
 
         setPoolDataFromOcean({
@@ -352,8 +353,7 @@ const Stake = () => {
         setLoadingStake(false);
       }
       setLoadingStake(false);
-      setShowConfirmModal(false)
-
+      setShowConfirmModal(false);
     } catch (error: any) {
       const allNotifications = notifications;
       allNotifications.push({
@@ -374,7 +374,7 @@ const Stake = () => {
       });
       console.error(error);
       setLoadingStake(false);
-      setShowConfirmModal(false)
+      setShowConfirmModal(false);
     }
   }
 

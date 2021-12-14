@@ -38,9 +38,10 @@ export default function PTxManager(id: any) {
           const leftPending = allPending.filter((tx: any) => tx !== ptx);
           setPendingTxs(leftPending);
         }
-      });  
+      });
     } else {
       setPendingTxs([]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [txHistory]);
 }

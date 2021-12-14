@@ -1,14 +1,16 @@
- import { useContext, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { GlobalContext } from "../context/GlobalState";
- 
-export default function useTxModalToggler (txReceipt:any) {
-    const {showConfirmModal, setShowConfirmModal, setShowTxDone} = useContext(GlobalContext)
-    useEffect(() => {
+
+export default function useTxModalToggler(txReceipt: any) {
+  const { showConfirmModal, setShowConfirmModal, setShowTxDone } =
+    useContext(GlobalContext);
+  useEffect(() => {
     if (txReceipt) {
       if (showConfirmModal) {
         setShowConfirmModal(false);
         setShowTxDone(true);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [txReceipt]);
 }

@@ -1,7 +1,6 @@
 import { percOf } from "./equate";
 import { TokenDetails } from "@dataxfi/datax.js/dist/Ocean";
 import { removeBgLoadingState, bgLoadingStates } from "../context/GlobalState";
-import { PoolShare } from "@dataxfi/datax.js/dist/Ocean";
 import Web3 from "web3";
 
 export interface PoolData {
@@ -197,10 +196,6 @@ export default async function setPoolDataFromOcean({
         getAllStakedPools({ accountId, fromBlock, toBlock, ocean })
           .then(async (res: any) => {
             if (!res || res.length === 0) return;
-            console.log(
-              "Recieve response from getAllStakedPools in dapp:",
-              res
-            );
             const settledArr: any = await Promise.allSettled(res);
             const newData = settledArr.map(
               (promise: PromiseSettledResult<PoolData>) => {

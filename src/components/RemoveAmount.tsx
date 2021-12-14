@@ -107,6 +107,7 @@ const RemoveAmount = () => {
         })
         .catch(console.log);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ocean, currentStakePool]);
 
   useEffect(() => {
@@ -124,6 +125,7 @@ const RemoveAmount = () => {
       setBtnDisabled(false);
       setBtnText("Approve and Withdrawal");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bgLoading.length, sharesToRemove, pendingUnstakeTx]);
 
   useEffect(() => {
@@ -326,8 +328,6 @@ const RemoveAmount = () => {
           txHash: txReceipt.transactionHash,
           stakeAmt: sharesToRemove,
           txReceipt,
-          notifications,
-          setNotifications,
         });
 
         console.log("current pool Address", poolAddress);

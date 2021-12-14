@@ -12,24 +12,16 @@ const DesktopNavbar = ({
   wallet,
   truncateId,
   network,
-  handleModalOrConnect
+  handleModalOrConnect,
 }: {
   links: Array<any>;
   text: Record<any, any>;
   wallet: string;
   truncateId: Function;
   network: string;
-  handleModalOrConnect: Function
+  handleModalOrConnect: Function;
 }) => {
-  const {
-    handleConnect,
-    accountId,
-    buttonText,
-    pendingTxs,
-    setShowTxHistoryModal,
-  } = useContext(GlobalContext);
-
-  
+  const { accountId, buttonText } = useContext(GlobalContext);
 
   return (
     <header className="lg:flex justify-between items-center py-4 border-gray-800 pl-4 pr-2 hidden">

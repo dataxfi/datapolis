@@ -1,5 +1,3 @@
-import React from 'react'
-
 const TokenItem = ({token, onClick}: {token: Record<any, any>, onClick: Function}) => {
     return (
         <div onClick={() => onClick(token)} className="px-2 py-1.5 hover:bg-type-200 hover:bg-opacity-20 rounded-lg cursor-pointer">

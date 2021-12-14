@@ -1,5 +1,3 @@
-import React from 'react'
-
 const ConfirmSwapListItem = ({name, value, valueClass}: {name: string, value: string, valueClass?: string}) => {
     return (
         <div className="flex justify-between mt-2">
