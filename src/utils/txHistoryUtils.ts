@@ -1,8 +1,8 @@
-import { TokenInfo } from "./useTokenList";
+import { TokenInfo } from "./tokenListUtils";
 import { TransactionReceipt } from "web3-core";
 import Web3 from "web3";
 import Watcher from "@dataxfi/datax.js/dist/Watcher";
-
+import SnackbarItem from "../components/SnackbarItem";
 
 export interface TxTokenDetails {
   balance: string;
@@ -45,11 +45,9 @@ export function addTxHistory({
   slippage,
   txDateId,
   stakeAmt,
-  pendingTxs,
-  setPendingTxs,
-  setShowSnackbar,
-  setLastTxId,
   txReceipt,
+  notifications,
+  setNotifications,
 }: {
   chainId: string | number;
   setTxHistory: Function;
@@ -62,19 +60,16 @@ export function addTxHistory({
   status?: string;
   slippage?: string;
   txDateId?: number | string;
-  pendingTxs: [];
   txReceipt?: TransactionReceipt;
-  setPendingTxs: Function;
-  setShowSnackbar?: Function;
-  setLastTxId?: Function;
   stakeAmt?: string | number;
+  notifications?: any;
+  setNotifications?: Function;
 }) {
   try {
     let localTxHistory = getLocalTxHistory({ chainId, accountId });
 
     if (!txDateId) {
       txDateId = String(Date.now());
-      if (setLastTxId) setLastTxId(txDateId);
     }
     if (!txHash) txHash = null;
 
@@ -104,21 +99,37 @@ export function addTxHistory({
     switch (status) {
       case "Success":
         break;
-      case "pending":
-        break;
       case "indexing":
-        const newPendingTxs = pendingTxs.map((tx) => tx !== txDateId);
-        setPendingTxs(newPendingTxs);
-        if (setShowSnackbar) setShowSnackbar(true);
         break;
       default:
-        status = "pending approval";
-        setPendingTxs([...pendingTxs, txDateId]);
+        status = "pending";
         break;
     }
     return txDateId;
   } catch (error) {
     console.error(error);
+  }
+}
+
+export function conformTx(tx: any) {
+  switch (tx.txType) {
+    case "unstake":
+    case "stake":
+      return {
+        token1: tx.token1,
+        token2: tx.token2,
+      };
+    default:
+      return {
+        token1: {
+          ...tx.token1.info,
+          value: tx.token1.value,
+        },
+        token2: {
+          ...tx.token2.info,
+          value: tx.token2.value,
+        },
+      };
   }
 }
 
@@ -150,16 +161,12 @@ export function deleteRecentTxs({
   txHistory,
   accountId,
   chainId,
-  pendingTxs,
-  setPendingTxs,
 }: {
   txDateId?: string | number | null;
   setTxHistory: Function;
   txHistory: TxHistory;
   accountId: string;
   chainId: string | number;
-  pendingTxs: number[];
-  setPendingTxs: Function;
 }) {
   try {
     if (txDateId) {
@@ -169,8 +176,6 @@ export function deleteRecentTxs({
       delete newTxHistory[txDateId];
       setTxHistory({ ...newTxHistory });
       setLocalTxHistory({ txHistory: newTxHistory, accountId, chainId });
-      const newPendingTxs = pendingTxs.map((tx) => txDateId !== tx);
-      setPendingTxs(newPendingTxs);
     }
   } catch (error) {
     console.error(error);
@@ -228,7 +233,7 @@ export function getLocalTxHistory({
   chainId: string | number;
   accountId: string;
 }) {
-  if(!accountId) return 
+  if (!accountId) return;
   try {
     const localTxHistory = localStorage.getItem(
       `txHistory@${chainId}@${accountId.toLowerCase()}`
@@ -240,7 +245,21 @@ export function getLocalTxHistory({
   }
 }
 
-export async function watchTx({tx, watcher, web3, chainId, setTxHistory, txHistory, pendingTxs, setPendingTxs}:{tx:TxSelection, watcher: Watcher, web3: Web3, chainId: string | number, setTxHistory: Function, txHistory: TxHistory, pendingTxs:[], setPendingTxs: Function }) {
+export async function watchTx({
+  tx,
+  watcher,
+  web3,
+  chainId,
+  setTxHistory,
+  txHistory,
+}: {
+  tx: TxSelection;
+  watcher: Watcher;
+  web3: Web3;
+  chainId: string | number;
+  setTxHistory: Function;
+  txHistory: TxHistory;
+}) {
   const {
     accountId,
     token1,
@@ -254,10 +273,12 @@ export async function watchTx({tx, watcher, web3, chainId, setTxHistory, txHisto
     txDateId,
   } = tx;
 
-  const response = txHash? await watcher.waitTransaction(web3, txHash, {
-    interval: 1000,
-    blocksToWait: 1,
-  }): null
+  const response = txHash
+    ? await watcher.waitTransaction(web3, txHash, {
+        interval: 250,
+        blocksToWait: 1,
+      })
+    : null;
 
   if (status !== "Success" && response && response.status === true) {
     addTxHistory({
@@ -273,11 +294,9 @@ export async function watchTx({tx, watcher, web3, chainId, setTxHistory, txHisto
       slippage,
       txDateId,
       stakeAmt,
-      pendingTxs,
-      setPendingTxs,
       txReceipt,
     });
-  } else if(response && response.status === false) {
+  } else if (response && response.status === false) {
     addTxHistory({
       chainId,
       setTxHistory,
@@ -291,8 +310,6 @@ export async function watchTx({tx, watcher, web3, chainId, setTxHistory, txHisto
       slippage,
       txDateId,
       stakeAmt,
-      pendingTxs,
-      setPendingTxs,
       txReceipt,
     });
   }

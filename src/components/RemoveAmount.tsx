@@ -7,7 +7,7 @@ import {
   bgLoadingStates,
   removeBgLoadingState,
 } from "../context/GlobalState";
-import getTokenList from "../utils/useTokenList";
+import getTokenList from "../utils/tokenListUtils";
 import Button from "./Button";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
@@ -21,9 +21,11 @@ import {
 import setPoolDataFromOcean, {
   getLocalPoolData,
   setPoolDataFromLocal,
-} from "../utils/useAllStakedPools";
+} from "../utils/stakedPoolsUtils";
 import { PulseLoader } from "react-spinners";
-import { addTxHistory, deleteRecentTxs } from "../utils/useTxHistory";
+import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
+import usePTxManager from "../hooks/usePTxManager";
+import useTxModalToggler from "../hooks/useTxModalToggler";
 
 const RemoveAmount = () => {
   const {
@@ -41,18 +43,15 @@ const RemoveAmount = () => {
     setBgLoading,
     txHistory,
     setTxHistory,
-    pendingTxs,
-    setPendingTxs,
-    setShowSnackbar,
-    setLastTxId,
-    loading,
     config,
     showConfirmModal,
     setShowConfirmModal,
     showTxDone,
     setShowTxDone,
-    stakeFetchTimeout, 
-    setStakeFetchTimeout
+    stakeFetchTimeout,
+    setStakeFetchTimeout,
+    notifications,
+    setNotifications,
   } = useContext(GlobalContext);
   const [noWallet, setNoWallet] = useState<boolean>(false);
   const [recentTxHash, setRecentTxHash] = useState("");
@@ -63,7 +62,8 @@ const RemoveAmount = () => {
   const [pendingUnstakeTx, setPendingUnstakeTx] = useState<number | string>();
   const [userMessage, setUserMessage] = useState<userMessage | null>();
   const [txReceipt, setTxReceipt] = useState<any | null>(null);
-
+  //very last transaction
+  const [lastTxId, setLastTxId] = useState<any>(null);
   //Percent of shares from input field
   const [sharesPercToRemove, setSharesPercToRemove] = useState<string | number>(
     ""
@@ -94,6 +94,10 @@ const RemoveAmount = () => {
     return { OCEAN: Number(oceanAmt), shares: shareAmt };
   }
 
+  //hooks
+  usePTxManager(lastTxId);
+  useTxModalToggler(txReceipt);
+
   useEffect(() => {
     if (ocean && currentStakePool) {
       getMaxOceanUnstake()
@@ -104,17 +108,6 @@ const RemoveAmount = () => {
         .catch(console.log);
     }
   }, [ocean, currentStakePool]);
-
-  // custom hook??
-  useEffect(() => {
-    if (txReceipt) {
-      console.log("A succesful txReceipt has been set in Unstake\n", txReceipt);
-      if (showConfirmModal) {
-        setShowConfirmModal(false);
-        setShowTxDone(true);
-      }
-    }
-  }, [txReceipt]);
 
   useEffect(() => {
     console.log(bgLoading);
@@ -185,8 +178,8 @@ const RemoveAmount = () => {
         config,
         web3,
         allStakedPools,
-        stakeFetchTimeout, 
-        setStakeFetchTimeout
+        stakeFetchTimeout,
+        setStakeFetchTimeout,
       });
 
       if (allStakedPools) {
@@ -295,14 +288,11 @@ const RemoveAmount = () => {
         accountId: String(accountId),
         token1: currentStakePool.token1,
         token2: currentStakePool.token2,
-        txType: "Unstake Ocean",
-        status: "pending approval",
-        pendingTxs,
-        setPendingTxs,
-        setShowSnackbar,
-        setLastTxId,
+        txType: "ustake",
+        status: "pending",
         stakeAmt: sharesToRemove,
       });
+      setLastTxId(txDateId);
       setPendingUnstakeTx(txDateId);
       console.log(
         "Unstaking with params",
@@ -321,7 +311,7 @@ const RemoveAmount = () => {
         setRecentTxHash(
           ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash
         );
-          setTxReceipt(txReceipt)
+        setTxReceipt(txReceipt);
         setPendingUnstakeTx(undefined);
         addTxHistory({
           chainId,
@@ -330,16 +320,14 @@ const RemoveAmount = () => {
           accountId: String(accountId),
           token1: currentStakePool.token1,
           token2: currentStakePool.token2,
-          txType: "Unstake Ocean",
+          txType: "unstake",
           txDateId,
           status: "indexing",
           txHash: txReceipt.transactionHash,
-          pendingTxs,
-          setPendingTxs,
-          setShowSnackbar,
-          setLastTxId,
           stakeAmt: sharesToRemove,
           txReceipt,
+          notifications,
+          setNotifications,
         });
 
         console.log("current pool Address", poolAddress);
@@ -356,20 +344,25 @@ const RemoveAmount = () => {
           config,
           web3,
           allStakedPools,
-          stakeFetchTimeout, 
+          stakeFetchTimeout,
           setStakeFetchTimeout,
-          newTx:true
+          newTx: true,
         });
 
         setSharesPercToRemove(0);
         setOceanToReceive(0);
       } else {
         setPendingUnstakeTx(undefined);
-        setUserMessage({
-          message: "User rejected transaction.",
-          link: null,
+        const allNotifications = notifications;
+        allNotifications.push({
           type: "alert",
+          alert: {
+            message: "User rejected transaction.",
+            link: null,
+            type: "alert",
+          },
         });
+        setNotifications([...allNotifications]);
         setShowConfirmModal(false);
         setShowTxDone(false);
         deleteRecentTxs({
@@ -378,18 +371,21 @@ const RemoveAmount = () => {
           txHistory,
           chainId,
           accountId,
-          pendingTxs,
-          setPendingTxs,
         });
       }
     } catch (error: any) {
       console.error(error);
       setPendingUnstakeTx(undefined);
-      setUserMessage({
-        message: error.message,
-        link: null,
+      const allNotifications = notifications;
+      allNotifications.push({
         type: "alert",
+        alert: {
+          message: "User rejected transaction.",
+          link: null,
+          type: "alert",
+        },
       });
+      setNotifications([...allNotifications]);
       setShowConfirmModal(false);
       setShowTxDone(false);
       deleteRecentTxs({
@@ -398,8 +394,6 @@ const RemoveAmount = () => {
         txHistory,
         chainId,
         accountId,
-        pendingTxs,
-        setPendingTxs,
       });
     }
   };

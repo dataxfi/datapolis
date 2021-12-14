@@ -8,7 +8,8 @@ import {
   TxHistory,
   getTxUrl,
   watchTx,
-} from "../utils/useTxHistory";
+  conformTx,
+} from "../utils/txHistoryUtils";
 
 function TxHistoryModal() {
   const {
@@ -22,8 +23,6 @@ function TxHistoryModal() {
     ocean,
     watcher,
     web3,
-    setPendingTxs,
-    lastTxId,
     setShowConfirmModal,
     setShowTxDone,
     showTxDone,
@@ -54,8 +53,6 @@ function TxHistoryModal() {
             chainId,
             setTxHistory,
             txHistory,
-            pendingTxs,
-            setPendingTxs,
           });
       });
     }
@@ -139,6 +136,20 @@ function TxHistoryModal() {
     return `${hours12}:${minutes} ${amPm}`;
   }
 
+  function txItemTitle(tx: any) {
+    const {type} = tx 
+    const {token1, token2} = conformTx(tx)
+
+    switch (type) {
+      case "stake":
+        return `Stake in ${token1.symbol}/${token2.symbol}`
+      case "unstake":
+        return `Unstake from ${token1.symbol}/${token2.symbol}`
+      default:
+        return `${token1.symbol} to ${token2.symbol}`
+    }
+  }
+
   if (!showTxHistoryModal) return null;
   return (
     <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 sm:max-w-sm w-full z-20 shadow">
@@ -167,7 +178,7 @@ function TxHistoryModal() {
                 >
                   <div className="flex flex-row w-full justify-between">
                     <div className="flex">
-                      <h4>{tx.txType}: </h4>
+                      <h4>{txItemTitle(tx)}: </h4>
                       <p
                         className={`ml-1 ${
                           tx.status === "Success"

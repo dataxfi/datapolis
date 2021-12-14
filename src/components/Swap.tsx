@@ -11,8 +11,10 @@ import TransactionDoneModal from "./TransactionDoneModal";
 import { toFixed5 } from "../utils/equate";
 // import { program } from "@babel/types"
 // import { get } from "https"
-import { addTxHistory, deleteRecentTxs } from "../utils/useTxHistory";
+import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
 import UserMessageModal, { userMessage } from "../components/UserMessageModal";
+import useTxModalToggler from "../hooks/useTxModalToggler";
+import usePTxManager from "../hooks/usePTxManager"
 
 const text = {
   T_SWAP: "TradeX",
@@ -43,14 +45,12 @@ const Swap = () => {
     setLoading,
     txHistory,
     setTxHistory,
-    setLastTxId,
-    setShowSnackbar,
-    pendingTxs,
-    setPendingTxs,
     showConfirmModal,
     setShowConfirmModal,
     showTxDone,
     setShowTxDone,
+    notifications,
+    setNotifications,
   } = useContext(GlobalContext);
   const [showSettings, setShowSettings] = useState(false);
   const [showConfirmSwapModal, setShowConfirmSwapModal] = useState(false);
@@ -63,22 +63,18 @@ const Swap = () => {
   const [postExchange, setPostExchange] = useState<any>(null);
   const [slippage, setSlippage] = useState<number | string>(1);
   const [userMessage, setUserMessage] = useState<string | userMessage>("");
+    //very last transaction
+    const [lastTxId, setLastTxId] = useState<any>(null);
   const [btnProps, setBtnProps] = useState<IBtnProps>({
     text: "Select Tokens",
     classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
     disabled: true,
   });
 
-  // custom hook??
-  useEffect(() => {
-    if (txReceipt) {
-      console.log("A succesful txReceipt has been set in TradeX\n", txReceipt);
-      if (showConfirmModal) {
-        setShowConfirmModal(false);
-        setShowTxDone(true);
-      }
-    }
-  }, [txReceipt]);
+
+  //hooks
+  usePTxManager(lastTxId)
+  useTxModalToggler(txReceipt)
 
   useEffect(() => {
     setLoading(false);
@@ -260,13 +256,9 @@ const Swap = () => {
             token2,
             txType: "Ocean to DT",
             slippage: (Number(slippage) / 100).toString(),
-            pendingTxs,
-            setPendingTxs,
-            setShowSnackbar,
-            setLastTxId,
-            status: "pending approval",
+            status: "pending",
           });
-
+          setLastTxId(txDateId);
           txType = "Ocean to DT";
           txReceipt = await ocean.swapExactOceanToDt(
             accountId,
@@ -292,12 +284,9 @@ const Swap = () => {
             token2,
             txType: "Ocean to DT",
             slippage: (Number(slippage) / 100).toString(),
-            pendingTxs,
-            setPendingTxs,
-            setShowSnackbar,
-            setLastTxId,
-            status: "pending approval",
+            status: "pending",
           });
+          setLastTxId(txDateId);
 
           txType = "Ocean to DT";
           txReceipt = await ocean.swapExactOceanToDt(
@@ -320,12 +309,10 @@ const Swap = () => {
             token2,
             txType: "DT to Ocean",
             slippage: (Number(slippage) / 100).toString(),
-            pendingTxs,
-            setPendingTxs,
-            setShowSnackbar,
-            setLastTxId,
-            status: "pending approval",
+            status: "pending",
           });
+          setLastTxId(txDateId);
+
           txType = "DT to Ocean";
           txReceipt = await ocean.swapExactDtToOcean(
             accountId,
@@ -352,12 +339,10 @@ const Swap = () => {
             token2,
             txType: "DT to Ocean",
             slippage: (Number(slippage) / 100).toString(),
-            pendingTxs,
-            setPendingTxs,
-            setShowSnackbar,
-            setLastTxId,
-            status: "pending approval",
+            status: "pending",
           });
+          setLastTxId(txDateId);
+
           txType = "DT to Ocean";
           txReceipt = await ocean.swapExactDtToOcean(
             accountId,
@@ -391,12 +376,10 @@ const Swap = () => {
             token2,
             txType: "DT to DT",
             slippage: (Number(slippage) / 100).toString(),
-            pendingTxs,
-            setPendingTxs,
-            setShowSnackbar,
-            setLastTxId,
-            status: "pending approval",
+            status: "pending",
           });
+          setLastTxId(txDateId);
+
           txType = "DT to DT";
           txReceipt = await ocean.swapExactDtToDt(
             accountId,
@@ -432,12 +415,10 @@ const Swap = () => {
             token2,
             txType: "DT to DT",
             slippage: (Number(slippage) / 100).toString(),
-            pendingTxs,
-            setPendingTxs,
-            setShowSnackbar,
-            setLastTxId,
-            status: "pending approval",
+            status: "pending",
           });
+          setLastTxId(txDateId);
+
           txType = "DT to DT";
 
           txReceipt = await ocean.swapExactDtToDt(
@@ -470,48 +451,46 @@ const Swap = () => {
           txDateId,
           txHash: txReceipt.transactionHash,
           status: "indexing",
-          pendingTxs,
-          setPendingTxs,
-          setShowSnackbar,
-          setLastTxId,
           txReceipt,
+          notifications,
+          setNotifications,
         });
         setToken1(INITIAL_TOKEN_STATE);
         setToken2(INITIAL_TOKEN_STATE);
         setPostExchange(null);
       } else {
         setShowConfirmModal(false);
-        setUserMessage({
+        const allNotifications = notifications;
+        allNotifications.push({ type: "alert", alert:{
           message: "User rejected transaction.",
           link: null,
           type: "alert",
-        });
+        }});
+        setNotifications([...allNotifications]);
         deleteRecentTxs({
           txDateId,
           setTxHistory,
           txHistory,
           accountId,
           chainId,
-          pendingTxs,
-          setPendingTxs,
         });
       }
     } catch (error: any) {
       setShowConfirmModal(false);
-      console.log(error);
-      setUserMessage({
-        message: error.message,
+      console.log("TradeX caught an error:", error);
+      const allNotifications = notifications;
+      allNotifications.push({ type: "alert", alert:{
+        message: "User rejected transaction.",
         link: null,
         type: "alert",
-      });
+      }});
+      setNotifications([...allNotifications]);
       deleteRecentTxs({
         txDateId,
         setTxHistory,
         txHistory,
         accountId,
         chainId,
-        pendingTxs,
-        setPendingTxs,
       });
     }
   }
@@ -744,14 +723,6 @@ const Swap = () => {
         txHash={lastTxUrl}
         close={() => setShowTxDone(false)}
       />
-      {userMessage ? (
-        <UserMessageModal
-          message={userMessage}
-          pulse={false}
-          container={false}
-          timeout={{ showState: setUserMessage, time: 5000 }}
-        />
-      ) : null}
     </>
   );
 };

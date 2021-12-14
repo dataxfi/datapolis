@@ -1,13 +1,13 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { RingLoader } from "react-spinners";
 import { GlobalContext } from "../context/GlobalState";
 
 export default function PendingTxsIndicator() {
-  const {
-    accountId,
-    pendingTxs,
-    setShowTxHistoryModal,
-  } = useContext(GlobalContext);
+  const { accountId, pendingTxs, setShowTxHistoryModal } =
+    useContext(GlobalContext);
+    useEffect(()=>{
+      console.log("length changed", pendingTxs)
+    }, [pendingTxs.length])
 
   return accountId && pendingTxs.length > 0 ? (
     <div

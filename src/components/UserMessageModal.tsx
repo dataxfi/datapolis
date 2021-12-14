@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { BsXCircle, BsX } from "react-icons/bs";
+import { GlobalContext } from "../context/GlobalState";
 export interface userMessage {
   message: string;
-  link: string |  { href: string; desc: string } |null;
+  link: string | { href: string; desc: string } | null;
   type: string;
 }
 
@@ -19,7 +20,7 @@ const UserMessageModal = ({
 }) => {
   let link: any;
   let userMessage;
-  let type;
+  let type: any;
   let href;
   let desc;
 
@@ -34,6 +35,7 @@ const UserMessageModal = ({
     desc = link.desc;
   }
 
+  const {notifications, setNotifications} = useContext(GlobalContext)
   const [messageOpacity, setMessageOpacity] = useState<number>(0);
 
   function easeInOut(time: number, state: Function) {
@@ -46,7 +48,14 @@ const UserMessageModal = ({
     }, time - 500);
 
     setTimeout(() => {
-      state(false);
+      if (type === "alert") {
+        state(null);
+        const allNotifications = notifications;
+        const newNotifications = allNotifications.slice(1);
+        setNotifications(newNotifications);
+      } else {
+        state(false);
+      }
     }, time);
   }
 

@@ -14,8 +14,8 @@ import {
   deniedSignatureGA,
   connectedWalletViaGA,
 } from "./Analytics";
-import { TxHistory } from "../utils/useTxHistory";
-import { PoolData } from "../utils/useAllStakedPools";
+import { TxHistory } from "../utils/txHistoryUtils";
+import { PoolData } from "../utils/stakedPoolsUtils";
 
 const initialState: any = {};
 const CONNECT_TEXT = "Connect Wallet";
@@ -91,8 +91,7 @@ export const GlobalProvider = ({
     useState<boolean>(false);
   //all transaction history
   const [txHistory, setTxHistory] = useState<TxHistory | null>(null);
-  //very last transaction
-  const [lastTxId, setLastTxId] = useState<string | number | null>(null);
+
 
   // (user)confirmModal and txDone state for specific transactions
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -115,6 +114,7 @@ export const GlobalProvider = ({
     CONNECT_TEXT
   );
 
+  const [notifications, setNotifications] = useState([]);
 
 
   // remove all pending signatures to instantiate disclaimer flow upon user reconnection
@@ -395,8 +395,6 @@ export const GlobalProvider = ({
         setBgLoading,
         txHistory,
         setTxHistory,
-        lastTxId,
-        setLastTxId,
         showSnackbar,
         setShowSnackbar,
         pendingTxs,
@@ -410,7 +408,9 @@ export const GlobalProvider = ({
         showTxDone,
         setShowTxDone, 
         stakeFetchTimeout, 
-        setStakeFetchTimeout
+        setStakeFetchTimeout,
+        notifications, 
+        setNotifications
       }}
     >
       {children}

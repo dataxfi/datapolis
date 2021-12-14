@@ -4,7 +4,7 @@ import { useEffect, useState, useContext } from "react";
 import Loader from "./Loader";
 import ReactList from "react-list";
 import { GlobalContext } from "../context/GlobalState";
-import getTokenList, {formatTokenList} from "../utils/useTokenList";
+import getTokenList, {formatTokenList} from "../utils/tokenListUtils";
 
 const text = {
   T_SELECT_TOKEN: "Select a token",

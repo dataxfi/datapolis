@@ -8,11 +8,13 @@ import Button, { IBtnProps } from "./Button";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
 import { Link, useLocation, useHistory } from "react-router-dom";
-import getTokenList from "../utils/useTokenList";
+import getTokenList from "../utils/tokenListUtils";
 import UserMessageModal, { userMessage } from "./UserMessageModal";
 import { toFixed5, toFixed18 } from "../utils/equate";
-import { addTxHistory, deleteRecentTxs } from "../utils/useTxHistory";
-import setPoolDataFromOcean from "../utils/useAllStakedPools";
+import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
+import setPoolDataFromOcean from "../utils/stakedPoolsUtils";
+import usePTxManager from "../hooks/usePTxManager";
+import useTxModalToggler from "../hooks/useTxModalToggler";
 
 const text = {
   T_STAKE: "StakeX",
@@ -43,10 +45,6 @@ const Stake = () => {
     setCurrentTokens,
     txHistory,
     setTxHistory,
-    pendingTxs,
-    setPendingTxs,
-    setShowSnackbar,
-    setLastTxId,
     showConfirmModal,
     setShowConfirmModal,
     showTxDone,
@@ -61,6 +59,8 @@ const Stake = () => {
     allStakedPools,
     stakeFetchTimeout,
     setStakeFetchTimeout,
+    notifications,
+    setNotifications,
   } = useContext(GlobalContext);
   const [token, setToken] = useState<any>(null);
   const [dtToOcean, setDtToOcean] = useState<any>(null);
@@ -75,6 +75,8 @@ const Stake = () => {
   const [recentTxHash, setRecentTxHash] = useState("");
   const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
   const [userMessage, setUserMessage] = useState<userMessage | false>(false);
+  //very last transaction
+  const [lastTxId, setLastTxId] = useState<any>(null);
   const [oceanToken, setOceanToken] = useState<any>({
     symbol: "OCEAN",
     name: "Ocean Token",
@@ -93,6 +95,10 @@ const Stake = () => {
   const [maxStakeAmt, setMaxStakeAmt] = useState<number>();
   const location = useLocation();
   const history = useHistory();
+
+  //hooks
+  usePTxManager(lastTxId);
+  useTxModalToggler(txReceipt);
 
   async function getMaxStakeAmt() {
     if (ocean && token) {
@@ -275,15 +281,11 @@ const Stake = () => {
         accountId: String(accountId),
         token1: token,
         token2: oceanToken,
-        txType: "Stake Ocean",
-        status: "pending approval",
-        pendingTxs,
-        setPendingTxs,
-        setShowSnackbar,
-        setLastTxId,
+        txType: "stake",
+        status: "pending",
         stakeAmt: oceanValToStake,
       });
-
+      setLastTxId(txDateId);
       const txReceipt = await ocean.stakeOcean(
         accountId,
         token.pool,
@@ -299,16 +301,14 @@ const Stake = () => {
           accountId: String(accountId),
           token1: token,
           token2: oceanToken,
-          txType: "Stake Ocean",
+          txType: "stake",
           txDateId,
           txHash: txReceipt.transactionHash,
           status: "indexing",
-          pendingTxs,
-          setPendingTxs,
-          setShowSnackbar,
-          setLastTxId,
           stakeAmt: oceanValToStake,
           txReceipt,
+          notifications,
+          setNotifications,
         });
 
         setPoolDataFromOcean({
@@ -332,41 +332,49 @@ const Stake = () => {
           ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash
         );
       } else {
-        setUserMessage({
-          message: "User rejected transaction.",
-          link: null,
+        const allNotifications = notifications;
+        allNotifications.push({
           type: "alert",
+          alert: {
+            message: "User rejected transaction.",
+            link: null,
+            type: "alert",
+          },
         });
-
+        setNotifications([...allNotifications]);
         deleteRecentTxs({
           txDateId,
           setTxHistory,
           txHistory,
           accountId,
           chainId,
-          pendingTxs,
-          setPendingTxs,
         });
         setLoadingStake(false);
       }
       setLoadingStake(false);
+      setShowConfirmModal(false)
+
     } catch (error: any) {
-      setUserMessage({
-        message: error.message,
-        link: null,
+      const allNotifications = notifications;
+      allNotifications.push({
         type: "alert",
+        alert: {
+          message: "User rejected transaction.",
+          link: null,
+          type: "alert",
+        },
       });
+      setNotifications([...allNotifications]);
       deleteRecentTxs({
         txDateId,
         setTxHistory,
         txHistory,
         accountId,
         chainId,
-        pendingTxs,
-        setPendingTxs,
       });
       console.error(error);
       setLoadingStake(false);
+      setShowConfirmModal(false)
     }
   }
 
