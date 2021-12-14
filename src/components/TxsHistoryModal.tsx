@@ -165,7 +165,7 @@ function TxHistoryModal() {
         </div>
         {noTxHistory ? (
           <div className="px-5 pb-10 pt-5 w-full text-center text-gray-400">
-            There is no transaction history for your current account.
+            There is no transaction history for your account on this chain.
             {/* <button>Fetch From Chain</button> */}
           </div>
         ) : (

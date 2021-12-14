@@ -10,33 +10,30 @@ import { initializeGA } from "./context/Analytics";
 import UnsupportedNetwork from "./components/UnsupportedNetwork";
 import { GlobalContext } from "./context/GlobalState";
 import DisclaimerModal from "./components/DisclaimerModal";
-import Snackbar from "./components/SnackbarItem";
 import TxHistoryModal from "./components/TxsHistoryModal";
 import Footer from "./components/Footer";
 import NotificationArea from "./components/NotificationArea";
-// import LiquidityPosition from "./components/LiquidityPosition";
-// import TransactionDoneModal from "./components/TransactionDoneModal";
-// import Snackbar from "./components/Snackbar";
-// import CreatePoolModal from "./components/CreatePoolModal";
-// import ConfirmModal from "./components/ConfirmModal";
-// import TransactionDoneModal from "./components/TransactionDoneModal";
-// import ConfirmSwapModal from "./components/ConfirmSwapModal";
+import usePTxInitializer from "./hooks/usePTxInitializer";
 
 function App() {
-  const { unsupportedNet, showDisclaimer, cookiesAllowed } =
-    useContext(GlobalContext);
+  const {
+    unsupportedNet,
+    showDisclaimer,
+    cookiesAllowed,
+  } = useContext(GlobalContext);
 
+  document.getElementById("loader");
 
-  document.getElementById("loader")
+  usePTxInitializer()
 
   useEffect(() => {
     if (cookiesAllowed === "true") {
       initializeGA();
     }
-    document.getElementById("loadText")?.remove()
-    document.getElementById("loadCenter")?.remove()
-    document.getElementById("loader")?.remove()
-                // eslint-disable-next-line react-hooks/exhaustive-deps
+    document.getElementById("loadText")?.remove();
+    document.getElementById("loadCenter")?.remove();
+    document.getElementById("loader")?.remove();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -66,9 +63,9 @@ function App() {
         </Router>
       )}
       {cookiesAllowed === null ? <CookiesModal /> : null}
-      <NotificationArea/>
-      <TxHistoryModal/>
-      <Footer/>
+      <NotificationArea />
+      <TxHistoryModal />
+      <Footer />
     </div>
   );
 }

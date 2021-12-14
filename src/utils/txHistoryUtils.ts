@@ -316,3 +316,20 @@ export async function watchTx({
 
   return response;
 }
+
+export function setPendingTxsFromHistory({txHistory, pendingTxs, setPendingTxs}:{txHistory:any, pendingTxs:any, setPendingTxs:Function}) {
+  const allPending = pendingTxs;
+  const olderThanAnHour = Date.now() - 3600000;
+      for (let [id, tx] of Object.entries(txHistory)) {
+        if (
+          Number(id) > olderThanAnHour &&
+          //@ts-ignore
+          tx.status === "pending" &&
+          !pendingTxs.includes(id)
+        ) {
+          //if the tx is within the last hour and pending, set pendingTxs with tx
+          allPending.push(id);
+          setPendingTxs(allPending);
+        }
+      }
+}

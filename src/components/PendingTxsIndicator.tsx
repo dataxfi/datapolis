@@ -5,9 +5,6 @@ import { GlobalContext } from "../context/GlobalState";
 export default function PendingTxsIndicator() {
   const { accountId, pendingTxs, setShowTxHistoryModal } =
     useContext(GlobalContext);
-    useEffect(()=>{
-      console.log("length changed", pendingTxs)
-    }, [pendingTxs.length])
 
   return accountId && pendingTxs.length > 0 ? (
     <div

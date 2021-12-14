@@ -2,12 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { BsCheckCircle, BsX } from "react-icons/bs";
 import { GlobalContext } from "../context/GlobalState";
 import { toFixed5 } from "../utils/equate";
-import {
-  getTxById,
-  TxObject,
-  getTxUrl,
-  conformTx,
-} from "../utils/txHistoryUtils";
+import { getTxUrl, conformTx } from "../utils/txHistoryUtils";
 
 const SnackbarItem = ({
   tx,
@@ -52,7 +47,6 @@ const SnackbarItem = ({
       setCurrentNot(null);
       const allNotifications = notifications;
       const newNotifications = allNotifications.slice(1);
-      console.log("Setting notifications",newNotifications);
       setNotifications(newNotifications);
     }, 6000);
   }
@@ -95,7 +89,7 @@ const SnackbarItem = ({
             role="button"
             color="white"
             onClick={() => {
-              // setShowSnackbar(false);
+              setCurrentNot(null);
             }}
           />
         </div>

@@ -14,7 +14,7 @@ import { toFixed5 } from "../utils/equate";
 import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
 import UserMessageModal, { userMessage } from "../components/UserMessageModal";
 import useTxModalToggler from "../hooks/useTxModalToggler";
-import usePTxManager from "../hooks/usePTxManager"
+import usePTxManager from "../hooks/usePTxManager";
 
 const text = {
   T_SWAP: "TradeX",
@@ -63,18 +63,17 @@ const Swap = () => {
   const [postExchange, setPostExchange] = useState<any>(null);
   const [slippage, setSlippage] = useState<number | string>(1);
   const [userMessage, setUserMessage] = useState<string | userMessage>("");
-    //very last transaction
-    const [lastTxId, setLastTxId] = useState<any>(null);
+  //very last transaction
+  const [lastTxId, setLastTxId] = useState<any>(null);
   const [btnProps, setBtnProps] = useState<IBtnProps>({
     text: "Select Tokens",
     classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
     disabled: true,
   });
 
-
   //hooks
-  usePTxManager(lastTxId)
-  useTxModalToggler(txReceipt)
+  usePTxManager(lastTxId);
+  useTxModalToggler(txReceipt);
 
   useEffect(() => {
     setLoading(false);
@@ -461,11 +460,14 @@ const Swap = () => {
       } else {
         setShowConfirmModal(false);
         const allNotifications = notifications;
-        allNotifications.push({ type: "alert", alert:{
-          message: "User rejected transaction.",
-          link: null,
+        allNotifications.push({
           type: "alert",
-        }});
+          alert: {
+            message: "User rejected transaction.",
+            link: null,
+            type: "alert",
+          },
+        });
         setNotifications([...allNotifications]);
         deleteRecentTxs({
           txDateId,
@@ -479,11 +481,14 @@ const Swap = () => {
       setShowConfirmModal(false);
       console.log("TradeX caught an error:", error);
       const allNotifications = notifications;
-      allNotifications.push({ type: "alert", alert:{
-        message: "User rejected transaction.",
-        link: null,
+      allNotifications.push({
         type: "alert",
-      }});
+        alert: {
+          message: "User rejected transaction.",
+          link: null,
+          type: "alert",
+        },
+      });
       setNotifications([...allNotifications]);
       deleteRecentTxs({
         txDateId,

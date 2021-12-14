@@ -336,6 +336,8 @@ export const GlobalProvider = ({
     provider.on("chainChanged", async (chainId: any) => {
       setCurrentTokens(null);
       setTokenResponse(undefined);
+      setTxHistory(null)
+      setPendingTxs([])
       const parsedId = String(parseInt(chainId));
       console.log(chainId);
       console.log("Chain changed to ", parsedId);
