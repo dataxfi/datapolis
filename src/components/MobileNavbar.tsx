@@ -82,6 +82,7 @@ const MobileNavbar = ({
               onClick={() => toggleMenu(false)}
               to={link.link}
               className="hm-link product"
+              key={`link${idx}`}
             >
               <div key={idx} className="py-1.5 px-8 hover:bg-primary-600">
                 {link.name}

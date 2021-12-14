@@ -6,11 +6,17 @@ import {
 } from "../utils/txHistoryUtils";
 
 export default function usePTxInitializer() {
-  const { accountId, chainId, setTxHistory, pendingTxs, setPendingTxs } =
-    useContext(GlobalContext);
+  const {
+    accountId,
+    chainId,
+    setTxHistory,
+    pendingTxs,
+    setPendingTxs,
+    watcher,
+  } = useContext(GlobalContext);
 
   useEffect(() => {
-    if (accountId && chainId) {
+    if (accountId && chainId && watcher) {
       const localHistory = getLocalTxHistory({ chainId, accountId });
       if (localHistory) {
         setTxHistory(localHistory);
@@ -18,6 +24,7 @@ export default function usePTxInitializer() {
           txHistory: localHistory,
           pendingTxs,
           setPendingTxs,
+          watcher,
         });
       }
     }

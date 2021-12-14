@@ -313,7 +313,6 @@ export const GlobalProvider = ({
     provider.on("accountsChanged", (accounts: any) => {
       let account = accounts[0] ? accounts[0].toLowerCase() : null;
       const localSignature = localStorage.getItem(account ? account : "");
-      console.log("accountsChanged");
       if (localSignature && localSignature !== "pending") {
         console.log("Accounts changed to - ", accounts[0]);
         console.log("Connected Accounts - ", JSON.stringify(accounts));

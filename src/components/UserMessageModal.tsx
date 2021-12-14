@@ -85,6 +85,7 @@ const UserMessageModal = ({
       {link ? (
         <a
           target="_blank"
+          rel="noreferrer"
           className="text-primary-400 hover:text-primary-50"
           href={href ? href : link}
         >

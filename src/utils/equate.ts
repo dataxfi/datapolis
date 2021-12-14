@@ -2,6 +2,7 @@
 export function toFixed5(
   value: any
 ): string {
+  if(!value) return ""
   try {
     return value.toString().match(/^-?\d+(?:\.\d{0,5})?/)[0]
   } catch (error) {
@@ -14,6 +15,7 @@ export function toFixed5(
 export function toFixed18(
   value: any
 ): string {
+  if(!value) return ""
   try {
     return value.toString().match(/^-?\d+(?:\.\d{0,18})?/)[0]
   } catch (error) {
@@ -26,6 +28,7 @@ export function toFixed18(
 export function toFixed2(
   value: any
 ): string {
+  if(!value) return ""
   try {
     return value.toString().match(/^-?\d+(?:\.\d{0,2})?/)[0]
   } catch (error) {

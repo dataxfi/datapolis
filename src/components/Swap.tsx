@@ -73,6 +73,12 @@ const Swap = () => {
   usePTxManager(lastTxId);
   useTxModalToggler(txReceipt);
 
+  useEffect(()=>{
+    if (config) {
+      console.log("Known - ", config);
+    }
+  }, [config])
+
   useEffect(() => {
     setLoading(false);
     getButtonProperties();
@@ -85,9 +91,7 @@ const Swap = () => {
         classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
         disabled: true,
       });
-    } else if (config) {
-      console.log("Known - ", config);
-    }
+    }  
 
     //if chain changes, reset tokens
     if (!network) {
@@ -633,7 +637,7 @@ const Swap = () => {
             title={text.T_SWAP_FROM}
             pos={1}
             setToken={setToken}
-            updateNum={(value: number) => {
+            updateNum={(value: string) => {
               setToken1({ ...token1, value });
               updateOtherTokenValue(true, value);
             }}
@@ -661,7 +665,7 @@ const Swap = () => {
             title={text.T_SWAP_TO}
             pos={2}
             setToken={setToken}
-            updateNum={(value: number) => {
+            updateNum={(value: string) => {
               setToken2({ ...token2, value });
               updateOtherTokenValue(false, value);
             }}

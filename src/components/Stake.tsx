@@ -66,7 +66,7 @@ const Stake = () => {
   const [dtToOcean, setDtToOcean] = useState<any>(null);
   const [oceanToDt, setOceanToDt] = useState<any>(null);
   const [loadingRate, setLoadingRate] = useState(false);
-  const [oceanValInput, setOceanValInput] = useState<string | number>();
+  const [oceanValInput, setOceanValInput] = useState<string | number>("");
   const [oceanValToStake, setOceanValToStake] = useState<string | number>();
   const [txReceipt, setTxReceipt] = useState<any | null>(null);
   const [balance, setBalance] = useState<any>(null);
@@ -415,7 +415,7 @@ const Stake = () => {
   async function updateNum(val: string | number) {
     if (!val) {
       setOceanValToStake(0);
-      setOceanValInput(undefined);
+      setOceanValInput("");
       return;
     }
     if (maxStakeAmt) {

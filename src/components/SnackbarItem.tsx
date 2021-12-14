@@ -18,6 +18,7 @@ const SnackbarItem = ({
   const [tokenInfo, setTokenInfo] = useState<any>();
   const [txDetails, setTxDetails] = useState<any>();
   const [url, setUrl] = useState<any>();
+  const [cleanup, setCleanup] = useState(true)
 
   useEffect(() => {
     setUrl(getTxUrl({ ocean, accountId, txHash: tx.txHash }));
@@ -27,9 +28,12 @@ const SnackbarItem = ({
   }, [tx]);
 
   useEffect(() => {
-    if (txDetails) {
+    if (txDetails && cleanup) {
       display();
     }
+
+    return () => {(setCleanup(true)) }
+    
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [txDetails]);
 
@@ -92,6 +96,7 @@ const SnackbarItem = ({
             color="white"
             onClick={() => {
               setCurrentNot(null);
+              setCleanup(false)
             }}
           />
         </div>

@@ -52,7 +52,7 @@ export default async function getTokenList({
       )
       .then((res) => {
         setTokenResponse(res);
-        console.log("TOken REsponse:", res)
+        console.log("Token Response:", res)
         const formattedList = formatTokenList(res, otherToken)
         if(setCurrentTokens) setCurrentTokens(formattedList);
       })

@@ -14,30 +14,34 @@ import TxHistoryModal from "./components/TxsHistoryModal";
 import Footer from "./components/Footer";
 import NotificationArea from "./components/NotificationArea";
 import usePTxInitializer from "./hooks/usePTxInitializer";
-
+//import "./stars.css"
 function App() {
-  const {
-    unsupportedNet,
-    showDisclaimer,
-    cookiesAllowed,
-  } = useContext(GlobalContext);
+  const { unsupportedNet, showDisclaimer, cookiesAllowed } =
+    useContext(GlobalContext);
 
   document.getElementById("loader");
 
-  usePTxInitializer()
+  usePTxInitializer();
 
   useEffect(() => {
-    if (cookiesAllowed === "true") {
+    if (cookiesAllowed) {
       initializeGA();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cookiesAllowed]);
+
+  useEffect(()=>{
     document.getElementById("loadText")?.remove();
     document.getElementById("loadCenter")?.remove();
     document.getElementById("loader")?.remove();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <div className="min-h-full relative">
+      {/* <div id="stars"></div>
+      <div id="stars1"></div>
+      <div id="stars2"></div> */}
       {unsupportedNet ? (
         <UnsupportedNetwork />
       ) : (
