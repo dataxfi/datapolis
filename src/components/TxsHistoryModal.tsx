@@ -139,14 +139,14 @@ function TxHistoryModal() {
   }
 
   function txItemTitle(tx: any) {
-    const { type } = tx;
+    const { txType } = tx;
     const { token1, token2 } = conformTx(tx);
-
-    switch (type) {
+    
+    switch (txType) {
       case "stake":
-        return `Stake in ${token1.symbol}/${token2.symbol}`;
+        return `Stake ${token1.symbol}/${token2.symbol}`;
       case "unstake":
-        return `Unstake from ${token1.symbol}/${token2.symbol}`;
+        return `Unstake ${token1.symbol}/${token2.symbol}`;
       default:
         return `${token1.symbol} to ${token2.symbol}`;
     }
@@ -154,7 +154,7 @@ function TxHistoryModal() {
 
   if (!showTxHistoryModal) return null;
   return (
-    <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 sm:max-w-sm w-full z-20 shadow">
+    <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 sm:max-w-md w-full z-20 shadow">
       <div className="bg-primary-900 border rounded-lg p-4 hm-box mx-3">
         <div className="flex justify-between mb-2">
           <h3>Recent Transactions</h3>

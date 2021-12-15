@@ -58,6 +58,7 @@ const RemoveAmount = () => {
   const [noStakedPools, setNoStakedPools] = useState<boolean>(false);
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
   const [btnText, setBtnText] = useState("Approve and Withdrawal");
+  const [inputDisabled, setInputDisabled] = useState(false);
   const [poolAddress, setPoolAddress] = useState<string>();
   const [pendingUnstakeTx, setPendingUnstakeTx] = useState<number | string>();
   const [userMessage, setUserMessage] = useState<userMessage | null>();
@@ -81,15 +82,19 @@ const RemoveAmount = () => {
   const location = useLocation();
 
   async function getMaxOceanUnstake() {
-    const oceanAmt = await ocean.getMaxUnstakeAmount(
-      currentStakePool.address,
-      ocean.config.default.oceanTokenAddress
-    );
+    const oceanAmt =
+      0.98 *
+      (await ocean.getMaxUnstakeAmount(
+        currentStakePool.address,
+        ocean.config.default.oceanTokenAddress
+      ));
+
+    console.log("getMaxUnstakeAmount", oceanAmt);
 
     const shareAmt = await ocean.getPoolSharesRequiredToUnstake(
       currentStakePool.address,
       ocean.config.default.oceanTokenAddress,
-      oceanAmt
+      String(oceanAmt)
     );
     return { OCEAN: Number(oceanAmt), shares: shareAmt };
   }
@@ -112,11 +117,14 @@ const RemoveAmount = () => {
 
   useEffect(() => {
     console.log(bgLoading);
+    setInputDisabled(false);
     if (bgLoading.includes("stake")) {
       setBtnDisabled(true);
+      setInputDisabled(true);
       setBtnText("Loading your liquidity information.");
     } else if (pendingUnstakeTx) {
       setBtnDisabled(true);
+      setInputDisabled(true);
       setBtnText("Awaiting transaction for current pool.");
     } else if (Number(sharesToRemove) == 0) {
       setBtnDisabled(true);
@@ -216,8 +224,11 @@ const RemoveAmount = () => {
 
     console.log("Current user shares", currentStakePool.shares);
 
-    const oceanFromPerc = userTotalStakedOcean * (percInput / 100);
-
+    let oceanFromPerc = userTotalStakedOcean * (percInput / 100);
+    
+    //small numbers in e-notation past 18 decimals set to 0
+    if(oceanFromPerc > 0.000000000000000001) oceanFromPerc = 0
+    
     const sharesNeeded = await ocean.getPoolSharesRequiredToUnstake(
       currentStakePool.address,
       ocean.config.default.oceanTokenAddress,
@@ -240,10 +251,12 @@ const RemoveAmount = () => {
   };
 
   async function setMaxUnstake() {
-    if (!maxOceanRemove) return;
-    setBgLoading([...bgLoading, bgLoadingStates.maxUnstake]);
+    let maxUnstake: any = maxOceanRemove;
+    if (!maxUnstake) {
+      maxUnstake = getMaxOceanUnstake();
+    }
 
-    console.log(maxOceanRemove.OCEAN);
+    setBgLoading([...bgLoading, bgLoadingStates.maxUnstake]);
 
     //find whether user staked oceans is greater or lesser than max unstake
     const userTotalStakedOcean = await ocean.getOceanRemovedforPoolShares(
@@ -254,12 +267,12 @@ const RemoveAmount = () => {
     console.log("Total user shares in ocean", userTotalStakedOcean);
 
     //find the lesser token amount from above
-    if (Number(userTotalStakedOcean) > Number(maxOceanRemove.OCEAN)) {
+    if (Number(userTotalStakedOcean) > Number(maxUnstake.OCEAN)) {
       console.log("User has more tokens than max unstake.");
-      setOceanToReceive(Number(toFixed18(maxOceanRemove.OCEAN)));
-      setSharesToRemove(maxOceanRemove.shares);
+      setOceanToReceive(Number(toFixed18(maxUnstake.OCEAN)));
+      setSharesToRemove(maxUnstake.shares);
       setSharesPercToRemove(
-        toFixed2((maxOceanRemove.OCEAN / userTotalStakedOcean) * 100)
+        toFixed2((maxUnstake.OCEAN / userTotalStakedOcean) * 100)
       );
       setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.maxUnstake));
       return;
@@ -290,7 +303,7 @@ const RemoveAmount = () => {
         accountId: String(accountId),
         token1: currentStakePool.token1,
         token2: currentStakePool.token2,
-        txType: "ustake",
+        txType: "unstake",
         status: "pending",
         stakeAmt: sharesToRemove,
       });
@@ -299,14 +312,14 @@ const RemoveAmount = () => {
       console.log(
         "Unstaking with params",
         currentStakePool.address,
-        oceanToReceive,
-        currentStakePool.shares
+        toFixed18(oceanToReceive),
+        toFixed18(currentStakePool.shares)
       );
       const txReceipt = await ocean.unstakeOcean(
         accountId,
         currentStakePool.address,
-        toFixed18(String(oceanToReceive)),
-        currentStakePool.shares
+        toFixed18(oceanToReceive),
+        toFixed18(currentStakePool.shares)
       );
 
       if (txReceipt) {
@@ -462,60 +475,63 @@ const RemoveAmount = () => {
                 <p className="text-type-100">Amount to unstake</p>
               </div>
               <div className="col-span-3 flex justify-between mt-3 md:mt-0 bg-primary-900 rounded-lg p-2">
-                <div className="flex w-full items-center">
-                  {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
-                  <span
-                    className={`text-2xl ${
-                      sharesToRemove ? "text-primary-400" : null
-                    }`}
-                  >
-                    <input
-                      step="1"
-                      onChange={(e) => updateNum(e.target.value)}
-                      onWheel={(event) => event.currentTarget.blur()}
-                      onKeyDown={(evt) =>
-                        ["e", "E", "+", "-"].includes(evt.key) &&
-                        evt.preventDefault()
-                      }
-                      type="number"
-                      className="h-full w-24 rounded-lg bg-primary-900 text-2xl pl-2 pr-1 outline-none focus:placeholder-type-200 placeholder-type-400 text-right"
-                      placeholder="0.00"
-                      value={sharesPercToRemove}
-                    />
-                    %
-                  </span>
-                </div>
-                <div>
-                  {currentStakePool.shares ? (
-                    <p className="text-sm text-type-400 whitespace-nowrap text-right">
-                      Shares:{" "}
-                      {Number(currentStakePool.shares).toLocaleString(
-                        undefined,
-                        {
-                          maximumFractionDigits: 4,
-                        }
+
+                    <div className="flex w-full items-center">
+                      {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
+                      <span
+                        className={`text-2xl ${
+                          sharesToRemove ? "text-primary-400" : null
+                        }`}
+                      >
+                        <input
+                          step="1"
+                          onChange={(e) => updateNum(e.target.value)}
+                          onWheel={(event) => event.currentTarget.blur()}
+                          onKeyDown={(evt) =>
+                            ["e", "E", "+", "-"].includes(evt.key) &&
+                            evt.preventDefault()
+                          }
+                          type="number"
+                          className="h-full w-24 rounded-lg bg-primary-900 text-2xl px-1 outline-none focus:placeholder-type-200 placeholder-type-400 text-right"
+                          placeholder="0.00"
+                          value={sharesPercToRemove}
+                          disabled={inputDisabled}
+                        />
+                        %
+                      </span>
+                    </div>
+                    <div>
+                      {currentStakePool.shares ? (
+                        <p className="text-sm text-type-400 whitespace-nowrap text-right">
+                          Shares:{" "}
+                          {Number(currentStakePool.shares).toLocaleString(
+                            undefined,
+                            {
+                              maximumFractionDigits: 4,
+                            }
+                          )}
+                        </p>
+                      ) : null}
+                      {bgLoading.includes(bgLoadingStates.singlePool) ||
+                      bgLoading.includes(bgLoadingStates.maxUnstake) ? (
+                        <div className="text-center">
+                          <PulseLoader color="white" size="4px" margin="5px" />
+                        </div>
+                      ) : currentStakePool.shares ? (
+                        <div className="text-sm text-type-300 grid grid-flow-col justify-end gap-2">
+                          <Button
+                            onClick={() => {
+                              setMaxUnstake();
+                            }}
+                            text="Max Unstake"
+                            classes={`px-2 lg:w-24 py-0 border border-type-300 rounded-full text-xs ${inputDisabled? "text-gray-700":null}`}
+                          />
+                        </div>
+                      ) : (
+                        <></>
                       )}
-                    </p>
-                  ) : null}
-                  {bgLoading.includes(bgLoadingStates.singlePool) ||
-                  bgLoading.includes(bgLoadingStates.maxUnstake) ? (
-                    <div className="text-center">
-                      <PulseLoader color="white" size="4px" margin="5px" />
                     </div>
-                  ) : currentStakePool.shares ? (
-                    <div className="text-sm text-type-300 grid grid-flow-col justify-end gap-2">
-                      <Button
-                        onClick={() => {
-                          setMaxUnstake();
-                        }}
-                        text="Max Unstake"
-                        classes="px-2 py-0 border border-type-300 rounded-full text-xs"
-                      />
-                    </div>
-                  ) : (
-                    <></>
-                  )}
-                </div>
+
               </div>
             </div>
             <div className="px-4 relative my-12">
@@ -584,9 +600,7 @@ const RemoveAmount = () => {
           currentStakePool && sharesToRemove && oceanToReceive
             ? [
                 `Approve DataX to spend ${toFixed5(sharesToRemove)} shares`,
-                `Approve DataX to unstake ${toFixed5(
-                  oceanToReceive
-                )} OCEAN from the ${
+                `Unstake ${toFixed5(oceanToReceive)} OCEAN from the ${
                   currentStakePool.token1.symbol || "OCEAN"
                 } pool.`,
               ]
