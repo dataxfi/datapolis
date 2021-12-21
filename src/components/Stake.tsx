@@ -15,6 +15,7 @@ import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
 import setPoolDataFromOcean from "../utils/stakedPoolsUtils";
 import usePTxManager from "../hooks/usePTxManager";
 import useTxModalToggler from "../hooks/useTxModalToggler";
+import errorMessages from "../utils/errorMessages";
 
 const text = {
   T_STAKE: "StakeX",
@@ -333,33 +334,14 @@ const Stake = () => {
           ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash
         );
       } else {
-        const allNotifications = notifications;
-        allNotifications.push({
-          type: "alert",
-          alert: {
-            message: "User rejected transaction.",
-            link: null,
-            type: "alert",
-          },
-        });
-        setNotifications([...allNotifications]);
-        deleteRecentTxs({
-          txDateId,
-          setTxHistory,
-          txHistory,
-          accountId,
-          chainId,
-        });
-        setLoadingStake(false);
+        throw new Error ("Didn't receive a receipt.")
       }
-      setLoadingStake(false);
-      setShowConfirmModal(false);
     } catch (error: any) {
       const allNotifications = notifications;
       allNotifications.push({
         type: "alert",
         alert: {
-          message: "User rejected transaction.",
+          message: errorMessages(error),
           link: null,
           type: "alert",
         },
@@ -372,7 +354,6 @@ const Stake = () => {
         accountId,
         chainId,
       });
-      console.error(error);
       setLoadingStake(false);
       setShowConfirmModal(false);
     }

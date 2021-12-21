@@ -14,6 +14,7 @@ import { toFixed5 } from "../utils/equate";
 import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
 import useTxModalToggler from "../hooks/useTxModalToggler";
 import usePTxManager from "../hooks/usePTxManager";
+import errorMessages from "../utils/errorMessages";
 
 const text = {
   T_SWAP: "TradeX",
@@ -73,11 +74,11 @@ const Swap = () => {
   usePTxManager(lastTxId);
   useTxModalToggler(txReceipt);
 
-  useEffect(()=>{
+  useEffect(() => {
     if (config) {
       console.log("Known - ", config);
     }
-  }, [config])
+  }, [config]);
 
   useEffect(() => {
     setLoading(false);
@@ -91,7 +92,7 @@ const Swap = () => {
         classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
         disabled: true,
       });
-    }  
+    }
 
     //if chain changes, reset tokens
     if (!network) {
@@ -261,13 +262,14 @@ const Swap = () => {
           });
           setLastTxId(txDateId);
           txType = "Ocean to DT";
-          txReceipt = await ocean.swapExactOceanToDt(
-            accountId,
-            token2.info.pool.toString(),
-            token2.value.toString(),
-            token1.value.toString(),
-            (Number(slippage) / 100).toString()
-          );
+
+            txReceipt = await ocean.swapExactOceanToDt(
+              accountId,
+              token2.info.pool.toString(),
+              token2.value.toString(),
+              token1.value.toString(),
+              (Number(slippage) / 100).toString()
+            );
         } else {
           console.log("ocean to exact dt");
           console.log(
@@ -290,13 +292,14 @@ const Swap = () => {
           setLastTxId(txDateId);
 
           txType = "Ocean to DT";
-          txReceipt = await ocean.swapExactOceanToDt(
-            accountId,
-            token2.info.pool,
-            token2.value.toString(),
-            token1.value.toString(),
-            (Number(slippage) / 100).toString()
-          );
+
+            txReceipt = await ocean.swapExactOceanToDt(
+              accountId,
+              token2.info.pool,
+              token2.value.toString(),
+              token1.value.toString(),
+              (Number(slippage) / 100).toString()
+            );
         }
       } else if (isOCEAN(token2.info.address)) {
         if (exactToken === 1) {
@@ -458,33 +461,15 @@ const Swap = () => {
         setToken2(INITIAL_TOKEN_STATE);
         setPostExchange(null);
       } else {
-        setShowConfirmModal(false);
-        const allNotifications = notifications;
-        allNotifications.push({
-          type: "alert",
-          alert: {
-            message: "User rejected transaction.",
-            link: null,
-            type: "alert",
-          },
-        });
-        setNotifications([...allNotifications]);
-        deleteRecentTxs({
-          txDateId,
-          setTxHistory,
-          txHistory,
-          accountId,
-          chainId,
-        });
+        throw new Error ("Didn't receive a receipt.")
       }
     } catch (error: any) {
       setShowConfirmModal(false);
-      console.log("TradeX caught an error:", error);
       const allNotifications = notifications;
       allNotifications.push({
         type: "alert",
         alert: {
-          message: "User rejected transaction.",
+          message: errorMessages(error),
           link: null,
           type: "alert",
         },
@@ -708,9 +693,9 @@ const Swap = () => {
       <ConfirmSwapModal
         close={() => setShowConfirmSwapModal(false)}
         confirm={() => {
-          makeTheSwap();
           setShowConfirmSwapModal(false);
           setShowConfirmModal(true);
+          makeTheSwap();
         }}
         show={showConfirmSwapModal}
         token1={token1}
