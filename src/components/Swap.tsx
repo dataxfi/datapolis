@@ -8,7 +8,7 @@ import OutsideClickHandler from "react-outside-click-handler";
 import ConfirmSwapModal from "./ConfirmSwapModal";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
-import { toFixed5 } from "../utils/equate";
+import { toFixed2, toFixed5 } from "../utils/equate";
 // import { program } from "@babel/types"
 // import { get } from "https"
 import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
@@ -56,7 +56,7 @@ const Swap = () => {
   const [showConfirmSwapModal, setShowConfirmSwapModal] = useState(false);
   const [network, setNetwork] = useState(null);
   const [lastTxUrl, setLastTxUrl] = useState("");
-  const [txReceipt, setTxReceipt] = useState<any | null>(null);
+  const [txReceipt, setTxReceipt] = useState<any>(null);
   const [token1, setToken1] = useState<any>(INITIAL_TOKEN_STATE);
   const [token2, setToken2] = useState<any>(INITIAL_TOKEN_STATE);
   const [exactToken, setExactToken] = useState<number>(1);
@@ -69,6 +69,7 @@ const Swap = () => {
     classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
     disabled: true,
   });
+  const [maxExchange, setMaxExchange] = useState<any>(null);
 
   //hooks
   usePTxManager(lastTxId);
@@ -79,6 +80,73 @@ const Swap = () => {
       console.log("Known - ", config);
     }
   }, [config]);
+
+  async function getMaxExchange() {
+    console.log("Changing max buy");
+    let maxTrade;
+    let tokenNeeded;
+    let sellLimit;
+    let tokens;
+    if (!isOCEAN(token1.info.address) && !isOCEAN(token2.info.address)) {
+      console.log("we in here");
+      const maxT1 = await ocean.getMaxExchange(token1.info.pool);
+      const maxT2 = await ocean.getMaxExchange(token2.info.pool);
+
+      console.log(maxT1, maxT2);
+
+      if (Number(maxT1) < Number(maxT2)) {
+        console.log("max t1 < max t2");
+        maxTrade = maxT1;
+        sellLimit = true;
+      } else {
+        maxTrade = maxT2;
+        console.log("max t1 > max t2");
+      }
+
+      tokens = [toFixed2(maxT1), toFixed2(maxT2)];
+    } else if (isOCEAN(token2.info.address)) {
+      maxTrade = await ocean.getMaxExchange(token1.info.pool);
+      tokenNeeded = await calculateExchange(true, toFixed2(maxTrade));
+      sellLimit = true;
+      //maxTrade = (Number(maxTrade) / 2).toString()
+    } else {
+      maxTrade = await ocean.getMaxExchange(token2.info.pool);
+      tokenNeeded = await calculateExchange(false, toFixed2(maxTrade));
+      sellLimit = false;
+    }
+
+    console.log(maxTrade);
+    console.log(tokenNeeded);
+    return tokens
+      ? {
+          maxTrade: toFixed2(maxTrade),
+          tokenNeeded: toFixed2(tokenNeeded),
+          sellLimit,
+          tokens,
+        }
+      : {
+          maxTrade: toFixed2(maxTrade),
+          tokenNeeded: toFixed2(tokenNeeded),
+          sellLimit,
+        };
+  }
+
+  useEffect(() => {
+    if (token1.info && token2.info) {
+      setToken1({ ...token1, loading: true });
+      setToken2({ ...token2, loading: true });
+      getMaxExchange().then((res) => {
+        setMaxExchange(res);
+        if (token1.value > 0) {
+          setToken1({ ...token1, loading: false });
+          setToken(token1.info, 1, true);
+        } else {
+          setToken1({ ...token1, loading: false });
+          setToken2({ ...token2, loading: false });
+        }
+      });
+    }
+  }, [token1.info, token2.info]);
 
   useEffect(() => {
     setLoading(false);
@@ -122,17 +190,40 @@ const Swap = () => {
   };
 
   async function swapTokens() {
-    setToken1(token2);
-    setToken2({ ...token1, loading: true });
-    let exchange = await calculateExchange(true, token2.value);
-    exchange = Number(toFixed5(exchange));
-    setPostExchange(exchange / token2.value);
-    setToken2({ ...token1, value: exchange, loading: false });
+    setToken1({ ...token2, value: "0", loading: true });
+    setToken2({ ...token1, value: "0", loading: true });
+    // let exchange = await calculateExchange(true, token2.value);
+    // exchange = Number(toFixed5(exchange));
+    // setPostExchange(exchange / token2.value);
+    //setToken2({ ...token1, value: "0" });
     setExactToken(1);
   }
 
-  function updateValueFromPercentage(fromToken: Boolean, value: string) {
+  async function updateValueFromPercentage(fromToken: Boolean, value: string) {
     let perc = parseFloat(value);
+    let limit;
+    let exchangeLimit;
+    let balOrLim;
+
+    maxExchange
+      ? (exchangeLimit = maxExchange)
+      : (exchangeLimit = await getMaxExchange());
+
+    exchangeLimit.sellLimit
+      ? (limit = exchangeLimit.maxTrade)
+      : (limit = exchangeLimit.tokenNeeded);
+    if (!exchangeLimit.tokenNeeded) {
+      fromToken
+        ? (limit = exchangeLimit.tokens[0])
+        : (limit = exchangeLimit.tokens[1]);
+    }
+
+    console.log(exchangeLimit);
+
+    fromToken
+      ? (balOrLim = Number(token1.balance) > Number(limit))
+      : (balOrLim = Number(token2.balance) > Number(limit));
+
     if (Number.isNaN(perc)) {
       if (fromToken) {
         setToken1({ ...token1, percentage: "" });
@@ -141,31 +232,85 @@ const Swap = () => {
       }
     } else if (perc > 100) {
       if (fromToken) {
-        setToken1({ ...token1, percentage: "100", value: token1.balance });
+        if (balOrLim) {
+          console.log(1);
+
+          perc = (Number(limit) / Number(token1.balance)) * 100;
+          setToken1({
+            ...token1,
+            percentage: perc,
+            value: limit,
+          });
+        } else {
+          console.log(2);
+
+          perc = 100;
+          setToken1({
+            ...token1,
+            percentage: Math.trunc(perc),
+            value: token1.balance,
+          });
+        }
         // setToken2({...token2, percentage: ''})
-        updateOtherTokenValue(true, 100);
+        updateOtherTokenValue(true, perc);
       } else {
-        setToken2({ ...token2, percentage: "100", value: token2.balance });
+        if (balOrLim) {
+          console.log(3);
+
+          perc = (Number(limit) / Number(token2.balance)) * 100;
+          setToken2({
+            ...token2,
+            percentage: Math.trunc(perc),
+            value: limit,
+          });
+        } else {
+          console.log(4);
+
+          perc = 100;
+          setToken2({
+            ...token2,
+            percentage: Math.trunc(perc),
+            value: token2.balance,
+          });
+        }
         // setToken1({...token1, percentage: ''})
-        updateOtherTokenValue(false, 100);
+        updateOtherTokenValue(false, perc);
       }
     } else {
+      let value;
       if (fromToken) {
-        const value = Number(toFixed5(token1.balance * (perc / 100)));
+        if (balOrLim) {
+          console.log(5);
+          perc = (Number(limit) / Number(token1.balance)) * 100;
+          value = Number(toFixed5(token1.balance * (perc / 100)));
+        } else {
+          console.log(6);
+          value = Number(toFixed5(token1.balance * (perc / 100)));
+        }
         setToken1({
           ...token1,
-          percentage: String(perc),
+          percentage: String(Math.trunc(perc)),
           value: value.toString(),
         });
         // setToken2({...token2, percentage: ''})
         updateOtherTokenValue(true, value.toString());
       } else {
-        const value = Number(toFixed5(token2.balance * (perc / 100)));
+        if (balOrLim) {
+          console.log(7);
+
+          perc = (Number(limit) / Number(token2.balance)) * 100;
+          value = Number(toFixed5(token2.balance * (perc / 100)));
+        } else {
+          console.log(8);
+
+          value = Number(toFixed5(token2.balance * (perc / 100)));
+        }
         setToken2({
           ...token2,
-          percentage: String(perc),
+          percentage: String(Math.trunc(perc)),
           value: value.toString(),
         });
+
         // setToken1({...token1, percentage: ''})
         updateOtherTokenValue(false, value.toString());
       }
@@ -177,54 +322,91 @@ const Swap = () => {
       if (from) {
         setToken2({ ...token2, loading: true });
         let exchange = await calculateExchange(from, inputAmount);
-        exchange = Number(toFixed5(exchange));
-        setPostExchange(exchange / inputAmount);
-        setToken2({ ...token2, value: exchange, loading: false });
-        setExactToken(1);
+        if (
+          !exchange ||
+          (maxExchange.tokens &&
+            Number(exchange) > Number(maxExchange.tokens[1]))
+        ) {
+          const max = maxExchange.tokens[1]
+          console.log("resetting 2 to max");
+          setToken2({ ...token2, value: max });
+          updateOtherTokenValue(false, max);
+          setPostExchange(exchange / max);
+        } else {
+          console.log("setting number 2");
+          exchange = Number(toFixed5(exchange));
+          setPostExchange(exchange / inputAmount);
+          setToken2({ ...token2, value: exchange, loading: false });
+          setExactToken(1);
+        }
       } else {
         setToken1({ ...token1, loading: true });
         let exchange = await calculateExchange(from, inputAmount);
-        exchange = Number(toFixed5(exchange || 0));
-        setPostExchange(inputAmount / exchange || 0);
-        setToken1({ ...token1, value: exchange, loading: false });
-        setExactToken(2);
+        console.log("resetting 1 to max");
+        if (
+          !exchange ||
+          (maxExchange.tokens &&
+            Number(exchange) > Number(maxExchange.tokens[0]))
+        ) {
+          const max = maxExchange.tokens[0]
+          setToken1({ ...token1, value: max });
+          updateOtherTokenValue(false, max);
+          setPostExchange(max / exchange || 0);
+        } else {
+          console.log("setting number 1");
+
+          exchange = Number(toFixed5(exchange || 0));
+          setToken1({ ...token1, value: exchange, loading: false });
+          setPostExchange(inputAmount / exchange || 0);
+          setExactToken(2);
+        }
       }
     }
   }
 
   // This is easily testable, if we someone writes tests for this in the future, it'll be great
   async function calculateExchange(from: boolean, amount: any) {
-    if (!amount) {
-      return;
-    }
-    if (isOCEAN(token1.info.address)) {
-      if (from) {
-        return await ocean.getDtReceived(token2.info.pool, amount);
-      } else {
-        return await ocean.getOceanNeeded(token2.info.pool, amount);
+    try {
+      if (!amount) {
+        return;
       }
-    }
-
-    if (isOCEAN(token2.info.address)) {
-      if (from) {
-        return await ocean.getOceanReceived(token1.info.pool, amount);
-      } else {
-        return await ocean.getDtNeeded(token1.info.pool, amount);
+      if (isOCEAN(token1.info.address)) {
+        if (from) {
+          return await ocean.getDtReceived(token2.info.pool, amount);
+        } else {
+          return await ocean.getOceanNeeded(token2.info.pool, amount);
+        }
       }
-    }
 
-    if (from) {
-      return await ocean.getDtReceivedForExactDt(
-        amount.toString(),
-        token1.info.pool,
-        token2.info.pool
-      );
-    } else {
-      return await ocean.getDtNeededForExactDt(
-        amount.toString(),
-        token1.info.pool,
-        token2.info.pool
-      );
+      if (isOCEAN(token2.info.address)) {
+        if (from) {
+          return await ocean.getOceanReceived(token1.info.pool, amount);
+        } else {
+          return await ocean.getDtNeeded(token1.info.pool, amount);
+        }
+      }
+
+      if (from) {
+        return await ocean.getDtReceivedForExactDt(
+          amount.toString(),
+          token1.info.pool,
+          token2.info.pool
+        );
+      } else {
+        return await ocean.getDtNeededForExactDt(
+          amount.toString(),
+          token1.info.pool,
+          token2.info.pool
+        );
+      }
+    } catch (error) {
+      if (maxExchange.tokens) {
+        if (from) {
+          setToken2({ ...token2, value: maxExchange.tokens[0] });
+        } else {
+          setToken1({ ...token1, value: maxExchange.tokens[1] });
+        }
+      }
     }
   }
 
@@ -263,13 +445,13 @@ const Swap = () => {
           setLastTxId(txDateId);
           txType = "Ocean to DT";
 
-            txReceipt = await ocean.swapExactOceanToDt(
-              accountId,
-              token2.info.pool.toString(),
-              token2.value.toString(),
-              token1.value.toString(),
-              (Number(slippage) / 100).toString()
-            );
+          txReceipt = await ocean.swapExactOceanToDt(
+            accountId,
+            token2.info.pool.toString(),
+            token2.value.toString(),
+            token1.value.toString(),
+            (Number(slippage) / 100).toString()
+          );
         } else {
           console.log("ocean to exact dt");
           console.log(
@@ -293,13 +475,13 @@ const Swap = () => {
 
           txType = "Ocean to DT";
 
-            txReceipt = await ocean.swapExactOceanToDt(
-              accountId,
-              token2.info.pool,
-              token2.value.toString(),
-              token1.value.toString(),
-              (Number(slippage) / 100).toString()
-            );
+          txReceipt = await ocean.swapExactOceanToDt(
+            accountId,
+            token2.info.pool,
+            token2.value.toString(),
+            token1.value.toString(),
+            (Number(slippage) / 100).toString()
+          );
         }
       } else if (isOCEAN(token2.info.address)) {
         if (exactToken === 1) {
@@ -461,7 +643,7 @@ const Swap = () => {
         setToken2(INITIAL_TOKEN_STATE);
         setPostExchange(null);
       } else {
-        throw new Error ("Didn't receive a receipt.")
+        throw new Error("Didn't receive a receipt.");
       }
     } catch (error: any) {
       setShowConfirmModal(false);
@@ -623,8 +805,26 @@ const Swap = () => {
             pos={1}
             setToken={setToken}
             updateNum={(value: string) => {
-              setToken1({ ...token1, value });
-              updateOtherTokenValue(true, value);
+              if (token1.info && token2.info) {
+                let limit;
+                let exchangeLimit;
+
+                maxExchange
+                  ? (exchangeLimit = maxExchange)
+                  : (exchangeLimit = getMaxExchange());
+
+                exchangeLimit.sellLimit
+                  ? (limit = exchangeLimit.maxTrade)
+                  : (limit = exchangeLimit.tokenNeeded);
+
+                if (Number(value) > Number(limit)) {
+                  setToken1({ ...token1, value: limit });
+                  updateOtherTokenValue(true, limit);
+                } else {
+                  setToken1({ ...token1, value });
+                  updateOtherTokenValue(true, value);
+                }
+              }
             }}
             loading={token1.loading}
           />
@@ -651,8 +851,28 @@ const Swap = () => {
             pos={2}
             setToken={setToken}
             updateNum={(value: string) => {
-              setToken2({ ...token2, value });
-              updateOtherTokenValue(false, value);
+              if (token1.info && token2.info) {
+                let limit;
+                let exchangeLimit;
+
+                maxExchange
+                  ? (exchangeLimit = maxExchange)
+                  : (exchangeLimit = getMaxExchange());
+
+                exchangeLimit.sellLimit
+                  ? (limit = exchangeLimit.tokenNeeded)
+                  : (limit = exchangeLimit.maxTrade);
+
+                if (Number(value) > Number(limit)) {
+                  setToken2({ ...token2, value: limit });
+                  updateOtherTokenValue(false, limit);
+                } else {
+                  console.log("Value is less than max buy");
+
+                  setToken2({ ...token2, value });
+                  updateOtherTokenValue(false, value);
+                }
+              }
             }}
             loading={token2.loading}
           />

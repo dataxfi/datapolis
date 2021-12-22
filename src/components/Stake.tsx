@@ -333,6 +333,9 @@ const Stake = () => {
         setRecentTxHash(
           ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash
         );
+        setLoadingStake(false);
+        setShowConfirmModal(false);
+        setOceanValInput(0)
       } else {
         throw new Error ("Didn't receive a receipt.")
       }
@@ -356,6 +359,7 @@ const Stake = () => {
       });
       setLoadingStake(false);
       setShowConfirmModal(false);
+      setOceanValInput(0)
     }
   }
 
