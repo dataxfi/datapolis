@@ -335,7 +335,7 @@ const Stake = () => {
         );
         setLoadingStake(false);
         setShowConfirmModal(false);
-        setOceanValInput(0)
+        setOceanValInput("")
       } else {
         throw new Error ("Didn't receive a receipt.")
       }
@@ -359,7 +359,7 @@ const Stake = () => {
       });
       setLoadingStake(false);
       setShowConfirmModal(false);
-      setOceanValInput(0)
+      setOceanValInput("")
     }
   }
 

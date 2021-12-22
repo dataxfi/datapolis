@@ -88,7 +88,6 @@ const Swap = () => {
     let sellLimit;
     let tokens;
     if (!isOCEAN(token1.info.address) && !isOCEAN(token2.info.address)) {
-      console.log("we in here");
       const maxT1 = await ocean.getMaxExchange(token1.info.pool);
       const maxT2 = await ocean.getMaxExchange(token2.info.pool);
 
@@ -115,8 +114,9 @@ const Swap = () => {
       sellLimit = false;
     }
 
-    console.log(maxTrade);
-    console.log(tokenNeeded);
+    console.log("Max trade", maxTrade);
+    console.log("Tokens needed for max trade", tokenNeeded);
+    console.log("DT to DT max token amounts", tokens);
     return tokens
       ? {
           maxTrade: toFixed2(maxTrade),
@@ -190,8 +190,8 @@ const Swap = () => {
   };
 
   async function swapTokens() {
-    setToken1({ ...token2, value: "0", loading: true });
-    setToken2({ ...token1, value: "0", loading: true });
+    setToken1({ ...token2, value: "", loading: true });
+    setToken2({ ...token1, value: "", loading: true });
     // let exchange = await calculateExchange(true, token2.value);
     // exchange = Number(toFixed5(exchange));
     // setPostExchange(exchange / token2.value);
@@ -318,23 +318,24 @@ const Swap = () => {
   }
 
   async function updateOtherTokenValue(from: boolean, inputAmount: any) {
+    if (!inputAmount) inputAmount = 0;
     if (token1.info && token2.info) {
       if (from) {
         setToken2({ ...token2, loading: true });
         let exchange = await calculateExchange(from, inputAmount);
         if (
-          !exchange ||
-          (maxExchange.tokens &&
-            Number(exchange) > Number(maxExchange.tokens[1]))
+          maxExchange.tokens &&
+          Number(exchange) > Number(maxExchange.tokens[1])
         ) {
-          const max = maxExchange.tokens[1]
+          let max = maxExchange.tokens[1] || 0;
+          if (!max) max = 0;
           console.log("resetting 2 to max");
           setToken2({ ...token2, value: max });
           updateOtherTokenValue(false, max);
-          setPostExchange(exchange / max);
+          setPostExchange(exchange / max || 0);
         } else {
           console.log("setting number 2");
-          exchange = Number(toFixed5(exchange));
+          exchange = Number(toFixed5(exchange || 0));
           setPostExchange(exchange / inputAmount);
           setToken2({ ...token2, value: exchange, loading: false });
           setExactToken(1);
@@ -344,11 +345,10 @@ const Swap = () => {
         let exchange = await calculateExchange(from, inputAmount);
         console.log("resetting 1 to max");
         if (
-          !exchange ||
-          (maxExchange.tokens &&
-            Number(exchange) > Number(maxExchange.tokens[0]))
+          maxExchange.tokens &&
+          Number(exchange) > Number(maxExchange.tokens[0])
         ) {
-          const max = maxExchange.tokens[0]
+          const max = maxExchange.tokens[0] || 0;
           setToken1({ ...token1, value: max });
           updateOtherTokenValue(false, max);
           setPostExchange(max / exchange || 0);
@@ -864,11 +864,11 @@ const Swap = () => {
                   : (limit = exchangeLimit.maxTrade);
 
                 if (Number(value) > Number(limit)) {
+                  console.log("Value is more than max buy");
                   setToken2({ ...token2, value: limit });
                   updateOtherTokenValue(false, limit);
                 } else {
                   console.log("Value is less than max buy");
-
                   setToken2({ ...token2, value });
                   updateOtherTokenValue(false, value);
                 }
