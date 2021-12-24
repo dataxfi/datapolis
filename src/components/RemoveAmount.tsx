@@ -26,6 +26,7 @@ import { PulseLoader } from "react-spinners";
 import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
 import usePTxManager from "../hooks/usePTxManager";
 import useTxModalToggler from "../hooks/useTxModalToggler";
+import errorMessages from "../utils/errorMessages";
 
 const RemoveAmount = () => {
   const {
@@ -82,6 +83,7 @@ const RemoveAmount = () => {
   const location = useLocation();
 
   async function getMaxOceanUnstake() {
+    //.98 is a fix for the MAX_OUT_RATIO error from the contract
     const oceanAmt =
       0.98 *
       (await ocean.getMaxUnstakeAmount(
@@ -125,7 +127,7 @@ const RemoveAmount = () => {
     } else if (pendingUnstakeTx) {
       setBtnDisabled(true);
       setInputDisabled(true);
-      setBtnText("Awaiting transaction for current pool.");
+      setBtnText("Processing Transaction ...");
     } else if (Number(sharesToRemove) == 0) {
       setBtnDisabled(true);
       setBtnText("Approve and Withdrawal");
@@ -225,10 +227,10 @@ const RemoveAmount = () => {
     console.log("Current user shares", currentStakePool.shares);
 
     let oceanFromPerc = userTotalStakedOcean * (percInput / 100);
-    
+
     //small numbers in e-notation past 18 decimals set to 0
-    if(oceanFromPerc > 0.000000000000000001) oceanFromPerc = 0
-    
+    if (oceanFromPerc > 0.000000000000000001) oceanFromPerc = 0;
+
     const sharesNeeded = await ocean.getPoolSharesRequiredToUnstake(
       currentStakePool.address,
       ocean.config.default.oceanTokenAddress,
@@ -365,26 +367,7 @@ const RemoveAmount = () => {
         setSharesPercToRemove(0);
         setOceanToReceive(0);
       } else {
-        setPendingUnstakeTx(undefined);
-        const allNotifications = notifications;
-        allNotifications.push({
-          type: "alert",
-          alert: {
-            message: "User rejected transaction.",
-            link: null,
-            type: "alert",
-          },
-        });
-        setNotifications([...allNotifications]);
-        setShowConfirmModal(false);
-        setShowTxDone(false);
-        deleteRecentTxs({
-          txDateId,
-          setTxHistory,
-          txHistory,
-          chainId,
-          accountId,
-        });
+        throw new Error("Didn't receive a receipt.");
       }
     } catch (error: any) {
       console.error(error);
@@ -393,7 +376,7 @@ const RemoveAmount = () => {
       allNotifications.push({
         type: "alert",
         alert: {
-          message: "User rejected transaction.",
+          message: errorMessages(error),
           link: null,
           type: "alert",
         },
@@ -475,63 +458,63 @@ const RemoveAmount = () => {
                 <p className="text-type-100">Amount to unstake</p>
               </div>
               <div className="col-span-3 flex justify-between mt-3 md:mt-0 bg-primary-900 rounded-lg p-2">
-
-                    <div className="flex w-full items-center">
-                      {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
-                      <span
-                        className={`text-2xl ${
-                          sharesToRemove ? "text-primary-400" : null
-                        }`}
-                      >
-                        <input
-                          step="1"
-                          onChange={(e) => updateNum(e.target.value)}
-                          onWheel={(event) => event.currentTarget.blur()}
-                          onKeyDown={(evt) =>
-                            ["e", "E", "+", "-"].includes(evt.key) &&
-                            evt.preventDefault()
-                          }
-                          type="number"
-                          className="h-full w-24 rounded-lg bg-primary-900 text-2xl px-1 outline-none focus:placeholder-type-200 placeholder-type-400 text-right"
-                          placeholder="0.00"
-                          value={sharesPercToRemove}
-                          disabled={inputDisabled}
-                        />
-                        %
-                      </span>
-                    </div>
-                    <div>
-                      {currentStakePool.shares ? (
-                        <p className="text-sm text-type-400 whitespace-nowrap text-right">
-                          Shares:{" "}
-                          {Number(currentStakePool.shares).toLocaleString(
-                            undefined,
-                            {
-                              maximumFractionDigits: 4,
-                            }
-                          )}
-                        </p>
-                      ) : null}
-                      {bgLoading.includes(bgLoadingStates.singlePool) ||
-                      bgLoading.includes(bgLoadingStates.maxUnstake) ? (
-                        <div className="text-center">
-                          <PulseLoader color="white" size="4px" margin="5px" />
-                        </div>
-                      ) : currentStakePool.shares ? (
-                        <div className="text-sm text-type-300 grid grid-flow-col justify-end gap-2">
-                          <Button
-                            onClick={() => {
-                              setMaxUnstake();
-                            }}
-                            text="Max Unstake"
-                            classes={`px-2 lg:w-24 py-0 border border-type-300 rounded-full text-xs ${inputDisabled? "text-gray-700":null}`}
-                          />
-                        </div>
-                      ) : (
-                        <></>
+                <div className="flex w-full items-center">
+                  {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
+                  <span
+                    className={`text-2xl ${
+                      sharesToRemove ? "text-primary-400" : null
+                    }`}
+                  >
+                    <input
+                      step="1"
+                      onChange={(e) => updateNum(e.target.value)}
+                      onWheel={(event) => event.currentTarget.blur()}
+                      onKeyDown={(evt) =>
+                        ["e", "E", "+", "-"].includes(evt.key) &&
+                        evt.preventDefault()
+                      }
+                      type="number"
+                      className="h-full w-24 rounded-lg bg-primary-900 text-2xl px-1 outline-none focus:placeholder-type-200 placeholder-type-400 text-right"
+                      placeholder="0.00"
+                      value={sharesPercToRemove}
+                      disabled={inputDisabled}
+                    />
+                    %
+                  </span>
+                </div>
+                <div>
+                  {currentStakePool.shares ? (
+                    <p className="text-sm text-type-400 whitespace-nowrap text-right">
+                      Shares:{" "}
+                      {Number(currentStakePool.shares).toLocaleString(
+                        undefined,
+                        {
+                          maximumFractionDigits: 4,
+                        }
                       )}
+                    </p>
+                  ) : null}
+                  {bgLoading.includes(bgLoadingStates.singlePool) ||
+                  bgLoading.includes(bgLoadingStates.maxUnstake) ? (
+                    <div className="text-center">
+                      <PulseLoader color="white" size="4px" margin="5px" />
                     </div>
-
+                  ) : currentStakePool.shares ? (
+                    <div className="text-sm text-type-300 grid grid-flow-col justify-end gap-2">
+                      <Button
+                        onClick={() => {
+                          setMaxUnstake();
+                        }}
+                        text="Max Unstake"
+                        classes={`px-2 lg:w-24 py-0 border border-type-300 rounded-full text-xs ${
+                          inputDisabled ? "text-gray-700" : null
+                        }`}
+                      />
+                    </div>
+                  ) : (
+                    <></>
+                  )}
+                </div>
               </div>
             </div>
             <div className="px-4 relative my-12">
