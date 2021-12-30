@@ -47,7 +47,7 @@ export default function Footer() {
           <li className="list-inline-item mr-2 self-center">
             <div title="DataX Docs">
               <a
-                href="https://datax.gitbook.io/datax/"
+                href="https://docs.datax.fi"
                 target="_blank"
                 rel="noreferrer"
               >
