@@ -228,7 +228,7 @@ const RemoveAmount = () => {
 
     let oceanFromPerc = userTotalStakedOcean * (percInput / 100);
 
-    //small numbers in e-notation past 18 decimals set to 0
+    //small numbers in e-notation past 18 decimals set to 0 (dust)
     if (oceanFromPerc > 0.000000000000000001) oceanFromPerc = 0;
 
     const sharesNeeded = await ocean.getPoolSharesRequiredToUnstake(
@@ -255,7 +255,7 @@ const RemoveAmount = () => {
   async function setMaxUnstake() {
     let maxUnstake: any = maxOceanRemove;
     if (!maxUnstake) {
-      maxUnstake = getMaxOceanUnstake();
+      maxUnstake = await getMaxOceanUnstake();
     }
 
     setBgLoading([...bgLoading, bgLoadingStates.maxUnstake]);

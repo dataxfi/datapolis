@@ -607,7 +607,7 @@ const Stake = () => {
               to="/stakeX/list"
               className="text-gray-300 hover:text-gray-100 transition-colors"
             >
-              View your liquidity position {">"}
+              View your stake positions {">"}
             </Link>
           </div>
         </div>

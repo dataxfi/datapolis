@@ -18,7 +18,7 @@ Stanke ocean from Datatoken/Ocean pools. View and manage your liquidity position
 
 > Once you have a local instance of the dapp, you can use the TestProtocol.md file to complete standard tests that check the limits of the application. 
 
-1. Open the TestProtoco.md file in preview mode and complete the tests as described. 
+1. Open the TestProtocol.md file in preview mode and complete the tests as described. 
 2. Check the boxes for each test
 3. Write notes in the input field if you experience bugs or have ideas on feature enhancements. 
 4. Save and Share you results in standup. 

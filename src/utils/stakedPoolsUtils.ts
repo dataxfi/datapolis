@@ -1,5 +1,6 @@
 import { percOf } from "./equate";
 import { TokenDetails } from "@dataxfi/datax.js/dist/Ocean";
+import { Ocean } from "@dataxfi/datax.js";
 import { removeBgLoadingState, bgLoadingStates } from "../context/GlobalState";
 import Web3 from "web3";
 
@@ -23,6 +24,13 @@ export interface PoolData {
   yourPoolSharePerc?: string;
 }
 
+/**
+ *
+ * @param setStakeFetchTimeout
+ *
+ * Sets a timeout of 5 minutes before updating stake pool information upon entering the liquidity positon page.
+ */
+
 export function stakeFetchCooldown(setStakeFetchTimeout: Function) {
   setStakeFetchTimeout(true);
   setTimeout(() => {
@@ -30,8 +38,51 @@ export function stakeFetchCooldown(setStakeFetchTimeout: Function) {
   }, 300000);
 }
 
+/**
+ * Timeout utility function for general purpose. Use this function if a timeout is needed to adhere to external request limitations, or any other needed use.
+ *
+ * @param ms
+ * The time in ms needed to timeout before the next operation.
+ * @returns
+ */
 export function timeout(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Await response from ocean for a user pool data in a particular pool.
+ * @param0
+ * @returns
+ */
+export async function getMyPoolSharesForPool({
+  ocean,
+  accountId,
+  poolAddress,
+}: {
+  ocean: Ocean;
+  accountId: string;
+  poolAddress: string;
+}) {
+  return await ocean.getMyPoolSharesForPool(poolAddress, accountId);
+}
+
+export async function getLPfromShares({
+  ocean,
+  poolAddress,
+  shares,
+}: {
+  ocean: Ocean;
+  poolAddress: string;
+  shares: string;
+}) {
+  const totalPoolShares = await ocean.getTotalPoolShares(poolAddress);
+  const yourPoolSharePerc = percOf(shares, totalPoolShares);
+  const { dtAmount, oceanAmount } = await ocean.getTokensRemovedforPoolShares(
+    poolAddress,
+    String(totalPoolShares)
+  );
+
+  return { totalPoolShares, yourPoolSharePerc, dtAmount, oceanAmount };
 }
 
 /**
@@ -75,13 +126,8 @@ export async function getAllStakedPools({
         const { tokens } = await ocean.getPoolDetails(address);
         const token1 = await ocean.getTokenDetails(tokens[0]);
         const token2 = await ocean.getTokenDetails(tokens[1]);
-        const totalPoolShares = await ocean.getTotalPoolShares(poolAddress);
-        const yourPoolSharePerc = percOf(shares, totalPoolShares);
-        const { dtAmount, oceanAmount } =
-          await ocean.getTokensRemovedforPoolShares(
-            address,
-            String(totalPoolShares)
-          );
+        const { totalPoolShares, yourPoolSharePerc, dtAmount, oceanAmount } =
+          await getLPfromShares({ ocean, poolAddress, shares });
 
         return {
           address,
@@ -150,10 +196,9 @@ export default async function setPoolDataFromOcean({
   //recursively call getAllstaked pools
   //continousouly update the state upon response
 
-
-  if(!newTx){
-    if(stakeFetchTimeout || bgLoading.includes(bgLoadingStates.allStakedPools))
-    return
+  if (!newTx) {
+    if (stakeFetchTimeout || bgLoading.includes(bgLoadingStates.allStakedPools))
+      return;
   }
 
   stakeFetchCooldown(setStakeFetchTimeout);

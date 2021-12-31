@@ -1,6 +1,5 @@
 import Web3 from "web3";
 import Watcher from "@dataxfi/datax.js/dist/Watcher";
-
 import { Ocean, Config } from "@dataxfi/datax.js";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
@@ -34,6 +33,7 @@ export const bgLoadingStates = {
   maxStake: "maxStake",
   maxUnstake: "maxUnstake",
   balance: "balance",
+  maxExchange: "maxExchange"
 };
 
 export function removeBgLoadingState(
@@ -320,6 +320,8 @@ export const GlobalProvider = ({
         setButtonText(
           accounts.length && accounts[0] !== "" ? accounts[0] : CONNECT_TEXT
         );
+        setDisclaimerSigned({ client: true, wallet: true });
+        setShowDisclaimer(false)
         connectedMultipleWalletsGA();
         connectedWalletGA();
       } else {
