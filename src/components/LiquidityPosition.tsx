@@ -1,13 +1,12 @@
 import { useContext, useEffect, useState } from "react";
-import { GlobalContext } from "../context/GlobalState";
+import { bgLoadingStates, GlobalContext, removeBgLoadingState } from "../context/GlobalState";
 import LiquidityPositionItem from "./LiquidityPositionItem";
 import YellowXLoader from "../assets/YellowXLoader.gif";
 import UserMessageModal, { userMessage } from "./UserMessageModal";
 import setPoolDataFromOcean, {
   getLocalPoolData,
-  getMyPoolSharesForPool,
+  updateUserStakePerPool,
   PoolData,
-  getLPfromShares,
 } from "../utils/stakedPoolsUtils";
 
 const LiquidityPosition = () => {
@@ -33,10 +32,9 @@ const LiquidityPosition = () => {
 
   useEffect(() => {
     setAllStakedPools(null);
+    setBgLoading([...bgLoading, bgLoadingStates.allStakedPools])
     try {
       let localData: any;
-      let updatedData
-
       if (accountId) {
         localData = getLocalPoolData(accountId, chainId);
         if (localData && localData != null) {
@@ -51,61 +49,57 @@ const LiquidityPosition = () => {
 
       if (localData) {
         localData = JSON.parse(localData);
-        updatedData = localData.map(async (pool: PoolData) => {
-          const shares = await getMyPoolSharesForPool({
-            ocean,
-            accountId,
-            poolAddress: pool.address,
-          });
-          const { totalPoolShares, yourPoolSharePerc, dtAmount, oceanAmount } =
-            await getLPfromShares({ ocean, poolAddress: pool.address, shares });
-
-          console.log("New pool data:",{...pool, shares, totalPoolShares, yourPoolSharePerc, dtAmount, oceanAmount});
-          
-          return {...pool, shares, totalPoolShares, yourPoolSharePerc, dtAmount, oceanAmount}  
-        });
-        setAllStakedPools(localData)
-        setLoading(false)
-        setNoStakedPools(false)
-        setUserMessage(null)
-      }
-
-      if (ocean && accountId && !localData) {
-        // consider a conditional that checks if stake is already loading or using a set for bgLoading
-        setPoolDataFromOcean({
-          accountId,
+        updateUserStakePerPool({
           ocean,
-          chainId,
+          accountId,
+          localData,
           setAllStakedPools,
-          setNoStakedPools,
-          setLoading,
-          bgLoading,
-          setBgLoading,
-          config,
-          web3,
-          allStakedPools,
-          setError: setUserMessage,
-          stakeFetchTimeout,
-          setStakeFetchTimeout,
-        });
-        setUserMessage(null);
+        }).then(()=>{
+          setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.allStakedPools))
+          setLoading(false);
+          setNoStakedPools(false);
+          setUserMessage(null);
+        })
       }
+
+      //The ocean fetch protocol needs better resolving before further use. Resolve all possible fetches before diaplaying an error screen. Only show error screen if nothing can be resolved. 
+
+      // if (ocean && accountId && !localData) {
+      //   // consider a conditional that checks if stake is already loading or using a set for bgLoading
+      //   setPoolDataFromOcean({
+      //     accountId,
+      //     ocean,
+      //     chainId,
+      //     setAllStakedPools,
+      //     setNoStakedPools,
+      //     setLoading,
+      //     bgLoading,
+      //     setBgLoading,
+      //     config,
+      //     web3,
+      //     allStakedPools,
+      //     setError: setUserMessage,
+      //     stakeFetchTimeout,
+      //     setStakeFetchTimeout,
+      //   });
+      //   setUserMessage(null);
+      // }
     } catch (error) {
       console.error(error);
-      setUserMessage({
-        message: "We couldnt retrieve your pool share information.",
-        link: {
-          href: "https://discord.com/invite/b974xHrUGV",
-          desc: "Reach out on our discord for support!",
-        },
-        type: "error",
-      });
+      // setUserMessage({
+      //   message: "We couldnt retrieve your pool share information.",
+      //   link: {
+      //     href: "https://discord.com/invite/b974xHrUGV",
+      //     desc: "Reach out on our discord for support!",
+      //   },
+      //   type: "error",
+      // });
     }
 
     if (!accountId) {
       setUserMessage("Connect your wallet to see staked oceans.");
       setLoading(false);
-    }
+    } 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId, ocean]);
 
@@ -152,11 +146,7 @@ const LiquidityPosition = () => {
             className={`${bgLoading ? " md:mt-1" : "md:mt-5"} pr-3 pl-3 pt-5 `}
           >
             {allStakedPools?.map((pool: PoolData, index: number) => (
-              <LiquidityPositionItem
-                pool={pool}
-                index={index}
-                length={allStakedPools.length}
-              />
+              <LiquidityPositionItem pool={pool} index={index} />
             ))}
           </ul>
         </div>

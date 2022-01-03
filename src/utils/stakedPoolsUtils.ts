@@ -49,24 +49,113 @@ export function timeout(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/**
- * Await response from ocean for a user pool data in a particular pool.
- * @param0
- * @returns
- */
-export async function getMyPoolSharesForPool({
+export async function updateSingleStakePool({
   ocean,
   accountId,
+  localData,
+  setAllStakedPools,
   poolAddress,
 }: {
   ocean: Ocean;
   accountId: string;
+  localData: PoolData[];
+  setAllStakedPools: Function;
   poolAddress: string;
 }) {
-  return await ocean.getMyPoolSharesForPool(poolAddress, accountId);
+  poolAddress = poolAddress.toLowerCase();
+  let updatedData;
+  let singlePool
+
+  if (localData) {
+    updatedData = localData.map(async (pool) => {
+      if (pool.address === poolAddress) {
+        const shares = await ocean.getMyPoolSharesForPool(
+          poolAddress,
+          accountId
+        );
+        const poolInfo = await getPoolInfoFromUserShares({
+          ocean,
+          poolAddress,
+          shares,
+        });
+        singlePool = { address: poolAddress, accountId, ...poolInfo, shares }
+        return singlePool
+      } else {
+        return pool;
+      }
+    });
+    //@ts-ignore
+    const settledData: PoolData[] = await Promise.all(updatedData);
+    console.log("Updating single stake pool",settledData);
+
+    setAllStakedPools(settledData);
+    setLocalPoolDataStorage(settledData, ocean.networkId);
+    return singlePool
+  } else {
+    const shares = await ocean.getMyPoolSharesForPool(poolAddress, accountId);
+    const poolInfo = await getPoolInfoFromUserShares({
+      ocean,
+      poolAddress,
+      shares,
+    });
+    singlePool = { address: poolAddress, accountId, ...poolInfo, shares }
+    const allStakedPools: PoolData[] = [
+      singlePool
+    ];
+
+    console.log(allStakedPools);
+
+    setAllStakedPools(allStakedPools);
+    setLocalPoolDataStorage(allStakedPools, ocean.networkId);
+    return singlePool
+  }
 }
 
-export async function getLPfromShares({
+export async function updateUserStakePerPool({
+  ocean,
+  accountId,
+  localData,
+  setAllStakedPools,
+}: {
+  ocean: Ocean;
+  accountId: string;
+  localData: PoolData[];
+  setAllStakedPools: Function;
+}) {
+  let updatedData = localData.map(async (pool: PoolData) => {
+    const shares = await ocean.getMyPoolSharesForPool(pool.address, accountId);
+    const { totalPoolShares, yourPoolSharePerc, dtAmount, oceanAmount } =
+      await getPoolInfoFromUserShares({
+        ocean,
+        poolAddress: pool.address,
+        shares,
+      });
+
+    return {
+      ...pool,
+      shares,
+      totalPoolShares,
+      yourPoolSharePerc,
+      dtAmount,
+      oceanAmount,
+    };
+  });
+
+  const settledData = await Promise.all(updatedData);
+  console.log(settledData);
+  
+  setAllStakedPools(settledData);
+  setLocalPoolDataStorage(settledData, ocean.networkId);
+  return updatedData;
+}
+
+/**
+ * Gets LP details for shares in a pool for a particular user.
+ * @param param0
+ * @returns
+ */
+
+export async function getPoolInfoFromUserShares({
   ocean,
   poolAddress,
   shares,
@@ -75,6 +164,9 @@ export async function getLPfromShares({
   poolAddress: string;
   shares: string;
 }) {
+  const { tokens } = await ocean.getPoolDetails(poolAddress);
+  const token1 = await ocean.getTokenDetails(tokens[0]);
+  const token2 = await ocean.getTokenDetails(tokens[1]);
   const totalPoolShares = await ocean.getTotalPoolShares(poolAddress);
   const yourPoolSharePerc = percOf(shares, totalPoolShares);
   const { dtAmount, oceanAmount } = await ocean.getTokensRemovedforPoolShares(
@@ -82,7 +174,14 @@ export async function getLPfromShares({
     String(totalPoolShares)
   );
 
-  return { totalPoolShares, yourPoolSharePerc, dtAmount, oceanAmount };
+  return {
+    totalPoolShares,
+    yourPoolSharePerc,
+    dtAmount,
+    oceanAmount,
+    token1,
+    token2,
+  };
 }
 
 /**
@@ -122,12 +221,15 @@ export async function getAllStakedPools({
         shares: string;
         poolAddress: string;
       }) => {
-        const address = poolAddress;
-        const { tokens } = await ocean.getPoolDetails(address);
-        const token1 = await ocean.getTokenDetails(tokens[0]);
-        const token2 = await ocean.getTokenDetails(tokens[1]);
-        const { totalPoolShares, yourPoolSharePerc, dtAmount, oceanAmount } =
-          await getLPfromShares({ ocean, poolAddress, shares });
+        const address = poolAddress.toLowerCase();
+        const {
+          totalPoolShares,
+          yourPoolSharePerc,
+          dtAmount,
+          oceanAmount,
+          token1,
+          token2,
+        } = await getPoolInfoFromUserShares({ ocean, poolAddress, shares });
 
         return {
           address,
@@ -193,8 +295,7 @@ export default async function setPoolDataFromOcean({
   stakeFetchTimeout: boolean;
   newTx?: boolean;
 }) {
-  //recursively call getAllstaked pools
-  //continousouly update the state upon response
+  if (poolAddress) poolAddress = poolAddress.toLowerCase();
 
   if (!newTx) {
     if (stakeFetchTimeout || bgLoading.includes(bgLoadingStates.allStakedPools))
@@ -362,7 +463,7 @@ export function setPoolDataFromLocal({
 
   if (found) {
     setCurrentStakePool(found);
-    setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.singlePool));
+    setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData));
     return true;
   }
 }

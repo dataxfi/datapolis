@@ -12,10 +12,14 @@ import getTokenList from "../utils/tokenListUtils";
 import UserMessageModal, { userMessage } from "./UserMessageModal";
 import { toFixed5, toFixed18 } from "../utils/equate";
 import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
-import setPoolDataFromOcean from "../utils/stakedPoolsUtils";
+import {
+  getLocalPoolData,
+  updateSingleStakePool,
+} from "../utils/stakedPoolsUtils";
 import usePTxManager from "../hooks/usePTxManager";
 import useTxModalToggler from "../hooks/useTxModalToggler";
 import errorMessages from "../utils/errorMessages";
+import useCurrentPool from "../hooks/useCurrentPool";
 
 const text = {
   T_STAKE: "StakeX",
@@ -50,16 +54,7 @@ const Stake = () => {
     setShowConfirmModal,
     showTxDone,
     setShowTxDone,
-    setBgLoading,
-    bgLoading,
-    poolAddress,
-    setNoStakedPools,
     setAllStakedPools,
-    setCurrentStakePool,
-    config,
-    allStakedPools,
-    stakeFetchTimeout,
-    setStakeFetchTimeout,
     notifications,
     setNotifications,
   } = useContext(GlobalContext);
@@ -76,6 +71,7 @@ const Stake = () => {
   const [recentTxHash, setRecentTxHash] = useState("");
   const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
   const [userMessage, setUserMessage] = useState<userMessage | false>(false);
+  const [poolAddress, setPoolAddress] = useState<string>("")
   //very last transaction
   const [lastTxId, setLastTxId] = useState<any>(null);
   const [oceanToken, setOceanToken] = useState<any>({
@@ -100,6 +96,7 @@ const Stake = () => {
   //hooks
   usePTxManager(lastTxId);
   useTxModalToggler(txReceipt);
+  useCurrentPool(poolAddress, setPoolAddress);
 
   async function getMaxStakeAmt() {
     if (ocean && token) {
@@ -183,7 +180,7 @@ const Stake = () => {
     if (poolAddress && accountId) {
       setUserMessage({
         type: "message",
-        message: "preloading your token",
+        message: <p>Loading your token <PulseLoader color="gray" size="4px" margin="3px" /></p>,
         link: null,
       });
     }
@@ -209,6 +206,7 @@ const Stake = () => {
         }
       }
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTokens, accountId]);
 
@@ -313,31 +311,23 @@ const Stake = () => {
           txReceipt,
         });
 
-        setPoolDataFromOcean({
-          accountId,
+        updateSingleStakePool({
           ocean,
-          chainId,
-          setBgLoading,
-          bgLoading,
-          poolAddress,
-          setNoStakedPools,
+          accountId,
+          localData:
+            JSON.parse(getLocalPoolData(accountId, chainId) || "") || [],
+          poolAddress: token.pool,
           setAllStakedPools,
-          setCurrentStakePool,
-          config,
-          allStakedPools,
-          stakeFetchTimeout,
-          setStakeFetchTimeout,
-          web3,
-          newTx: true,
         });
+
         setRecentTxHash(
           ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash
         );
         setLoadingStake(false);
         setShowConfirmModal(false);
-        setOceanValInput("")
+        setOceanValInput("");
       } else {
-        throw new Error ("Didn't receive a receipt.")
+        throw new Error("Didn't receive a receipt.");
       }
     } catch (error: any) {
       const allNotifications = notifications;
@@ -359,7 +349,7 @@ const Stake = () => {
       });
       setLoadingStake(false);
       setShowConfirmModal(false);
-      setOceanValInput("")
+      setOceanValInput("");
     }
   }
 

@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { BsXCircle, BsX } from "react-icons/bs";
 import { GlobalContext } from "../context/GlobalState";
 export interface userMessage {
-  message: string;
+  message: any;
   link: string | { href: string; desc: string } | null;
   type: string;
 }

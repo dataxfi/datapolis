@@ -7,11 +7,9 @@ import { toFixed5 } from "../utils/equate";
 function LiquidityPositionItem({
   pool,
   index,
-  length,
 }: {
   pool: PoolData;
   index: number;
-  length: number;
 }) {
   const {
     address,
@@ -128,6 +126,7 @@ function LiquidityPositionItem({
             </div>
             <div className="grid grid-cols-2 gap-2 mt-4">
               <Link
+                key="stakeX"
                 to={`/stakeX?pool=${address}`}
                 className="bg-primary-600 transition-colors hover:bg-primary-500 text-type-100 rounded-lg px-4 py-3 text-center"
                 onClick={setTokenAndPool}
@@ -135,6 +134,7 @@ function LiquidityPositionItem({
                 Add
               </Link>
               <Link
+                key="removeStake"
                 to={`/stakeX/remove?pool=${address}`}
                 className="bg-primary-600 transition-colors hover:bg-primary-500 text-type-100 rounded-lg px-4 py-3 text-center"
                 onClick={setTokenAndPool}
@@ -143,9 +143,7 @@ function LiquidityPositionItem({
               </Link>
             </div>
           </div>
-        ) : (
-          null
-        )}
+        ) : <></>}
       </div>
     </li>
   );
