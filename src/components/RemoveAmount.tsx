@@ -78,8 +78,6 @@ const RemoveAmount = () => {
     shares: number;
   }>({ OCEAN: 0, shares: 0 });
 
-  const location = useLocation();
-
   async function getMaxOceanUnstake() {
     setBgLoading([...bgLoading, bgLoadingStates.maxUnstake]);
     //.98 is a fix for the MAX_OUT_RATIO error from the contract

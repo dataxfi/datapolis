@@ -53,7 +53,7 @@ function LiquidityPositionItem({
           onClick={() => setVisible(!visible)}
           className={`flex justify-between p-4  ${
             visible ? "rounded-t-lg" : "rounded-lg mb-2"
-          } bg-primary-900 select-none `}
+          } bg-primary-800 select-none `}
           role="button"
         >
           <div className="grid grid-flow-col gap-2 items-center justify-start">
@@ -77,8 +77,8 @@ function LiquidityPositionItem({
           </div>
         </div>
         {visible ? (
-          <div className={`p-4 bg-primary-900 rounded-b-lg mb-2`}>
-            <div className="p-4 bg-primary-800 rounded-lg">
+          <div className={`p-4 bg-primary-800 rounded-b-lg mb-2`}>
+            <div className="p-4 bg-primary-900 rounded-lg">
               <div className="grid grid-cols-2 justify-between">
                 <div>
                   <p className="text-type-300 text-sm">Total Shares in Pool</p>

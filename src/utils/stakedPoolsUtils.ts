@@ -63,52 +63,33 @@ export async function updateSingleStakePool({
   poolAddress: string;
 }) {
   poolAddress = poolAddress.toLowerCase();
-  let updatedData;
-  let singlePool
+  let updatedPool;
+  const shares = await ocean.getMyPoolSharesForPool(poolAddress, accountId);
+  const poolInfo = await getPoolInfoFromUserShares({
+    ocean,
+    poolAddress,
+    shares,
+  });
+  updatedPool = { address: poolAddress, accountId, ...poolInfo, shares };
 
   if (localData) {
-    updatedData = localData.map(async (pool) => {
-      if (pool.address === poolAddress) {
-        const shares = await ocean.getMyPoolSharesForPool(
-          poolAddress,
-          accountId
-        );
-        const poolInfo = await getPoolInfoFromUserShares({
-          ocean,
-          poolAddress,
-          shares,
-        });
-        singlePool = { address: poolAddress, accountId, ...poolInfo, shares }
-        return singlePool
-      } else {
-        return pool;
-      }
-    });
-    //@ts-ignore
-    const settledData: PoolData[] = await Promise.all(updatedData);
-    console.log("Updating single stake pool",settledData);
+    const found = localData.findIndex((pool) => pool.address === poolAddress);
+    console.log(found);
 
-    setAllStakedPools(settledData);
-    setLocalPoolDataStorage(settledData, ocean.networkId);
-    return singlePool
+    if (found > -1) {
+      localData.splice(found, 1, updatedPool);
+    } else {
+      localData.splice(0, 0, updatedPool);
+    }
+    setAllStakedPools(localData);
+    setLocalPoolDataStorage(localData, ocean.networkId);
   } else {
-    const shares = await ocean.getMyPoolSharesForPool(poolAddress, accountId);
-    const poolInfo = await getPoolInfoFromUserShares({
-      ocean,
-      poolAddress,
-      shares,
-    });
-    singlePool = { address: poolAddress, accountId, ...poolInfo, shares }
-    const allStakedPools: PoolData[] = [
-      singlePool
-    ];
-
-    console.log(allStakedPools);
-
+    const allStakedPools: PoolData[] = [updatedPool];
     setAllStakedPools(allStakedPools);
     setLocalPoolDataStorage(allStakedPools, ocean.networkId);
-    return singlePool
   }
+
+  return updatedPool;
 }
 
 export async function updateUserStakePerPool({
@@ -143,7 +124,7 @@ export async function updateUserStakePerPool({
 
   const settledData = await Promise.all(updatedData);
   console.log(settledData);
-  
+
   setAllStakedPools(settledData);
   setLocalPoolDataStorage(settledData, ocean.networkId);
   return updatedData;
@@ -258,7 +239,7 @@ export async function getAllStakedPools({
  * @returns void | caught error
  */
 
-export default async function setPoolDataFromOcean({
+export async function setPoolDataFromOcean({
   accountId,
   ocean,
   chainId,
@@ -295,12 +276,16 @@ export default async function setPoolDataFromOcean({
   stakeFetchTimeout: boolean;
   newTx?: boolean;
 }) {
+  console.log("Starting scan data");
+
   if (poolAddress) poolAddress = poolAddress.toLowerCase();
 
-  if (!newTx) {
-    if (stakeFetchTimeout || bgLoading.includes(bgLoadingStates.allStakedPools))
-      return;
-  }
+  // if (!newTx) {
+  //   if (stakeFetchTimeout || bgLoading.includes(bgLoadingStates.allStakedPools))
+  //   console.log("Returning early");
+
+  //     return;
+  // }
 
   stakeFetchCooldown(setStakeFetchTimeout);
   if (setBgLoading)
@@ -463,7 +448,9 @@ export function setPoolDataFromLocal({
 
   if (found) {
     setCurrentStakePool(found);
-    setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData));
+    setBgLoading(
+      removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData)
+    );
     return true;
   }
 }
