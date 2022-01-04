@@ -44,9 +44,7 @@ export default function useCurrentPool(
         );
         setCurrentStakePool(currentPool);
       }
-      console.log("Setting bgLoading");
     }
-    if (currentStakePool)
       setBgLoading(
         removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData)
       );
@@ -82,6 +80,13 @@ export default function useCurrentPool(
         localData: JSON.parse(localStoragePoolData || ""),
         poolAddress: poolAddress || "",
         setAllStakedPools,
+      }).then(() => {
+        setBgLoading(
+          removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData)
+        );
+        setBgLoading(
+          removeBgLoadingState(bgLoading, bgLoadingStates.allStakedPools)
+        )
       });
     }
   }, [chainId, accountId]);

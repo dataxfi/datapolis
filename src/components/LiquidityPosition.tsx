@@ -42,8 +42,8 @@ const LiquidityPosition = () => {
   useEffect(() => {
     setAllStakedPools(null);
     setBgLoading([...bgLoading, bgLoadingStates.allStakedPools]);
+    let localData: any;
     try {
-      let localData: any;
       if (accountId) {
         localData = getLocalPoolData(accountId, chainId);
         if (localData && localData != null) {
@@ -84,9 +84,11 @@ const LiquidityPosition = () => {
     if (!accountId) {
       setUserMessage("Connect your wallet to see staked oceans.");
       setLoading(false);
-    }
-
-    if (accountId && allStakedPools) {
+    } else if (accountId && localData && !allStakedPools) {
+      setUserMessage(
+        "Dont see your tokens? Import a certain pool, or scan the entire blockchain."
+      );
+    } else if (accountId && allStakedPools) {
       setUserMessage(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -219,7 +221,9 @@ const LiquidityPosition = () => {
                     setShowModal(true);
                   }}
                   className={`p-3 w-full  bg-primary-600 rounded ${
-                    accountId ? "bg-primary-600 text-white hover:bg-primary-500" : "bg-primary-800 text-gray-500"
+                    accountId
+                      ? "bg-primary-600 text-white hover:bg-primary-500"
+                      : "bg-primary-800 text-gray-500"
                   }`}
                 >
                   Import
@@ -233,7 +237,9 @@ const LiquidityPosition = () => {
                     scanData();
                   }}
                   className={`p-3 w-full  bg-primary-600 rounded ${
-                    accountId ? "bg-primary-600 text-white hover:bg-primary-500" : "bg-primary-800 text-gray-500"
+                    accountId
+                      ? "bg-primary-600 text-white hover:bg-primary-500"
+                      : "bg-primary-800 text-gray-500"
                   }`}
                 >
                   Scan

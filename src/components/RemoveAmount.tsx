@@ -105,6 +105,10 @@ const RemoveAmount = () => {
   useTxModalToggler(txReceipt);
   useCurrentPool(poolAddress, setPoolAddress);
 
+  useEffect(()=>{
+    console.log(bgLoading);
+  }, [bgLoading])
+
   useEffect(() => {
     if (ocean && currentStakePool) {
       getMaxOceanUnstake()
@@ -120,7 +124,7 @@ const RemoveAmount = () => {
   useEffect(() => {
     console.log("Currently loading in background:", bgLoading);
     setInputDisabled(false);
-    if (bgLoading.includes("stake")) {
+    if (bgLoading.includes(bgLoadingStates.allStakedPools)) {
       setBtnDisabled(true);
       setInputDisabled(true);
       setBtnText("Loading your liquidity information.");
@@ -305,14 +309,17 @@ const RemoveAmount = () => {
         });
 
         console.log("current pool Address", poolAddress);
-        setBgLoading([...bgLoading, bgLoadingStates.singlePoolData]);
+        // setBgLoading([...bgLoading, bgLoadingStates.singlePoolData]);
         updateSingleStakePool({
           ocean,
           accountId,
           localData: allStakedPools,
           poolAddress: currentStakePool.address,
           setAllStakedPools,
-        }).then(setCurrentStakePool);
+        }).then((info)=>{
+          setCurrentStakePool(info)
+          setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData))
+        });
 
         setSharesPercToRemove(0);
         setOceanToReceive("0");
@@ -524,7 +531,7 @@ const RemoveAmount = () => {
         txs={
           currentStakePool && sharesToRemove && oceanToReceive
             ? [
-                `Approve DataX to spend ${toFixed5(sharesToRemove)} shares`,
+                `Approve DataX to spend ${toFixed5(sharesToRemove)} shares.`,
                 `Unstake ${toFixed5(oceanToReceive)} OCEAN from the ${
                   currentStakePool.token1.symbol || "OCEAN"
                 } pool.`,
