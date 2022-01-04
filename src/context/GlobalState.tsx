@@ -26,14 +26,15 @@ export const GlobalContext = createContext(initialState);
 export const bgLoadingStates = {
   allStakedPools: "stake",
   tokenList: "tokens",
-  singlePool: "pool",
+  singlePoolData: "pool",
   allTxHistory: "history",
   singleTx: "tx",
   txPending: "txPending",
   maxStake: "maxStake",
   maxUnstake: "maxUnstake",
   balance: "balance",
-  maxExchange: "maxExchange"
+  maxExchange: "maxExchange",
+  calcTrade: "calcTrade"
 };
 
 export function removeBgLoadingState(

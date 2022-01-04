@@ -7,11 +7,9 @@ import { toFixed5 } from "../utils/equate";
 function LiquidityPositionItem({
   pool,
   index,
-  length,
 }: {
   pool: PoolData;
   index: number;
-  length: number;
 }) {
   const {
     address,
@@ -55,7 +53,7 @@ function LiquidityPositionItem({
           onClick={() => setVisible(!visible)}
           className={`flex justify-between p-4  ${
             visible ? "rounded-t-lg" : "rounded-lg mb-2"
-          } bg-primary-900 select-none `}
+          } bg-primary-800 select-none `}
           role="button"
         >
           <div className="grid grid-flow-col gap-2 items-center justify-start">
@@ -79,8 +77,8 @@ function LiquidityPositionItem({
           </div>
         </div>
         {visible ? (
-          <div className={`p-4 bg-primary-900 rounded-b-lg mb-2`}>
-            <div className="p-4 bg-primary-800 rounded-lg">
+          <div className={`p-4 bg-primary-800 rounded-b-lg mb-2`}>
+            <div className="p-4 bg-primary-900 rounded-lg">
               <div className="grid grid-cols-2 justify-between">
                 <div>
                   <p className="text-type-300 text-sm">Total Shares in Pool</p>
@@ -128,6 +126,7 @@ function LiquidityPositionItem({
             </div>
             <div className="grid grid-cols-2 gap-2 mt-4">
               <Link
+                key="stakeX"
                 to={`/stakeX?pool=${address}`}
                 className="bg-primary-600 transition-colors hover:bg-primary-500 text-type-100 rounded-lg px-4 py-3 text-center"
                 onClick={setTokenAndPool}
@@ -135,6 +134,7 @@ function LiquidityPositionItem({
                 Add
               </Link>
               <Link
+                key="removeStake"
                 to={`/stakeX/remove?pool=${address}`}
                 className="bg-primary-600 transition-colors hover:bg-primary-500 text-type-100 rounded-lg px-4 py-3 text-center"
                 onClick={setTokenAndPool}
@@ -143,9 +143,7 @@ function LiquidityPositionItem({
               </Link>
             </div>
           </div>
-        ) : (
-          null
-        )}
+        ) : <></>}
       </div>
     </li>
   );
