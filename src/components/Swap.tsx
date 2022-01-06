@@ -701,7 +701,7 @@ const Swap = () => {
                     setShowSettings(false);
                   }}
                 >
-                  <div className="bg-primary-900 rounded-lg p-4 w-full">
+                  <div className="bg-primary-900 rounded-lg border border-gray-700 p-4 w-full">
                     <p className="text-type-100">Transaction settings</p>
                     <div className="mt-2">
                       <p className="text-type-300 text-sm">
@@ -797,7 +797,7 @@ const Swap = () => {
               }}
               role="button"
               tabIndex={0}
-              className="rounded-full border-black border-4 absolute -top-14 bg-primary-800 w-16 h-16 flex swap-center items-center justify-center"
+              className="rounded-full border-primary-900 border-4 absolute -top-14 bg-primary-800 w-16 h-16 flex swap-center items-center justify-center"
             >
               <IoSwapVertical size="30" className="text-gray-300" />
             </div>
