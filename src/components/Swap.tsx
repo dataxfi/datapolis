@@ -15,7 +15,7 @@ import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
 import useTxModalToggler from "../hooks/useTxModalToggler";
 import usePTxManager from "../hooks/usePTxManager";
 import errorMessages from "../utils/errorMessages";
-
+import {MoonLoader} from "react-spinners"
 const text = {
   T_SWAP: "TradeX",
   T_SWAP_FROM: "You are selling",
@@ -585,6 +585,8 @@ const Swap = () => {
         throw new Error("Didn't receive a receipt.");
       }
     } catch (error: any) {
+      console.log("TradeX Caught an Error for Transaction:", txDateId);
+
       setShowConfirmModal(false);
       const allNotifications = notifications;
       allNotifications.push({
@@ -742,7 +744,6 @@ const Swap = () => {
               maxExchange.maxPercent
                 ? (exchangeLimit = maxExchange)
                 : (exchangeLimit = await getMaxExchange());
-              console.log("Moving on");
 
               const { maxPercent, maxBuy, maxSell } = exchangeLimit;
 
@@ -780,10 +781,14 @@ const Swap = () => {
                 if (Number(value) > Number(maxSell)) {
                   console.log("Value > MaxSell");
                   setToken2({ ...token2, value: maxBuy });
-                  setToken1({ ...token1, value: maxSell });
+                  setToken1({ ...token1, value: maxSell, percentage: 100 });
                 } else {
                   console.log("Value < MaxSell");
-                  setToken1({ ...token1, value });
+                  setToken1({
+                    ...token1,
+                    value,
+                    percentage: (Number(value) / token1.balance) * 100,
+                  });
                   updateOtherTokenValue(true, value);
                 }
               }
@@ -793,13 +798,17 @@ const Swap = () => {
           <div className="px-4 relative my-12">
             <div
               onClick={() => {
-                swapTokens();
+                if (token2 && !token2.loading) {
+                  swapTokens();
+                }
               }}
               role="button"
               tabIndex={0}
               className="rounded-full border-primary-900 border-4 absolute -top-14 bg-primary-800 w-16 h-16 flex swap-center items-center justify-center"
             >
-              <IoSwapVertical size="30" className="text-gray-300" />
+              {token2.loading ? <MoonLoader size={25} color={"white"}/> : (
+                <IoSwapVertical size="30" className="text-gray-300" />
+              )}
             </div>
           </div>
           <SwapInput

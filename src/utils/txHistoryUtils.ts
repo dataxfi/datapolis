@@ -316,27 +316,7 @@ export async function watchTx({
     
     return response;
   } catch (error: any) {
-    if (error.includes("uncle block")) {
-      if (status !== "Success") {
-        addTxHistory({
-          chainId,
-          setTxHistory,
-          txHistory,
-          accountId,
-          token1,
-          token2,
-          txType,
-          txHash,
-          status: "Success",
-          slippage,
-          txDateId,
-          stakeAmt,
-          txReceipt,
-        });
-      }
-    } else {
       console.error(error);
-    }
   }
 }
 
