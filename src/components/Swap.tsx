@@ -35,6 +35,13 @@ const INITIAL_TOKEN_STATE = {
   percentage: "",
 };
 
+
+const INITIAL_MAX_EXCHANGE = {
+  maxBuy: null,
+  maxSell: null,
+  maxPercent: null,
+}
+
 const Swap = () => {
   const {
     handleConnect,
@@ -69,11 +76,7 @@ const Swap = () => {
     classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
     disabled: true,
   });
-  const [maxExchange, setMaxExchange] = useState<any>({
-    maxBuy: "0",
-    maxSell: "0",
-    maxPercent: "0",
-  });
+  const [maxExchange, setMaxExchange] = useState<any>(INITIAL_MAX_EXCHANGE);
 
   //hooks
   usePTxManager(lastTxId);
@@ -191,16 +194,12 @@ const Swap = () => {
 
   useEffect(() => {
     if (token1.info && token2.info) {
-      setToken1({ ...token1, loading: true });
-      setToken2({ ...token2, loading: true });
+      setMaxExchange(INITIAL_MAX_EXCHANGE)
       getMaxExchange().then((res) => {
         setMaxExchange(res);
-        if (token1.value > 0) {
-          setToken1({ ...token1, loading: false });
-          setToken(token1.info, 1, true);
-        } else {
-          setToken1({ ...token1, loading: false });
-          setToken2({ ...token2, loading: false });
+        if (token1.value && Number(token1.value) > Number(res.maxSell)) {
+          setToken1({...token1, value:res.maxSell})
+          setToken2({...token2, value:res.maxBuy})
         }
       });
     }
@@ -248,12 +247,12 @@ const Swap = () => {
   };
 
   async function swapTokens() {
-    setToken1({ ...token2, value: "", loading: true });
-    setToken2({ ...token1, value: "", loading: true });
+    setToken1({ ...token2, value: "" });
+    setToken2({ ...token1, value: "" });
     // let exchange = await calculateExchange(true, token2.value);
     // exchange = Number(toFixed5(exchange));
     // setPostExchange(exchange / token2.value);
-    //setToken2({ ...token1, value: "0" });
+    // setToken2({ ...token1, value: "0" });
     setExactToken(1);
   }
 
@@ -748,15 +747,16 @@ const Swap = () => {
           <SwapInput
             max={maxExchange.maxSell}
             perc={String(Math.floor(token1.percentage))}
-            onPerc={(val: string) => {
+            onPerc={async (val: string) => {
               console.log("Updating percentage with:", val);
               
               let exchangeLimit;
 
-              maxExchange
+              maxExchange.maxPercent
                 ? (exchangeLimit = maxExchange)
-                : (exchangeLimit = getMaxExchange());
-
+                : (exchangeLimit = await getMaxExchange());
+              console.log("Moving on");
+              
               const { maxPercent, maxBuy, maxSell } = exchangeLimit;
 
               if (Number(val) >= Number(maxPercent)) {
@@ -773,13 +773,14 @@ const Swap = () => {
             title={text.T_SWAP_FROM}
             pos={1}
             setToken={setToken}
-            updateNum={(value: string) => {
+            updateNum={async (value: string) => {
+              setToken1({ ...token1, value});
               if (token1.info && token2.info) {
                 let exchangeLimit;
 
-                maxExchange
+                maxExchange.maxSell
                   ? (exchangeLimit = maxExchange)
-                  : (exchangeLimit = getMaxExchange());
+                  : (exchangeLimit = await getMaxExchange());
 
                 const { maxSell, maxBuy } = exchangeLimit;
                 console.log("Value", value, "MaxSell", maxSell);
@@ -820,13 +821,14 @@ const Swap = () => {
             title={text.T_SWAP_TO}
             pos={2}
             setToken={setToken}
-            updateNum={(value: string) => {
+            updateNum={async (value: string) => {
+              setToken1({ ...token2, value});
               if (token1.info && token2.info) {
                 let exchangeLimit;
 
-                maxExchange
+                maxExchange.maxBuy
                   ? (exchangeLimit = maxExchange)
-                  : (exchangeLimit = getMaxExchange());
+                  : (exchangeLimit = await getMaxExchange());
 
                 const { maxBuy, maxSell } = exchangeLimit;
 

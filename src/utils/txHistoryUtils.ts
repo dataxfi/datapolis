@@ -269,6 +269,8 @@ export async function watchTx({
   } = tx;
 
   try {
+    console.log("Tx to watch", txHash);
+    
     const response = txHash
       ? await watcher.waitTransaction(web3, txHash, {
           interval: 250,
@@ -310,6 +312,8 @@ export async function watchTx({
       });
     }
 
+    console.log("Watcher response on", txHash, response);
+    
     return response;
   } catch (error: any) {
     if (error.includes("uncle block")) {
@@ -331,7 +335,6 @@ export async function watchTx({
         });
       }
     } else {
-
       console.error(error);
     }
   }

@@ -1374,12 +1374,12 @@
   resolved "https://registry.yarnpkg.com/@csstools/normalize.css/-/normalize.css-10.1.0.tgz#f0950bba18819512d42f7197e56c518aa491cf18"
   integrity sha512-ij4wRiunFfaJxjB0BdrYHIH8FxBJpOwNPhhAcunlmPdXudL1WQV1qoP9un6JsEBAgQH+7UXyyjh0g7jTxXK6tg==
 
-"@dataxfi/datax.js@^0.1.21":
-  version "0.1.21"
-  resolved "https://registry.yarnpkg.com/@dataxfi/datax.js/-/datax.js-0.1.21.tgz#97005a213f4d66d37e43892355b06bccba57b901"
-  integrity sha512-b41c5sOl0RHyUcazJ30D9Bdw7Pd9B/CByjdcvzS/53ig5Vd8t2TeVPiyfyYbv6iJEE4yHgEeYrf3aLTub4aFzA==
+"@dataxfi/datax.js@^0.1.27":
+  version "0.1.27"
+  resolved "https://registry.yarnpkg.com/@dataxfi/datax.js/-/datax.js-0.1.27.tgz#5e325bf9c579623e0f580edbd83979afdbd00039"
+  integrity sha512-UbJd3Rvzqin/nFycg+YsY7+QK4c2MuRl4sRGVMisysv1DcxxcoAY4BF8Ursd7hi0gcPVhYhutP0T3g9LfDKzFg==
   dependencies:
-    "@dataxfi/ocean.js" "^0.17.2"
+    "@dataxfi/ocean.js" "^0.17.4"
     "@oceanprotocol/contracts" "^0.6.5"
     "@uniswap/token-lists" "^1.0.0-beta.25"
     abi-decoder "^2.4.0"
@@ -1395,10 +1395,10 @@
     web3-core "^1.4.0"
     web3-utils "^1.4.0"
 
-"@dataxfi/ocean.js@^0.17.2":
-  version "0.17.2"
-  resolved "https://registry.yarnpkg.com/@dataxfi/ocean.js/-/ocean.js-0.17.2.tgz#1af3425725fff2b1f637951d1d53bb8412b2b9e9"
-  integrity sha512-8mQuCW7Lxy84GppicTcjInYQsxp37kXzYCWSsMhI0pp1jIyA9IprqGRPoPqgRba3oS0VAR3aVACOQl3qsn/vmQ==
+"@dataxfi/ocean.js@^0.17.4":
+  version "0.17.4"
+  resolved "https://registry.yarnpkg.com/@dataxfi/ocean.js/-/ocean.js-0.17.4.tgz#ad876fa9de18689438a0ec8f38b2b7c4c1b70019"
+  integrity sha512-PTJJ6UHS9gHqbzGUvKNctWPXLKzwzMVYvpiYoKckwPFMczTeakyjmA8xowC5EvAvrD1SRNyFMJBLq1UpFfzJKA==
   dependencies:
     "@ethereum-navigator/navigator" "^0.5.3"
     "@oceanprotocol/contracts" "^0.6.5"

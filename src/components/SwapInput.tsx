@@ -55,7 +55,6 @@ const SwapInput = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId]);
 
-
   return (
     <div className="mt-4 bg-primary-800 p-4 rounded-lg">
       <div className="md:grid md:grid-cols-5">
@@ -97,7 +96,8 @@ const SwapInput = ({
                 disabled={loading}
                 debounceTimeout={500}
                 onChange={(e) => {
-                  updateNum(e.target.value)}}
+                  updateNum(e.target.value);
+                }}
                 onWheel={(event: any) => event.currentTarget.blur()}
                 onKeyDown={(evt) =>
                   ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()
