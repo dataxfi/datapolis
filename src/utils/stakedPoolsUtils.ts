@@ -74,8 +74,6 @@ export async function updateSingleStakePool({
 
   if (localData) {
     const found = localData.findIndex((pool) => pool.address === poolAddress);
-    console.log(found);
-
     if (found > -1) {
       localData.splice(found, 1, updatedPool);
     } else {

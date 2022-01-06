@@ -19,9 +19,7 @@ import {
   limitDecimalsInInput,
   checkNotation,
 } from "../utils/equate";
-import{
-  updateSingleStakePool,
-} from "../utils/stakedPoolsUtils";
+import { updateSingleStakePool } from "../utils/stakedPoolsUtils";
 import { PulseLoader } from "react-spinners";
 import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
 import usePTxManager from "../hooks/usePTxManager";
@@ -88,12 +86,10 @@ const RemoveAmount = () => {
         ocean.config.default.oceanTokenAddress
       ));
 
-    console.log("getMaxUnstakeAmount", oceanAmt);
-
     const shareAmt = await ocean.getPoolSharesRequiredToUnstake(
       currentStakePool.address,
       ocean.config.default.oceanTokenAddress,
-      String(oceanAmt)
+      toFixed18(oceanAmt)
     );
 
     setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.maxUnstake));
@@ -103,11 +99,7 @@ const RemoveAmount = () => {
   //hooks
   usePTxManager(lastTxId);
   useTxModalToggler(txReceipt);
-  useCurrentPool(poolAddress, setPoolAddress);
-
-  useEffect(()=>{
-    console.log(bgLoading);
-  }, [bgLoading])
+  useCurrentPool(poolAddress, setPoolAddress, txReceipt, setTxReceipt);
 
   useEffect(() => {
     if (ocean && currentStakePool) {
@@ -124,15 +116,19 @@ const RemoveAmount = () => {
   useEffect(() => {
     console.log("Currently loading in background:", bgLoading);
     setInputDisabled(false);
-    if (bgLoading.includes(bgLoadingStates.allStakedPools)) {
+    if (bgLoading.includes(bgLoadingStates.singlePoolData)) {
       setBtnDisabled(true);
       setInputDisabled(true);
       setBtnText("Loading your liquidity information.");
+    } else if (currentStakePool && Number(currentStakePool.shares) === 0) {
+      setBtnDisabled(true);
+      setInputDisabled(true);
+      setBtnText("Not Enough Shares");
     } else if (pendingUnstakeTx) {
       setBtnDisabled(true);
       setInputDisabled(true);
       setBtnText("Processing Transaction ...");
-    } else if (Number(sharesToRemove) == 0) {
+    } else if (Number(sharesToRemove) === 0) {
       setBtnDisabled(true);
       setBtnText("Approve and Withdrawal");
     } else {
@@ -140,7 +136,13 @@ const RemoveAmount = () => {
       setBtnText("Approve and Withdrawal");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bgLoading.length, sharesToRemove, pendingUnstakeTx]);
+  }, [
+    bgLoading.length,
+    sharesToRemove,
+    pendingUnstakeTx,
+    currentStakePool,
+    maxOceanRemove,
+  ]);
 
   useEffect(() => {
     const otherToken = "OCEAN";
@@ -172,8 +174,8 @@ const RemoveAmount = () => {
     setBgLoading([...bgLoading, bgLoadingStates.calcTrade]);
 
     if (percInput >= 100) {
-      val = "100"
-      percInput = 100
+      val = "100";
+      percInput = 100;
       setSharesPercToRemove("100");
     }
 
@@ -186,18 +188,17 @@ const RemoveAmount = () => {
 
     console.log("Current user shares", currentStakePool.shares);
 
-    let oceanFromPerc:any = userTotalStakedOcean * (percInput / 100);
+    let oceanFromPerc: any = userTotalStakedOcean * (percInput / 100);
 
     console.log("Ocean received for total shares:", userTotalStakedOcean);
     console.log("Ocean received from user input:", oceanFromPerc);
 
-
-    oceanFromPerc = checkNotation(oceanFromPerc)
+    oceanFromPerc = checkNotation(oceanFromPerc);
 
     const sharesNeeded = await ocean.getPoolSharesRequiredToUnstake(
       currentStakePool.address,
       ocean.config.default.oceanTokenAddress,
-      String(oceanFromPerc)
+      toFixed18(oceanFromPerc)
     );
 
     console.log("User shares from percentage", sharesNeeded);
@@ -278,7 +279,7 @@ const RemoveAmount = () => {
       console.log(
         `Unstaking from pool ${currentStakePool.address}, ${toFixed18(
           currentStakePool.shares
-        )} shares for ${toFixed18(oceanToReceive)}`
+        )} shares for ${toFixed18(oceanToReceive)} OCEAN`
       );
       const txReceipt = await ocean.unstakeOcean(
         accountId,
@@ -308,18 +309,7 @@ const RemoveAmount = () => {
           txReceipt,
         });
 
-        console.log("current pool Address", poolAddress);
-        // setBgLoading([...bgLoading, bgLoadingStates.singlePoolData]);
-        updateSingleStakePool({
-          ocean,
-          accountId,
-          localData: allStakedPools,
-          poolAddress: currentStakePool.address,
-          setAllStakedPools,
-        }).then((info)=>{
-          setCurrentStakePool(info)
-          setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData))
-        });
+        console.log("Current Pool Address:", poolAddress);
 
         setSharesPercToRemove(0);
         setOceanToReceive("0");
@@ -394,7 +384,7 @@ const RemoveAmount = () => {
                   <PulseLoader color="white" size="4px" margin="5px" />
                 )}
               </div>
-              {bgLoading.includes("stake") || bgLoading.includes("pool") ? (
+              {bgLoading.includes(bgLoadingStates.singlePoolData) ? (
                 <UserMessageModal
                   message="Loading your liquidity position."
                   pulse={true}
@@ -435,7 +425,9 @@ const RemoveAmount = () => {
                 </div>
                 <div>
                   <p className="text-sm text-type-400 whitespace-nowrap text-right">
-                    {currentStakePool.shares > 0.00001
+                    {Number(currentStakePool.shares) === 0
+                      ? "Shares: 0"
+                      : Number(currentStakePool.shares) > 0.001
                       ? `Shares: ${toFixed5(currentStakePool.shares)}`
                       : "Shares: < 0.001"}
                   </p>
@@ -444,20 +436,21 @@ const RemoveAmount = () => {
                     <div className="text-center">
                       <PulseLoader color="white" size="4px" margin="5px" />
                     </div>
-                  ) : currentStakePool.shares ? (
+                  ) : (
                     <div className="text-sm text-type-300 grid grid-flow-col justify-end gap-2">
                       <Button
                         onClick={() => {
                           setMaxUnstake();
                         }}
+                        disabled={Number(currentStakePool.shares) === 0}
                         text="Max Unstake"
                         classes={`px-2 lg:w-24 py-0 border border-type-300 rounded-full text-xs ${
-                          inputDisabled ? "text-gray-700" : null
+                          inputDisabled || Number(currentStakePool.shares) === 0
+                            ? "text-gray-700"
+                            : null
                         }`}
                       />
                     </div>
-                  ) : (
-                    <></>
                   )}
                 </div>
               </div>
@@ -467,7 +460,7 @@ const RemoveAmount = () => {
                 <BsArrowDown size="30" className="text-gray-300" />
               </div>
             </div>
-            <div className="bg-primary-800 p-4 rounded">
+            <div className="bg-primary-800 p-4 rounded ">
               <div className="md:grid md:grid-cols-5 bg-primary-800 p-4">
                 <div className="col-span-2">
                   <p className="text-type-100">You will receive</p>
@@ -482,11 +475,14 @@ const RemoveAmount = () => {
                       />
                     </div>
                     <div>
-                      <p className="text-type-100">
+                      <p
+                        title={oceanToReceive}
+                        className="text-type-100 w-20 overflow-hidden overflow-ellipsis whitespace-nowrap"
+                      >
                         {bgLoading.includes(bgLoadingStates.calcTrade) ? (
                           <PulseLoader color="white" size="4px" margin="3px" />
                         ) : (
-                          toFixed5(oceanToReceive) || 0
+                          oceanToReceive || 0
                         )}
                       </p>
                       <p className="text-xs text-type-100">

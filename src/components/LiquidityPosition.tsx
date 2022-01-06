@@ -5,7 +5,6 @@ import {
   removeBgLoadingState,
 } from "../context/GlobalState";
 import LiquidityPositionItem from "./LiquidityPositionItem";
-import YellowXLoader from "../assets/YellowXLoader.gif";
 import UserMessageModal, { userMessage } from "./UserMessageModal";
 import {
   setPoolDataFromOcean,
@@ -22,7 +21,6 @@ const LiquidityPosition = () => {
     accountId,
     ocean,
     chainId,
-    loading,
     setLoading,
     allStakedPools,
     setAllStakedPools,
@@ -32,6 +30,7 @@ const LiquidityPosition = () => {
     web3,
     stakeFetchTimeout,
     setStakeFetchTimeout,
+    setCurrentStakePool,
   } = useContext(GlobalContext);
   const [noStakedPools, setNoStakedPools] = useState<boolean>(false);
   const [userMessage, setUserMessage] = useState<string | userMessage | null>(
@@ -41,70 +40,65 @@ const LiquidityPosition = () => {
 
   useEffect(() => {
     setAllStakedPools(null);
-    setBgLoading([...bgLoading, bgLoadingStates.allStakedPools]);
-    let localData: any;
-    try {
-      if (accountId) {
-        localData = getLocalPoolData(accountId, chainId);
-        if (localData && localData != null) {
-          setNoStakedPools(false);
-          setAllStakedPools(JSON.parse(localData));
-          setLoading(false);
-        }
-      }
+    setCurrentStakePool(null);
+  }, [setAllStakedPools, setCurrentStakePool]);
 
-      if (localData) {
-        localData = JSON.parse(localData);
-        updateUserStakePerPool({
-          ocean,
-          accountId,
-          localData,
-          setAllStakedPools,
-        }).then(() => {
-          setBgLoading(
-            removeBgLoadingState(bgLoading, bgLoadingStates.allStakedPools)
-          );
-          setLoading(false);
+  useEffect(() => {
+    try {
+      if (accountId && !allStakedPools) {
+        setBgLoading([...bgLoading, bgLoadingStates.allStakedPools]);
+        let localData: any = getLocalPoolData(accountId, chainId);
+        if (localData && localData != null) {
+          localData = JSON.parse(localData);
           setNoStakedPools(false);
+          console.log("Setting stake pool data from local.", localData);
+          setAllStakedPools(localData);
+          setLoading(false);
           setUserMessage(null);
-        });
-      } else {
-        console.log("There is no local data.");
-        setUserMessage(
-          "Dont see your tokens? Import a certain pool, or scan the entire blockchain."
-        );
-        setBgLoading(
-          removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData)
-        );
+        }
+        if (localData) {
+          console.log("Fetching stake pool data from local.");
+          updateUserStakePerPool({
+            ocean,
+            accountId,
+            localData,
+            setAllStakedPools,
+          }).then(() => {
+            setBgLoading(
+              removeBgLoadingState(bgLoading, bgLoadingStates.allStakedPools)
+            );
+            setBgLoading(
+              removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData)
+            );
+            setLoading(false);
+            setNoStakedPools(false);
+            setUserMessage(null);
+          });
+        }
       }
     } catch (error) {
       console.error(error);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accountId, ocean, allStakedPools]);
 
+  useEffect(() => {
+    console.log("Currently loading in the background", bgLoading);
     if (!accountId) {
       setUserMessage("Connect your wallet to see staked oceans.");
       setLoading(false);
-    } else if (accountId && localData && !allStakedPools) {
+    } else if (noStakedPools) {
+      setUserMessage(
+        "You have no stake in any pools, check out StakeX to buy stake!"
+      );
+    } else if (accountId && !allStakedPools) {
       setUserMessage(
         "Dont see your tokens? Import a certain pool, or scan the entire blockchain."
       );
     } else if (accountId && allStakedPools) {
       setUserMessage(null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountId, ocean]);
-
-  useEffect(() => {
-    if (noStakedPools) {
-      setUserMessage(
-        "You have no stake in any pools, check out StakeX to buy stake!"
-      );
-    }
-  }, [noStakedPools]);
-
-  useEffect(() => {
-    console.log(userMessage);
-  }, [userMessage]);
+  }, [noStakedPools, allStakedPools, accountId, bgLoading, setLoading]);
 
   function scanData() {
     try {

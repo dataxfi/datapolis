@@ -119,6 +119,8 @@ function LiquidityPositionItem({
                   <p className="text-type-100 text-sm ">
                     {Number(yourPoolSharePerc) >= 1
                       ? `${toFixed5(yourPoolSharePerc)} %`
+                      : Number(yourPoolSharePerc) === 0
+                      ? "0"
                       : "< 0 %"}
                   </p>
                 </div>
@@ -136,14 +138,24 @@ function LiquidityPositionItem({
               <Link
                 key="removeStake"
                 to={`/stakeX/remove?pool=${address}`}
-                className="bg-primary-600 transition-colors hover:bg-primary-500 text-type-100 rounded-lg px-4 py-3 text-center"
-                onClick={setTokenAndPool}
+                className={`${
+                  Number(shares) === 0
+                    ? "bg-primary-800 text-gray-500 border border-gray-500 pointer-events-none"
+                    : "bg-primary-600 text-white hover:bg-primary-500"
+                }  transition-colors rounded-lg px-4 py-3 text-center`}
+                onClick={() => {
+                  console.log(shares);
+                  
+                  if (Number(shares) > 0) setTokenAndPool();
+                }}
               >
                 Remove
               </Link>
             </div>
           </div>
-        ) : <></>}
+        ) : (
+          <></>
+        )}
       </div>
     </li>
   );
