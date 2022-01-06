@@ -35,12 +35,11 @@ const INITIAL_TOKEN_STATE = {
   percentage: "",
 };
 
-
 const INITIAL_MAX_EXCHANGE = {
   maxBuy: null,
   maxSell: null,
   maxPercent: null,
-}
+};
 
 const Swap = () => {
   const {
@@ -98,7 +97,6 @@ const Swap = () => {
       maxSell = String(Math.floor(Number(maxSell)));
 
       console.log("Max Sell", maxSell);
-      
 
       let DtReceivedForMaxSell = await ocean.getDtReceivedForExactDt(
         maxSell,
@@ -112,34 +110,31 @@ const Swap = () => {
       maxBuy = String(Math.floor(Number(maxBuy)));
 
       console.log("Max Buy", maxBuy);
-      
 
       let DtNeededForMaxBuy = await ocean.getDtNeededForExactDt(
-        maxBuy, 
+        maxBuy,
         token1.info.pool,
         token2.info.pool
       );
 
-
       console.log("Dt Needed for max buy", DtNeededForMaxBuy);
-      
-        //There are two scenarios that happen at this stage
-        // If the Dt received for the maxSell is less than the maxBuy, then the maxSell can be left as is 
-        // and the maxBuy is set to the the DT received for the max sell 
 
-        // If the Dt received for the maxSell is greater than the maxBuy, then the maxSell needs to be set 
-        // to the Dt needed for the maxBuy, and the max buy can stay as is 
+      //There are two scenarios that happen at this stage
+      // If the Dt received for the maxSell is less than the maxBuy, then the maxSell can be left as is
+      // and the maxBuy is set to the the DT received for the max sell
 
-      if(Number(DtReceivedForMaxSell) < Number(maxBuy)){
+      // If the Dt received for the maxSell is greater than the maxBuy, then the maxSell needs to be set
+      // to the Dt needed for the maxBuy, and the max buy can stay as is
+
+      if (Number(DtReceivedForMaxSell) < Number(maxBuy)) {
         console.log("Setting maxBuy to DtReceived for maxSell");
-        
-        maxBuy = DtReceivedForMaxSell
+
+        maxBuy = DtReceivedForMaxSell;
       } else {
         console.log("Setting maxSell to DtNeeded for maxBuy");
 
-        maxSell = DtNeededForMaxBuy
+        maxSell = DtNeededForMaxBuy;
       }
-     
     } else if (isOCEAN(token2.info.address)) {
       // Case DT to OCEAN
 
@@ -167,14 +162,12 @@ const Swap = () => {
     if (Number(token1.balance) === 0 || !token1.balance) {
       maxPercent = 0;
     } else {
-      console.log("Calculating maxPercent", maxSell,"/", token1.balance, "*100");
-      
       maxPercent = String((maxSell / token1.balance) * 100);
     }
 
     //if maxPercent is greater than 100, max buy and sell is determined by the balance of token1
     console.log("Max percent", Number(maxPercent));
-    
+
     if (Number(maxPercent) > 100) {
       maxPercent = "100";
       maxSell = token1.balance;
@@ -194,12 +187,12 @@ const Swap = () => {
 
   useEffect(() => {
     if (token1.info && token2.info) {
-      setMaxExchange(INITIAL_MAX_EXCHANGE)
+      setMaxExchange(INITIAL_MAX_EXCHANGE);
       getMaxExchange().then((res) => {
         setMaxExchange(res);
         if (token1.value && Number(token1.value) > Number(res.maxSell)) {
-          setToken1({...token1, value:res.maxSell})
-          setToken2({...token2, value:res.maxBuy})
+          setToken1({ ...token1, value: res.maxSell });
+          setToken2({ ...token2, value: res.maxBuy });
         }
       });
     }
@@ -249,10 +242,6 @@ const Swap = () => {
   async function swapTokens() {
     setToken1({ ...token2, value: "" });
     setToken2({ ...token1, value: "" });
-    // let exchange = await calculateExchange(true, token2.value);
-    // exchange = Number(toFixed5(exchange));
-    // setPostExchange(exchange / token2.value);
-    // setToken2({ ...token1, value: "0" });
     setExactToken(1);
   }
 
@@ -748,19 +737,21 @@ const Swap = () => {
             max={maxExchange.maxSell}
             perc={String(Math.floor(token1.percentage))}
             onPerc={async (val: string) => {
-              console.log("Updating percentage with:", val);
-              
               let exchangeLimit;
 
               maxExchange.maxPercent
                 ? (exchangeLimit = maxExchange)
                 : (exchangeLimit = await getMaxExchange());
               console.log("Moving on");
-              
+
               const { maxPercent, maxBuy, maxSell } = exchangeLimit;
 
               if (Number(val) >= Number(maxPercent)) {
-                setToken1({ ...token1, value: maxSell, percentage: maxPercent });
+                setToken1({
+                  ...token1,
+                  value: maxSell,
+                  percentage: maxPercent,
+                });
                 setToken2({ ...token2, value: maxBuy });
               } else {
                 updateValueFromPercentage(true, val);
@@ -774,7 +765,8 @@ const Swap = () => {
             pos={1}
             setToken={setToken}
             updateNum={async (value: string) => {
-              setToken1({ ...token1, value});
+              //Setting state here allows for max to be persisted in the input
+              setToken1({ ...token1, value });
               if (token1.info && token2.info) {
                 let exchangeLimit;
 
@@ -787,8 +779,8 @@ const Swap = () => {
 
                 if (Number(value) > Number(maxSell)) {
                   console.log("Value > MaxSell");
-                  setToken2({ ...token2, value: maxBuy});
-                  setToken1({ ...token1, value: maxSell});
+                  setToken2({ ...token2, value: maxBuy });
+                  setToken1({ ...token1, value: maxSell });
                 } else {
                   console.log("Value < MaxSell");
                   setToken1({ ...token1, value });
@@ -822,7 +814,8 @@ const Swap = () => {
             pos={2}
             setToken={setToken}
             updateNum={async (value: string) => {
-              setToken1({ ...token2, value});
+              //Setting state here allows for max to be persisted in the input
+              setToken1({ ...token2, value });
               if (token1.info && token2.info) {
                 let exchangeLimit;
 
