@@ -268,48 +268,73 @@ export async function watchTx({
     txDateId,
   } = tx;
 
-  const response = txHash
-    ? await watcher.waitTransaction(web3, txHash, {
-        interval: 250,
-        blocksToWait: 1,
-      })
-    : null;
+  try {
+    const response = txHash
+      ? await watcher.waitTransaction(web3, txHash, {
+          interval: 250,
+          blocksToWait: 1,
+        })
+      : null;
 
-  if (status !== "Success" && response && response.status === true) {
-    addTxHistory({
-      chainId,
-      setTxHistory,
-      txHistory,
-      accountId,
-      token1,
-      token2,
-      txType,
-      txHash,
-      status: "Success",
-      slippage,
-      txDateId,
-      stakeAmt,
-      txReceipt,
-    });
-  } else if (response && response.status === false) {
-    addTxHistory({
-      chainId,
-      setTxHistory,
-      txHistory,
-      accountId,
-      token1,
-      token2,
-      txType,
-      txHash,
-      status: "Failure",
-      slippage,
-      txDateId,
-      stakeAmt,
-      txReceipt,
-    });
+    if (status !== "Success" && response && response.status === true) {
+      addTxHistory({
+        chainId,
+        setTxHistory,
+        txHistory,
+        accountId,
+        token1,
+        token2,
+        txType,
+        txHash,
+        status: "Success",
+        slippage,
+        txDateId,
+        stakeAmt,
+        txReceipt,
+      });
+    } else if (response && response.status === false) {
+      addTxHistory({
+        chainId,
+        setTxHistory,
+        txHistory,
+        accountId,
+        token1,
+        token2,
+        txType,
+        txHash,
+        status: "Failure",
+        slippage,
+        txDateId,
+        stakeAmt,
+        txReceipt,
+      });
+    }
+
+    return response;
+  } catch (error: any) {
+    if (error.includes("uncle block")) {
+      if (status !== "Success") {
+        addTxHistory({
+          chainId,
+          setTxHistory,
+          txHistory,
+          accountId,
+          token1,
+          token2,
+          txType,
+          txHash,
+          status: "Success",
+          slippage,
+          txDateId,
+          stakeAmt,
+          txReceipt,
+        });
+      }
+    } else {
+
+      console.error(error);
+    }
   }
-
-  return response;
 }
 
 export async function setPendingTxsFromHistory({
@@ -336,6 +361,6 @@ export async function setPendingTxsFromHistory({
       allPending.push(id);
       setPendingTxs(allPending);
       //@ts-ignore
-    } 
+    }
   }
 }
