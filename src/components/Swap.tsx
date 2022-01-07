@@ -8,7 +8,7 @@ import OutsideClickHandler from "react-outside-click-handler";
 import ConfirmSwapModal from "./ConfirmSwapModal";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
-import { toFixed2, toFixed5 } from "../utils/equate";
+import { checkNotation, toFixed18, toFixed2, toFixed5 } from "../utils/equate";
 // import { program } from "@babel/types"
 // import { get } from "https"
 import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
@@ -86,6 +86,8 @@ const Swap = () => {
       console.log("Known - ", config);
     }
   }, [config]);
+
+
 
   async function getMaxExchange() {
     console.log("Changing max buy");
@@ -170,7 +172,7 @@ const Swap = () => {
 
     if (Number(maxPercent) > 100) {
       maxPercent = "100";
-      maxSell = token1.balance;
+      maxSell = toFixed5(token1.balance);
       maxBuy = await calculateExchange(true, maxSell);
     }
 
@@ -184,6 +186,10 @@ const Swap = () => {
 
     return maxExchange;
   }
+
+  useEffect(()=>{
+    console.log(token1, token2); 
+  }, [token1, token2])
 
   useEffect(() => {
     if (token1.info && token2.info) {
@@ -264,23 +270,26 @@ const Swap = () => {
         updateOtherTokenValue(false, 100);
       }
     } else {
+      // In house calulations need notation checked to avoid E-notation errors
       if (fromToken) {
-        const value = Number(token1.balance * (perc / 100));
+        const value = checkNotation(Number(toFixed5(token1.balance)) * (perc / 100));
+        console.log("Value from perc", value);
+        
         setToken1({
           ...token1,
           percentage: String(perc),
           value: value.toString(),
         });
-        setToken2({ ...token2, percentage: "" });
         updateOtherTokenValue(true, value.toString());
       } else {
-        const value = Number(token2.balance * (perc / 100));
+        const value = checkNotation(Number(toFixed5(token2.balance)) * (perc / 100));
+        console.log("Value from perc", value);
+
         setToken2({
           ...token2,
           percentage: String(perc),
           value: value.toString(),
         });
-        setToken1({ ...token1, percentage: "" });
         updateOtherTokenValue(false, value.toString());
       }
     }
