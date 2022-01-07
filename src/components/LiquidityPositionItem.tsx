@@ -144,7 +144,7 @@ function LiquidityPositionItem({
                     : "bg-primary-600 text-white hover:bg-primary-500"
                 }  transition-colors rounded-lg px-4 py-3 text-center`}
                 onClick={() => {
-                  console.log(shares);
+                  console.log("Exact user shares",shares);
                   
                   if (Number(shares) > 0) setTokenAndPool();
                 }}

@@ -141,6 +141,7 @@ export default function errorMessages(error: any): string {
       "Exceed Max Removal limit",
       "Amount of DT is too low",
       "Transaction has been reverted by the EVM",
+      "Transaction was not mined within 50 blocks"
     ];
 
     const oceanErrorFound = oceanErrors.findIndex((err) =>
@@ -175,6 +176,8 @@ export default function errorMessages(error: any): string {
           return oceanErrors[14];
         case 15:
           return oceanErrors[15];
+        case 16:
+          return "Transaction was not mined within 50 blocks, check the transaction in your wallet."
         default:
           return "An error occurred, contact support. (2)";
       }

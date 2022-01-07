@@ -196,7 +196,7 @@ const Stake = () => {
         if (!currentToken) {
           setUserMessage({
             type: "error",
-            message: "Couldnt preload token",
+            message: "Couldn't preload token",
             link: null,
           });
           history.push("/stakeX");

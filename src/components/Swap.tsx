@@ -141,7 +141,7 @@ const Swap = () => {
       // Max sell is the max amount of DT that can be traded
       maxSell = await ocean.getMaxExchange(token1.info.pool);
       console.log("Exact max sell:", maxSell);
-      maxSell = String(Math.floor(Number(maxSell)));
+      
 
       // Max buy is the amount of OCEAN bought from max sell
       maxBuy = await calculateExchange(true, maxSell);
@@ -151,7 +151,14 @@ const Swap = () => {
       // Max buy is the max amount of DT that can be traded
       maxBuy = await ocean.getMaxExchange(token2.info.pool);
       console.log("Exact max buy:", maxBuy);
-      maxBuy = String(Math.floor(Number(maxBuy)));
+      if(maxBuy - Math.floor(Number(maxBuy)) > .5){
+        maxBuy = String(Math.floor(Number(maxBuy)));
+      } else {
+        // maxBuy = String(Math.floor(Number(maxBuy)));
+        maxBuy = String(Number(maxBuy) - .5);
+        console.log(maxBuy);
+        
+      }
 
       //Max sell is the amount of OCEAN sold for maxBuy
       maxSell = await calculateExchange(false, maxBuy);
@@ -186,10 +193,6 @@ const Swap = () => {
 
     return maxExchange;
   }
-
-  useEffect(() => {
-    console.log(token1, token2);
-  }, [token1, token2]);
 
   useEffect(() => {
     if (token1.info && token2.info) {
@@ -682,8 +685,6 @@ const Swap = () => {
         Number(toFixed5(token1.balance)) >= Number(token1.value) &&
         Number(toFixed5(token1.balance)) !== 0
       ) {
-        console.log(Number(toFixed5(token1.balance)), Number(token1.value));
-
         setBtnProps({
           text: "Approve & Swap",
           classes:
