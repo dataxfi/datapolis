@@ -15,7 +15,7 @@ import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
 import useTxModalToggler from "../hooks/useTxModalToggler";
 import usePTxManager from "../hooks/usePTxManager";
 import errorMessages from "../utils/errorMessages";
-import {MoonLoader} from "react-spinners"
+import { MoonLoader } from "react-spinners";
 const text = {
   T_SWAP: "TradeX",
   T_SWAP_FROM: "You are selling",
@@ -87,8 +87,6 @@ const Swap = () => {
     }
   }, [config]);
 
-
-
   async function getMaxExchange() {
     console.log("Changing max buy");
     let maxBuy;
@@ -121,7 +119,7 @@ const Swap = () => {
 
       console.log("Dt Needed for max buy", DtNeededForMaxBuy);
 
-      //There are two scenarios that happen at this stage
+      // There are two scenarios that happen at this stage
       // If the Dt received for the maxSell is less than the maxBuy, then the maxSell can be left as is
       // and the maxBuy is set to the the DT received for the max sell
 
@@ -142,7 +140,7 @@ const Swap = () => {
 
       // Max sell is the max amount of DT that can be traded
       maxSell = await ocean.getMaxExchange(token1.info.pool);
-      console.log("Exact max trade:", maxSell);
+      console.log("Exact max sell:", maxSell);
       maxSell = String(Math.floor(Number(maxSell)));
 
       // Max buy is the amount of OCEAN bought from max sell
@@ -152,7 +150,7 @@ const Swap = () => {
 
       // Max buy is the max amount of DT that can be traded
       maxBuy = await ocean.getMaxExchange(token2.info.pool);
-      console.log("Exact max trade:", maxBuy);
+      console.log("Exact max buy:", maxBuy);
       maxBuy = String(Math.floor(Number(maxBuy)));
 
       //Max sell is the amount of OCEAN sold for maxBuy
@@ -172,8 +170,10 @@ const Swap = () => {
 
     if (Number(maxPercent) > 100) {
       maxPercent = "100";
-      maxSell = toFixed5(token1.balance);
-      maxBuy = await calculateExchange(true, maxSell);
+      if (Number(toFixed5(token1.balance)) > 0.00001) {
+        maxSell = toFixed5(token1.balance);
+        maxBuy = await calculateExchange(true, maxSell);
+      }
     }
 
     const maxExchange = {
@@ -187,9 +187,9 @@ const Swap = () => {
     return maxExchange;
   }
 
-  useEffect(()=>{
-    console.log(token1, token2); 
-  }, [token1, token2])
+  useEffect(() => {
+    console.log(token1, token2);
+  }, [token1, token2]);
 
   useEffect(() => {
     if (token1.info && token2.info) {
@@ -272,9 +272,11 @@ const Swap = () => {
     } else {
       // In house calulations need notation checked to avoid E-notation errors
       if (fromToken) {
-        const value = checkNotation(Number(toFixed5(token1.balance)) * (perc / 100));
+        const value = checkNotation(
+          Number(toFixed5(token1.balance)) * (perc / 100)
+        );
         console.log("Value from perc", value);
-        
+
         setToken1({
           ...token1,
           percentage: String(perc),
@@ -282,7 +284,9 @@ const Swap = () => {
         });
         updateOtherTokenValue(true, value.toString());
       } else {
-        const value = checkNotation(Number(toFixed5(token2.balance)) * (perc / 100));
+        const value = checkNotation(
+          Number(toFixed5(token2.balance)) * (perc / 100)
+        );
         console.log("Value from perc", value);
 
         setToken2({
@@ -657,7 +661,7 @@ const Swap = () => {
       accountId &&
       token1.info &&
       token2.info &&
-      !(token1.value || token2.value)
+      !(Number(token1.value) || Number(token2.value))
     ) {
       setBtnProps({
         text: "Enter Token Amount",
@@ -674,7 +678,12 @@ const Swap = () => {
       token2.value &&
       token1.balance
     ) {
-      if (Number(token1.balance) >= Number(token1.value)) {
+      if (
+        Number(toFixed5(token1.balance)) >= Number(token1.value) &&
+        Number(toFixed5(token1.balance)) !== 0
+      ) {
+        console.log(Number(toFixed5(token1.balance)), Number(token1.value));
+
         setBtnProps({
           text: "Approve & Swap",
           classes:
@@ -792,11 +801,15 @@ const Swap = () => {
                   setToken2({ ...token2, value: maxBuy });
                   setToken1({ ...token1, value: maxSell, percentage: 100 });
                 } else {
+                  const percentage =
+                    Number(toFixed5(token1.balance)) === 0
+                      ? "100"
+                      : (Number(value) / token1.balance) * 100;
                   console.log("Value < MaxSell");
                   setToken1({
                     ...token1,
                     value,
-                    percentage: (Number(value) / token1.balance) * 100,
+                    percentage,
                   });
                   updateOtherTokenValue(true, value);
                 }
@@ -815,7 +828,9 @@ const Swap = () => {
               tabIndex={0}
               className="rounded-full border-primary-900 border-4 absolute -top-14 bg-primary-800 w-16 h-16 flex swap-center items-center justify-center"
             >
-              {token2.loading ? <MoonLoader size={25} color={"white"}/> : (
+              {token2.loading ? (
+                <MoonLoader size={25} color={"white"} />
+              ) : (
                 <IoSwapVertical size="30" className="text-gray-300" />
               )}
             </div>
