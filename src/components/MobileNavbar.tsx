@@ -109,6 +109,7 @@ const MobileNavbar = ({
                 {accountId ? `${network}` : null}
               </p>
               <Button
+                id="m-wallet-button"
                 text={`${accountId ? `${truncateId()}` : "Connect wallet"}`}
                 onClick={() => handleModalOrConnect()}
                 classes={`hm-btn text-xs  ${

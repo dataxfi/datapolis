@@ -3,11 +3,12 @@ interface IBtnProps {
     text: string,
     onClick?: React.MouseEventHandler<HTMLButtonElement>,
     disabled?: boolean,
+    id?: string
 }
 
-const Button = ({classes, text, onClick, disabled}: IBtnProps) => {
+const Button = ({classes, text, onClick, disabled, id}: IBtnProps) => {
     return (
-        <button onClick={onClick} disabled={disabled} className={classes  + (disabled ? ' cursor-not-allowed hover:opacity-100':'')}>
+        <button id={id} onClick={onClick} disabled={disabled} className={classes  + (disabled ? ' cursor-not-allowed hover:opacity-100':'')}>
             {text}
         </button>
     )

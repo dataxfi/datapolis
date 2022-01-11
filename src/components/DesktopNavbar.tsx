@@ -46,6 +46,7 @@ const DesktopNavbar = ({
         </div>
         <div className="hidden md:block">
           <Button
+            id={`${accountId? "d-view-txs-btn" : "d-wallet-button" }`}
             text={accountId ? truncateId() : buttonText}
             onClick={() => handleModalOrConnect()}
             classes="hm-btn hm-btn-light hm-box border border-type-500"
