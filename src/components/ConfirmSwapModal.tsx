@@ -36,11 +36,11 @@ const ConfirmSwapModal = ({confirm, show, close, token1, token2, postExchange, s
         return null
     }
     else return (
-        <div className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 sm:max-w-md w-full z-30 shadow ${show ? 'block':'hidden'}`}>
+        <div id="confirmSwapModal" className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 sm:max-w-md w-full z-30 shadow ${show ? 'block':'hidden'}`}>
             <div className="py-8 px-4 md:px-8 bg-primary-900 border rounded-lg hm-box mx-3 md:mx-auto">
                 <div className="flex justify-between items-center">
                     <p className="text-type-300 text-xl">Confirm swap</p>
-                    <BsX onClick={() => close()} role="button" size={28} />
+                    <BsX id="closeConfrimSwapModalbtn" onClick={() => close()} role="button" size={28} />
                 </div>
 
                 <div className="mt-4">
@@ -53,7 +53,7 @@ const ConfirmSwapModal = ({confirm, show, close, token1, token2, postExchange, s
                     <p className="text-type-400 text-sm">
                         Exchange rate
                     </p>
-                    <p className="text-type-400 text-sm grid grid-flow-col items-center gap-2">
+                    <p id="confirmSwapModalSwapRate" className="text-type-400 text-sm grid grid-flow-col items-center gap-2">
                         1 {token1?.symbol} = {toFixed5(postExchange)} {token2.info.symbol}
                         <BsShuffle size={12} />
                     </p>
@@ -76,7 +76,7 @@ const ConfirmSwapModal = ({confirm, show, close, token1, token2, postExchange, s
                 </div>
 
                 <div className="mt-4">
-                    <Button onClick={() => {confirm()}} text="Confirm swap" classes="px-4 py-2 text-lg text-type-100 w-full border rounded-lg" />
+                    <Button id="confirmSwapModalBtn" onClick={() => {confirm()}} text="Confirm swap" classes="px-4 py-2 text-lg text-type-100 w-full border rounded-lg" />
                 </div>
 
             </div>

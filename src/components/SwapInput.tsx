@@ -56,7 +56,7 @@ const SwapInput = ({
   }, [accountId]);
 
   return (
-    <div className="mt-4 bg-primary-800 p-4 rounded-lg">
+    <div id={`${pos}-swapInput`} className="mt-4 bg-primary-800 p-4 rounded-lg">
       <div className="md:grid md:grid-cols-5">
         <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center">
           {value ? (
@@ -67,6 +67,7 @@ const SwapInput = ({
             </div>
           )}
           <div
+            id={`selectToken${pos}`}
             role="button"
             tabIndex={0}
             onClick={() => {
@@ -77,7 +78,9 @@ const SwapInput = ({
             <p className="text-xs text-type-200">{title}</p>
             {value ? (
               <span className="text-sm sm:text-2xl text-type-200 font-bold grid grid-flow-col items-center gap-1">
-                <span className="text-sm sm:text-lg">{value.symbol}</span>
+                <span id={`selectedToken${pos}`} className="text-sm sm:text-lg">
+                  {value.symbol}
+                </span>
                 <BsChevronDown className="text-type-200" size="16" />
               </span>
             ) : (
@@ -91,6 +94,7 @@ const SwapInput = ({
           <div className="h-full w-full rounded-lg bg-primary-900 text-3xl p-2">
             <div className="flex justify-between items-center">
               <DebounceInput
+                id={`token${pos}-input`}
                 max={max}
                 step="any"
                 disabled={loading}
@@ -110,7 +114,7 @@ const SwapInput = ({
               {/* <input /> */}
               <div>
                 {balance ? (
-                  <p className="text-sm text-type-400 whitespace-nowrap text-right">
+                  <p id={`token${pos}-balance`} className="text-sm text-type-400 whitespace-nowrap text-right">
                     Balance:{" "}
                     {Number(balance).toLocaleString(undefined, {
                       maximumFractionDigits: 4,
@@ -132,6 +136,7 @@ const SwapInput = ({
                 ) : balance ? (
                   <div className="text-sm text-type-300 grid grid-flow-col justify-end gap-2">
                     <Button
+                      id="maxTrade"
                       onClick={() => {
                         onPerc(100);
                       }}
@@ -139,6 +144,7 @@ const SwapInput = ({
                       classes="px-2 py-0 border border-type-300 rounded-full text-xs"
                     />
                     <DebounceInput
+                      id={`token${pos}-input`}
                       value={perc}
                       type="number"
                       debounceTimeout={500}

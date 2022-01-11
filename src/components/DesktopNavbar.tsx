@@ -24,7 +24,7 @@ const DesktopNavbar = ({
   const { accountId, buttonText } = useContext(GlobalContext);
 
   return (
-    <header className="lg:flex justify-between items-center py-4 border-gray-800 pl-4 pr-2 hidden">
+    <header id="desktopNavBar" className="lg:flex justify-between items-center py-4 border-gray-800 pl-4 pr-2 hidden">
       <div className="grid grid-flow-col gap-8 items-center">
         <Logo className="logo" style={{ height: "40px" }} />
         {links.map((link, idx) => {
