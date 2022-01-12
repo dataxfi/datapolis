@@ -29,15 +29,19 @@ export async function approveTransactions(metamask: dappeteer.Dappeteer, page: p
   await clearMMPopup(metamask);
   for (let tx = 1; tx < txAmount; tx++) {
     //wait for second tx, click and confirm
-    await metamask.page.waitForSelector(".home__container");
-    await metamask.page.waitForSelector("li[data-testid=home__activity-tab] > button");
-    await metamask.page.click("li[data-testid=home__activity-tab] > button");
-    await metamask.page.waitForSelector(".transaction-status.transaction-status--unapproved");
-    await metamask.page.reload();
+    try {
+      await metamask.page.waitForSelector(".home__container");
+      await metamask.page.waitForSelector("li[data-testid=home__activity-tab] > button");
+      await metamask.page.click("li[data-testid=home__activity-tab] > button");
+      await metamask.page.waitForSelector(".transaction-status.transaction-status--unapproved");
+      await metamask.page.reload();
 
-    await metamask.page.waitForSelector(".btn-primary");
-    await metamask.confirmTransaction();
-    page.bringToFront();
+      await metamask.page.waitForSelector(".btn-primary");
+      await metamask.confirmTransaction();
+      page.bringToFront();
+    } catch (error) {
+      console.log(error)
+    }
   }
 }
 
@@ -87,12 +91,42 @@ export async function setUpSwap(page: puppeteer.Page, t1Symbol: string, t2Symbol
   //   }
 }
 export async function navToStake(page: puppeteer.Page) {
-  page.bringToFront();
+  await page.bringToFront();
   await page.waitForSelector("#StakeX-link");
   await page.click("#StakeX-link");
 }
 
-export async function setUpStake(page: puppeteer.Page) {}
+export async function setUpStake(page: puppeteer.Page, stakeToken: string, stakeAmount: string) {
+  //open token modal
+  await page.waitForSelector("#stakeSelectBtn");
+  await page.click("#stakeSelectBtn");
+
+  //selectToken
+  await page.waitForSelector(`#${stakeToken}-btn`);
+  await page.click(`#${stakeToken}-btn`);
+  await page.waitForSelector("#stakeToken");
+  await page.waitForFunction("document.querySelector('#stakeToken').innerText === 'SAGKRI-94'");
+  await page.waitForSelector("#swapRate");
+  await page.waitForSelector("#poolLiquidity");
+  await page.waitForSelector("#yourLiquidity");
+
+  //input amount
+  if (stakeAmount === "max") {
+    await page.waitForSelector("#maxStake");
+    await page.click("#maxStake");
+    await page.waitForSelector("#stakeAmtInput");
+    await page.waitForFunction('Number(document.querySelector("#stakeAmtInput").value) > 0');
+  } else {
+    await page.waitForSelector("#stakeAmtInput");
+    await page.type("#stakeAmtInput", stakeAmount, { delay: 150 });
+  }
+
+  //wait for calculation and button
+  await page.waitForSelector("#executeStake");
+  await page.waitForFunction("document.querySelector('#executeStake').innerText === 'Stake'");
+  await page.waitForTimeout(500);
+  await page.click("#executeStake");
+}
 
 export async function confirmAndCloseTxDoneModal(page: puppeteer.Page) {
   await page.waitForSelector("#transactionDoneModal");
@@ -100,22 +134,29 @@ export async function confirmAndCloseTxDoneModal(page: puppeteer.Page) {
   await page.click("#transactionDoneModalCloseBtn");
 }
 
-
-export async function confirmTokensClearedAfterTx(page: puppeteer.Page) {
+export async function confirmTokensClearedAfterTrade(page: puppeteer.Page) {
   await page.waitForFunction('document.querySelectorAll("#selectTokenBtn").length === 2');
   await page.waitForTimeout(1000);
+}
+
+export async function confirmInputClearedAfterStake(page: puppeteer.Page) {
+  await page.waitForSelector("#executeStake");
+  await page.waitForFunction("document.querySelector('#executeStake').innerText === 'Enter OCEAN Amount'");
+  await page.waitForSelector("#stakeAmtInput");
+  await page.waitForFunction("document.querySelector('#stakeAmtInput').value === ''");
 }
 
 export async function sellAllDt(page: puppeteer.Page, metamask: dappeteer.Dappeteer) {
   //continuosly sell DT until none is left
 }
 
-export async function reloadOrContinue(lastTestPassed: Boolean, page: puppeteer.Page) {
+export async function reloadOrContinue(lastTestPassed: Boolean, page: puppeteer.Page, stake?: boolean) {
   if (lastTestPassed) return;
   page.reload();
   await page.setViewport({ width: 1039, height: 913 });
   await page.waitForSelector("#d-wallet-button");
   await page.click("#d-wallet-button");
+  if (stake) navToStake(page);
 }
 
 //not yet tested

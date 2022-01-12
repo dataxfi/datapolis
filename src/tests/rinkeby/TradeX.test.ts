@@ -5,7 +5,7 @@ import { setupBrowser, setupDataX, closeBrowser } from "../Setup";
 import {
   approveTransactions,
   confirmAndCloseTxDoneModal,
-  confirmTokensClearedAfterTx,
+  confirmTokensClearedAfterTrade,
   reloadOrContinue,
   setUpSwap,
 } from "../Utilities";
@@ -35,7 +35,7 @@ describe("Execute Standard Trades on TradeX", () => {
       await setUpSwap(page, "OCEAN", "SAGKRI-94", "10");
       await approveTransactions(metamask, page, 2);
       await confirmAndCloseTxDoneModal(page);
-      await confirmTokensClearedAfterTx(page);
+      await confirmTokensClearedAfterTrade(page);
     } catch (error) {
       lastTestPassed = false;
       throw error;
@@ -48,7 +48,7 @@ describe("Execute Standard Trades on TradeX", () => {
       await setUpSwap(page, "OCEAN", "SAGKRI-94", ".1");
       await approveTransactions(metamask, page, 2);
       await confirmAndCloseTxDoneModal(page);
-      await confirmTokensClearedAfterTx(page);
+      await confirmTokensClearedAfterTrade(page);
       lastTestPassed = true;
     } catch (error) {
       lastTestPassed = false;
@@ -62,7 +62,7 @@ describe("Execute Standard Trades on TradeX", () => {
       await setUpSwap(page, "OCEAN", "SAGKRI-94", "max");
       await approveTransactions(metamask, page, 2);
       await confirmAndCloseTxDoneModal(page);
-      await confirmTokensClearedAfterTx(page);
+      await confirmTokensClearedAfterTrade(page);
       lastTestPassed = true;
     } catch (error) {
       lastTestPassed = false;
@@ -76,7 +76,7 @@ describe("Execute Standard Trades on TradeX", () => {
       await setUpSwap(page, "SAGKRI-94", "OCEAN", "1");
       await approveTransactions(metamask, page, 2);
       await confirmAndCloseTxDoneModal(page);
-      await confirmTokensClearedAfterTx(page);
+      await confirmTokensClearedAfterTrade(page);
       lastTestPassed = true;
     } catch (error) {
       lastTestPassed = false;
@@ -90,7 +90,7 @@ describe("Execute Standard Trades on TradeX", () => {
       await setUpSwap(page, "SAGKRI-94", "DAZORC-13", "1");
       await approveTransactions(metamask, page, 2);
       await confirmAndCloseTxDoneModal(page);
-      await confirmTokensClearedAfterTx(page);
+      await confirmTokensClearedAfterTrade(page);
       lastTestPassed = true;
     } catch (error) {
       lastTestPassed = false;
@@ -104,7 +104,7 @@ describe("Execute Standard Trades on TradeX", () => {
       await setUpSwap(page, "DAZORC-13", "SAGKRI-94", "max");
       await approveTransactions(metamask, page, 2);
       await confirmAndCloseTxDoneModal(page);
-      await confirmTokensClearedAfterTx(page);
+      await confirmTokensClearedAfterTrade(page);
       lastTestPassed = true;
     } catch (error) {
       lastTestPassed = false;
@@ -112,13 +112,40 @@ describe("Execute Standard Trades on TradeX", () => {
     }
   });
 
+  async function maxUnstakeSAGKRI() {
+    await setUpSwap(page, "SAGKRI-94", "OCEAN", "max");
+    await approveTransactions(metamask, page, 2);
+    await confirmAndCloseTxDoneModal(page);
+    await confirmTokensClearedAfterTrade(page);
+  }
+
   it("MAX SAGKRI-94 -> OCEAN", async () => {
     try {
       await reloadOrContinue(lastTestPassed, page);
+      await maxUnstakeSAGKRI();
+      lastTestPassed = true;
+    } catch (error) {
+      lastTestPassed = false;
+      throw error;
+    }
+  });
+
+  it("Trade All but .1 DT to OCEAN", async () => {
+    try {
+      reloadOrContinue(lastTestPassed, page);
       await setUpSwap(page, "SAGKRI-94", "OCEAN", "max");
-      await approveTransactions(metamask, page, 2);
-      await confirmAndCloseTxDoneModal(page);
-      await confirmTokensClearedAfterTx(page);
+      let set = true;
+      await page.waitForSelector("#token1-balance");
+      while (await page.evaluate('Number(document.querySelector("#token1-balance").innerText) > 0.1')) {
+        if (set === true) {
+          await approveTransactions(metamask, page, 2);
+          await confirmAndCloseTxDoneModal(page);
+          await confirmTokensClearedAfterTrade(page);
+          set = false;
+        } else {
+          await maxUnstakeSAGKRI();
+        }
+      }
       lastTestPassed = true;
     } catch (error) {
       lastTestPassed = false;

@@ -46,7 +46,7 @@ const StakeSelect = ({ value, setToken }: { value: Record<any, any> | null; setT
                 <div>
                   <p className="text-type-100 text-xs">DataToken</p>
                   <span className="text-2xl text-type-200 font-bold grid grid-flow-col items-center gap-1">
-                    <span className="text-xs sm:text-xl">{value.symbol}</span>
+                    <span id="stakeToken" className="text-xs sm:text-xl">{value.symbol}</span>
                     <BsChevronDown className="text-type-200" size="16" />
                   </span>
                 </div>

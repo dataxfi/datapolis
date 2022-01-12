@@ -217,7 +217,7 @@ const Stake = () => {
         disabled: true,
         classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
       });
-    } else if (!oceanValToStake) {
+    } else if (!oceanValToStake || Number(oceanValToStake) === 0) {
       setBtnProps({
         ...INITIAL_BUTTON_STATE,
         text: "Enter OCEAN Amount",
@@ -321,6 +321,7 @@ const Stake = () => {
       setLoadingStake(false);
       setShowConfirmModal(false);
       setOceanValInput("");
+      setOceanValToStake("0")
     }
   }
 
@@ -450,8 +451,9 @@ const Stake = () => {
                         onWheel={(event) => event.currentTarget.blur()}
                         onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
                         type="number"
-                        className="h-full w-full rounded-lg bg-primary-900 text-3xl px-2 outline-none focus:placeholder-type-200 placeholder-type-400"
+                        className={`h-full w-full rounded-lg bg-primary-900 text-3xl px-2 outline-none focus:placeholder-type-200 placeholder-type-400 ${token? 'text-white': 'text-gray-500'}`}
                         placeholder="0.0"
+                        disabled={!token}
                       />
                       <div>
                         {balance ? (
@@ -492,7 +494,7 @@ const Stake = () => {
               <div className="my-1">
                 <p className="text-type-300 text-xs">Swap Rate</p>
                 {token && oceanToDt && dtToOcean && !loadingRate ? (
-                  <div>
+                  <div id="swapRate">
                     <p className="text-type-200 text-xs">
                       {toFixed5(oceanToDt)} OCEAN per {token.symbol}
                     </p>
@@ -507,7 +509,7 @@ const Stake = () => {
               <div className="my-1">
                 <p className="text-type-300 text-xs">Pool liquidity</p>
                 {token && poolLiquidity && !loadingRate ? (
-                  <div>
+                  <div id="poolLiquidity">
                     <p className="text-type-200 text-xs">{toFixed5(poolLiquidity?.oceanAmount)} OCEAN</p>
                     <p className="text-type-200 text-xs">
                       {toFixed5(poolLiquidity?.dtAmount)} {token.symbol}
@@ -520,7 +522,7 @@ const Stake = () => {
               <div className="my-1">
                 <p className="text-type-300 text-xs">Your liquidity</p>
                 {token && yourLiquidity && !loadingRate ? (
-                  <div>
+                  <div id="yourLiquidity">
                     <p className="text-type-200 text-xs">{toFixed5(yourLiquidity?.oceanAmount)} OCEAN</p>
                     <p className="text-type-200 text-xs">
                       {toFixed5(yourLiquidity?.dtAmount)} {token.symbol}
