@@ -1,6 +1,7 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
+import { setupBrowser, closeBrowser } from "./Setup";
 
 describe("Setup web3 and connect to wallet", () => {
   jest.setTimeout(300000);
@@ -8,47 +9,17 @@ describe("Setup web3 and connect to wallet", () => {
   let browser: puppeteer.Browser;
   let metamask: dappeteer.Dappeteer;
 
-  async function closeBrowser() {
-    try {
-      await browser.close();
-      console.log("Browser Succesfully Closed.");
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  async function setup() {
-    try {
-      browser = await dappeteer.launch(puppeteer, {
-        metamaskVersion: "v10.1.1",
-        headless: false,
-        timeout: 0,
-      });
-      console.log(
-        `Setting up metamask with creds: \n Password: ${process.env.REACT_APP_T_ACCT_PASS} \n Seed: ${process.env.REACT_APP_T_ACCT_SEED}`
-      );
-
-      metamask = await dappeteer.setupMetamask(browser, {
-        seed: process.env.REACT_APP_T_ACCT_SEED,
-        password: process.env.REACT_APP_T_ACCT_PASS,
-      });
-      await metamask.switchNetwork("rinkeby");
-      // Add Ocean Token to MetaMask
-      // await metamask.addToken("0x8967bcf84170c91b0d24d4302c2376283b0b3a07");
-      page = await browser.newPage();
-      await page.goto("http://localhost:3000/");
-      console.log("Browser Succesfully Opened.");
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
   beforeAll(async () => {
-    await setup();
+    const tools = await setupBrowser();
+    if (tools) {
+      page = tools?.page;
+      browser = tools?.browser;
+      metamask = tools?.metamask;
+    }
   });
 
   afterAll(async () => {
-    await closeBrowser();
+    await closeBrowser(browser);
   });
 
   it("Sign disclaimer and connect to wallet.", async () => {
@@ -80,8 +51,8 @@ describe("Setup web3 and connect to wallet", () => {
     page.bringToFront();
 
     //Check wallet address in is the button
-    const walletBtn = await page.waitForSelector("#d-view-txs-btn")
-    await new Promise((res,rej) => setTimeout(res, 3000))
+    const walletBtn = await page.waitForSelector("#d-view-txs-btn");
+    await new Promise((res, rej) => setTimeout(res, 3000));
     const btnText = await page.evaluate((el) => el.textContent, walletBtn);
     expect(btnText).toBe("0x867...DfAd");
   });

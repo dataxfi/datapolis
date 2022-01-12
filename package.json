@@ -37,9 +37,11 @@
     "start": "craco start",
     "build": "craco build",
     "eject": "react-scripts eject",
-    "pretest": "react-scripts test --clearCache",
+    "clearTestCache": "react-scripts test --clearCache",
     "test": "react-scripts test --preset @chainsafe/dappeteer --detectOpenHandles --no-cache",
-    "jestConfig": "jest --showConfig"
+    "test-tradex": "react-scripts test --preset @chainsafe/dappeteer src/tests/TradeX.test.ts", 
+    "test-disclaimer": "react-scripts test --preset @chainsafe/dappeteer src/tests/Disclaimer.test.ts",
+    "coverage": "yarn test -- --coverage"
   },
   "eslintConfig": {
     "extends": [

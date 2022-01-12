@@ -79,7 +79,6 @@ const MobileNavbar = ({
         {links.map((link, idx) => {
           return (
             <Link
-              id={`${link.name}-link`}
               onClick={() => toggleMenu(false)}
               to={link.link}
               className="hm-link product"
