@@ -2,6 +2,8 @@ import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
 
+export const testAcctId = "0x867A6D38D30C4731c85bF567444F8CF22885DfAd"
+
 export async function closeBrowser(browser: puppeteer.Browser) {
   try {
     await browser.close();
@@ -9,8 +11,21 @@ export async function closeBrowser(browser: puppeteer.Browser) {
     console.log(error);
   }
 }
+export async function setupPuppBrowser(){
+  let page: puppeteer.Page;
+  let browser: puppeteer.Browser;
+  try {
+    browser = await puppeteer.launch({headless:false});
+    page = await browser.newPage();
+    await page.goto("http://localhost:3000/");
+    return { page, browser };
+  } catch (error) {
+    console.log(error);
+    throw error
+  }
+}
 
-export async function setupBrowser() {
+export async function setupDappBrowser() {
   let page: puppeteer.Page;
   let browser: puppeteer.Browser;
   let metamask: dappeteer.Dappeteer;
@@ -40,11 +55,15 @@ export async function setupBrowser() {
   }
 }
 
+export async function quickConnectWallet(page:puppeteer.Page){
+  await page.waitForSelector("#d-wallet-button");
+  await page.click("#d-wallet-button");
+}
+
 export async function setupDataX(page: puppeteer.Page, browser: puppeteer.Browser, metamask: dappeteer.Dappeteer) {
   expect(page).toBeDefined();
   await page.setViewport({ width: 1039, height: 913 });
-  await page.waitForSelector("#d-wallet-button");
-  await page.click("#d-wallet-button");
+  await quickConnectWallet(page)
   await page.waitForSelector(".sc-hKwDye.iWCqoQ.web3modal-provider-container");
   await page.click(".sc-hKwDye.iWCqoQ.web3modal-provider-container");
   try {

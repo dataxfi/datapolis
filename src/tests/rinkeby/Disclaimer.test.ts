@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
-import { setupBrowser, closeBrowser } from "../Setup";
+import { setupDappBrowser, closeBrowser } from "../Setup";
 
 describe("Setup web3 and connect to wallet", () => {
   jest.setTimeout(300000);
@@ -10,7 +10,7 @@ describe("Setup web3 and connect to wallet", () => {
   let metamask: dappeteer.Dappeteer;
 
   beforeAll(async () => {
-    const tools = await setupBrowser();
+    const tools = await setupDappBrowser();
     if (tools) {
       page = tools?.page;
       browser = tools?.browser;

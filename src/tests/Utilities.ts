@@ -96,6 +96,21 @@ export async function navToStake(page: puppeteer.Page) {
   await page.click("#StakeX-link");
 }
 
+export async function navToLp(page: puppeteer.Page){
+  await navToStake(page)
+  await acceptCookies(page)
+  await page.waitForSelector("#lpLink")
+  await page.click('#lpLink')
+  await page.waitForSelector('#lpModal')
+}
+
+export async function acceptCookies(page: puppeteer.Page){
+  await page.waitForSelector("#cookiesModal");
+  await page.waitForSelector("#confirmCookies");
+  await page.click("#confirmCookies");
+  await page.waitForTimeout(500);
+}
+
 export async function setUpStake(page: puppeteer.Page, stakeToken: string, stakeAmount: string) {
   //open token modal
   await page.waitForSelector("#stakeSelectBtn");

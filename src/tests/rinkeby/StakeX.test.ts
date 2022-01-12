@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
-import { setupBrowser, setupDataX, closeBrowser } from "../Setup";
+import { setupDappBrowser, setupDataX, closeBrowser } from "../Setup";
 import {
   approveTransactions,
   confirmAndCloseTxDoneModal,
@@ -19,7 +19,7 @@ describe("Execute Standard Trades on StakeX", () => {
   let lastTestPassed: boolean = true;
 
   beforeAll(async () => {
-    const tools = await setupBrowser();
+    const tools = await setupDappBrowser();
     if (tools) {
       page = tools?.page;
       browser = tools?.browser;

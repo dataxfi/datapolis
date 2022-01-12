@@ -42,6 +42,8 @@
     "test-rinkeby-tradex": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/TradeX.test.ts", 
     "test-rinkeby-disclaimer": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/Disclaimer.test.ts",
     "test-rinkeby-stakex": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/StakeX.test.ts", 
+    "test-rinkeby-lp": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/LiquidityPosition.test.ts", 
+    "test-rinkeby-cookies": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/Cookies.test.ts", 
     "coverage": "yarn test-rinkeby -- --coverage"
   },
   "eslintConfig": {
