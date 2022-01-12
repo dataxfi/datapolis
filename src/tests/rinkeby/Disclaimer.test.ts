@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
-import { setupBrowser, closeBrowser } from "./Setup";
+import { setupBrowser, closeBrowser } from "../Setup";
 
 describe("Setup web3 and connect to wallet", () => {
   jest.setTimeout(300000);

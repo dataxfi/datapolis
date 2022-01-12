@@ -30,6 +30,7 @@ const DesktopNavbar = ({
         {links.map((link, idx) => {
           return (
             <Link
+              id={`${link.name}-link`}
               key={idx}
               to={link.link}
               className="hm-link hidden md:block product"

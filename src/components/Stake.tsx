@@ -12,10 +12,7 @@ import getTokenList from "../utils/tokenListUtils";
 import UserMessageModal, { userMessage } from "./UserMessageModal";
 import { toFixed5, toFixed18 } from "../utils/equate";
 import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
-import {
-  getLocalPoolData,
-  updateSingleStakePool,
-} from "../utils/stakedPoolsUtils";
+import { getLocalPoolData, updateSingleStakePool } from "../utils/stakedPoolsUtils";
 import usePTxManager from "../hooks/usePTxManager";
 import useTxModalToggler from "../hooks/useTxModalToggler";
 import errorMessages from "../utils/errorMessages";
@@ -71,24 +68,19 @@ const Stake = () => {
   const [recentTxHash, setRecentTxHash] = useState("");
   const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
   const [userMessage, setUserMessage] = useState<userMessage | false>(false);
-  const [poolAddress, setPoolAddress] = useState<string>("")
+  const [poolAddress, setPoolAddress] = useState<string>("");
   //very last transaction
   const [lastTxId, setLastTxId] = useState<any>(null);
   const [oceanToken, setOceanToken] = useState<any>({
     symbol: "OCEAN",
     name: "Ocean Token",
     decimals: 18,
-    logoURI:
-      "https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY",
+    logoURI: "https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY",
     tags: ["oceantoken"],
   });
   //const [perc, setPerc] = useState("");
-  const [poolLiquidity, setPoolLiquidity] = useState<IPoolLiquidity | null>(
-    null
-  );
-  const [yourLiquidity, setYourLiquidity] = useState<IPoolLiquidity | null>(
-    null
-  );
+  const [poolLiquidity, setPoolLiquidity] = useState<IPoolLiquidity | null>(null);
+  const [yourLiquidity, setYourLiquidity] = useState<IPoolLiquidity | null>(null);
   const [maxStakeAmt, setMaxStakeAmt] = useState<number>();
   const location = useLocation();
   const history = useHistory();
@@ -100,17 +92,13 @@ const Stake = () => {
 
   async function getMaxStakeAmt() {
     if (ocean && token) {
-      return await ocean.getMaxStakeAmount(
-        token.pool,
-        ocean.config.default.oceanTokenAddress
-      );
+      return await ocean.getMaxStakeAmount(token.pool, ocean.config.default.oceanTokenAddress);
     }
   }
 
   async function setOceanBalance() {
     if (accountId && ocean) {
-      const OCEAN_ADDRESS =
-        ocean.config.default.oceanTokenAddress.toLowerCase();
+      const OCEAN_ADDRESS = ocean.config.default.oceanTokenAddress.toLowerCase();
       setLoading(true);
       try {
         const balance = await ocean.getBalance(OCEAN_ADDRESS, accountId);
@@ -180,7 +168,11 @@ const Stake = () => {
     if (poolAddress && accountId) {
       setUserMessage({
         type: "message",
-        message: <p>Loading your token <PulseLoader color="gray" size="4px" margin="3px" /></p>,
+        message: (
+          <p>
+            Loading your token <PulseLoader color="gray" size="4px" margin="3px" />
+          </p>
+        ),
         link: null,
       });
     }
@@ -190,9 +182,7 @@ const Stake = () => {
         updateToken(currentStakeToken);
         setUserMessage(false);
       } else if (poolAddress && currentTokens.length > 0) {
-        const currentToken = currentTokens.find(
-          (token: { pool: string }) => token.pool === poolAddress
-        );
+        const currentToken = currentTokens.find((token: { pool: string }) => token.pool === poolAddress);
         if (!currentToken) {
           setUserMessage({
             type: "error",
@@ -234,10 +224,7 @@ const Stake = () => {
         disabled: true,
         classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
       });
-    } else if (
-      Number(balance) === 0 ||
-      Number(oceanValToStake) > Number(balance)
-    ) {
+    } else if (Number(balance) === 0 || Number(oceanValToStake) > Number(balance)) {
       setBtnProps({
         ...INITIAL_BUTTON_STATE,
         text: "Not enough OCEAN balance",
@@ -254,22 +241,13 @@ const Stake = () => {
     } else {
       setBtnProps({
         disabled: false,
-        classes:
-          "bg-primary-100 bg-opacity-20 hover:bg-opacity-40 text-background-800",
+        classes: "bg-primary-100 bg-opacity-20 hover:bg-opacity-40 text-background-800",
         text: "Stake",
       });
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    accountId,
-    ocean,
-    chainId,
-    token,
-    oceanValToStake,
-    balance,
-    loadingStake,
-  ]);
+  }, [accountId, ocean, chainId, token, oceanValToStake, balance, loadingStake]);
 
   async function stakeX() {
     let txDateId;
@@ -288,11 +266,7 @@ const Stake = () => {
         stakeAmt: oceanValToStake,
       });
       setLastTxId(txDateId);
-      const txReceipt = await ocean.stakeOcean(
-        accountId,
-        token.pool,
-        oceanValToStake
-      );
+      const txReceipt = await ocean.stakeOcean(accountId, token.pool, oceanValToStake);
 
       if (txReceipt) {
         setTxReceipt(txReceipt);
@@ -314,15 +288,12 @@ const Stake = () => {
         updateSingleStakePool({
           ocean,
           accountId,
-          localData:
-            JSON.parse(getLocalPoolData(accountId, chainId) || "") || [],
+          localData: JSON.parse(getLocalPoolData(accountId, chainId) || "") || [],
           poolAddress: token.pool,
           setAllStakedPools,
         });
 
-        setRecentTxHash(
-          ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash
-        );
+        setRecentTxHash(ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash);
         setLoadingStake(false);
         setShowConfirmModal(false);
         setOceanValInput("");
@@ -356,10 +327,7 @@ const Stake = () => {
   async function setMaxStake() {
     if (!token) return;
     console.log(ocean);
-    const maxAmount = await ocean.getMaxStakeAmount(
-      token.pool,
-      ocean.config.default.oceanTokenAddress
-    );
+    const maxAmount = await ocean.getMaxStakeAmount(token.pool, ocean.config.default.oceanTokenAddress);
     console.log("Max Stake Amount - ", maxAmount);
     const val = parseFloat(maxAmount);
     if (!Number.isNaN(val)) {
@@ -441,12 +409,7 @@ const Stake = () => {
                   timeout={{ showState: setUserMessage, time: 5000 }}
                 />
               ) : userMessage && userMessage.type === "message" ? (
-                <UserMessageModal
-                  message={userMessage.message}
-                  pulse={true}
-                  container={false}
-                  timeout={null}
-                />
+                <UserMessageModal message={userMessage.message} pulse={true} container={false} timeout={null} />
               ) : null}
             </div>
             <StakeSelect
@@ -481,20 +444,18 @@ const Stake = () => {
                     <div className="flex justify-between items-center">
                       {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
                       <input
+                        id="stakeAmtInput"
                         value={oceanValInput}
                         onChange={(e) => updateNum(e.target.value)}
                         onWheel={(event) => event.currentTarget.blur()}
-                        onKeyDown={(evt) =>
-                          ["e", "E", "+", "-"].includes(evt.key) &&
-                          evt.preventDefault()
-                        }
+                        onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
                         type="number"
                         className="h-full w-full rounded-lg bg-primary-900 text-3xl px-2 outline-none focus:placeholder-type-200 placeholder-type-400"
                         placeholder="0.0"
                       />
                       <div>
                         {balance ? (
-                          <p className="text-sm text-type-400 whitespace-nowrap text-right">
+                          <p id="oceanBalance" className="text-sm text-type-400 whitespace-nowrap text-right">
                             Balance:{" "}
                             {Number(balance).toLocaleString(undefined, {
                               maximumFractionDigits: 4,
@@ -505,11 +466,7 @@ const Stake = () => {
                         )}
                         {loading ? (
                           <div className="text-center">
-                            <PulseLoader
-                              color="white"
-                              size="4px"
-                              margin="5px"
-                            />
+                            <PulseLoader color="white" size="4px" margin="5px" />
                           </div>
                         ) : balance ? (
                           <div className="text-sm text-type-300 grid grid-flow-col justify-end gap-2">
@@ -517,6 +474,7 @@ const Stake = () => {
                               onClick={() => {
                                 setMaxStake();
                               }}
+                              id="maxStake"
                               text="Max Stake"
                               classes="px-2 py-0 border border-type-300 rounded-full text-xs"
                             />
@@ -550,9 +508,7 @@ const Stake = () => {
                 <p className="text-type-300 text-xs">Pool liquidity</p>
                 {token && poolLiquidity && !loadingRate ? (
                   <div>
-                    <p className="text-type-200 text-xs">
-                      {toFixed5(poolLiquidity?.oceanAmount)} OCEAN
-                    </p>
+                    <p className="text-type-200 text-xs">{toFixed5(poolLiquidity?.oceanAmount)} OCEAN</p>
                     <p className="text-type-200 text-xs">
                       {toFixed5(poolLiquidity?.dtAmount)} {token.symbol}
                     </p>
@@ -565,9 +521,7 @@ const Stake = () => {
                 <p className="text-type-300 text-xs">Your liquidity</p>
                 {token && yourLiquidity && !loadingRate ? (
                   <div>
-                    <p className="text-type-200 text-xs">
-                      {toFixed5(yourLiquidity?.oceanAmount)} OCEAN
-                    </p>
+                    <p className="text-type-200 text-xs">{toFixed5(yourLiquidity?.oceanAmount)} OCEAN</p>
                     <p className="text-type-200 text-xs">
                       {toFixed5(yourLiquidity?.dtAmount)} {token.symbol}
                     </p>
@@ -578,6 +532,7 @@ const Stake = () => {
               </div>
             </div>
             <Button
+              id="executeStake"
               text={btnProps.text}
               onClick={() => {
                 if (btnProps.text === "Connect wallet") {
@@ -593,10 +548,7 @@ const Stake = () => {
             />
           </div>
           <div className="pt-3 pl-3">
-            <Link
-              to="/stakeX/list"
-              className="text-gray-300 hover:text-gray-100 transition-colors"
-            >
+            <Link id="lpLink" to="/stakeX/list" className="text-gray-300 hover:text-gray-100 transition-colors">
               View your stake positions {">"}
             </Link>
           </div>
@@ -608,18 +560,11 @@ const Stake = () => {
         close={() => setShowConfirmModal(false)}
         txs={
           token
-            ? [
-                `Approve StakeX to spend ${oceanValInput} OCEAN`,
-                `Stake ${oceanValInput} OCEAN in ${token.symbol} pool`,
-              ]
+            ? [`Approve StakeX to spend ${oceanValInput} OCEAN`, `Stake ${oceanValInput} OCEAN in ${token.symbol} pool`]
             : []
         }
       />
-      <TransactionDoneModal
-        show={showTxDone}
-        txHash={recentTxHash}
-        close={() => setShowTxDone(false)}
-      />
+      <TransactionDoneModal show={showTxDone} txHash={recentTxHash} close={() => setShowTxDone(false)} />
 
       {userMessage && userMessage.type === "alert" ? (
         <UserMessageModal

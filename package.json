@@ -38,10 +38,11 @@
     "build": "craco build",
     "eject": "react-scripts eject",
     "clearTestCache": "react-scripts test --clearCache",
-    "test": "react-scripts test --preset @chainsafe/dappeteer --detectOpenHandles --no-cache",
-    "test-tradex": "react-scripts test --preset @chainsafe/dappeteer src/tests/TradeX.test.ts", 
-    "test-disclaimer": "react-scripts test --preset @chainsafe/dappeteer src/tests/Disclaimer.test.ts",
-    "coverage": "yarn test -- --coverage"
+    "test-rinkeby": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby",
+    "test-rinkeby-tradex": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/TradeX.test.ts", 
+    "test-rinkeby-disclaimer": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/Disclaimer.test.ts",
+    "test-rinkeby-stakex": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/StakeX.test.ts", 
+    "coverage": "yarn test-rinkeby -- --coverage"
   },
   "eslintConfig": {
     "extends": [

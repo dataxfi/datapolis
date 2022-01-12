@@ -84,7 +84,7 @@ const SwapInput = ({
                 <BsChevronDown className="text-type-200" size="16" />
               </span>
             ) : (
-              <p className="text-xs text-type-100 border-type-300 border rounded-full px-2 py-1 mt-1">
+              <p id="selectTokenBtn" className="text-xs text-type-100 border-type-300 border rounded-full px-2 py-1 mt-1">
                 Select token
               </p>
             )}
