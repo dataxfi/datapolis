@@ -4,39 +4,17 @@ import { PoolData } from "../utils/stakedPoolsUtils";
 import { BsChevronDown, BsChevronUp } from "react-icons/bs";
 import { Link } from "react-router-dom";
 import { toFixed5 } from "../utils/equate";
-function LiquidityPositionItem({
-  pool,
-  index,
-}: {
-  pool: PoolData;
-  index: number;
-}) {
-  const {
-    address,
-    token1,
-    token2,
-    shares,
-    dtAmount,
-    oceanAmount,
-    yourPoolSharePerc,
-    totalPoolShares,
-  } = pool;
+function LiquidityPositionItem({ pool, index }: { pool: PoolData; index: number }) {
+  const { address, token1, token2, shares, dtAmount, oceanAmount, yourPoolSharePerc, totalPoolShares } = pool;
 
   const [visible, setVisible] = useState<boolean>(false);
-  const {
-    setCurrentStakeToken,
-    setCurrentStakePool,
-    currentTokens,
-    setLoading,
-  } = useContext(GlobalContext);
+  const { setCurrentStakeToken, setCurrentStakePool, currentTokens, setLoading } = useContext(GlobalContext);
   function setTokenAndPool() {
     setCurrentStakePool(pool);
 
     try {
       if (currentTokens) {
-        const currentToken = currentTokens.find(
-          (token: { pool: string }) => token.pool === address
-        );
+        const currentToken = currentTokens.find((token: { pool: string }) => token.pool === address);
         setCurrentStakeToken(currentToken);
       }
     } catch (error) {
@@ -81,7 +59,9 @@ function LiquidityPositionItem({
             <div className="p-4 bg-primary-900 rounded-lg">
               <div className="grid grid-cols-2 justify-between">
                 <div>
-                  <p id="totalSharesTitle" className="text-type-300 text-sm">Total Shares in Pool</p>
+                  <p id="totalSharesTitle" className="text-type-300 text-sm">
+                    Total Shares in Pool
+                  </p>
                 </div>
                 <div className="justify-self-end">
                   <p id="totalShares" className="text-type-100 text-sm ">
@@ -89,10 +69,14 @@ function LiquidityPositionItem({
                   </p>
                 </div>
                 <div>
-                  <p id="yourSharesTitle" className="text-type-300 text-sm">Your Shares in Pool</p>
+                  <p id="yourSharesTitle" className="text-type-300 text-sm">
+                    Your Shares in Pool
+                  </p>
                 </div>
                 <div className="justify-self-end">
-                  <p id="yourShares" className="text-type-100 text-sm ">{toFixed5(shares)}</p>
+                  <p id="yourShares" className="text-type-100 text-sm ">
+                    {toFixed5(shares)}
+                  </p>
                 </div>
                 <div>
                   <p id="totalPooled1Title" className="text-type-300 text-sm">
@@ -112,8 +96,10 @@ function LiquidityPositionItem({
                     {toFixed5(oceanAmount)}
                   </p>
                 </div>
-                <div  id="yourSharesPercTitle">
-                  <p id="yourSharesPerc" className="text-type-300 text-sm">Your pool share</p>
+                <div id="yourSharesPercTitle">
+                  <p id="yourSharesPerc" className="text-type-300 text-sm">
+                    Your pool share
+                  </p>
                 </div>
                 <div className="justify-self-end">
                   <p className="text-type-100 text-sm ">
@@ -136,6 +122,7 @@ function LiquidityPositionItem({
                 Add
               </Link>
               <Link
+                id="lp-remove-link"
                 key="removeStake"
                 to={`/stakeX/remove?pool=${address}`}
                 className={`${
@@ -144,8 +131,8 @@ function LiquidityPositionItem({
                     : "bg-primary-600 text-white hover:bg-primary-500"
                 }  transition-colors rounded-lg px-4 py-3 text-center`}
                 onClick={() => {
-                  console.log("Exact user shares",shares);
-                  
+                  console.log("Exact user shares", shares);
+
                   if (Number(shares) > 0) setTokenAndPool();
                 }}
               >

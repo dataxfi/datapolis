@@ -28,7 +28,7 @@ describe("Execute Standard Trades on StakeX", () => {
       metamask = tools?.metamask;
     }
     await setupDataX(page, browser, metamask);
-    // await page.evaluate(() => {window.localStorage.removeItem(`allStakedPools@4@${testAcctId}`)});
+    await page.evaluate((testAcctId) => {window.localStorage.removeItem(`allStakedPools@4@${testAcctId}`)}, testAcctId);
     await navToLp(page);
   });
 

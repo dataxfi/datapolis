@@ -105,11 +105,51 @@ export async function navToLp(page: puppeteer.Page) {
   await page.waitForSelector("#lpModal");
 }
 
+export async function navToRemoveStake(page: puppeteer.Page, pool: string) {
+  await navToLp(page);
+
+  try {
+    await page.waitForSelector(`#${pool}-lp-item`, { timeout: 3000 });
+  } catch (error) {
+    try {
+      await importStakeInfo(page, pool);
+      await page.waitForSelector(`#${pool}-lp-item`, { timeout: 10000 });
+    } catch (error) {
+      throw error;
+    }
+  }
+  await page.click(`#${pool}-lp-item`);
+  await page.waitForSelector("#lp-remove-link");
+  await page.click("#lp-remove-link");
+  await page.waitForSelector("#removeStakeModal");
+}
+
 export async function acceptCookies(page: puppeteer.Page) {
   await page.waitForSelector("#cookiesModal");
   await page.waitForSelector("#confirmCookies");
   await page.click("#confirmCookies");
   await page.waitForTimeout(500);
+}
+
+export async function setupRemoveStake(page: puppeteer.Page, unstakeAmt: string) {
+  if (unstakeAmt === "max") {
+    await page.waitForSelector("#maxUnstakeBtn");
+    await page.click("#maxUnstakeBtn");
+    await page.waitForSelector("#unstakeAmtInput");
+    await page.waitForFunction('Number(document.querySelector("#unstakeAmtInput").value) > 0');
+    await page.waitForSelector("#oceanToReceive");
+    await page.waitForFunction('Number(document.querySelector("#oceanToReceive").innerText) > 0');
+  } else {
+    await page.waitForSelector("#unstakeAmtInput");
+    await page.type("#unstakeAmtInput", unstakeAmt, { delay: 150 });
+    await page.waitForSelector("#oceanToReceive");
+    await page.waitForFunction('Number(document.querySelector("#oceanToReceive").innerText) > 0');
+  }
+
+  await page.waitForSelector("#executeUnstake");
+  await page.waitForFunction('document.querySelector("#executeUnstake").innerText === "Approve and Withdrawal"');
+  await page.waitForTimeout(500);
+  await page.click("#executeUnstake");
 }
 
 export async function setUpStake(page: puppeteer.Page, stakeToken: string, stakeAmount: string) {
@@ -152,7 +192,7 @@ export async function confirmAndCloseTxDoneModal(page: puppeteer.Page) {
 
 export async function confirmTokensClearedAfterTrade(page: puppeteer.Page) {
   await page.waitForFunction('document.querySelectorAll("#selectTokenBtn").length === 2');
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout(500);
 }
 
 export async function confirmInputClearedAfterStake(page: puppeteer.Page) {
@@ -160,6 +200,13 @@ export async function confirmInputClearedAfterStake(page: puppeteer.Page) {
   await page.waitForFunction("document.querySelector('#executeStake').innerText === 'Enter OCEAN Amount'");
   await page.waitForSelector("#stakeAmtInput");
   await page.waitForFunction("document.querySelector('#stakeAmtInput').value === ''");
+}
+
+export async function confirmInputClearedAfterUnstake(page: puppeteer.Page){
+  await page.waitForSelector("#executeUnstake")
+  await page.waitForFunction('document.querySelector("#executeUnstake").innerText === "Enter Amount to Remove"')
+  await page.waitForSelector('#unstakeAmtInput')
+  await page.waitForFunction('document.querySelector("#unstakeAmtInput").value === "0"')
 }
 
 export async function reloadOrContinue(lastTestPassed: Boolean, page: puppeteer.Page, stake?: boolean) {
@@ -182,7 +229,8 @@ export async function useLocalStorage(
 
   switch (method) {
     case "get":
-      if (data) return await page.evaluate((data, testAcctId) => window.localStorage.getItem(data.key || ""), data, testAcctId);
+      if (data)
+        return await page.evaluate((data, testAcctId) => window.localStorage.getItem(data.key || ""), data, testAcctId);
       break;
     case "set":
       if (data) await page.evaluate((data) => window.localStorage.setItem(data.key || "", data.value || ""), data);

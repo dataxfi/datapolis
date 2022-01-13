@@ -44,6 +44,8 @@
     "test-rinkeby-stakex": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/StakeX.test.ts", 
     "test-rinkeby-lp": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/LiquidityPosition.test.ts", 
     "test-rinkeby-cookies": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/Cookies.test.ts", 
+    "test-rinkeby-unstake": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/Unstake.test.ts", 
+
     "coverage": "yarn test-rinkeby -- --coverage"
   },
   "eslintConfig": {
