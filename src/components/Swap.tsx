@@ -76,7 +76,7 @@ const Swap = () => {
     disabled: true,
   });
   const [maxExchange, setMaxExchange] = useState<any>(INITIAL_MAX_EXCHANGE);
-
+  const [txsForTPair, setTxsForTPair] = useState<number>();
   //hooks
   usePTxManager(lastTxId);
   useTxModalToggler(txReceipt);
@@ -98,11 +98,7 @@ const Swap = () => {
 
       console.log("Max Sell", maxSell);
 
-      let DtReceivedForMaxSell = await ocean.getDtReceivedForExactDt(
-        maxSell,
-        token1.info.pool,
-        token2.info.pool
-      );
+      let DtReceivedForMaxSell = await ocean.getDtReceivedForExactDt(maxSell, token1.info.pool, token2.info.pool);
 
       console.log("Dt Received for max sell", DtReceivedForMaxSell);
 
@@ -111,11 +107,7 @@ const Swap = () => {
 
       console.log("Max Buy", maxBuy);
 
-      let DtNeededForMaxBuy = await ocean.getDtNeededForExactDt(
-        maxBuy,
-        token1.info.pool,
-        token2.info.pool
-      );
+      let DtNeededForMaxBuy = await ocean.getDtNeededForExactDt(maxBuy, token1.info.pool, token2.info.pool);
 
       console.log("Dt Needed for max buy", DtNeededForMaxBuy);
 
@@ -231,11 +223,7 @@ const Swap = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token1, token2, accountId, config, chainId]);
 
-  const setToken = async (
-    info: Record<any, any>,
-    pos: number,
-    updateOther: boolean
-  ) => {
+  const setToken = async (info: Record<any, any>, pos: number, updateOther: boolean) => {
     const balance = await ocean.getBalance(info.address, accountId);
     if (pos === 1) {
       setToken1({ ...token1, info, balance });
@@ -273,9 +261,7 @@ const Swap = () => {
     } else {
       // In house calulations need notation checked to avoid E-notation errors
       if (fromToken) {
-        const value = checkNotation(
-          Number(toFixed5(token1.balance)) * (perc / 100)
-        );
+        const value = checkNotation(Number(toFixed5(token1.balance)) * (perc / 100));
         console.log("Value from perc", value);
 
         setToken1({
@@ -285,9 +271,7 @@ const Swap = () => {
         });
         updateOtherTokenValue(true, value.toString());
       } else {
-        const value = checkNotation(
-          Number(toFixed5(token2.balance)) * (perc / 100)
-        );
+        const value = checkNotation(Number(toFixed5(token2.balance)) * (perc / 100));
         console.log("Value from perc", value);
 
         setToken2({
@@ -346,17 +330,9 @@ const Swap = () => {
 
       // DT to DT where amount is either from sell or buy input
       if (from) {
-        return await ocean.getDtReceivedForExactDt(
-          amount.toString(),
-          token1.info.pool,
-          token2.info.pool
-        );
+        return await ocean.getDtReceivedForExactDt(amount.toString(), token1.info.pool, token2.info.pool);
       } else {
-        return await ocean.getDtNeededForExactDt(
-          amount.toString(),
-          token1.info.pool,
-          token2.info.pool
-        );
+        return await ocean.getDtNeededForExactDt(amount.toString(), token1.info.pool, token2.info.pool);
       }
     } catch (error) {
       console.log(error);
@@ -364,10 +340,7 @@ const Swap = () => {
   }
 
   function isOCEAN(tokenAddress: string) {
-    return (
-      tokenAddress.toLowerCase() ===
-      ocean.config.default.oceanTokenAddress.toLowerCase()
-    );
+    return tokenAddress.toLowerCase() === ocean.config.default.oceanTokenAddress.toLowerCase();
   }
 
   async function makeTheSwap() {
@@ -378,12 +351,7 @@ const Swap = () => {
       if (isOCEAN(token1.info.address)) {
         if (exactToken === 1) {
           console.log("exact ocean to dt");
-          console.log(
-            accountId,
-            token2.info.pool.toString(),
-            token2.value.toString(),
-            token1.value.toString()
-          );
+          console.log(accountId, token2.info.pool.toString(), token2.value.toString(), token1.value.toString());
           txDateId = addTxHistory({
             chainId,
             setTxHistory,
@@ -407,12 +375,7 @@ const Swap = () => {
           );
         } else {
           console.log("ocean to exact dt");
-          console.log(
-            accountId,
-            token2.info.pool,
-            token2.value.toString(),
-            token1.value.toString()
-          );
+          console.log(accountId, token2.info.pool, token2.value.toString(), token1.value.toString());
           txDateId = addTxHistory({
             chainId,
             setTxHistory,
@@ -463,12 +426,7 @@ const Swap = () => {
         } else {
           //Error: Throws not enough datatokens
           console.log("dt to exact ocean");
-          console.log(
-            accountId,
-            token1.info.pool,
-            token2.value.toString(),
-            token1.value.toString()
-          );
+          console.log(accountId, token1.info.pool, token2.value.toString(), token1.value.toString());
           txDateId = addTxHistory({
             chainId,
             setTxHistory,
@@ -575,9 +533,7 @@ const Swap = () => {
       }
       if (txReceipt) {
         setTxReceipt(txReceipt);
-        setLastTxUrl(
-          config.default.explorerUri + "/tx/" + txReceipt.transactionHash
-        );
+        setLastTxUrl(config.default.explorerUri + "/tx/" + txReceipt.transactionHash);
         addTxHistory({
           chainId,
           setTxHistory,
@@ -621,20 +577,48 @@ const Swap = () => {
       });
     }
   }
+  /**
+   * Check how many approvals are needed for a transaction.
+   */
+  async function getNeededApprovals() {
+    if (token1.info && token2.info) {
+      //if token 1 or 2 is ocean then always 2 txs (always approve t1)
+      if (isOCEAN(token1.info.address) || isOCEAN(token2.info.address)) {
+        console.log("One of the tokens is ocean, two approvals needed");
+        setTxsForTPair(2);
+      } else {
+        try {
+          console.log("Neither of the tokens are ocean, check if token 1 is approved");
+          //if token one is DT and is already approved and token 2 is DT then 1 or 2 txs dpending on t1 approval
+          const t1Approved = await ocean.checkIfApproved(
+            token1.info.address,
+            accountId,
+            config.default.routerAddress,
+            token1.value
+          );
+          console.log("response from check if approved:", t1Approved);
+          t1Approved ? setTxsForTPair(1) : setTxsForTPair(2);
+        } catch (error) {}
+      }
+    }
+  }
 
   function getConfirmModalProperties(): string[] {
     if (token1.info && token2.info) {
-      if (isOCEAN(token1.info.address) || isOCEAN(token2.info.address)) {
-        return [
-          `Approve TradeX to spend ${token1.value} ${token1.info.symbol}`,
-          `Swap ${token1.value} ${token1.info.symbol} for ${token2.value} 
+      switch (txsForTPair) {
+        case 1:
+          return [
+            `Swap ${token1.value} ${token1.info.symbol} for ${token2.value} 
+    ${token2.info.symbol}`,
+          ];
+        case 2:
+          return [
+            `Approve TradeX to spend ${token1.value} ${token1.info.symbol}`,
+            `Swap ${token1.value} ${token1.info.symbol} for ${token2.value} 
   ${token2.info.symbol}`,
-        ];
-      } else {
-        return [
-          `Swap ${token1.value} ${token1.info.symbol} for ${token2.value} 
-  ${token2.info.symbol}`,
-        ];
+          ];
+        default:
+          return [];
       }
     }
     return [];
@@ -644,8 +628,7 @@ const Swap = () => {
     if (!accountId) {
       setBtnProps({
         text: "Connect Wallet",
-        classes:
-          "bg-primary-100 bg-opacity-20 hover:bg-opacity-40 text-background-800",
+        classes: "bg-primary-100 bg-opacity-20 hover:bg-opacity-40 text-background-800",
         disabled: false,
       });
     }
@@ -658,12 +641,7 @@ const Swap = () => {
       });
     }
 
-    if (
-      accountId &&
-      token1.info &&
-      token2.info &&
-      !(Number(token1.value) || Number(token2.value))
-    ) {
+    if (accountId && token1.info && token2.info && !(Number(token1.value) || Number(token2.value))) {
       setBtnProps({
         text: "Enter Token Amount",
         classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
@@ -671,22 +649,11 @@ const Swap = () => {
       });
     }
 
-    if (
-      accountId &&
-      token1.info &&
-      token2.info &&
-      token1.value &&
-      token2.value &&
-      token1.balance
-    ) {
-      if (
-        Number(toFixed5(token1.balance)) >= Number(token1.value) &&
-        Number(toFixed5(token1.balance)) !== 0
-      ) {
+    if (accountId && token1.info && token2.info && token1.value && token2.value && token1.balance) {
+      if (Number(toFixed5(token1.balance)) >= Number(token1.value) && Number(toFixed5(token1.balance)) !== 0) {
         setBtnProps({
           text: "Approve & Swap",
-          classes:
-            "bg-primary-100 bg-opacity-20 hover:bg-opacity-40 text-background-800",
+          classes: "bg-primary-100 bg-opacity-20 hover:bg-opacity-40 text-background-800",
           disabled: false,
         });
       } else {
@@ -700,10 +667,7 @@ const Swap = () => {
   }
   return (
     <>
-      <div
-        id="swapModal"
-        className="flex my-3 w-full h-full items-center justify-center "
-      >
+      <div id="swapModal" className="flex my-3 w-full h-full items-center justify-center ">
         <div className="max-w-2xl lg:mx-auto sm:mx-4 mx-3 bg-primary-900 w-full rounded-lg p-4 hm-box ">
           <div className="flex justify-between relative">
             <p className="text-xl">{text.T_SWAP}</p>
@@ -718,10 +682,7 @@ const Swap = () => {
               </div>
             </div>
             {showSettings ? (
-              <div
-                id="settingsModal"
-                className="absolute top-10 right-0 max-w-sm"
-              >
+              <div id="settingsModal" className="absolute top-10 right-0 max-w-sm">
                 <OutsideClickHandler
                   onOutsideClick={() => {
                     setShowSettings(false);
@@ -730,9 +691,7 @@ const Swap = () => {
                   <div className="bg-primary-900 rounded-lg border border-gray-700 p-4 w-full">
                     <p className="text-type-100">Transaction settings</p>
                     <div className="mt-2">
-                      <p className="text-type-300 text-sm">
-                        Slippage tolerance
-                      </p>
+                      <p className="text-type-300 text-sm">Slippage tolerance</p>
                       <div className="grid grid-flow-col gap-2 items-center">
                         <div className="flex justify-between focus:border-secondary-500 bg-primary-700 rounded-lg items-center px-2 py-1">
                           <input
@@ -767,9 +726,7 @@ const Swap = () => {
             onPerc={async (val: string) => {
               let exchangeLimit;
 
-              maxExchange.maxPercent
-                ? (exchangeLimit = maxExchange)
-                : (exchangeLimit = await getMaxExchange());
+              maxExchange.maxPercent ? (exchangeLimit = maxExchange) : (exchangeLimit = await getMaxExchange());
 
               const { maxPercent, maxBuy, maxSell } = exchangeLimit;
 
@@ -797,9 +754,7 @@ const Swap = () => {
               if (token1.info && token2.info) {
                 let exchangeLimit;
 
-                maxExchange.maxSell
-                  ? (exchangeLimit = maxExchange)
-                  : (exchangeLimit = await getMaxExchange());
+                maxExchange.maxSell ? (exchangeLimit = maxExchange) : (exchangeLimit = await getMaxExchange());
 
                 const { maxSell, maxBuy } = exchangeLimit;
                 console.log("Value", value, "MaxSell", maxSell);
@@ -810,9 +765,7 @@ const Swap = () => {
                   setToken1({ ...token1, value: maxSell, percentage: 100 });
                 } else {
                   const percentage =
-                    Number(toFixed5(token1.balance)) === 0
-                      ? "100"
-                      : (Number(value) / token1.balance) * 100;
+                    Number(toFixed5(token1.balance)) === 0 ? "100" : (Number(value) / token1.balance) * 100;
                   console.log("Value < MaxSell");
                   setToken1({
                     ...token1,
@@ -861,9 +814,7 @@ const Swap = () => {
               if (token1.info && token2.info) {
                 let exchangeLimit;
 
-                maxExchange.maxBuy
-                  ? (exchangeLimit = maxExchange)
-                  : (exchangeLimit = await getMaxExchange());
+                maxExchange.maxBuy ? (exchangeLimit = maxExchange) : (exchangeLimit = await getMaxExchange());
 
                 const { maxBuy, maxSell } = exchangeLimit;
 
@@ -881,10 +832,7 @@ const Swap = () => {
             loading={token2.loading}
           />
 
-          {token1.info &&
-          token2.info &&
-          !Number.isNaN(postExchange) &&
-          Number(postExchange) !== 0 ? (
+          {token1.info && token2.info && !Number.isNaN(postExchange) && Number(postExchange) !== 0 ? (
             <div className="my-4 p-2 bg-primary-800 flex justify-between text-type-400 text-sm rounded-lg">
               <p>Exchange rate</p>
               <p>
@@ -904,9 +852,12 @@ const Swap = () => {
               id="executeTradeBtn"
               text={btnProps.text}
               onClick={() => {
-                btnProps.text === "Connect Wallet"
-                  ? handleConnect()
-                  : setShowConfirmSwapModal(true);
+                if (btnProps.text === "Connect Wallet") {
+                  handleConnect();
+                } else {
+                  setShowConfirmSwapModal(true);
+                  getNeededApprovals();
+                }
               }}
               classes={"px-4 py-4 rounded-lg w-full " + btnProps.classes}
               disabled={btnProps.disabled}
@@ -933,11 +884,7 @@ const Swap = () => {
         close={() => setShowConfirmModal(false)}
         txs={getConfirmModalProperties()}
       />
-      <TransactionDoneModal
-        show={showTxDone}
-        txHash={lastTxUrl}
-        close={() => setShowTxDone(false)}
-      />
+      <TransactionDoneModal show={showTxDone} txHash={lastTxUrl} close={() => setShowTxDone(false)} />
     </>
   );
 };
