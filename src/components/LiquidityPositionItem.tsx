@@ -47,7 +47,7 @@ function LiquidityPositionItem({
   }
 
   return (
-    <li key={`LP${index}`}>
+    <li id={`${token1.symbol}-lp-item`} key={`LP${index}`}>
       <div className="max-w-2xl mx-auto z-0">
         <div
           onClick={() => setVisible(!visible)}
@@ -77,43 +77,43 @@ function LiquidityPositionItem({
           </div>
         </div>
         {visible ? (
-          <div className={`p-4 bg-primary-800 rounded-b-lg mb-2`}>
+          <div id={`${token1.symbol}-lp-info`} className={`p-4 bg-primary-800 rounded-b-lg mb-2`}>
             <div className="p-4 bg-primary-900 rounded-lg">
               <div className="grid grid-cols-2 justify-between">
                 <div>
-                  <p className="text-type-300 text-sm">Total Shares in Pool</p>
+                  <p id="totalSharesTitle" className="text-type-300 text-sm">Total Shares in Pool</p>
                 </div>
                 <div className="justify-self-end">
-                  <p className="text-type-100 text-sm ">
+                  <p id="totalShares" className="text-type-100 text-sm ">
                     {toFixed5(totalPoolShares)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-type-300 text-sm">Your Shares in Pool</p>
+                  <p id="yourSharesTitle" className="text-type-300 text-sm">Your Shares in Pool</p>
                 </div>
                 <div className="justify-self-end">
-                  <p className="text-type-100 text-sm ">{toFixed5(shares)}</p>
+                  <p id="yourShares" className="text-type-100 text-sm ">{toFixed5(shares)}</p>
                 </div>
                 <div>
-                  <p className="text-type-300 text-sm">
+                  <p id="totalPooled1Title" className="text-type-300 text-sm">
                     Total Pooled {token1.symbol}
                   </p>
                 </div>
-                <div className="justify-self-end">
+                <div id="totalPooled1" className="justify-self-end">
                   <p className="text-type-100 text-sm ">{toFixed5(dtAmount)}</p>
                 </div>
                 <div>
-                  <p className="text-type-300 text-sm">
+                  <p id="totalPooled2Title" className="text-type-300 text-sm">
                     Total Pooled {token2.symbol}
                   </p>
                 </div>
                 <div className="justify-self-end">
-                  <p className="text-type-100 text-sm ">
+                  <p id="totalPooled2" className="text-type-100 text-sm ">
                     {toFixed5(oceanAmount)}
                   </p>
                 </div>
-                <div>
-                  <p className="text-type-300 text-sm">Your pool share</p>
+                <div  id="yourSharesPercTitle">
+                  <p id="yourSharesPerc" className="text-type-300 text-sm">Your pool share</p>
                 </div>
                 <div className="justify-self-end">
                   <p className="text-type-100 text-sm ">

@@ -56,6 +56,8 @@ describe("Setup web3 and connect to wallet", () => {
     const btnText = await page.evaluate((el) => el.textContent, walletBtn);
     expect(btnText).toBe("0x867...DfAd");
   });
+
+  //test wallet doest ask for signature if in local storage in next session
 });
 
 // Test priority

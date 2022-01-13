@@ -41,9 +41,9 @@ const LiquidityPosition = () => {
   useEffect(() => {
     try {
       if (accountId && !allStakedPools) {
-        setBgLoading([...bgLoading, bgLoadingStates.allStakedPools]);
         let localData: any = getLocalPoolData(accountId, chainId);
         if (localData && localData != null) {
+          setBgLoading([...bgLoading, bgLoadingStates.allStakedPools]);
           localData = JSON.parse(localData);
           setNoStakedPools(false);
           console.log("Setting stake pool data from local.", localData);
@@ -60,7 +60,6 @@ const LiquidityPosition = () => {
             setAllStakedPools,
           }).then(() => {
             setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.allStakedPools));
-            setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData));
             setLoading(false);
             setNoStakedPools(false);
             setUserMessage(null);
@@ -84,7 +83,8 @@ const LiquidityPosition = () => {
       setUserMessage("You have no stake in any pools, check out StakeX to buy stake!");
     } else if (accountId && !allStakedPools) {
       setMessageId("importMessage")
-      setUserMessage("Dont see your tokens? Import a certain pool, or scan the entire blockchain.");
+      setUserMessage("Dont see your tokens? Import a pool by name with the import button below.");
+      //, or scan the entire blockchain.
     } else if (accountId && allStakedPools) {
       setUserMessage(null);
     }
@@ -185,8 +185,8 @@ const LiquidityPosition = () => {
         )}
         <div className="flex flex-row w-full justify-center">
           <div className="max-w-2xl w-full py-2 rounded-lg bg-primary-900">
-            <div className="w-full flex">
-              <div className="w-1/2 pr-1">
+            <div className="w-full flex justify-center">
+              <div className="w-full pr-1">
                 <button
                 id="importStakeBtn"
                   title="Import your stake information."
@@ -201,7 +201,7 @@ const LiquidityPosition = () => {
                   Import
                 </button>
               </div>
-              <div className="w-1/2 pl-1">
+              {/* <div className="w-1/2 pl-1">
                 <button
                 id="scanStakeBtn"
                   title="Scan for your stake information."
@@ -215,7 +215,7 @@ const LiquidityPosition = () => {
                 >
                   Scan
                 </button>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

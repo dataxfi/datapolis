@@ -1,6 +1,7 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
+import { testAcctId } from "./Setup";
 
 export async function clearMMPopup(metamask: dappeteer.Dappeteer) {
   //clear popoups
@@ -40,7 +41,7 @@ export async function approveTransactions(metamask: dappeteer.Dappeteer, page: p
       await metamask.confirmTransaction();
       page.bringToFront();
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
 }
@@ -96,15 +97,15 @@ export async function navToStake(page: puppeteer.Page) {
   await page.click("#StakeX-link");
 }
 
-export async function navToLp(page: puppeteer.Page){
-  await navToStake(page)
-  await acceptCookies(page)
-  await page.waitForSelector("#lpLink")
-  await page.click('#lpLink')
-  await page.waitForSelector('#lpModal')
+export async function navToLp(page: puppeteer.Page) {
+  await navToStake(page);
+  await acceptCookies(page);
+  await page.waitForSelector("#lpLink");
+  await page.click("#lpLink");
+  await page.waitForSelector("#lpModal");
 }
 
-export async function acceptCookies(page: puppeteer.Page){
+export async function acceptCookies(page: puppeteer.Page) {
   await page.waitForSelector("#cookiesModal");
   await page.waitForSelector("#confirmCookies");
   await page.click("#confirmCookies");
@@ -161,10 +162,6 @@ export async function confirmInputClearedAfterStake(page: puppeteer.Page) {
   await page.waitForFunction("document.querySelector('#stakeAmtInput').value === ''");
 }
 
-export async function sellAllDt(page: puppeteer.Page, metamask: dappeteer.Dappeteer) {
-  //continuosly sell DT until none is left
-}
-
 export async function reloadOrContinue(lastTestPassed: Boolean, page: puppeteer.Page, stake?: boolean) {
   if (lastTestPassed) return;
   page.reload();
@@ -172,6 +169,44 @@ export async function reloadOrContinue(lastTestPassed: Boolean, page: puppeteer.
   await page.waitForSelector("#d-wallet-button");
   await page.click("#d-wallet-button");
   if (stake) navToStake(page);
+}
+
+//get method not fully functional
+export type methods = "get" | "set" | "clear" | "remove" | "key" | "length";
+export async function useLocalStorage(
+  page: puppeteer.Page,
+  method: methods,
+  data?: { key?: string; value?: string; index?: number }
+) {
+  console.log(data);
+
+  switch (method) {
+    case "get":
+      if (data) return await page.evaluate((data, testAcctId) => window.localStorage.getItem(data.key || ""), data, testAcctId);
+      break;
+    case "set":
+      if (data) await page.evaluate((data) => window.localStorage.setItem(data.key || "", data.value || ""), data);
+      break;
+    case "clear":
+      await page.evaluate(() => window.localStorage.clear());
+      break;
+    case "key":
+      if (data) await page.evaluate((data) => window.localStorage.key(data.index || 0), data);
+      break;
+    case "length":
+      return await page.evaluate(() => window.localStorage.length);
+    case "remove":
+      if (data) await page.evaluate((data) => window.localStorage.removeItem(data.key || ""), data);
+      break;
+  }
+}
+
+export async function importStakeInfo(page: puppeteer.Page, pool: string) {
+  await page.waitForSelector("#importStakeBtn");
+  await page.click("#importStakeBtn");
+
+  await page.waitForSelector(`#${pool}-btn`);
+  await page.click(`#${pool}-btn`);
 }
 
 //not yet tested
