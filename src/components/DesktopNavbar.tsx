@@ -24,12 +24,13 @@ const DesktopNavbar = ({
   const { accountId, buttonText } = useContext(GlobalContext);
 
   return (
-    <header className="lg:flex justify-between items-center py-4 border-gray-800 pl-4 pr-2 hidden">
+    <header id="desktopNavBar" className="lg:flex justify-between items-center py-4 border-gray-800 pl-4 pr-2 hidden">
       <div className="grid grid-flow-col gap-8 items-center">
         <Logo className="logo" style={{ height: "40px" }} />
         {links.map((link, idx) => {
           return (
             <Link
+              id={`${link.name}-link`}
               key={idx}
               to={link.link}
               className="hm-link hidden md:block product"
@@ -46,6 +47,7 @@ const DesktopNavbar = ({
         </div>
         <div className="hidden md:block">
           <Button
+            id={`${accountId? "d-view-txs-btn" : "d-wallet-button" }`}
             text={accountId ? truncateId() : buttonText}
             onClick={() => handleModalOrConnect()}
             classes="hm-btn hm-btn-light hm-box border border-type-500"

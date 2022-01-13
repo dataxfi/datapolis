@@ -4,7 +4,7 @@ import { useEffect, useState, useContext } from "react";
 import Loader from "./Loader";
 import ReactList from "react-list";
 import { GlobalContext } from "../context/GlobalState";
-import getTokenList, {formatTokenList} from "../utils/tokenListUtils";
+import getTokenList, { formatTokenList } from "../utils/tokenListUtils";
 
 const text = {
   T_SELECT_TOKEN: "Select a token",
@@ -31,7 +31,6 @@ const TokenModal = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
-
   useEffect(() => {
     if (!tokenResponse) {
       getTokenList({
@@ -40,20 +39,18 @@ const TokenModal = ({
         setTokenResponse,
         accountId,
         setCurrentTokens,
-        otherToken
+        otherToken,
       });
     }
 
     setLoading(true);
     setError(false);
     if (tokenResponse && tokenResponse.tokens) {
-      const formattedList = formatTokenList(tokenResponse, otherToken)
-      setCurrentTokens(formattedList)
+      const formattedList = formatTokenList(tokenResponse, otherToken);
+      setCurrentTokens(formattedList);
       setLoading(false);
       setError(false);
-    } else if (
-      tokenResponse === null
-    ) {
+    } else if (tokenResponse === null) {
       setError(true);
       setLoading(false);
     }
@@ -79,11 +76,15 @@ const TokenModal = ({
   };
 
   return (
-    <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 w-full sm:max-w-sm">
+    <div
+      id="tokenModal"
+      className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 w-full sm:max-w-sm"
+    >
       <div className="p-4 bg-background border-primary-500 border rounded-lg hm-box mx-3">
         <div className="flex justify-between items-center">
           <p className="mb-0 text-type-100 text-2xl">{text.T_SELECT_TOKEN}</p>
           <MdClose
+            id="closeTokenModalBtn"
             role="button"
             onClick={() => {
               close();
@@ -93,6 +94,7 @@ const TokenModal = ({
         </div>
         <div className="mt-4">
           <input
+            id="tokenSearch"
             onChange={(e) => searchToken(e.target.value)}
             type="text"
             placeholder="Search token"
@@ -100,21 +102,22 @@ const TokenModal = ({
           />
         </div>
         {loading ? (
-          <div className="flex justify-center my-4">
+          <div id="tokenLoadingAni" className="flex justify-center my-4">
             <Loader size={40} />
           </div>
         ) : error ? (
-          <div className="text-white text-center my-4">
+          <div id="tokenLoadError" className="text-white text-center my-4">
             There was an error loading the tokens
           </div>
         ) : (
           <div
             className="mt-4 hm-hide-scrollbar overflow-y-scroll"
             style={{ maxHeight: "60vh" }}
+            id="tokenList"
           >
             <ReactList
               itemRenderer={tokenRenderer}
-              length={currentTokens? currentTokens.length : 0}
+              length={currentTokens ? currentTokens.length : 0}
               type="simple"
             />
           </div>

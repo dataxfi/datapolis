@@ -31,14 +31,14 @@ function CookiesModal() {
       
     } else {
       localStorage.setItem("cookiesAllowed", "false");
-      deniedCookiesGA()
+      setCookiesAllowed(false)
     }
 
     setShow(false)
   }
 
   return (
-    <div
+    <div id="cookiesModal"
       className={`z-30 md:w-80 lg:w-96 absolute bottom-0 flex flex-col bg-primary-700 p-5 justify-center m-4 rounded-md filter hm-box transition-all ${
         show ? "opacity-100" : "opacity-0"
       }`}

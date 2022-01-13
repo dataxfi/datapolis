@@ -24,7 +24,6 @@ function DisclaimerModal() {
     useContext(GlobalContext);
   const [showReminder, setShowReminder] = useState(false);
 
-
   function approvedDisclaimer() {
     if (!disclaimerSigned.client) {
       setDisclaimerSigned({ ...disclaimerSigned, client: true });
@@ -38,7 +37,7 @@ function DisclaimerModal() {
   }
 
   return (
-    <div className="flex sm:mt-6 md:mt-16 w-full items-center justify-center md:mb-20 z-30 ">
+    <div id="disclaimer-modal" className="flex sm:mt-6 md:mt-16 w-full items-center justify-center md:mb-20 z-30 ">
       <div className="h-102 md:h-auto max-w-2xl  sm:mx-4 mx-3 bg-primary-900 w-full rounded-lg p-4 hm-box flex flex-col xs:p-1 sm:p-4 md:px-10 py-4 md:mb-20">
         <h2 className="md:text-2xl text-xl self-center mb-2">Disclaimer</h2>
         <div className="h-3/5 overflow-scroll lg:h-auto md:overflow-auto w-full p-2 bg-primary-700 rounded">
@@ -52,12 +51,14 @@ function DisclaimerModal() {
         </p>
         <div className="flex flex-row w-full">
           <button
+            id="deny-disclaimer-btn"
             className="w-1/2 text-xs sm:text-sm p-3 active:bg-primary-500  rounded-sm mr-1 transition-colors bg-primary-500 hover:bg-primary-400"
             onClick={deniedDisclaimer}
           >
             Cancel
           </button>
           <button
+            id="sign-disclaimer-btn"
             className="w-1/2 text-xs sm:text-sm p-3 active:bg-primary-500  rounded-sm mr-1 transition-colors bg-primary-500 hover:bg-primary-400"
             onClick={approvedDisclaimer}
           >

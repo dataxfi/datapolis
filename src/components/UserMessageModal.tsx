@@ -8,11 +8,13 @@ export interface userMessage {
 }
 
 const UserMessageModal = ({
+  id,
   message,
   pulse = false,
   container = false,
   timeout = null,
 }: {
+  id?: string | null;
   message: string | userMessage;
   pulse: boolean;
   container: boolean;
@@ -23,7 +25,7 @@ const UserMessageModal = ({
   let type: any;
   let href;
   let desc;
-
+  if (!id) id = "userMessageModal";
   if (typeof message !== "string") {
     userMessage = message.message;
     link = message.link;
@@ -69,7 +71,7 @@ const UserMessageModal = ({
   }, []);
 
   const stdMessageEl = (
-    <div className="flex flex-col text-center">
+    <div id={id} className="flex flex-col text-center">
       {type === "error" ? (
         <div className="flex justify-center">
           <BsXCircle className="text-red-500 text-4xl self-center mb-4" />{" "}
@@ -97,6 +99,7 @@ const UserMessageModal = ({
 
   const floatMessageEl = (
     <div
+      id={id}
       className={`max-w-xs fixed md:top-8 md:right-8 w-full mx-auto bg-primary-800 rounded-lg p-4 transition-opacity ease-in-out opacity-${messageOpacity} duration-500`}
     >
       <div className="flex justify-between items-start">
@@ -130,11 +133,7 @@ const UserMessageModal = ({
     <>{floatMessageEl}</>
   ) : container ? (
     <div className="w-full h-4/5 flex flex-row justify-center p-4 pt-24">
-      <div
-        className={`h-1/3 text-center bg-gray-900 px-20 py-20 rounded-lg self-center `}
-      >
-        {stdMessageEl}
-      </div>
+      <div className={`h-1/3 text-center bg-gray-900 px-20 py-20 rounded-lg self-center `}>{stdMessageEl}</div>
     </div>
   ) : (
     stdMessageEl

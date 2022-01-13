@@ -5,7 +5,7 @@ const ConfirmSwapItem = ({img, value, name}: {img: string, value: string, name: 
                 <img src={img} className="rounded-lg w-10" alt="" />
                 <p className="text-type-100 text-lg">{value}</p>
             </div>
-            <p className="justify-self-end text-type-100 text-lg pr-2">
+            <p id={`confirmSwapItem${name}`} className="justify-self-end text-type-100 text-lg pr-2">
                     {name}
             </p>            
         </div>

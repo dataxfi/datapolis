@@ -141,7 +141,6 @@ const Swap = () => {
       // Max sell is the max amount of DT that can be traded
       maxSell = await ocean.getMaxExchange(token1.info.pool);
       console.log("Exact max sell:", maxSell);
-      
 
       // Max buy is the amount of OCEAN bought from max sell
       maxBuy = await calculateExchange(true, maxSell);
@@ -151,13 +150,12 @@ const Swap = () => {
       // Max buy is the max amount of DT that can be traded
       maxBuy = await ocean.getMaxExchange(token2.info.pool);
       console.log("Exact max buy:", maxBuy);
-      if(maxBuy - Math.floor(Number(maxBuy)) > .5){
+      if (maxBuy - Math.floor(Number(maxBuy)) > 0.5) {
         maxBuy = String(Math.floor(Number(maxBuy)));
       } else {
         // maxBuy = String(Math.floor(Number(maxBuy)));
-        maxBuy = String(Number(maxBuy) - .5);
+        maxBuy = String(Number(maxBuy) - 0.5);
         console.log(maxBuy);
-        
       }
 
       //Max sell is the amount of OCEAN sold for maxBuy
@@ -702,12 +700,16 @@ const Swap = () => {
   }
   return (
     <>
-      <div className="flex my-3 w-full h-full items-center justify-center ">
+      <div
+        id="swapModal"
+        className="flex my-3 w-full h-full items-center justify-center "
+      >
         <div className="max-w-2xl lg:mx-auto sm:mx-4 mx-3 bg-primary-900 w-full rounded-lg p-4 hm-box ">
           <div className="flex justify-between relative">
             <p className="text-xl">{text.T_SWAP}</p>
             <div className="grid grid-flow-col gap-2 items-center">
               <div
+                id="tradeSettingsBtn"
                 onClick={() => setShowSettings(true)}
                 className="hover:bg-primary-700 px-1.5 py-1.5 rounded-lg"
                 role="button"
@@ -716,7 +718,10 @@ const Swap = () => {
               </div>
             </div>
             {showSettings ? (
-              <div className="absolute top-10 right-0 max-w-sm">
+              <div
+                id="settingsModal"
+                className="absolute top-10 right-0 max-w-sm"
+              >
                 <OutsideClickHandler
                   onOutsideClick={() => {
                     setShowSettings(false);
@@ -731,6 +736,7 @@ const Swap = () => {
                       <div className="grid grid-flow-col gap-2 items-center">
                         <div className="flex justify-between focus:border-secondary-500 bg-primary-700 rounded-lg items-center px-2 py-1">
                           <input
+                            id="slippageInput"
                             type="number"
                             onChange={(e) => setSlippage(e.target.value || "")}
                             value={slippage}
@@ -740,6 +746,7 @@ const Swap = () => {
                         </div>
                         <div>
                           <Button
+                            id="autoSlippageBtn"
                             onClick={() => setSlippage(1)}
                             text="Auto"
                             classes="text-type-300 p-2 bg-primary-800 rounded-lg"
@@ -820,6 +827,7 @@ const Swap = () => {
           />
           <div className="px-4 relative my-12">
             <div
+              id="swapTokensBtn"
               onClick={() => {
                 if (token2 && !token2.loading) {
                   swapTokens();
@@ -893,6 +901,7 @@ const Swap = () => {
 
           <div className="mt-4">
             <Button
+              id="executeTradeBtn"
               text={btnProps.text}
               onClick={() => {
                 btnProps.text === "Connect Wallet"

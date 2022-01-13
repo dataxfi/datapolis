@@ -12,16 +12,16 @@ const MobileNavbar = ({
   wallet,
   truncateId,
   network,
-  handleModalOrConnect
+  handleModalOrConnect,
 }: {
   links: Array<any>;
   text: Record<any, any>;
   wallet: string;
   truncateId: Function;
   network: string;
-  handleModalOrConnect: Function
+  handleModalOrConnect: Function;
 }) => {
-  const {accountId } = useContext(GlobalContext);
+  const { accountId } = useContext(GlobalContext);
   const [menuVisible, setMenuVisible] = useState(false);
   const [walletBtnVis, setWalletBtnVis] = useState(false);
 
@@ -41,7 +41,7 @@ const MobileNavbar = ({
   }, [accountId]);
 
   return (
-    <header className="flex flex-col">
+    <header id="mobileNavbar" className="flex flex-col">
       <div className="flex lg:hidden justify-between items-center pt-2 border-gray-800 pr-4">
         <div className="flex flex-row justify-start">
           <Logo className="logo" style={{ height: "40px" }} />
@@ -109,6 +109,7 @@ const MobileNavbar = ({
                 {accountId ? `${network}` : null}
               </p>
               <Button
+                id={`${accountId ? "m-view-txs-btn" : "m-wallet-button"}`}
                 text={`${accountId ? `${truncateId()}` : "Connect wallet"}`}
                 onClick={() => handleModalOrConnect()}
                 classes={`hm-btn text-xs  ${

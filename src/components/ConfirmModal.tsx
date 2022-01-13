@@ -25,13 +25,14 @@ const ConfirmModal = ({
               role="button"
               size="28"
               className="text-type-200 text-right"
+              id="closeConfrimModalBtn"
             />
           </div>
           <div className="flex items-center justify-center">
             <Loader size={48} />
           </div>
           <div className="text-center">
-            <p className="text-type-100 text-lg mt-2">
+            <p id={`confirmTxLength-${txs.length}`} className="text-type-100 text-lg mt-2">
               You will have to confirm {txs.length} transaction(s)
             </p>
             {txs.map((tx: string, index: number) => (
