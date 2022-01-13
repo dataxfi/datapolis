@@ -88,7 +88,7 @@ describe("Execute Standard Trades on TradeX", () => {
     try {
       await reloadOrContinue(lastTestPassed, page);
       await setUpSwap(page, "SAGKRI-94", "DAZORC-13", "1");
-      await approveTransactions(metamask, page, 2);
+      await approveTransactions(metamask, page, 1);
       await confirmAndCloseTxDoneModal(page);
       await confirmTokensClearedAfterTrade(page);
       lastTestPassed = true;
@@ -102,7 +102,7 @@ describe("Execute Standard Trades on TradeX", () => {
     try {
       await reloadOrContinue(lastTestPassed, page);
       await setUpSwap(page, "DAZORC-13", "SAGKRI-94", "max");
-      await approveTransactions(metamask, page, 2);
+      await approveTransactions(metamask, page, 1);
       await confirmAndCloseTxDoneModal(page);
       await confirmTokensClearedAfterTrade(page);
       lastTestPassed = true;

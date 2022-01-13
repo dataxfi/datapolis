@@ -2,7 +2,7 @@
 
 ### A defi exchange platform built using ocean protocol and web3.
 
->DataX Docs: https://docs.datax.fi/
+> DataX Docs: https://docs.datax.fi/
 
 ## TradeX
 
@@ -46,6 +46,25 @@ If you feel another test would be beneficial to add to the protocol, bring it up
 REACT_APP_T_ACCT_SEED = "private key"
 REACT_APP_T_ACCT_PASS = "password"
 ```
+
 Reach out to development-internal to request these credentials if you need them.
 
 The scripts intentially omit an option to test them all at once. This is because the transaction are all real , the suits take a few minutes each, and require human supervision, by default headless is always set to false. Review the process to ensure there are sufficient balances, gas, etc., for each transaction.
+
+> While testing, pay attention to the balance of ocean. The tests are currently directed toward the happy path of the highvalue features of DataX. You may need to run one suite before the other to ensure you have proper balances. (Consider, if you run stakex before tradex there might not be enough ocean for tradex tests becuase of the max stake test.)
+
+Recommended testflow:
+
+- Open the account in metamask and check balances
+- Cookies, Disclaimer, and LP can be in any order
+
+1. `yarn test-rinkeby-tradex`
+2. `yarn test-rinkeby-stakex`
+3. `yarn test-rinkeby-unstake`
+
+Close Future Implementation:
+
+- Two accounts to test with: high balance account and low balance account (to test max cases for each product)
+- High value tests and low value tests
+- High value/Low value edge cases
+- Utility functions for moving assets to test particular suites (sell all DT, sell all OCEAN, unstake all pools, etc.)
