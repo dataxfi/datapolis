@@ -238,11 +238,11 @@ const Swap = () => {
   ) => {
     const balance = await ocean.getBalance(info.address, accountId);
     if (pos === 1) {
-      setToken1({ ...token1, info, balance });
-      if (updateOther) updateOtherTokenValue(true, token1.value);
+      setToken1({ ...token1, info, balance, value:"" });
+      if (updateOther) updateOtherTokenValue(true, "0");
     } else if (pos === 2) {
-      setToken2({ ...token2, info, balance });
-      if (updateOther) updateOtherTokenValue(false, token2.value);
+      setToken2({ ...token2, info, balance, value:""});
+      if (updateOther) updateOtherTokenValue(false, "0");
     }
   };
 
