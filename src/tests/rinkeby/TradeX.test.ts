@@ -3,6 +3,7 @@ import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
 import { setupDappBrowser, setupDataX, closeBrowser } from "../Setup";
 import {
+  approveTransaction,
   approveTransactions,
   confirmAndCloseTxDoneModal,
   confirmTokensClearedAfterTrade,
@@ -32,8 +33,8 @@ describe("Execute Standard Trades on TradeX", () => {
   });
   it("10 OCEAN -> SAGKRI-94", async () => {
     try {
-      await setUpSwap(page, "OCEAN", "SAGKRI-94", "10");
-      await approveTransactions(metamask, page, 2);
+      const confirmations = await setUpSwap(page, "OCEAN", "SAGKRI-94", "10");
+      confirmations > 1 ? await approveTransactions(metamask, page, confirmations) : await approveTransaction(metamask);
       await confirmAndCloseTxDoneModal(page);
       await confirmTokensClearedAfterTrade(page);
     } catch (error) {
@@ -45,8 +46,8 @@ describe("Execute Standard Trades on TradeX", () => {
   it(".1 OCEAN -> SAGKRI-94", async () => {
     try {
       await reloadOrContinue(lastTestPassed, page);
-      await setUpSwap(page, "OCEAN", "SAGKRI-94", ".1");
-      await approveTransactions(metamask, page, 2);
+      const confirmations = await setUpSwap(page, "OCEAN", "SAGKRI-94", ".1");
+      confirmations > 1 ? await approveTransactions(metamask, page, confirmations) : await approveTransaction(metamask);
       await confirmAndCloseTxDoneModal(page);
       await confirmTokensClearedAfterTrade(page);
       lastTestPassed = true;
@@ -59,8 +60,8 @@ describe("Execute Standard Trades on TradeX", () => {
   it("MAX OCEAN -> SAGKRI-94", async () => {
     try {
       await reloadOrContinue(lastTestPassed, page);
-      await setUpSwap(page, "OCEAN", "SAGKRI-94", "max");
-      await approveTransactions(metamask, page, 2);
+      const confirmations = await setUpSwap(page, "OCEAN", "SAGKRI-94", "max");
+      confirmations > 1 ? await approveTransactions(metamask, page, confirmations) : await approveTransaction(metamask);
       await confirmAndCloseTxDoneModal(page);
       await confirmTokensClearedAfterTrade(page);
       lastTestPassed = true;
@@ -73,8 +74,8 @@ describe("Execute Standard Trades on TradeX", () => {
   it("1 SAGKRI-94 -> OCEAN", async () => {
     try {
       await reloadOrContinue(lastTestPassed, page);
-      await setUpSwap(page, "SAGKRI-94", "OCEAN", "1");
-      await approveTransactions(metamask, page, 2);
+      const confirmations = await setUpSwap(page, "SAGKRI-94", "OCEAN", "1");
+      confirmations > 1 ? await approveTransactions(metamask, page, confirmations) : await approveTransaction(metamask);
       await confirmAndCloseTxDoneModal(page);
       await confirmTokensClearedAfterTrade(page);
       lastTestPassed = true;
@@ -87,8 +88,8 @@ describe("Execute Standard Trades on TradeX", () => {
   it("1 SAGKRI-94 -> DAZORC-13", async () => {
     try {
       await reloadOrContinue(lastTestPassed, page);
-      await setUpSwap(page, "SAGKRI-94", "DAZORC-13", "1");
-      await approveTransactions(metamask, page, 1);
+      const confirmations = await setUpSwap(page, "SAGKRI-94", "DAZORC-13", "1");
+      confirmations > 1 ? await approveTransactions(metamask, page, confirmations) : await approveTransaction(metamask);
       await confirmAndCloseTxDoneModal(page);
       await confirmTokensClearedAfterTrade(page);
       lastTestPassed = true;
@@ -101,8 +102,8 @@ describe("Execute Standard Trades on TradeX", () => {
   it("MAX DAZORC-13 -> SAGKRI-94", async () => {
     try {
       await reloadOrContinue(lastTestPassed, page);
-      await setUpSwap(page, "DAZORC-13", "SAGKRI-94", "max");
-      await approveTransactions(metamask, page, 1);
+      const confirmations = await setUpSwap(page, "DAZORC-13", "SAGKRI-94", "max");
+      confirmations > 1 ? await approveTransactions(metamask, page, confirmations) : await approveTransaction(metamask);
       await confirmAndCloseTxDoneModal(page);
       await confirmTokensClearedAfterTrade(page);
       lastTestPassed = true;
@@ -113,8 +114,8 @@ describe("Execute Standard Trades on TradeX", () => {
   });
 
   async function maxUnstakeSAGKRI() {
-    await setUpSwap(page, "SAGKRI-94", "OCEAN", "max");
-    await approveTransactions(metamask, page, 2);
+    const confirmations = await setUpSwap(page, "SAGKRI-94", "OCEAN", "max");
+    confirmations > 1 ? await approveTransactions(metamask, page, confirmations) : await approveTransaction(metamask);
     await confirmAndCloseTxDoneModal(page);
     await confirmTokensClearedAfterTrade(page);
   }
@@ -133,12 +134,12 @@ describe("Execute Standard Trades on TradeX", () => {
   it("Trade All but .1 DT to OCEAN", async () => {
     try {
       reloadOrContinue(lastTestPassed, page);
-      await setUpSwap(page, "SAGKRI-94", "OCEAN", "max");
+      const confirmations = await setUpSwap(page, "SAGKRI-94", "OCEAN", "max");
       let set = true;
       await page.waitForSelector("#token1-balance");
       while (await page.evaluate('Number(document.querySelector("#token1-balance").innerText) > 0.1')) {
         if (set === true) {
-          await approveTransactions(metamask, page, 2);
+          confirmations > 1 ? await approveTransactions(metamask, page, confirmations) : await approveTransaction(metamask);
           await confirmAndCloseTxDoneModal(page);
           await confirmTokensClearedAfterTrade(page);
           set = false;

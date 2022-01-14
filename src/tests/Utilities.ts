@@ -46,7 +46,7 @@ export async function approveTransactions(metamask: dappeteer.Dappeteer, page: p
   }
 }
 
-export async function setUpSwap(page: puppeteer.Page, t1Symbol: string, t2Symbol: string, t1Amount: string) {
+export async function setUpSwap(page: puppeteer.Page, t1Symbol: string, t2Symbol: string, t1Amount: string): Promise<number> {
   //open modal for token 1
   await page.waitForTimeout(1000);
   await page.waitForSelector("#selectToken1");
@@ -90,6 +90,11 @@ export async function setUpSwap(page: puppeteer.Page, t1Symbol: string, t2Symbol
   await page.waitForSelector("#confirmSwapModalBtn");
   await page.click("#confirmSwapModalBtn");
   //   }
+
+  //find and return the approval amount
+  await page.waitForSelector("#confirmItem")
+  const confirmations = await page.evaluate('document.querySelectorAll("#confirmItem").length')
+  return confirmations
 }
 export async function navToStake(page: puppeteer.Page) {
   await page.bringToFront();
