@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@craco/craco": "^6.2.0",
-    "@dataxfi/datax.js": "^0.1.28",
+    "@dataxfi/datax.js": "^0.1.29",
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/free-brands-svg-icons": "^5.15.4",
     "@fortawesome/react-fontawesome": "^0.1.16",
@@ -39,13 +39,12 @@
     "eject": "react-scripts eject",
     "clearTestCache": "react-scripts test --clearCache",
     "test-rinkeby": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby",
-    "test-rinkeby-tradex": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/TradeX.test.ts", 
+    "test-rinkeby-tradex": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/TradeX.test.ts",
     "test-rinkeby-disclaimer": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/Disclaimer.test.ts",
-    "test-rinkeby-stakex": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/StakeX.test.ts", 
-    "test-rinkeby-lp": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/LiquidityPosition.test.ts", 
-    "test-rinkeby-cookies": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/Cookies.test.ts", 
-    "test-rinkeby-unstake": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/Unstake.test.ts", 
-
+    "test-rinkeby-stakex": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/StakeX.test.ts",
+    "test-rinkeby-lp": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/LiquidityPosition.test.ts",
+    "test-rinkeby-cookies": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/Cookies.test.ts",
+    "test-rinkeby-unstake": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/Unstake.test.ts",
     "coverage": "yarn test-rinkeby -- --coverage"
   },
   "eslintConfig": {
