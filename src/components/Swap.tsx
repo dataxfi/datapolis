@@ -8,7 +8,7 @@ import OutsideClickHandler from "react-outside-click-handler";
 import ConfirmSwapModal from "./ConfirmSwapModal";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
-import { checkNotation, toFixed18, toFixed2, toFixed5 } from "../utils/equate";
+import { checkNotation,toFixed5 } from "../utils/equate";
 // import { program } from "@babel/types"
 // import { get } from "https"
 import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
@@ -277,10 +277,11 @@ const Swap = () => {
     } else {
       // In house calulations need notation checked to avoid E-notation errors
       if (fromToken) {
-        const value = checkNotation(
+        let value = checkNotation(
           Number(toFixed5(token1.balance)) * (perc / 100)
         );
         console.log("Value from perc", value);
+        value = toFixed5(value)
 
         setToken1({
           ...token1,
@@ -289,10 +290,11 @@ const Swap = () => {
         });
         updateOtherTokenValue(true, value.toString());
       } else {
-        const value = checkNotation(
+        let value = checkNotation(
           Number(toFixed5(token2.balance)) * (perc / 100)
         );
         console.log("Value from perc", value);
+        value = toFixed5(value)
 
         setToken2({
           ...token2,
