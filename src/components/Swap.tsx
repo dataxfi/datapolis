@@ -193,6 +193,8 @@ const Swap = () => {
   }
 
   useEffect(() => {
+    console.log("Something triggered maxExchange use effect", token1.info, token2.info);
+    
     if (token1.info && token2.info) {
       setMaxExchange(INITIAL_MAX_EXCHANGE);
       getMaxExchange().then((res) => {
@@ -239,10 +241,12 @@ const Swap = () => {
     const balance = await ocean.getBalance(info.address, accountId);
     if (pos === 1) {
       setToken1({ ...token1, info, balance, value:"" });
-      if (updateOther) updateOtherTokenValue(true, "0");
+      setToken2({...token2, value:""})
+      // if (updateOther) updateOtherTokenValue(true, "0");
     } else if (pos === 2) {
       setToken2({ ...token2, info, balance, value:""});
-      if (updateOther) updateOtherTokenValue(false, "0");
+      setToken1({...token1, value:""})
+      //if (updateOther) updateOtherTokenValue(false, "0");
     }
   };
 
@@ -796,6 +800,7 @@ const Swap = () => {
               setToken1({ ...token1, value });
               if (token1.info && token2.info) {
                 let exchangeLimit;
+                console.log("maxSell exists: ", !!maxExchange.maxSell);
 
                 maxExchange.maxSell
                   ? (exchangeLimit = maxExchange)
@@ -857,10 +862,11 @@ const Swap = () => {
             setToken={setToken}
             updateNum={async (value: string) => {
               //Setting state here allows for max to be persisted in the input
-              setToken1({ ...token2, value });
+              setToken2({ ...token2, value });
               if (token1.info && token2.info) {
                 let exchangeLimit;
-
+                console.log("maxbuy exists: ", !!maxExchange.maxBuy);
+                
                 maxExchange.maxBuy
                   ? (exchangeLimit = maxExchange)
                   : (exchangeLimit = await getMaxExchange());

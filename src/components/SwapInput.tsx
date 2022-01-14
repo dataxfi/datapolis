@@ -50,10 +50,10 @@ const SwapInput = ({
     }
   }
 
-  useEffect(() => {
-    if (value) setToken(value, pos, false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountId]);
+  // useEffect(() => {
+  //   if (value) setToken(value, pos, false);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [accountId]);
 
   return (
     <div id={`${pos}-swapInput`} className="mt-4 bg-primary-800 p-4 rounded-lg">
