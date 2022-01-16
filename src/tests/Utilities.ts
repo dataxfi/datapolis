@@ -38,7 +38,7 @@ export async function clearMMPopup(metamask: dappeteer.Dappeteer) {
   //clear popoups
   //maybe use useXPath to find an X? could be better
   try {
-    await metamask.page.waitForSelector(".fas.fa-times.popover-header__button", { timeout: 5000 });
+    await metamask.page.waitForSelector(".fas.fa-times.popover-header__button", { timeout: 1000 });
     await metamask.page.click(".fas.fa-times.popover-header__button");
   } catch (error) {}
 }
@@ -159,6 +159,134 @@ export async function approveTransactions(metamask: dappeteer.Dappeteer, page: p
 }
 
 /**
+ *
+ * @param page - puppeteer page
+ * @param metamask
+ * @param t1Symbol - token1 (sell) symbol
+ * @param t2Symbol - token2 (buy) symbol
+ * @param amount - amount to input
+ * @param inputLoc - input location (token1 field = 1 OR token2 field = 2) defaults to 1
+ *
+ * Tests:
+ *  - Inputs work
+ *  - Percentage is always calculated
+ *  - Decimals in inputs is 5
+ *  - Decimals in perc input is 0
+ *  - Button changes to approve and swap
+ *
+ */
+
+export async function setUpSwap(
+  page: puppeteer.Page,
+  metamask: dappeteer.Dappeteer,
+  t1Symbol: string,
+  t2Symbol: string,
+  amount: string,
+  inputLoc: number = 1
+): Promise<void> {
+  await page.bringToFront();
+
+  //open modal for token 1
+  await page.waitForTimeout(1000);
+  await page.waitForSelector("#selectToken1");
+  await page.click("#selectToken1");
+
+  //click ocean
+  await page.waitForTimeout(500);
+  await page.waitForSelector(`#${t1Symbol}-btn`);
+  await page.click(`#${t1Symbol}-btn`);
+
+  //open modal for token 2
+  await page.waitForTimeout(500);
+  await page.waitForSelector("#selectToken2");
+  await page.click("#selectToken2");
+
+  //click sagkri-94
+  await page.waitForTimeout(500);
+  await page.waitForSelector(`#${t2Symbol}-btn`);
+  await page.click(`#${t2Symbol}-btn`);
+
+  if (amount === "max") {
+    await page.waitForTimeout(1000);
+    await page.waitForSelector("#maxTrade");
+    await page.click("#maxTrade");
+    await page.waitForFunction('Number(document.querySelector("#token1-input").value) > 0', { timeout: 5000 });
+  } else {
+    if (inputLoc === 1 || !inputLoc) {
+      //input amount into token 1
+      await page.waitForSelector("#token1-input");
+      await page.click("#token1-input");
+      await page.type("#token1-input", amount, { delay: 100 });
+    } else {
+      //input amount into token 2
+      await page.waitForSelector("#token2-input");
+      await page.click("#token2-input");
+      await page.type("#token2-input", amount, { delay: 100 });
+    }
+  }
+
+  //wait for calculation and click approve and swap
+  await page.waitForSelector("#executeTradeBtn");
+  if (Number(amount) > 0) {
+    await page.waitForFunction('Number(document.querySelector("#token2-input").value) > 0', { timeout: 5000 });
+    await page.waitForFunction('document.querySelector("#executeTradeBtn").innerText === "Approve & Swap"', {
+      timeout: 5000,
+    });
+  } else if (Number(amount) === 0) {
+    await page.waitForFunction('document.querySelector("#executeTradeBtn").innerText === "Enter Token Amount"', {
+      timeout: 5000,
+    });
+  }
+
+  //get max values for each token
+  await page.waitForSelector("[data-test-max]");
+  await page.waitForSelector("[data-test-max]");
+  const t1Max: string = await page.evaluate(
+    'document.querySelectorAll("[data-test-max]")[0].getAttribute("data-test-max")'
+  );
+  const t2Max: string = await page.evaluate(
+    'document.querySelectorAll("[data-test-max]")[1].getAttribute("data-test-max")'
+  );
+
+  //get values in each input field
+  const t1Input: string = await page.evaluate('document.querySelector("#token1-input").value');
+  const t2Input: string = await page.evaluate('document.querySelector("#token2-input").value');
+
+  //test decimals limited to 5
+  const afterPeriod = /\.(.*)/;
+  const t1Decimals = t1Input.match(afterPeriod);
+  const t2Decimals = t2Input.match(afterPeriod);
+  if (t1Decimals) expect(t1Decimals[1].length).toBeLessThanOrEqual(5);
+  if (t2Decimals) expect(t2Decimals[1].length).toBeLessThanOrEqual(5);
+
+  //test max limits inputs
+  expect(Number(t1Max)).toBeGreaterThanOrEqual(Number(t1Input));
+  expect(Number(t2Max)).toBeGreaterThanOrEqual(Number(t2Input));
+  if (Number(t1Input) < Number(t1Max)) expect(Number(t2Max)).toBeGreaterThan(Number(t2Input));
+
+  //check value in percent field, balance field, and input field
+  const balance = await getBalanceInMM(metamask, t1Symbol);
+  await page.bringToFront();
+
+  //perc should have no decimals, be greater than 0, should be correct
+  await page.waitForSelector("#token1-perc-input");
+  const percApprox = (Number(t1Input) / Number(balance)) * 100;
+
+  let perc;
+  if (Math.floor(percApprox) > 0) {
+    await page.waitForFunction('Number(document.querySelector("#token1-perc-input").value) > 0', { timeout: 3000 });
+    perc = await page.evaluate('document.querySelector("#token1-perc-input").value');
+    expect(Number(perc)).toBeGreaterThan(0);
+    percApprox > 100 ? expect(Number(perc)).toBe(100) : expect(Number(perc)).toBe(Math.floor(percApprox));
+  } else {
+    perc = await page.evaluate('document.querySelector("#token1-perc-input").value');
+    expect(Number(perc)).toBe(0);
+  }
+  const percDecimals = perc.match(afterPeriod);
+  expect(percDecimals).toBeNull();
+}
+
+/**
  * Checks balance for tokens dapp against balance in metamask. Leaves browser on dapp.
  * @param page
  * @param metamask
@@ -254,142 +382,6 @@ async function getBalanceInDapp(page: puppeteer.Page, pos: number) {
   return balance;
 }
 
-/**
- *
- * @param page - puppeteer page
- * @param t1Symbol - token1 (sell) symbol
- * @param t2Symbol - token2 (buy) symbol
- * @param amount - amount to input
- * @param inputLoc - input location (token1 field = 1 OR token2 field = 2) defaults to 1
- *
- * Tests:
- *  - Inputs work
- *  - Percentage is always calculated
- *  - Decimals in inputs is 5
- *  - Decimals in perc input is 0
- *  - Button changes to approve and swap
- *
- */
-
-export async function setUpSwap(
-  page: puppeteer.Page,
-  metamask: dappeteer.Dappeteer,
-  t1Symbol: string,
-  t2Symbol: string,
-  amount: string,
-  inputLoc: number = 1,
-  execute: boolean = true,
-  ) {
-  await page.bringToFront();
-
-    //open modal for token 1
-    await page.waitForTimeout(1000)
-    await page.waitForSelector("#selectToken1");
-    await page.click("#selectToken1");
-
-    //click ocean
-    await page.waitForTimeout(500)
-    await page.waitForSelector(`#${t1Symbol}-btn`);
-    await page.click(`#${t1Symbol}-btn`);
-
-    //open modal for token 2
-    await page.waitForTimeout(500)
-    await page.waitForSelector("#selectToken2");
-    await page.click("#selectToken2");
-
-    //click sagkri-94
-    await page.waitForTimeout(500)
-    await page.waitForSelector(`#${t2Symbol}-btn`);
-    await page.click(`#${t2Symbol}-btn`);
-  
-
-  if (amount === "max") {
-    await page.waitForTimeout(1000);
-    await page.waitForSelector("#maxTrade");
-    await page.click("#maxTrade");
-    await page.waitForFunction('Number(document.querySelector("#token1-input").value) > 0', { timeout: 5000 });
-  } else {
-    if (inputLoc === 1 || !inputLoc) {
-      //input amount into token 1
-      await page.waitForSelector("#token1-input");
-      await page.click("#token1-input");
-      await page.type("#token1-input", amount, { delay: 100 });
-    } else {
-      //input amount into token 2
-      await page.waitForSelector("#token2-input");
-      await page.click("#token2-input");
-      await page.type("#token2-input", amount, { delay: 100 });
-    }
-  }
-
-  //wait for calculation and click approve and swap
-  await page.waitForSelector("#executeTradeBtn");
-  if (Number(amount) > 0) {
-    await page.waitForFunction('Number(document.querySelector("#token2-input").value) > 0', { timeout: 5000 });
-    await page.waitForFunction('document.querySelector("#executeTradeBtn").innerText === "Approve & Swap"', {
-      timeout: 5000,
-    });
-  } else if (Number(amount) === 0) {
-    await page.waitForFunction('document.querySelector("#executeTradeBtn").innerText === "Enter Token Amount"', {
-      timeout: 5000,
-    });
-  }
-
-  //get max values for each token
-  await page.waitForSelector("[data-test-max]");
-  await page.waitForSelector("[data-test-max]");
-  const t1Max: string = await page.evaluate(
-    'document.querySelectorAll("[data-test-max]")[0].getAttribute("data-test-max")'
-  );
-  const t2Max: string = await page.evaluate(
-    'document.querySelectorAll("[data-test-max]")[1].getAttribute("data-test-max")'
-  );
-
-  //get values in each input field
-  const t1Input: string = await page.evaluate('document.querySelector("#token1-input").value');
-  const t2Input: string = await page.evaluate('document.querySelector("#token2-input").value');
-
-  //test decimals limited to 5
-  const afterPeriod = /\.(.*)/;
-  const t1Decimals = t1Input.match(afterPeriod);
-  const t2Decimals = t2Input.match(afterPeriod);
-  if (t1Decimals) expect(t1Decimals[1].length).toBeLessThanOrEqual(5);
-  if (t2Decimals) expect(t2Decimals[1].length).toBeLessThanOrEqual(5);
-
-  //test max limits inputs
-  expect(Number(t1Max)).toBeGreaterThanOrEqual(Number(t1Input));
-  expect(Number(t2Max)).toBeGreaterThanOrEqual(Number(t2Input));
-  if (Number(t1Input) < Number(t1Max)) expect(Number(t2Max)).toBeGreaterThan(Number(t2Input));
-
-  //check value in percent field, balance field, and input field
-  const balance = await getBalanceInMM(metamask, t1Symbol);
-  await page.bringToFront();
-
-  //perc should have no decimals, be greater than 0, should be correct
-  await page.waitForSelector("#token1-perc-input");
-  const percApprox = (Number(t1Input) / Number(balance)) * 100;
-
-  let perc;
-  if (Math.floor(percApprox) > 0) {
-    await page.waitForFunction('Number(document.querySelector("#token1-perc-input").value) > 0', { timeout: 3000 });
-    perc = await page.evaluate('document.querySelector("#token1-perc-input").value');
-    expect(Number(perc)).toBeGreaterThan(0);
-    expect(Number(perc)).toBe(Math.floor(percApprox));
-  } else {
-    perc = await page.evaluate('document.querySelector("#token1-perc-input").value');
-    expect(Number(perc)).toBe(0);
-  }
-  const percDecimals = perc.match(afterPeriod);
-  expect(percDecimals).toBeNull();
-
-  if (execute) {
-    //execute swap
-    await page.click("#executeTradeBtn");
-    await page.waitForSelector("#confirmSwapModalBtn");
-    await page.click("#confirmSwapModalBtn");
-  }
-}
-
 export async function executeTransaction(page: puppeteer.Page, txType: "trade" | "stake" | "unstake") {
   await page.bringToFront();
   switch (txType) {
@@ -403,7 +395,10 @@ export async function executeTransaction(page: puppeteer.Page, txType: "trade" |
       await page.click("#executeTradeBtn");
       await page.waitForSelector("#confirmSwapModalBtn");
       await page.click("#confirmSwapModalBtn");
-      break;
+      //find and return the approval amount
+      await page.waitForSelector("#confirmItem");
+      const confirmations = await page.evaluate('document.querySelectorAll("#confirmItem").length');
+      return confirmations;
   }
 }
 

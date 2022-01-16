@@ -36,7 +36,7 @@ const ConfirmModal = ({
               You will have to confirm {txs.length} transaction(s)
             </p>
             {txs.map((tx: string, index: number) => (
-              <div key={`index${index}`} className="flex flex-row">
+              <div id="confirmItem" key={`index${index}`} className="flex flex-row">
                 <p className="text-type-200  text-left mt-2 mr-2">{`${
                   index + 1
                 }.`}</p>
