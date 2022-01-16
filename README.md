@@ -20,7 +20,7 @@ Stanke ocean from Datatoken/Ocean pools. View and manage your liquidity position
 
 ## Testing
 
-The DataX dapp frontend has two ways of testing: manually, or automated testing. While the manual test protocol is more granular, it is very time consuming. Our automated test suites all execute E2E tests using puppeteer, dappeteer, jest, and react-testing library.
+The DataX dapp frontend has two ways of testing: manually, or automated testing. Our automated test suites all execute E2E tests using puppeteer, dappeteer, jest, and react-testing library.
 
 Checkout dappeteer: https://github.com/ChainSafe/dappeteer/blob/master/docs/API.md
 
@@ -51,7 +51,7 @@ Reach out to development-internal to request these credentials if you need them.
 
 The scripts intentially omit an option to test them all at once. This is because the transaction are all real , the suits take a few minutes each, and require human supervision, by default headless is always set to false. Review the process to ensure there are sufficient balances, gas, etc., for each transaction.
 
-> While testing, pay attention to the balance of ocean. The tests are currently directed toward the happy path of the highvalue features of DataX. You may need to run one suite before the other to ensure you have proper balances. (Consider, if you run stakex before tradex there might not be enough ocean for tradex tests becuase of the max stake test.)
+> You may need to run one suite before the other to ensure you have proper balances. (Consider, if you run stakex before tradex there might not be enough ocean for tradex tests becuase of the max stake test.)
 
 Recommended testflow:
 
@@ -61,6 +61,8 @@ Recommended testflow:
 1. `yarn test-rinkeby-tradex`
 2. `yarn test-rinkeby-stakex`
 3. `yarn test-rinkeby-unstake`
+
+> You can run any specific test by `yarn test-rinkeby-<suite> -t <test>`
 
 Close Future Implementation:
 

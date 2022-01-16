@@ -38,7 +38,6 @@
     "build": "craco build",
     "eject": "react-scripts eject",
     "clearTestCache": "react-scripts test --clearCache",
-    "test-rinkeby": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby",
     "test-rinkeby-tradex": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/TradeX.test.ts",
     "test-rinkeby-disclaimer": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/Disclaimer.test.ts",
     "test-rinkeby-stakex": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/StakeX.test.ts",
