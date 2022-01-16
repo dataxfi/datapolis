@@ -6,6 +6,7 @@ import PulseLoader from "react-spinners/PulseLoader";
 import { useContext } from "react";
 import { GlobalContext } from "../context/GlobalState";
 import Button from "./Button";
+import { toFixed3 } from "../utils/equate";
 
 const SwapInput = ({
   title,
@@ -95,6 +96,7 @@ const SwapInput = ({
             <div className="flex justify-between items-center">
               <DebounceInput
                 id={`token${pos}-input`}
+                data-test-max ={max}
                 max={max}
                 step="any"
                 disabled={loading}
@@ -116,9 +118,7 @@ const SwapInput = ({
                 {balance ? (
                   <p id={`token${pos}-balance`} className="text-sm text-type-400 whitespace-nowrap text-right">
                     Balance:{" "}
-                    {Number(balance).toLocaleString(undefined, {
-                      maximumFractionDigits: 4,
-                    })}
+                    {toFixed3(balance)}
                   </p>
                 ) : (
                   <></>
@@ -144,7 +144,7 @@ const SwapInput = ({
                       classes="px-2 py-0 border border-type-300 rounded-full text-xs"
                     />
                     <DebounceInput
-                      id={`token${pos}-input`}
+                      id={`token${pos}-perc-input`}
                       value={perc}
                       type="number"
                       debounceTimeout={500}

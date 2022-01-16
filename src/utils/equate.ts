@@ -20,11 +20,23 @@ export function toFixed18(value: any): string {
   }
 }
 
+
 //input fields
 export function toFixed2(value: any): string {
   if (!value) return "";
   try {
     return value.toString().match(/^-?\d+(?:\.\d{0,2})?/)[0];
+  } catch (error) {
+    console.error("Invalid Input, may be undefined", error);
+    return "Invalid Input, may be undefined";
+  }
+}
+
+//input fields
+export function toFixed3(value: any): string {
+  if (!value) return "";
+  try {
+    return value.toString().match(/^-?\d+(?:\.\d{0,3})?/)[0];
   } catch (error) {
     console.error("Invalid Input, may be undefined", error);
     return "Invalid Input, may be undefined";

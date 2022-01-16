@@ -2,24 +2,136 @@ import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
 import { testAcctId } from "./Setup";
+import { toFixed3 } from "../utils/equate";
+
+/**
+ * Imports token to MM wallet, defaults to ocean.
+ *
+ * @param metamask - dappeteer
+ * @param symbol - DT symbol
+ */
+
+export async function importTokens(metamask: dappeteer.Dappeteer, symbol?: string) {
+  const ocean = "0x8967BCF84170c91B0d24D4302C2376283b0B3a07";
+  const sagkri = "0x1d0c4f1dc8058a5395b097de76d3cd8804ef6bb4";
+  const dazorc = "0x8d2da54a1691fd7bd1cd0a242d922109b0616c68";
+  await clearMMPopup(metamask);
+  switch (symbol) {
+    case "SAGKRI-94":
+      await metamask.addToken(sagkri);
+      break;
+    case "DAZORC-13":
+      await metamask.addToken(dazorc);
+      break;
+    default:
+      await metamask.addToken(ocean);
+      break;
+  }
+  await metamask.page.waitForSelector(".asset-breadcrumb");
+  await metamask.page.click(".asset-breadcrumb");
+  const assets: puppeteer.JSHandle | undefined = await useXPath(metamask.page, "button", "Assets", false);
+  //@ts-ignore
+  await assets.click();
+}
 
 export async function clearMMPopup(metamask: dappeteer.Dappeteer) {
   //clear popoups
+  //maybe use useXPath to find an X? could be better
   try {
     await metamask.page.waitForSelector(".fas.fa-times.popover-header__button", { timeout: 5000 });
     await metamask.page.click(".fas.fa-times.popover-header__button");
   } catch (error) {}
 }
 
-export async function approveTransaction(metamask: dappeteer.Dappeteer) {
+/**
+ * Builds an XPath query. If you want to use with metamask, pass the metamask page directly.
+ * @param el -the element to target (a, button, div)
+ * @param elText -the text of the element
+ * @param contains -pass true to select an element that contains the elText
+ * @returns Returns the handle element
+ *
+ *
+ *
+ */
+
+export async function useXPath(
+  page: puppeteer.Page,
+  el: string,
+  elText: string,
+  contains: boolean,
+  dt?: boolean,
+  sibling?: "prev" | "next",
+  metamask?: dappeteer.Dappeteer
+) {
+  //might be better to use * instead of el in the future, to ensure this works even if the element changes
+  //if( (page instanceof puppeteer.Page) === false ) page === page.page
+  const xpath = contains ? `//${el}[contains(text(),'${elText}')]` : `//${el}[text()='${elText}']`;
+  const query = `document.evaluate("${xpath}", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue`;
+  let handle;
+  try {
+    await page.waitForFunction(query, { timeout: 5000 });
+    if (metamask) {
+      handle = await metamask.page.$x(xpath);
+    } else {
+      handle = await page.$x(xpath);
+    }
+  } catch (error) {
+    if (dt && metamask) {
+      try {
+        await importTokens(metamask, elText);
+        await page.waitForFunction(query, { timeout: 5000 });
+        handle = await metamask.page.$x(xpath);
+      } catch (error) {
+        throw error;
+      }
+    } else {
+      throw error;
+    }
+  }
+  if (handle)
+    switch (sibling) {
+      case "prev":
+        return await page.evaluateHandle((el) => el.previousElementSibling, handle[0]);
+      case "next":
+        return await page.evaluateHandle((el) => el.nextSibling, handle[0]);
+      default:
+        return handle[0];
+    }
+  else {
+    throw new Error("Couldn't get element handle");
+  }
+}
+
+async function swapTokens(page: puppeteer.Page) {
+  await page.bringToFront();
+  const t1Bal = await getBalanceInDapp(page, 1);
+  const t2Bal = await getBalanceInDapp(page, 2);
+
+  //swap tokens
+  await page.waitForSelector("#swapTokensBtn");
+  await page.click("#swapTokensBtn");
+
+  //check all inputs reset
+  await page.waitForSelector("#token1-input");
+  await page.waitForFunction('document.querySelector("#token1-input").value === ""', { timeout: 1000 });
+  await page.waitForFunction('document.querySelector("#token2-input").value === ""', { timeout: 1000 });
+  await page.waitForFunction('document.querySelector("#token1-perc-input").value === "0"', { timeout: 1000 });
+  await page.waitForTimeout(1000);
+  expect(t1Bal).toBe(await getBalanceInDapp(page, 2));
+  expect(t2Bal).toBe(await getBalanceInDapp(page, 1));
+}
+
+export async function approveTransaction(metamask: dappeteer.Dappeteer, page?: puppeteer.Page) {
   //click activity tab
-  await metamask.page.waitForSelector("li[data-testid=home__activity-tab] > button");
-  await metamask.page.click("li[data-testid=home__activity-tab] > button");
+  const activity = await useXPath(metamask.page, "button", "Activity", false);
+  //@ts-ignore
+  await activity.click();
   //click tx and confirm
   await metamask.page.waitForSelector(".list-item.transaction-list-item.transaction-list-item--unconfirmed");
   await metamask.page.click(".list-item.transaction-list-item.transaction-list-item--unconfirmed");
   await metamask.page.waitForSelector(".btn-primary", { timeout: 45000 });
   await metamask.confirmTransaction();
+  await page?.bringToFront();
 }
 
 export async function approveTransactions(metamask: dappeteer.Dappeteer, page: puppeteer.Page, txAmount: number) {
@@ -46,51 +158,255 @@ export async function approveTransactions(metamask: dappeteer.Dappeteer, page: p
   }
 }
 
-export async function setUpSwap(page: puppeteer.Page, t1Symbol: string, t2Symbol: string, t1Amount: string) {
-  //open modal for token 1
-  await page.waitForTimeout(1000);
-  await page.waitForSelector("#selectToken1");
-  await page.click("#selectToken1");
+/**
+ * Checks balance for tokens dapp against balance in metamask. Leaves browser on dapp.
+ * @param page
+ * @param metamask
+ * @param updating - wait for balance to update and then assert
+ * @param t2Symbol - optionally check 2 tokens
+ * @param t1Symbol - optionally change t1Symbol, defaults to "OCEAN"
+ */
 
-  //click ocean
-  await page.waitForSelector(`#${t1Symbol}-btn`);
-  await page.click(`#${t1Symbol}-btn`);
+export async function checkBalance(
+  page: puppeteer.Page,
+  metamask: dappeteer.Dappeteer,
+  updating: boolean = false,
+  t2Symbol?: string,
+  t1Symbol: string = "OCEAN"
+) {
+  const t1Bal = await getBalanceInMM(metamask, t1Symbol);
+  //@ts-ignore
+  await assertTo3(page, t1Bal, "token1-balance", 1, updating);
+  if (t2Symbol) {
+    let t2Bal = await getBalanceInMM(metamask, t2Symbol);
+    //@ts-ignore
+    await assertTo3(page, t2Bal, "token2-balance", 2, updating);
+  }
+  await page.bringToFront();
+}
+/**
+ * Asserts truth to match dapp element value to 3 decimal places.
+ * @param page - puppeteer page (dapp)
+ * @param truth - source of truth to asser against (will be coerced to num)
+ * @param id - id in dapp to check against (dont include #)
+ */
 
-  //open modal for token 2
-  await page.waitForTimeout(1000);
-  await page.waitForSelector("#selectToken2");
-  await page.click("#selectToken2");
+async function assertTo3(page: puppeteer.Page, truth: string | number, id: string, pos: number, updating: boolean) {
+  await page.bringToFront();
+  id = `#${id}`;
+  await page.waitForSelector(id);
+  let dappBal = await getBalanceInDapp(page, pos);
+  console.log("Balance in Dapp:", dappBal);
+  console.log("Balance to match:", truth);
 
-  //click sagkri-94
-  await page.waitForSelector(`#${t2Symbol}-btn`);
-  await page.click(`#${t2Symbol}-btn`);
+  if (updating && Number(toFixed3(dappBal)) !== Number(toFixed3(truth))) {
+    // no-touchy!!
+    await page.waitForFunction(
+      (id: string, truth: string) =>
+        //@ts-ignore
+        // prettier-ignore
+        document.querySelector(id).innerText.match(/\:\s(.*)/)[1].replace(/[,]/, "").match(/^-?\d+(?:\.\d{0,3})?/)[0] === truth,
+      {},
+      id,
+      truth
+    );
+  }
+  expect(Number(toFixed3(dappBal))).toBeCloseTo(Number(toFixed3(truth)), 3);
+}
 
-  if (t1Amount === "max") {
+/**
+ * Get balance for token entered from MM
+ * @param metamask
+ * @param symbol
+ * @return string of balance
+ */
+
+async function getBalanceInMM(metamask: dappeteer.Dappeteer, symbol: string) {
+  await metamask.page.bringToFront();
+  const assets: puppeteer.JSHandle | undefined = await useXPath(metamask.page, "button", "Assets", false);
+  //@ts-ignore
+  await assets.click();
+  const tokenBalHandle = await useXPath(metamask.page, "span", symbol, false, true, "prev", metamask);
+  if (tokenBalHandle) {
+    const innerTextHandle = await tokenBalHandle.getProperty("innerText");
+    const innerText = await innerTextHandle.jsonValue();
+    return innerText;
+  }
+  throw new Error("Couldnt get balance.");
+}
+
+/**
+ * Return balance for token entered from dapp
+ * @param metamask
+ * @param symbol
+ * @return balance as a string
+ */
+
+const afterColon = /\:\s(.*)/;
+const commas = /[,]/;
+async function getBalanceInDapp(page: puppeteer.Page, pos: number) {
+  await page.bringToFront();
+  await page.waitForSelector(`#token${pos}-balance`);
+  let balance = await page.evaluate(`document.querySelector("#token${pos}-balance").innerText`);
+  const match = balance.match(afterColon);
+  const number = match[1].replace(commas, "");
+  balance = Number(number);
+  return balance;
+}
+
+/**
+ *
+ * @param page - puppeteer page
+ * @param t1Symbol - token1 (sell) symbol
+ * @param t2Symbol - token2 (buy) symbol
+ * @param amount - amount to input
+ * @param inputLoc - input location (token1 field = 1 OR token2 field = 2) defaults to 1
+ *
+ * Tests:
+ *  - Inputs work
+ *  - Percentage is always calculated
+ *  - Decimals in inputs is 5
+ *  - Decimals in perc input is 0
+ *  - Button changes to approve and swap
+ *
+ */
+
+export async function setUpSwap(
+  page: puppeteer.Page,
+  metamask: dappeteer.Dappeteer,
+  t1Symbol: string,
+  t2Symbol: string,
+  amount: string,
+  inputLoc: number = 1,
+  execute: boolean = true,
+  ) {
+  await page.bringToFront();
+
+    //open modal for token 1
+    await page.waitForTimeout(1000)
+    await page.waitForSelector("#selectToken1");
+    await page.click("#selectToken1");
+
+    //click ocean
+    await page.waitForTimeout(500)
+    await page.waitForSelector(`#${t1Symbol}-btn`);
+    await page.click(`#${t1Symbol}-btn`);
+
+    //open modal for token 2
+    await page.waitForTimeout(500)
+    await page.waitForSelector("#selectToken2");
+    await page.click("#selectToken2");
+
+    //click sagkri-94
+    await page.waitForTimeout(500)
+    await page.waitForSelector(`#${t2Symbol}-btn`);
+    await page.click(`#${t2Symbol}-btn`);
+  
+
+  if (amount === "max") {
     await page.waitForTimeout(1000);
     await page.waitForSelector("#maxTrade");
     await page.click("#maxTrade");
-    await page.waitForFunction('Number(document.querySelector("#token1-input").value) > 0');
+    await page.waitForFunction('Number(document.querySelector("#token1-input").value) > 0', { timeout: 5000 });
   } else {
-    //input 10 into token 1
-    await page.waitForSelector("#token1-input");
-    await page.click("#token1-input");
-    await page.type("#token1-input", t1Amount, { delay: 100 });
+    if (inputLoc === 1 || !inputLoc) {
+      //input amount into token 1
+      await page.waitForSelector("#token1-input");
+      await page.click("#token1-input");
+      await page.type("#token1-input", amount, { delay: 100 });
+    } else {
+      //input amount into token 2
+      await page.waitForSelector("#token2-input");
+      await page.click("#token2-input");
+      await page.type("#token2-input", amount, { delay: 100 });
+    }
   }
 
   //wait for calculation and click approve and swap
-  await page.waitForFunction('Number(document.querySelector("#token2-input").value) > 0');
-  await page.waitForFunction('document.querySelector("#executeTradeBtn").innerText === "Approve & Swap"');
-  await page.waitForTimeout(1000);
-
   await page.waitForSelector("#executeTradeBtn");
-  await page.click("#executeTradeBtn");
+  if (Number(amount) > 0) {
+    await page.waitForFunction('Number(document.querySelector("#token2-input").value) > 0', { timeout: 5000 });
+    await page.waitForFunction('document.querySelector("#executeTradeBtn").innerText === "Approve & Swap"', {
+      timeout: 5000,
+    });
+  } else if (Number(amount) === 0) {
+    await page.waitForFunction('document.querySelector("#executeTradeBtn").innerText === "Enter Token Amount"', {
+      timeout: 5000,
+    });
+  }
 
-  //   if (t1Symbol === "OCEAN") {
-  //Confirm modal
-  await page.waitForSelector("#confirmSwapModalBtn");
-  await page.click("#confirmSwapModalBtn");
-  //   }
+  //get max values for each token
+  await page.waitForSelector("[data-test-max]");
+  await page.waitForSelector("[data-test-max]");
+  const t1Max: string = await page.evaluate(
+    'document.querySelectorAll("[data-test-max]")[0].getAttribute("data-test-max")'
+  );
+  const t2Max: string = await page.evaluate(
+    'document.querySelectorAll("[data-test-max]")[1].getAttribute("data-test-max")'
+  );
+
+  //get values in each input field
+  const t1Input: string = await page.evaluate('document.querySelector("#token1-input").value');
+  const t2Input: string = await page.evaluate('document.querySelector("#token2-input").value');
+
+  //test decimals limited to 5
+  const afterPeriod = /\.(.*)/;
+  const t1Decimals = t1Input.match(afterPeriod);
+  const t2Decimals = t2Input.match(afterPeriod);
+  if (t1Decimals) expect(t1Decimals[1].length).toBeLessThanOrEqual(5);
+  if (t2Decimals) expect(t2Decimals[1].length).toBeLessThanOrEqual(5);
+
+  //test max limits inputs
+  expect(Number(t1Max)).toBeGreaterThanOrEqual(Number(t1Input));
+  expect(Number(t2Max)).toBeGreaterThanOrEqual(Number(t2Input));
+  if (Number(t1Input) < Number(t1Max)) expect(Number(t2Max)).toBeGreaterThan(Number(t2Input));
+
+  //check value in percent field, balance field, and input field
+  const balance = await getBalanceInMM(metamask, t1Symbol);
+  await page.bringToFront();
+
+  //perc should have no decimals, be greater than 0, should be correct
+  await page.waitForSelector("#token1-perc-input");
+  const percApprox = (Number(t1Input) / Number(balance)) * 100;
+
+  let perc;
+  if (Math.floor(percApprox) > 0) {
+    await page.waitForFunction('Number(document.querySelector("#token1-perc-input").value) > 0', { timeout: 3000 });
+    perc = await page.evaluate('document.querySelector("#token1-perc-input").value');
+    expect(Number(perc)).toBeGreaterThan(0);
+    expect(Number(perc)).toBe(Math.floor(percApprox));
+  } else {
+    perc = await page.evaluate('document.querySelector("#token1-perc-input").value');
+    expect(Number(perc)).toBe(0);
+  }
+  const percDecimals = perc.match(afterPeriod);
+  expect(percDecimals).toBeNull();
+
+  if (execute) {
+    //execute swap
+    await page.click("#executeTradeBtn");
+    await page.waitForSelector("#confirmSwapModalBtn");
+    await page.click("#confirmSwapModalBtn");
+  }
 }
+
+export async function executeTransaction(page: puppeteer.Page, txType: "trade" | "stake" | "unstake") {
+  await page.bringToFront();
+  switch (txType) {
+    case "stake":
+      //future
+      break;
+    case "unstake":
+      //future
+      break;
+    default:
+      await page.click("#executeTradeBtn");
+      await page.waitForSelector("#confirmSwapModalBtn");
+      await page.click("#confirmSwapModalBtn");
+      break;
+  }
+}
+
 export async function navToStake(page: puppeteer.Page) {
   await page.bringToFront();
   await page.waitForSelector("#StakeX-link");
@@ -184,13 +500,15 @@ export async function setUpStake(page: puppeteer.Page, stakeToken: string, stake
   await page.click("#executeStake");
 }
 
-export async function confirmAndCloseTxDoneModal(page: puppeteer.Page) {
-  await page.waitForSelector("#transactionDoneModal");
+export async function confirmAndCloseTxDoneModal(page: puppeteer.Page, timeout: number = 120000) {
+  await page.bringToFront();
+  await page.waitForSelector("#transactionDoneModal", { timeout: timeout });
   await page.waitForSelector("#transactionDoneModalCloseBtn");
   await page.click("#transactionDoneModalCloseBtn");
 }
 
 export async function confirmTokensClearedAfterTrade(page: puppeteer.Page) {
+  await page.bringToFront();
   await page.waitForFunction('document.querySelectorAll("#selectTokenBtn").length === 2');
   await page.waitForTimeout(500);
 }
@@ -202,11 +520,11 @@ export async function confirmInputClearedAfterStake(page: puppeteer.Page) {
   await page.waitForFunction("document.querySelector('#stakeAmtInput').value === ''");
 }
 
-export async function confirmInputClearedAfterUnstake(page: puppeteer.Page){
-  await page.waitForSelector("#executeUnstake")
-  await page.waitForFunction('document.querySelector("#executeUnstake").innerText === "Enter Amount to Remove"')
-  await page.waitForSelector('#unstakeAmtInput')
-  await page.waitForFunction('document.querySelector("#unstakeAmtInput").value === "0"')
+export async function confirmInputClearedAfterUnstake(page: puppeteer.Page) {
+  await page.waitForSelector("#executeUnstake");
+  await page.waitForFunction('document.querySelector("#executeUnstake").innerText === "Enter Amount to Remove"');
+  await page.waitForSelector("#unstakeAmtInput");
+  await page.waitForFunction('document.querySelector("#unstakeAmtInput").value === "0"');
 }
 
 export async function reloadOrContinue(lastTestPassed: Boolean, page: puppeteer.Page, stake?: boolean) {

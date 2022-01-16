@@ -4,8 +4,10 @@ import "regenerator-runtime/runtime";
 import { setupDappBrowser, setupDataX, closeBrowser } from "../Setup";
 import {
   approveTransactions,
+  checkBalance,
   confirmAndCloseTxDoneModal,
   confirmTokensClearedAfterTrade,
+  executeTransaction,
   reloadOrContinue,
   setUpSwap,
 } from "../Utilities";
@@ -32,10 +34,14 @@ describe("Execute Standard Trades on TradeX", () => {
   });
   it("10 OCEAN -> SAGKRI-94", async () => {
     try {
-      await setUpSwap(page, "OCEAN", "SAGKRI-94", "10");
+      await setUpSwap(page, metamask, "OCEAN", "SAGKRI-94", "10", 1, false);
+      await checkBalance(page, metamask, false, "SAGKRI-94");
+      await executeTransaction(page, "trade");
       await approveTransactions(metamask, page, 2);
       await confirmAndCloseTxDoneModal(page);
       await confirmTokensClearedAfterTrade(page);
+      await setUpSwap(page, metamask, "OCEAN", "SAGKRI-94", "0", 1, false);
+      await checkBalance(page, metamask, true, "SAGKRI-94");
     } catch (error) {
       lastTestPassed = false;
       throw error;
@@ -45,10 +51,14 @@ describe("Execute Standard Trades on TradeX", () => {
   it(".1 OCEAN -> SAGKRI-94", async () => {
     try {
       await reloadOrContinue(lastTestPassed, page);
-      await setUpSwap(page, "OCEAN", "SAGKRI-94", ".1");
+      await setUpSwap(page, metamask, "OCEAN", "SAGKRI-94", ".1", 1, false);
+      await checkBalance(page, metamask, false, "SAGKRI-94");
+      await executeTransaction(page, "trade");
       await approveTransactions(metamask, page, 2);
       await confirmAndCloseTxDoneModal(page);
       await confirmTokensClearedAfterTrade(page);
+      await setUpSwap(page, metamask, "OCEAN", "SAGKRI-94", "0", 1, false);
+      await checkBalance(page, metamask, true, "SAGKRI-94");
       lastTestPassed = true;
     } catch (error) {
       lastTestPassed = false;
@@ -59,10 +69,14 @@ describe("Execute Standard Trades on TradeX", () => {
   it("MAX OCEAN -> SAGKRI-94", async () => {
     try {
       await reloadOrContinue(lastTestPassed, page);
-      await setUpSwap(page, "OCEAN", "SAGKRI-94", "max");
+      await setUpSwap(page, metamask, "OCEAN", "SAGKRI-94", "max", 1, false);
+      await checkBalance(page, metamask, false, "SAGKRI-94");
+      await executeTransaction(page, "trade");
       await approveTransactions(metamask, page, 2);
       await confirmAndCloseTxDoneModal(page);
       await confirmTokensClearedAfterTrade(page);
+      await setUpSwap(page, metamask, "OCEAN", "SAGKRI-94", "0", 1, false);
+      await checkBalance(page, metamask, true, "SAGKRI-94");
       lastTestPassed = true;
     } catch (error) {
       lastTestPassed = false;
@@ -72,11 +86,15 @@ describe("Execute Standard Trades on TradeX", () => {
 
   it("1 SAGKRI-94 -> OCEAN", async () => {
     try {
-      await reloadOrContinue(lastTestPassed, page);
-      await setUpSwap(page, "SAGKRI-94", "OCEAN", "1");
+      await reloadOrContinue(false, page);
+      await setUpSwap(page, metamask, "SAGKRI-94", "OCEAN", "1", 1, false);
+      await checkBalance(page, metamask, false, "OCEAN", "SAGKRI-94");
+      await executeTransaction(page, "trade");
       await approveTransactions(metamask, page, 2);
       await confirmAndCloseTxDoneModal(page);
       await confirmTokensClearedAfterTrade(page);
+      await setUpSwap(page, metamask, "SAGKRI-94","OCEAN" , "0", 1, false);
+      await checkBalance(page, metamask, true, "OCEAN", "SAGKRI-94");
       lastTestPassed = true;
     } catch (error) {
       lastTestPassed = false;
@@ -87,10 +105,14 @@ describe("Execute Standard Trades on TradeX", () => {
   it("1 SAGKRI-94 -> DAZORC-13", async () => {
     try {
       await reloadOrContinue(lastTestPassed, page);
-      await setUpSwap(page, "SAGKRI-94", "DAZORC-13", "1");
+      await setUpSwap(page, metamask, "SAGKRI-94", "DAZORC-13", "1", 1, false);
+      await checkBalance(page, metamask, false, "DAZORC-13", "SAGKRI-94");
+      await executeTransaction(page, "trade");
       await approveTransactions(metamask, page, 1);
       await confirmAndCloseTxDoneModal(page);
       await confirmTokensClearedAfterTrade(page);
+      await setUpSwap(page, metamask, "OCEAN", "SAGKRI-94", "0", 1, false);
+      await checkBalance(page, metamask, true, "DAZORC-13", "SAGKRI-94");
       lastTestPassed = true;
     } catch (error) {
       lastTestPassed = false;
@@ -101,10 +123,14 @@ describe("Execute Standard Trades on TradeX", () => {
   it("MAX DAZORC-13 -> SAGKRI-94", async () => {
     try {
       await reloadOrContinue(lastTestPassed, page);
-      await setUpSwap(page, "DAZORC-13", "SAGKRI-94", "max");
+      await setUpSwap(page, metamask, "DAZORC-13", "SAGKRI-94", "max", 1, false);
+      await checkBalance(page, metamask, false, "SAGKRI-94", "DAZORC-13");
+      await executeTransaction(page, "trade");
       await approveTransactions(metamask, page, 1);
       await confirmAndCloseTxDoneModal(page);
       await confirmTokensClearedAfterTrade(page);
+      await setUpSwap(page, metamask,  "DAZORC-13", "SAGKRI-94", "0", 1, false);
+      await checkBalance(page, metamask, true, "SAGKRI-94", "DAZORC-13");
       lastTestPassed = true;
     } catch (error) {
       lastTestPassed = false;
@@ -112,17 +138,21 @@ describe("Execute Standard Trades on TradeX", () => {
     }
   });
 
-  async function maxUnstakeSAGKRI() {
-    await setUpSwap(page, "SAGKRI-94", "OCEAN", "max");
+  async function maxTradeSAGKRI() {
+    await setUpSwap(page, metamask, "SAGKRI-94", "OCEAN", "max", 1, false);
+    await checkBalance(page, metamask, false, "OCEAN","SAGKRI-94");
+    await executeTransaction(page, "trade");
     await approveTransactions(metamask, page, 2);
     await confirmAndCloseTxDoneModal(page);
     await confirmTokensClearedAfterTrade(page);
+    await setUpSwap(page, metamask, "SAGKRI-94", "OCEAN", "0", 1, false);
+    await checkBalance(page, metamask, true, "OCEAN","SAGKRI-94");
   }
 
   it("MAX SAGKRI-94 -> OCEAN", async () => {
     try {
       await reloadOrContinue(lastTestPassed, page);
-      await maxUnstakeSAGKRI();
+      await maxTradeSAGKRI();
       lastTestPassed = true;
     } catch (error) {
       lastTestPassed = false;
@@ -130,28 +160,28 @@ describe("Execute Standard Trades on TradeX", () => {
     }
   });
 
-  it("Trade All but .1 DT to OCEAN", async () => {
-    try {
-      reloadOrContinue(lastTestPassed, page);
-      await setUpSwap(page, "SAGKRI-94", "OCEAN", "max");
-      let set = true;
-      await page.waitForSelector("#token1-balance");
-      while (await page.evaluate('Number(document.querySelector("#token1-balance").innerText) > 0.1')) {
-        if (set === true) {
-          await approveTransactions(metamask, page, 2);
-          await confirmAndCloseTxDoneModal(page);
-          await confirmTokensClearedAfterTrade(page);
-          set = false;
-        } else {
-          await maxUnstakeSAGKRI();
-        }
-      }
-      lastTestPassed = true;
-    } catch (error) {
-      lastTestPassed = false;
-      throw error;
-    }
-  });
+  // it("Trade All but .1 DT to OCEAN", async () => {
+  //   try {
+  //     reloadOrContinue(lastTestPassed, page);
+  //     await setUpSwap(page, "SAGKRI-94", "OCEAN", "max");
+  //     let set = true;
+  //     await page.waitForSelector("#token1-balance");
+  //     while (await page.evaluate('Number(document.querySelector("#token1-balance").innerText) > 0.1')) {
+  //       if (set === true) {
+  //         await approveTransactions(metamask, page, 2);
+  //         await confirmAndCloseTxDoneModal(page);
+  //         await confirmTokensClearedAfterTrade(page);
+  //         set = false;
+  //       } else {
+  //         await maxUnstakeSAGKRI();
+  //       }
+  //     }
+  //     lastTestPassed = true;
+  //   } catch (error) {
+  //     lastTestPassed = false;
+  //     throw error;
+  //   }
+  // });
 });
 
 // Test priority
