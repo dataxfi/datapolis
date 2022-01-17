@@ -2,7 +2,7 @@ import SwapInput from "./SwapInput";
 import { IoSwapVertical } from "react-icons/io5";
 import { MdTune } from "react-icons/md";
 import { useState, useContext, useEffect } from "react";
-import { GlobalContext } from "../context/GlobalState";
+import { bgLoadingStates, GlobalContext, removeBgLoadingState } from "../context/GlobalState";
 import Button, { IBtnProps } from "./Button";
 import OutsideClickHandler from "react-outside-click-handler";
 import ConfirmSwapModal from "./ConfirmSwapModal";
@@ -70,6 +70,8 @@ const Swap = () => {
     setShowTxDone,
     notifications,
     setNotifications,
+    bgLoading,
+    setBgLoading
   } = useContext(GlobalContext);
   const [showSettings, setShowSettings] = useState(false);
   const [showConfirmSwapModal, setShowConfirmSwapModal] = useState(false);
@@ -241,7 +243,7 @@ const Swap = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token1, token2, accountId, config, chainId]);
 
-  const setToken = async (info: Record<any, any>, pos: number, updateOther: boolean) => {
+  const setToken = async (info: Record<any, any>, pos: number) => {
     const balance: BigNumber = new BigNumber(await ocean.getBalance(info.address, accountId));
     if (pos === 1) {
       setToken1({ ...token1, info, balance, value: new BigNumber(0) });
@@ -287,13 +289,17 @@ const Swap = () => {
       } else {
         setToken1({ ...token1, loading: true });
         let exchange = await calculateExchange(from, inputAmount);
-        setPostExchange(inputAmount.div);
+        setPostExchange(inputAmount.div(exchange));
         setToken1({ ...token1, value: exchange, loading: false });
         setExactToken(2);
       }
     }
+    setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade))
   }
 
+  useEffect(()=>{
+    console.log("Currently loading in bg:", bgLoading, token1.loading, token2.loading);
+  }, [bgLoading])
   // This is easily testable, if we someone writes tests for this in the future, it'll be great
   async function calculateExchange(from: boolean, amount: BigNumber): Promise<BigNumber> {
     try {
@@ -587,6 +593,84 @@ const Swap = () => {
       }
     }
   }
+
+  async function dbUpdateToken1(value: string) {
+    const bnVal = new BigNumber(value);
+    //Setting state here allows for max to be persisted in the input
+    setToken1({ ...token1, value: bnVal});
+    if (token1.info && token2.info) {
+      let exchangeLimit = { ...INITIAL_MAX_EXCHANGE };
+      console.log("maxSell exists: ", !!maxExchange.maxSell);
+
+      maxExchange.maxSell ? (exchangeLimit = maxExchange) : (exchangeLimit = await getMaxExchange());
+
+      const { maxSell, maxBuy } = exchangeLimit;
+
+      if (Number(value) > Number(maxSell)) {
+        console.log("Value > MaxSell");
+        setToken2({ ...token2, value: maxBuy });
+        setToken1({ ...token1, value: maxSell, percentage: new BigNumber(100) });
+        setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade))
+      } else {
+        const percentage = token1.balance.eq(0)
+          ? new BigNumber(100)
+          : new BigNumber(bnVal.div(token1.balance).multipliedBy(100));
+        console.log("Value < MaxSell");
+        setToken1({
+          ...token1,
+          value: bnVal,
+          percentage,
+        });
+        updateOtherTokenValue(true, bnVal);
+      }
+    }
+  }
+
+  async function onPercToken1(val: string) {
+    let bnVal = new BigNumber(val)
+    let exchangeLimit;
+
+    maxExchange.maxPercent ? (exchangeLimit = maxExchange) : (exchangeLimit = await getMaxExchange());
+
+    const { maxPercent, maxBuy, maxSell } = exchangeLimit;
+
+    if (bnVal.gte(maxPercent)) {
+      setToken1({
+        ...token1,
+        value: maxSell,
+        percentage: maxPercent,
+      });
+      setToken2({ ...token2, value: maxBuy });
+      setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade))
+    } else {
+      updateValueFromPercentage(true, val);
+    }
+  }
+
+  async function dbUpdateToken2(value: string) {
+    const bnVal = new BigNumber(value);
+    //Setting state here allows for max to be persisted in the input
+    setToken2({ ...token2, value: bnVal});
+    if (token1.info && token2.info) {
+      let exchangeLimit;
+
+      maxExchange.maxBuy ? (exchangeLimit = maxExchange) : (exchangeLimit = await getMaxExchange());
+
+      const { maxBuy, maxSell } = exchangeLimit;
+
+      if (bnVal.gt(maxBuy)) {
+        console.log("Value > MaxBuy");
+        setToken2({ ...token2, value: maxBuy });
+        setToken1({ ...token1, value: maxSell });
+        setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade))
+      } else {
+        console.log("Value < MaxBuy");
+        setToken2({ ...token2, value: bnVal });
+        updateOtherTokenValue(false, bnVal);
+      }
+    }
+  }
+
   return (
     <>
       <div id="swapModal" className="flex my-3 w-full h-full items-center justify-center ">
@@ -645,24 +729,7 @@ const Swap = () => {
           <SwapInput
             max={maxExchange.maxSell}
             perc={token1.percentage}
-            onPerc={async (val: string) => {
-              let exchangeLimit;
-
-              maxExchange.maxPercent ? (exchangeLimit = maxExchange) : (exchangeLimit = await getMaxExchange());
-
-              const { maxPercent, maxBuy, maxSell } = exchangeLimit;
-
-              if (Number(val) >= Number(maxPercent)) {
-                setToken1({
-                  ...token1,
-                  value: maxSell,
-                  percentage: maxPercent,
-                });
-                setToken2({ ...token2, value: maxBuy });
-              } else {
-                updateValueFromPercentage(true, val);
-              }
-            }}
+            onPerc={onPercToken1}
             otherToken={token2.info ? token2.info.symbol : ""}
             num={token1.value}
             value={token1.info}
@@ -671,36 +738,7 @@ const Swap = () => {
             pos={1}
             setToken={setToken}
             loading={token1.loading}
-            updateNum={async (value: string) => {
-              const bnVal = new BigNumber(value);
-              //Setting state here allows for max to be persisted in the input
-              setToken1({ ...token1, value: bnVal, loading: true });
-              if (token1.info && token2.info) {
-                let exchangeLimit = { ...INITIAL_MAX_EXCHANGE };
-                console.log("maxSell exists: ", !!maxExchange.maxSell);
-
-                maxExchange.maxSell ? (exchangeLimit = maxExchange) : (exchangeLimit = await getMaxExchange());
-
-                const { maxSell, maxBuy } = exchangeLimit;
-
-                if (Number(value) > Number(maxSell)) {
-                  console.log("Value > MaxSell");
-                  setToken2({ ...token2, value: maxBuy });
-                  setToken1({ ...token1, value: maxSell, percentage: new BigNumber(100) });
-                } else {
-                  const percentage = token1.balance.eq(0)
-                    ? new BigNumber(100)
-                    : new BigNumber(bnVal.div(token1.balance).multipliedBy(100));
-                  console.log("Value < MaxSell");
-                  setToken1({
-                    ...token1,
-                    value: bnVal,
-                    percentage,
-                  });
-                  updateOtherTokenValue(true, bnVal);
-                }
-              }
-            }}
+            updateNum={dbUpdateToken1}
           />
           <div className="px-4 relative my-12">
             <div
@@ -714,7 +752,7 @@ const Swap = () => {
               tabIndex={0}
               className="rounded-full border-primary-900 border-4 absolute -top-14 bg-primary-800 w-16 h-16 flex swap-center items-center justify-center"
             >
-              {token2.loading ? (
+              {token2.loading || token1.loading || bgLoading.includes(bgLoadingStates.calcTrade)? (
                 <MoonLoader size={25} color={"white"} />
               ) : (
                 <IoSwapVertical size="30" className="text-gray-300" />
@@ -733,38 +771,15 @@ const Swap = () => {
             pos={2}
             setToken={setToken}
             loading={token2.loading}
-            updateNum={async (value: string) => {
-              const bnVal = new BigNumber(value);
-              //Setting state here allows for max to be persisted in the input
-              setToken2({ ...token2, value: bnVal, loading: true });
-              if (token1.info && token2.info) {
-                let exchangeLimit;
-
-                maxExchange.maxBuy ? (exchangeLimit = maxExchange) : (exchangeLimit = await getMaxExchange());
-
-                const { maxBuy, maxSell } = exchangeLimit;
-
-                if (Number(value) > Number(maxBuy)) {
-                  console.log("Value > MaxBuy");
-                  setToken2({ ...token2, value: maxBuy });
-                  setToken1({ ...token1, value: maxSell });
-                } else {
-                  console.log("Value < MaxBuy");
-                  setToken2({ ...token2, value: bnVal });
-                  updateOtherTokenValue(false, bnVal);
-                }
-              }
-            }}
+            updateNum={dbUpdateToken2}
           />
 
-          {token1.info && token2.info && !Number.isNaN(postExchange) && Number(postExchange) !== 0 ? (
+          {token1.info && token2.info && postExchange.isNaN && postExchange.gt(0) ? (
             <div className="my-4 p-2 bg-primary-800 flex justify-between text-type-400 text-sm rounded-lg">
               <p>Exchange rate</p>
               <p>
                 1 {token1.info.symbol} ={" "}
-                {Number(postExchange).toLocaleString("en", {
-                  maximumFractionDigits: 4,
-                })}{" "}
+                {postExchange.dp(5).toString()}
                 {token2.info.symbol}
               </p>
             </div>

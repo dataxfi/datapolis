@@ -3,6 +3,7 @@ import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
 import { testAcctId } from "./Setup";
 import { toFixed3 } from "../utils/equate";
+import BigNumber from "bignumber.js";
 
 /**
  * Imports token to MM wallet, defaults to ocean.
@@ -241,43 +242,44 @@ export async function setUpSwap(
   //get max values for each token
   await page.waitForSelector("[data-test-max]");
   await page.waitForSelector("[data-test-max]");
-  const t1Max: string = await page.evaluate(
-    'document.querySelectorAll("[data-test-max]")[0].getAttribute("data-test-max")'
+  const t1Max: BigNumber = new BigNumber(
+    await page.evaluate('document.querySelectorAll("[data-test-max]")[0].getAttribute("data-test-max")')
   );
-  const t2Max: string = await page.evaluate(
-    'document.querySelectorAll("[data-test-max]")[1].getAttribute("data-test-max")'
+  const t2Max: BigNumber = new BigNumber(
+    await page.evaluate('document.querySelectorAll("[data-test-max]")[1].getAttribute("data-test-max")')
   );
 
   //get values in each input field
-  const t1Input: string = await page.evaluate('document.querySelector("#token1-input").value');
-  const t2Input: string = await page.evaluate('document.querySelector("#token2-input").value');
+  const t1Input: BigNumber = new BigNumber(await page.evaluate('document.querySelector("#token1-input").value'));
+  const t2Input: BigNumber = new BigNumber(await page.evaluate('document.querySelector("#token2-input").value'));
 
   //test decimals limited to 5
   const afterPeriod = /\.(.*)/;
-  const t1Decimals = t1Input.match(afterPeriod);
-  const t2Decimals = t2Input.match(afterPeriod);
+  const t1Decimals = t1Input.toString().match(afterPeriod);
+  const t2Decimals = t2Input.toString().match(afterPeriod);
   if (t1Decimals) expect(t1Decimals[1].length).toBeLessThanOrEqual(5);
   if (t2Decimals) expect(t2Decimals[1].length).toBeLessThanOrEqual(5);
 
   //test max limits inputs
-  expect(Number(t1Max)).toBeGreaterThanOrEqual(Number(t1Input));
-  expect(Number(t2Max)).toBeGreaterThanOrEqual(Number(t2Input));
-  if (Number(t1Input) < Number(t1Max)) expect(Number(t2Max)).toBeGreaterThan(Number(t2Input));
+  expect(t1Max.gte(t1Input.toNumber())).toBeTruthy();
+  expect(t2Max.gte(t2Input.toNumber())).toBeTruthy();
+  if (t1Input.lt(t1Max)) expect(t2Max.gt(t2Input)).toBeTruthy();
 
   //check value in percent field, balance field, and input field
-  const balance = await getBalanceInMM(metamask, t1Symbol);
+  const balance = new BigNumber(await getBalanceInMM(metamask, t1Symbol));
   await page.bringToFront();
 
   //perc should have no decimals, be greater than 0, should be correct
   await page.waitForSelector("#token1-perc-input");
-  const percApprox = (Number(t1Input) / Number(balance)) * 100;
+
+  const percApprox: BigNumber = t1Input.div(balance).times(100);
 
   let perc;
-  if (Math.floor(percApprox) > 0) {
+  if (percApprox.gt(0)) {
     await page.waitForFunction('Number(document.querySelector("#token1-perc-input").value) > 0', { timeout: 3000 });
-    perc = await page.evaluate('document.querySelector("#token1-perc-input").value');
+    perc = new BigNumber(await page.evaluate('document.querySelector("#token1-perc-input").value'));
     expect(Number(perc)).toBeGreaterThan(0);
-    percApprox > 100 ? expect(Number(perc)).toBe(100) : expect(Number(perc)).toBe(Math.floor(percApprox));
+    percApprox.gt(100) ? expect(Number(perc)).toBe(100) : expect(Number(perc)).toBe(percApprox);
   } else {
     perc = await page.evaluate('document.querySelector("#token1-perc-input").value');
     expect(Number(perc)).toBe(0);
@@ -349,7 +351,7 @@ async function assertTo3(page: puppeteer.Page, truth: string | number, id: strin
  * @return string of balance
  */
 
-async function getBalanceInMM(metamask: dappeteer.Dappeteer, symbol: string) {
+async function getBalanceInMM(metamask: dappeteer.Dappeteer, symbol: string): Promise<string> {
   await metamask.page.bringToFront();
   const assets: puppeteer.JSHandle | undefined = await useXPath(metamask.page, "button", "Assets", false);
   //@ts-ignore
@@ -358,6 +360,7 @@ async function getBalanceInMM(metamask: dappeteer.Dappeteer, symbol: string) {
   if (tokenBalHandle) {
     const innerTextHandle = await tokenBalHandle.getProperty("innerText");
     const innerText = await innerTextHandle.jsonValue();
+    //@ts-ignore
     return innerText;
   }
   throw new Error("Couldnt get balance.");
