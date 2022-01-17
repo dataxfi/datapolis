@@ -512,7 +512,7 @@ export async function confirmInputClearedAfterStake(page: puppeteer.Page) {
   await page.waitForSelector("#executeStake");
   await page.waitForFunction("document.querySelector('#executeStake').innerText === 'Enter OCEAN Amount'");
   await page.waitForSelector("#stakeAmtInput");
-  await page.waitForFunction("document.querySelector('#stakeAmtInput').value === ''");
+  await page.waitForFunction("document.querySelector('#stakeAmtInput').value === '0'");
 }
 
 export async function confirmInputClearedAfterUnstake(page: puppeteer.Page) {

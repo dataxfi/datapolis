@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@craco/craco": "^6.2.0",
-    "@dataxfi/datax.js": "^0.1.29",
+    "@dataxfi/datax.js": "^0.1.27",
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/free-brands-svg-icons": "^5.15.4",
     "@fortawesome/react-fontawesome": "^0.1.16",
@@ -18,6 +18,7 @@
     "@types/react-list": "^0.8.6",
     "@walletconnect/web3-provider": "^1.5.2",
     "axios": "^0.21.1",
+    "big-number": "^2.0.0",
     "react": "^17.0.2",
     "react-debounce-input": "^3.2.5",
     "react-dom": "^17.0.2",
@@ -66,11 +67,11 @@
   },
   "devDependencies": {
     "@chainsafe/dappeteer": "^2.3.0",
-    "puppeteer": "^13.0.1",
     "@types/react-outside-click-handler": "^1.3.0",
     "@types/react-router-dom": "^5.1.8",
     "autoprefixer": "^9",
     "postcss": "^7",
+    "puppeteer": "^13.0.1",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat"
   }
 }
