@@ -63,9 +63,9 @@ const Stake = () => {
   //value in input field (to 5 decimal)
   // const [oceanValInput, setOceanValInput] = useState<string | null>(null);
   //value stored from input (to 18 decimal)
-  const [oceanValToStake, setOceanValToStake] = useState<BigNumber | null>(null);
+  const [oceanValToStake, setOceanValToStake] = useState<BigNumber>(new BigNumber(0));
   const [txReceipt, setTxReceipt] = useState<any | null>(null);
-  const [balance, setBalance] = useState<BigNumber | null>(null);
+  const [balance, setBalance] = useState<BigNumber>(new BigNumber(0));
   const [loading, setLoading] = useState(false);
   const [loadingStake, setLoadingStake] = useState(false);
   const [recentTxHash, setRecentTxHash] = useState("");
@@ -83,8 +83,9 @@ const Stake = () => {
   });
   //const [perc, setPerc] = useState("");
   const [poolLiquidity, setPoolLiquidity] = useState<IPoolLiquidity | null>(null);
-  const [yourLiquidity, setYourLiquidity] = useState<IPoolLiquidity | null>(null);
-  const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber | null>();
+  const [yourLiquidity, setYourLiquidity] = useState<BigNumber>(new BigNumber(0));
+  const [yourShares, setYourShares] = useState<BigNumber>(new BigNumber(0))
+  const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
   const location = useLocation();
   const history = useHistory();
 
@@ -94,9 +95,7 @@ const Stake = () => {
   useCurrentPool(poolAddress, setPoolAddress);
 
   async function getMaxStakeAmt() {
-    if (ocean && token) {
-      return new BigNumber(await ocean.getMaxStakeAmount(token.pool, ocean.config.default.oceanTokenAddress));
-    }
+    return new BigNumber(await ocean.getMaxStakeAmount(token.pool, ocean.config.default.oceanTokenAddress));
   }
 
   async function setOceanBalance() {
@@ -115,16 +114,17 @@ const Stake = () => {
   }
 
   useEffect(() => {
-    getMaxStakeAmt()
-      .then((res: BigNumber | undefined) => {
-        setMaxStakeAmt(res)
-        if(oceanValToStake?.gt(1)){          
-          updateNum(oceanValToStake, res)
-        }
-      })
-      .catch(console.error);
-    
-      // setOceanValInput(null);
+    if (ocean && token) {
+      getMaxStakeAmt()
+        .then((res: BigNumber) => {
+          setMaxStakeAmt(res);
+          if (oceanValToStake?.gt(1)) {
+            updateNum(oceanValToStake, res);
+          }
+        })
+        .catch(console.error);
+    }
+    // setOceanValInput(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ocean, token]);
 
@@ -153,7 +153,7 @@ const Stake = () => {
 
   useEffect(() => {
     setToken(null);
-    setOceanValToStake(null);
+    setOceanValToStake(new BigNumber(0));
     // setOceanValInput(null);
     getTokenList({
       chainId,
@@ -247,6 +247,13 @@ const Stake = () => {
         disabled: true,
         classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
       });
+    } else if (oceanValToStake.isLessThan(0.001)) {
+      setBtnProps({
+        ...INITIAL_BUTTON_STATE,
+        text: "Minimum Stake is .001 OCEAN",
+        disabled: true,
+        classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
+      });
     } else {
       setBtnProps({
         disabled: false,
@@ -278,7 +285,7 @@ const Stake = () => {
       const txReceipt = await ocean.stakeOcean(accountId, token.pool, oceanValToStake?.toString());
 
       if (txReceipt) {
-        setOceanValToStake(null)
+        setOceanValToStake(new BigNumber(0));
         setTxReceipt(txReceipt);
         addTxHistory({
           chainId,
@@ -331,7 +338,7 @@ const Stake = () => {
       setLoadingStake(false);
       setShowConfirmModal(false);
       // setOceanValInput(null);
-      setOceanValToStake(null);
+      setOceanValToStake(new BigNumber(0));
     }
   }
 
@@ -344,7 +351,7 @@ const Stake = () => {
       : (maxStake = new BigNumber(await ocean.getMaxStakeAmount(token.pool, ocean.config.default.oceanTokenAddress)));
     console.log("Max Stake Amount - ", maxStake.toFixed(18));
     if (maxStake.isNaN()) {
-      setOceanValToStake(null);
+      setOceanValToStake(new BigNumber(0));
     } else {
       console.log(2);
       if (balance?.lt(maxStake)) {
@@ -366,18 +373,19 @@ const Stake = () => {
   //   }
   // }
 
-  async function updateNum(val: string | BigNumber, max?:BigNumber) {
-    val = new BigNumber(val);
+  async function updateNum(val: string | BigNumber, max?: BigNumber) {
     if (!val) {
-      setOceanValToStake(null);
+      setOceanValToStake(new BigNumber(0));
       return;
     }
+    val = new BigNumber(val);
 
-    let maxStake
-    max? maxStake = max : maxStake = maxStakeAmt
+    if (!max) {
+      maxStakeAmt ? (max = maxStakeAmt) : (max = await getMaxStakeAmt());
+    }
 
-    if (max) {      
-      if (max.lt(val)) {
+    if (max) {
+      if (max.minus(1).lt(val)) {
         setOceanValToStake(max.dp(5).minus(1));
       } else {
         setOceanValToStake(val);
@@ -395,14 +403,12 @@ const Stake = () => {
         ocean.getMyPoolSharesForPool(val.pool, accountId),
         ocean.getTotalPoolShares(val.pool),
       ]);
+      setYourShares(new BigNumber(myPoolShares))
       setOceanToDt(res1);
       setDtToOcean(res2);
-      const [res4, res5] = await Promise.all([
-        ocean.getTokensRemovedforPoolShares(val.pool, String(myPoolShares)),
-        ocean.getTokensRemovedforPoolShares(val.pool, String(totalPoolShares)),
-      ]);
-      setYourLiquidity(res4);
-      setPoolLiquidity(res5);
+
+      setYourLiquidity(new BigNumber(await ocean.getOceanRemovedforPoolShares(val.pool, myPoolShares)));
+      setPoolLiquidity(await ocean.getTokensRemovedforPoolShares(val.pool, String(totalPoolShares)));
       setLoadingRate(false);
     }
   }
@@ -465,7 +471,7 @@ const Stake = () => {
                         debounceTimeout={500}
                         value={oceanValToStake?.toString() || ""}
                         onChange={(e) => updateNum(e.target.value)}
-                        onWheel={(event:any) => event.currentTarget.blur()}
+                        onWheel={(event: any) => event.currentTarget.blur()}
                         onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
                         type="number"
                         className={`h-full w-full rounded-lg bg-primary-900 text-3xl px-2 outline-none focus:placeholder-type-200 placeholder-type-400 ${
@@ -533,10 +539,8 @@ const Stake = () => {
                 <p className="text-type-300 text-xs">Your liquidity</p>
                 {token && yourLiquidity && !loadingRate ? (
                   <div id="yourLiquidity">
-                    <p className="text-type-200 text-xs">{toFixed5(yourLiquidity?.oceanAmount)} OCEAN</p>
-                    <p className="text-type-200 text-xs">
-                      {toFixed5(yourLiquidity?.dtAmount)} {token.symbol}
-                    </p>
+                    <p className="text-type-200 text-xs">{yourShares.dp(5).toString()} Shares</p>
+                    <p className="text-type-200 text-xs">{yourLiquidity.dp(5).toString()} OCEAN</p>
                   </div>
                 ) : (
                   <div> - </div>

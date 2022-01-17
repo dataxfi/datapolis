@@ -21,7 +21,6 @@ const CONNECT_TEXT = "Connect Wallet";
 
 export const GlobalContext = createContext(initialState);
 
-
 //use these states to ensure proper management of bgLoading ops
 export const bgLoadingStates = {
   allStakedPools: "stake",
@@ -34,22 +33,15 @@ export const bgLoadingStates = {
   maxUnstake: "maxUnstake",
   balance: "balance",
   maxExchange: "maxExchange",
-  calcTrade: "calcTrade"
+  calcTrade: "calcTrade",
 };
 
-export function removeBgLoadingState(
-  bgLoading: string[],
-  state: string
-): string[] {
+export function removeBgLoadingState(bgLoading: string[], state: string): string[] {
   const newBgLoading = bgLoading.filter((s: string) => s !== state);
   return newBgLoading;
 }
 
-export const GlobalProvider = ({
-  children,
-}: {
-  children: PropsWithChildren<{}>;
-}) => {
+export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }) => {
   const NETWORK = "mainnet";
   // const [state, dispatch]: [any, Function] = useReducer(AppReducer, initialState)
 
@@ -88,11 +80,9 @@ export const GlobalProvider = ({
 
   //Transaction and tx modal states
   const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
-  const [showTxHistoryModal, setShowTxHistoryModal] =
-    useState<boolean>(false);
+  const [showTxHistoryModal, setShowTxHistoryModal] = useState<boolean>(false);
   //all transaction history
   const [txHistory, setTxHistory] = useState<TxHistory | null>(null);
-
 
   // (user)confirmModal and txDone state for specific transactions
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -103,7 +93,7 @@ export const GlobalProvider = ({
   //Pool information associated with pool
   const [currentStakePool, setCurrentStakePool] = useState<PoolData>();
   //Stake pool sync timeout
-  const [stakeFetchTimeout, setStakeFetchTimeout] = useState<boolean>(false)
+  const [stakeFetchTimeout, setStakeFetchTimeout] = useState<boolean>(false);
 
   //dToken information associated with pool
   const [currentStakeToken, setCurrentStakeToken] = useState<{}>();
@@ -111,12 +101,9 @@ export const GlobalProvider = ({
   const [currentTokens, setCurrentTokens] = useState<[] | null>(null);
   //response from token fetch operation
   const [tokenResponse, setTokenResponse] = useState<{} | null | undefined>();
-  const [buttonText, setButtonText] = useState<string | undefined>(
-    CONNECT_TEXT
-  );
+  const [buttonText, setButtonText] = useState<string | undefined>(CONNECT_TEXT);
 
   const [notifications, setNotifications] = useState([]);
-
 
   // remove all pending signatures to instantiate disclaimer flow upon user reconnection
   useEffect(() => {
@@ -172,14 +159,9 @@ export const GlobalProvider = ({
   async function handleSignature(account: string, web3: Web3) {
     try {
       localStorage.setItem(account, "pending");
-      let signature = await web3.eth.personal.sign(
-        Disclaimer(),
-        account || "",
-        "",
-        () => {
-          setShowDisclaimer(false);
-        }
-      );
+      let signature = await web3.eth.personal.sign(Disclaimer(), account || "", "", () => {
+        setShowDisclaimer(false);
+      });
       localStorage.setItem(account, signature);
       setDisclaimerSigned({ ...disclaimerSigned, wallet: true });
       return signature;
@@ -201,11 +183,7 @@ export const GlobalProvider = ({
    * current localSignature value
    */
 
-  async function handleDisclaimer(
-    account: string,
-    web3: Web3,
-    localSignature: string | null
-  ): Promise<any> {
+  async function handleDisclaimer(account: string, web3: Web3, localSignature: string | null): Promise<any> {
     account = account.toLowerCase();
     if (!localSignature || localSignature === "pending") {
       setShowDisclaimer(true);
@@ -246,15 +224,11 @@ export const GlobalProvider = ({
         console.log("Pre chainID - ", _chainId);
         const config = new Config(web3, String(_chainId));
         setConfig(config);
-        console.log(config)
+        console.log(config);
         const watcher = new Watcher(web3, String(_chainId));
         setWatcher(watcher);
 
-        isSupportedChain(
-          config,
-          String(_chainId),
-          accounts[0] ? accounts[0] : ""
-        );
+        isSupportedChain(config, String(_chainId), accounts[0] ? accounts[0] : "");
       } else {
         handleDisclaimer(accounts[0], web3, localSignature);
       }
@@ -273,11 +247,7 @@ export const GlobalProvider = ({
    * @returns
    */
 
-  function isSupportedChain(
-    config: Config,
-    chainId: string,
-    account: string | null
-  ) {
+  function isSupportedChain(config: Config, chainId: string, account: string | null) {
     try {
       const network = config.getNetwork(chainId);
       connectedToNetworkGA({ network, chainId });
@@ -293,8 +263,7 @@ export const GlobalProvider = ({
         setAccountId(account);
         setButtonText(account || CONNECT_TEXT);
         connectedWalletGA();
-        const wallet =
-          localStorage.getItem("WEB3_CONNECT_CACHED_PROVIDER") || "unknown";
+        const wallet = localStorage.getItem("WEB3_CONNECT_CACHED_PROVIDER") || "unknown";
         connectedWalletViaGA({ wallet });
         return true;
       }
@@ -318,11 +287,9 @@ export const GlobalProvider = ({
         console.log("Accounts changed to - ", accounts[0]);
         console.log("Connected Accounts - ", JSON.stringify(accounts));
         setAccountId(accounts[0]);
-        setButtonText(
-          accounts.length && accounts[0] !== "" ? accounts[0] : CONNECT_TEXT
-        );
+        setButtonText(accounts.length && accounts[0] !== "" ? accounts[0] : CONNECT_TEXT);
         setDisclaimerSigned({ client: true, wallet: true });
-        setShowDisclaimer(false)
+        setShowDisclaimer(false);
         connectedMultipleWalletsGA();
         connectedWalletGA();
       } else {
@@ -338,14 +305,14 @@ export const GlobalProvider = ({
     provider.on("chainChanged", async (chainId: any) => {
       setCurrentTokens(null);
       setTokenResponse(undefined);
-      setTxHistory(null)
-      setPendingTxs([])
+      setTxHistory(null);
+      setPendingTxs([]);
       const parsedId = String(parseInt(chainId));
       console.log(chainId);
       console.log("Chain changed to ", parsedId);
       setChainId(parseInt(chainId));
       const config = new Config(web3, parsedId);
-      console.log("Config for new chain:")
+      console.log("Config for new chain:");
       setConfig(config);
       setOcean(new Ocean(web3, String(parseInt(chainId))));
       isSupportedChain(config, parsedId, null);
@@ -407,14 +374,14 @@ export const GlobalProvider = ({
         setShowTxHistoryModal,
         watcher,
         setWatcher,
-        showConfirmModal, 
-        setShowConfirmModal, 
+        showConfirmModal,
+        setShowConfirmModal,
         showTxDone,
-        setShowTxDone, 
-        stakeFetchTimeout, 
+        setShowTxDone,
+        stakeFetchTimeout,
         setStakeFetchTimeout,
-        notifications, 
-        setNotifications
+        notifications,
+        setNotifications,
       }}
     >
       {children}
