@@ -8,8 +8,7 @@ import Button from "./Button";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
 import UserMessageModal, { userMessage } from "./UserMessageModal";
-import { toFixed18, toFixed2, toFixed5, limitDecimalsInInput, checkNotation } from "../utils/equate";
-import { updateSingleStakePool } from "../utils/stakedPoolsUtils";
+import { toFixed18, toFixed5} from "../utils/equate";
 import { MoonLoader, PulseLoader } from "react-spinners";
 import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
 import usePTxManager from "../hooks/usePTxManager";
@@ -21,12 +20,9 @@ import BigNumber from "bignumber.js";
 
 const RemoveAmount = () => {
   const {
-    allStakedPools,
     chainId,
     accountId,
     currentStakePool,
-    setCurrentStakePool,
-    setAllStakedPools,
     ocean,
     web3,
     setTokenResponse,
@@ -515,8 +511,8 @@ const RemoveAmount = () => {
         txs={
           currentStakePool && sharesToRemove && oceanToReceive
             ? [
-                `Approve DataX to spend ${toFixed5(sharesToRemove)} shares.`,
-                `Unstake ${toFixed5(oceanToReceive)} OCEAN from the ${currentStakePool.token1.symbol || "OCEAN"} pool.`,
+                `Approve DataX to spend ${sharesToRemove.dp(5).toString()} shares.`,
+                `Unstake ${oceanToReceive.dp(5).toString()} OCEAN from the ${currentStakePool.token1.symbol || "OCEAN"} pool.`,
               ]
             : []
         }
