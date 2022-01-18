@@ -25,7 +25,7 @@ const SwapInput = ({
   value: Record<any, any> | null;
   pos: number;
   setToken: Function;
-  num: BigNumber;
+  num:  string;
   updateNum: Function;
   balance: BigNumber;
   loading: boolean;
@@ -113,11 +113,11 @@ const SwapInput = ({
                 }}
                 onWheel={(event: any) => event.currentTarget.blur()}
                 onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
-                // element={WrappedInput}
+                element={WrappedInput}
                 type="number"
                 className="h-full w-full rounded-lg bg-primary-900 text-3xl outline-none overflow-ellipsis focus:placeholder-type-200 placeholder-type-400"
                 placeholder="0.0"
-                value={num.dp(5).toString()}
+                value={num}
               />
               <div>
                 {balance ? (

@@ -31,7 +31,7 @@ describe("Execute Standard Trades on TradeX", () => {
   });
 
   afterAll(async () => {
-    await closeBrowser(browser);
+    // await closeBrowser(browser);
   });
   it("10 OCEAN -> SAGKRI-94", async () => {
     try {

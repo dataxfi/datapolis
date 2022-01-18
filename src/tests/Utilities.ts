@@ -4,6 +4,7 @@ import "regenerator-runtime/runtime";
 import { testAcctId } from "./Setup";
 import { toFixed3 } from "../utils/equate";
 import BigNumber from "bignumber.js";
+BigNumber.config({ DECIMAL_PLACES: 18, ROUNDING_MODE: BigNumber.ROUND_DOWN, EXPONENTIAL_AT: 18 });
 
 /**
  * Imports token to MM wallet, defaults to ocean.
@@ -188,23 +189,23 @@ export async function setUpSwap(
   await page.bringToFront();
 
   //open modal for token 1
-  await page.waitForTimeout(1000);
   await page.waitForSelector("#selectToken1");
+  await page.waitForTimeout(1000);
   await page.click("#selectToken1");
 
   //click ocean
-  await page.waitForTimeout(500);
   await page.waitForSelector(`#${t1Symbol}-btn`);
+  await page.waitForTimeout(500);
   await page.click(`#${t1Symbol}-btn`);
 
   //open modal for token 2
-  await page.waitForTimeout(500);
   await page.waitForSelector("#selectToken2");
+  await page.waitForTimeout(500);
   await page.click("#selectToken2");
 
   //click sagkri-94
-  await page.waitForTimeout(500);
   await page.waitForSelector(`#${t2Symbol}-btn`);
+  await page.waitForTimeout(500);
   await page.click(`#${t2Symbol}-btn`);
 
   if (amount === "max") {
@@ -217,26 +218,17 @@ export async function setUpSwap(
       //input amount into token 1
       await page.waitForSelector("#token1-input");
       await page.click("#token1-input");
-      await page.type("#token1-input", amount, { delay: 100 });
+      await page.type("#token1-input", amount, { delay: 300 });
+      if (Number(amount) > 0)
+        await page.waitForFunction('Number(document.querySelector("#token2-input").value) > 0', { timeout: 5000 });
     } else {
       //input amount into token 2
       await page.waitForSelector("#token2-input");
       await page.click("#token2-input");
-      await page.type("#token2-input", amount, { delay: 100 });
+      await page.type("#token2-input", amount, { delay: 300 });
+      if (Number(amount) > 0)
+        await page.waitForFunction('Number(document.querySelector("#token1-input").value) > 0', { timeout: 5000 });
     }
-  }
-
-  //wait for calculation and click approve and swap
-  await page.waitForSelector("#executeTradeBtn");
-  if (Number(amount) > 0) {
-    await page.waitForFunction('Number(document.querySelector("#token2-input").value) > 0', { timeout: 5000 });
-    await page.waitForFunction('document.querySelector("#executeTradeBtn").innerText === "Approve & Swap"', {
-      timeout: 5000,
-    });
-  } else if (Number(amount) === 0) {
-    await page.waitForFunction('document.querySelector("#executeTradeBtn").innerText === "Enter Token Amount"', {
-      timeout: 5000,
-    });
   }
 
   //get max values for each token
@@ -272,20 +264,15 @@ export async function setUpSwap(
   //perc should have no decimals, be greater than 0, should be correct
   await page.waitForSelector("#token1-perc-input");
 
-  const percApprox: BigNumber = t1Input.div(balance).times(100);
+  const percApprox: BigNumber = t1Input.div(balance).times(100).dp(3);
 
   let perc;
   if (percApprox.gt(0)) {
     await page.waitForFunction('Number(document.querySelector("#token1-perc-input").value) > 0', { timeout: 3000 });
     perc = new BigNumber(await page.evaluate('document.querySelector("#token1-perc-input").value'));
     expect(Number(perc)).toBeGreaterThan(0);
-    percApprox.gt(100) ? expect(Number(perc)).toBe(100) : expect(Number(perc)).toBe(percApprox);
-  } else {
-    perc = await page.evaluate('document.querySelector("#token1-perc-input").value');
-    expect(Number(perc)).toBe(0);
-  }
-  const percDecimals = perc.match(afterPeriod);
-  expect(percDecimals).toBeNull();
+    percApprox.gt(100) ? expect(perc).toStrictEqual("100") : expect(perc).toStrictEqual(percApprox);
+  } 
 }
 
 /**
@@ -396,6 +383,9 @@ export async function executeTransaction(page: puppeteer.Page, txType: "trade" |
       break;
     default:
       await page.click("#executeTradeBtn");
+      await page.waitForFunction('document.querySelector("#executeTradeBtn").innerText === "Approve & Swap"', {
+        timeout: 5000,
+      });
       await page.waitForSelector("#confirmSwapModalBtn");
       await page.click("#confirmSwapModalBtn");
       //find and return the approval amount

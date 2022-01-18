@@ -14,39 +14,41 @@ import { GlobalContext, bgLoadingStates, removeBgLoadingState } from "../context
 export default function WrappedInput(props: any) {
   const { bgLoading, setBgLoading } = useContext(GlobalContext);
   const [internalState, setInternalState] = useState<BigNumber>(new BigNumber(0));
-  function shouldCallDBchange(e: any) {
+  /**
+   * Determines whether to update the token state with a string or a bignumber
+   * @param e
+   * @returns boolean (true for update with bignumber)
+   */
+  function getUpdateParams(e: any) {
     setBgLoading([...bgLoading, bgLoadingStates.calcTrade]);
     const value = e.target.value;
-    console.log(value);
     const bnVal = new BigNumber(value);
-    console.log(bnVal.toString());
-    let result = true;
+    let result: "dec" | "trail" | undefined;
 
     const afterPeriod = /\.(.*)/;
     const decimals = value.match(afterPeriod);
-    console.log(decimals);
 
     //dont call db change if decimals >= 5
     if (decimals && decimals[1].length > 5) {
-      result = false;
+      result = "dec";
     }
-
     //dont call db change if the input is the same as the current value (ie. trailing/leading zero(s))
-    if (bnVal.toFixed(5) === internalState.toFixed(5)) {
-      result = false;
+    else if (bnVal.toFixed(5) === internalState.toFixed(5)) {
+      result = "trail";
     }
 
     setInternalState(bnVal);
-    if(!result) setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade))
+    if (result === "dec") setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
     return result;
   }
 
   return (
     <input
       {...props}
-      onChange={(e) => {          
-        if (shouldCallDBchange(e)) {
-          props.onChange(e);
+      onChange={(e) => {
+        const result = getUpdateParams(e);
+        if (result !== "dec") {
+          props.onChange(e, getUpdateParams(e));
         }
       }}
     />

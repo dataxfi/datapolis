@@ -15,6 +15,7 @@ import usePTxManager from "../hooks/usePTxManager";
 import errorMessages from "../utils/errorMessages";
 import { MoonLoader } from "react-spinners";
 import BigNumber from "bignumber.js";
+import { toFixed5 } from "../utils/equate";
 const text = {
   T_SWAP: "TradeX",
   T_SWAP_FROM: "You are selling",
@@ -28,7 +29,7 @@ const text = {
 // }
 interface IToken {
   balance: BigNumber;
-  value: BigNumber;
+  value: BigNumber | string;
   info: any;
   loading: boolean;
   percentage: BigNumber;
@@ -71,7 +72,7 @@ const Swap = () => {
     notifications,
     setNotifications,
     bgLoading,
-    setBgLoading
+    setBgLoading,
   } = useContext(GlobalContext);
   const [showSettings, setShowSettings] = useState(false);
   const [showConfirmSwapModal, setShowConfirmSwapModal] = useState(false);
@@ -283,23 +284,27 @@ const Swap = () => {
       if (from) {
         setToken2({ ...token2, loading: true });
         let exchange = await calculateExchange(from, inputAmount);
+        console.log(inputAmount.toString(), exchange.toString());
+
         setPostExchange(exchange.div(inputAmount));
         setToken2({ ...token2, value: exchange, loading: false });
         setExactToken(1);
       } else {
         setToken1({ ...token1, loading: true });
         let exchange = await calculateExchange(from, inputAmount);
+        console.log(inputAmount.toString(), exchange.toString());
+
         setPostExchange(inputAmount.div(exchange));
         setToken1({ ...token1, value: exchange, loading: false });
         setExactToken(2);
       }
     }
-    setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade))
+    setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     console.log("Currently loading in bg:", bgLoading, token1.loading, token2.loading);
-  }, [bgLoading])
+  }, [bgLoading]);
   // This is easily testable, if we someone writes tests for this in the future, it'll be great
   async function calculateExchange(from: boolean, amount: BigNumber): Promise<BigNumber> {
     try {
@@ -350,7 +355,7 @@ const Swap = () => {
     let txDateId = null;
     let decSlippage = slippage.div(100).dp(5).toString();
     console.log(decSlippage);
-
+    const { t1Val, t2Val } = getTokenVal();
     try {
       if (isOCEAN(token1.info.address)) {
         if (exactToken === 1) {
@@ -361,13 +366,7 @@ const Swap = () => {
           setLastTxId(txDateId);
           txType = "Ocean to DT";
 
-          txReceipt = await ocean.swapExactOceanToDt(
-            accountId,
-            token2.info.pool.toString(),
-            token2.value.dp(5).toString(),
-            token1.value.dp(5).toString(),
-            decSlippage
-          );
+          txReceipt = await ocean.swapExactOceanToDt(accountId, token2.info.pool.toString(), t2Val, t1Val, decSlippage);
         } else {
           console.log("ocean to exact dt");
           // prettier-ignore
@@ -376,13 +375,7 @@ const Swap = () => {
 
           txType = "Ocean to DT";
 
-          txReceipt = await ocean.swapExactOceanToDt(
-            accountId,
-            token2.info.pool,
-            token2.value.dp(5).toString(),
-            token1.value.dp(5).toString(),
-            decSlippage
-          );
+          txReceipt = await ocean.swapExactOceanToDt(accountId, token2.info.pool, t2Val, t1Val, decSlippage);
         }
       } else if (isOCEAN(token2.info.address)) {
         if (exactToken === 1) {
@@ -392,13 +385,7 @@ const Swap = () => {
           setLastTxId(txDateId);
 
           txType = "DT to Ocean";
-          txReceipt = await ocean.swapExactDtToOcean(
-            accountId,
-            token1.info.pool,
-            token2.value.dp(5).toString(),
-            token1.value.dp(5).toString(),
-            decSlippage
-          );
+          txReceipt = await ocean.swapExactDtToOcean(accountId, token1.info.pool, t2Val, t1Val, decSlippage);
         } else {
           //Error: Throws not enough datatokens
           console.log("dt to exact ocean");
@@ -408,19 +395,13 @@ const Swap = () => {
           setLastTxId(txDateId);
 
           txType = "DT to Ocean";
-          txReceipt = await ocean.swapExactDtToOcean(
-            accountId,
-            token1.info.pool,
-            token2.value.dp(5).toString(),
-            token1.value.dp(5).toString(),
-            decSlippage
-          );
+          txReceipt = await ocean.swapExactDtToOcean(accountId, token1.info.pool, t2Val, t1Val, decSlippage);
         }
       } else {
         if (exactToken === 1) {
           console.log("exact dt to dt");
           // prettier-ignore
-          console.log(accountId,token1.info.address,token2.info.address,token2.value.dp(5).toString(),token1.value.dp(5).toString(),token1.info.pool,token2.info.pool,config.default.routerAddress,decSlippage);
+          console.log(accountId,token1.info.address,token2.info.address,t2Val,t1Val,token1.info.pool,token2.info.pool,config.default.routerAddress,decSlippage);
           // prettier-ignore
           txDateId = addTxHistory({chainId,setTxHistory,txHistory,accountId: String(accountId),token1,token2,txType: "DT to DT",slippage: decSlippage,status: "pending",});
           setLastTxId(txDateId);
@@ -429,8 +410,8 @@ const Swap = () => {
             accountId,
             token1.info.address,
             token2.info.address,
-            token2.value.dp(5).toString(),
-            token1.value.dp(5).toString(),
+            t2Val,
+            t1Val,
             token1.info.pool,
             token2.info.pool,
             config.default.routerAddress,
@@ -439,7 +420,7 @@ const Swap = () => {
         } else {
           console.log("dt to exact dt");
           // prettier-ignore
-          console.log(accountId,token1.info.address,token2.info.address,token2.value.dp(5).toString(),token1.value.dp(5).toString(),token1.info.pool,token2.info.pool,config.default.routerAddress,decSlippage);
+          console.log(accountId,token1.info.address,token2.info.address,t2Val,t1Val,token1.info.pool,token2.info.pool,config.default.routerAddress,decSlippage);
           // prettier-ignore
           txDateId = addTxHistory({chainId,setTxHistory,txHistory,accountId: String(accountId),token1,token2,txType: "DT to DT",slippage: decSlippage,status: "pending",});
           setLastTxId(txDateId);
@@ -450,8 +431,8 @@ const Swap = () => {
             accountId,
             token1.info.address,
             token2.info.address,
-            token2.value.dp(5).toString(),
-            token1.value.dp(5).toString(),
+            t2Val,
+            t1Val,
             token1.info.pool,
             token2.info.pool,
             config.default.routerAddress,
@@ -467,8 +448,8 @@ const Swap = () => {
           setTxHistory,
           txHistory,
           accountId: String(accountId),
-          token1,
-          token2,
+          token1: { ...token1, value: toFixed5(token1.value) },
+          token2: { ...token2, value: toFixed5(token2.value) },
           txType,
           slippage: decSlippage,
           txDateId,
@@ -531,18 +512,34 @@ const Swap = () => {
     }
   }
 
+  interface ITokenTypes {
+    t1Val: string;
+    t2Val: string;
+    t1BN: BigNumber;
+    t2BN: BigNumber;
+  }
+
+  function getTokenVal() {
+    let t1Val;
+    let t2Val;
+    typeof token1.value === "string" ? (t1Val = token1.value) : (t1Val = token1.value.dp(5).toString());
+    typeof token2.value === "string" ? (t2Val = token1.value) : (t2Val = token2.value.dp(5).toString());
+    return { t1Val, t2Val, t1BN: new BigNumber(t1Val), t2BN: new BigNumber(t2Val) } as ITokenTypes;
+  }
+
   function getConfirmModalProperties(): string[] {
+    const { t1Val, t2Val } = getTokenVal();
     if (token1.info && token2.info) {
       switch (txsForTPair.toString()) {
         case "1":
           return [
-            `Swap ${token1.value} ${token1.info.symbol} for ${token2.value.dp(5).toString()} 
+            `Swap ${token1.value} ${token1.info.symbol} for ${t2Val} 
     ${token2.info.symbol}`,
           ];
         case "2":
           return [
-            `Approve TradeX to spend ${token1.value.dp(5).toString()} ${token1.info.symbol}`,
-            `Swap ${token1.value.dp(5).toString()} ${token1.info.symbol} for ${token2.value.dp(5).toString()} 
+            `Approve TradeX to spend ${t1Val} ${token1.info.symbol}`,
+            `Swap ${t1Val} ${token1.info.symbol} for ${t2Val} 
   ${token2.info.symbol}`,
           ];
         default:
@@ -553,6 +550,7 @@ const Swap = () => {
   }
 
   function getButtonProperties() {
+    const { t1BN, t2BN } = getTokenVal();
     if (!accountId) {
       setBtnProps({
         text: "Connect Wallet",
@@ -569,7 +567,7 @@ const Swap = () => {
       });
     }
 
-    if ((accountId && token1.info && token2.info && token1.value.eq(0)) || !token2.value.eq(0)) {
+    if ((accountId && token1.info && token2.info && t1BN.eq(0)) || !t2BN.eq(0)) {
       setBtnProps({
         text: "Enter Token Amount",
         classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
@@ -577,7 +575,7 @@ const Swap = () => {
       });
     }
 
-    if (accountId && token1.info && token2.info && token1.value.gt(0) && token2.value.gt(0) && token1.balance.gt(0)) {
+    if (accountId && token1.info && token2.info && t1BN.gt(0) && t2BN.gt(0) && token1.balance.gt(0)) {
       if (token1.balance.dp(5).gte(token1.value) && !token1.balance.eq(0)) {
         setBtnProps({
           text: "Approve & Swap",
@@ -597,7 +595,7 @@ const Swap = () => {
   async function dbUpdateToken1(value: string) {
     const bnVal = new BigNumber(value);
     //Setting state here allows for max to be persisted in the input
-    setToken1({ ...token1, value: bnVal});
+    setToken1({ ...token1, value: bnVal });
     if (token1.info && token2.info) {
       let exchangeLimit = { ...INITIAL_MAX_EXCHANGE };
       console.log("maxSell exists: ", !!maxExchange.maxSell);
@@ -610,7 +608,7 @@ const Swap = () => {
         console.log("Value > MaxSell");
         setToken2({ ...token2, value: maxBuy });
         setToken1({ ...token1, value: maxSell, percentage: new BigNumber(100) });
-        setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade))
+        setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
       } else {
         const percentage = token1.balance.eq(0)
           ? new BigNumber(100)
@@ -627,7 +625,7 @@ const Swap = () => {
   }
 
   async function onPercToken1(val: string) {
-    let bnVal = new BigNumber(val)
+    let bnVal = new BigNumber(val);
     let exchangeLimit;
 
     maxExchange.maxPercent ? (exchangeLimit = maxExchange) : (exchangeLimit = await getMaxExchange());
@@ -641,7 +639,7 @@ const Swap = () => {
         percentage: maxPercent,
       });
       setToken2({ ...token2, value: maxBuy });
-      setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade))
+      setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
     } else {
       updateValueFromPercentage(true, val);
     }
@@ -650,7 +648,7 @@ const Swap = () => {
   async function dbUpdateToken2(value: string) {
     const bnVal = new BigNumber(value);
     //Setting state here allows for max to be persisted in the input
-    setToken2({ ...token2, value: bnVal});
+    setToken2({ ...token2, value: bnVal });
     if (token1.info && token2.info) {
       let exchangeLimit;
 
@@ -662,7 +660,7 @@ const Swap = () => {
         console.log("Value > MaxBuy");
         setToken2({ ...token2, value: maxBuy });
         setToken1({ ...token1, value: maxSell });
-        setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade))
+        setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
       } else {
         console.log("Value < MaxBuy");
         setToken2({ ...token2, value: bnVal });
@@ -731,7 +729,7 @@ const Swap = () => {
             perc={token1.percentage}
             onPerc={onPercToken1}
             otherToken={token2.info ? token2.info.symbol : ""}
-            num={token1.value}
+            num={typeof token1.value === "string" ? token1.value : token1.value.dp(5).toString()}
             value={token1.info}
             balance={token1.balance}
             title={text.T_SWAP_FROM}
@@ -752,7 +750,7 @@ const Swap = () => {
               tabIndex={0}
               className="rounded-full border-primary-900 border-4 absolute -top-14 bg-primary-800 w-16 h-16 flex swap-center items-center justify-center"
             >
-              {token2.loading || token1.loading || bgLoading.includes(bgLoadingStates.calcTrade)? (
+              {token2.loading || token1.loading || bgLoading.includes(bgLoadingStates.calcTrade) ? (
                 <MoonLoader size={25} color={"white"} />
               ) : (
                 <IoSwapVertical size="30" className="text-gray-300" />
@@ -764,7 +762,7 @@ const Swap = () => {
             onPerc={() => {}}
             max={maxExchange.maxBuy}
             otherToken={token1.info ? token1.info.symbol : ""}
-            num={token2.value}
+            num={typeof token2.value === "string" ? token2.value : token2.value.dp(5).toString()}
             value={token2.info}
             balance={token2.balance}
             title={text.T_SWAP_TO}
@@ -778,9 +776,7 @@ const Swap = () => {
             <div className="my-4 p-2 bg-primary-800 flex justify-between text-type-400 text-sm rounded-lg">
               <p>Exchange rate</p>
               <p>
-                1 {token1.info.symbol} ={" "}
-                {postExchange.dp(5).toString()}
-                {token2.info.symbol}
+                1 {token1.info.symbol} = {postExchange.dp(5).toString()} {`${" "}${token2.info.symbol}`}
               </p>
             </div>
           ) : (
