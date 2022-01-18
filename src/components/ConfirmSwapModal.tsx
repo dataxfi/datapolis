@@ -24,25 +24,25 @@ const ConfirmSwapModal = ({
   slippage: number | string;
 }) => {
   const { ocean } = useContext(GlobalContext);
-  const [swapFee, setswapFee] = useState(0);
-  const [minReceived, setMinReceived] = useState("0");
+  const [swapFee, setswapFee] = useState<BigNumber>(new BigNumber(0));
+  const [minReceived, setMinReceived] = useState<BigNumber>(new BigNumber(0));
 
   useEffect(() => {
     if (show) {
-      const exchange = token2.value || 0;
+      const exchange: BigNumber = token2.value;
       const slip = new BigNumber(exchange).times(slippage).div(100);
       const min = new BigNumber(exchange).minus(slip);
-      setMinReceived(min.toFixed(5));
+      setMinReceived(min);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token2.value, slippage, show]);
 
   useEffect(() => {
     if (show) {
-      if (ocean && token1.info && token1.value && token2.info) {
+      if (ocean && token1.info && token1.value.gt(0) && token2.info) {
         (async () => {
           const pool = token1.info.symbol === "OCEAN" ? token2.info.pool : token1.info.pool;
-          const swapFee = await ocean.calculateSwapFee(pool, token1.value);
+          const swapFee = new BigNumber(await ocean.calculateSwapFee(pool, token1.value.dp(5).toString()));
           setswapFee(swapFee);
         })();
       }
@@ -66,24 +66,24 @@ const ConfirmSwapModal = ({
           </div>
 
           <div className="mt-4">
-            <ConfirmSwapItem img={token1.info.logoURI} value={token1.value} name={token1.info.symbol} />
+            <ConfirmSwapItem img={token1.info.logoURI} value={token1.value.dp(5).toString()} name={token1.info.symbol} />
             <BsArrowDown className="ml-2 my-2 text-type-300" size={24} />
-            <ConfirmSwapItem img={token2.info.logoURI} value={token2.value} name={token2.info.symbol} />
+            <ConfirmSwapItem img={token2.info.logoURI} value={token2.value.dp(5).toString()} name={token2.info.symbol} />
           </div>
 
           <div className="mt-6 flex justify-between">
             <p className="text-type-400 text-sm">Exchange rate</p>
             <p id="confirmSwapModalSwapRate" className="text-type-400 text-sm grid grid-flow-col items-center gap-2">
-              1 {token1?.symbol} = {toFixed5(postExchange)} {token2.info.symbol}
+              1 {token1?.symbol} = {postExchange.dp(5).toString()} {token2.info.symbol}
               <BsShuffle size={12} />
             </p>
           </div>
 
           <div className="mt-4">
             {/* <ConfirmSwapListItem name="Route" value="ETH > KNC" /> */}
-            <ConfirmSwapListItem name="Minimum received" value={toFixed5(minReceived)} />
+            <ConfirmSwapListItem name="Minimum received" value={minReceived.dp(5).toString()} />
             {/* <ConfirmSwapListItem name="Price impact" value="-0.62%" valueClass="text-green-500" /> */}
-            <ConfirmSwapListItem name="Swap fee" value={swapFee.toString() + " " + token1.info.symbol} />
+            <ConfirmSwapListItem name="Swap fee" value={swapFee.dp(5).toString() + " " + token1.info.symbol} />
             <ConfirmSwapListItem name="TradeX fee" value="0" />
             {/* <ConfirmSwapListItem name="DataX fee" value="0.000000006 ETH" /> */}
             <ConfirmSwapListItem name="Slippage tolerance" value={slippage + "%"} />
@@ -91,7 +91,7 @@ const ConfirmSwapModal = ({
 
           <div className="mt-4">
             <p className="text-type-300 text-sm">
-              You will receive at least {toFixed5(minReceived)} {token2.info.symbol} or the transaction will revert.
+              You will receive at least {minReceived.dp(5).toString()} {token2.info.symbol} or the transaction will revert.
             </p>
           </div>
 

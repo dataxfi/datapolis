@@ -2,12 +2,11 @@ import { useState, useEffect } from "react";
 import { BsChevronDown } from "react-icons/bs";
 import TokenModal from "./TokenModal";
 import { DebounceInput } from "react-debounce-input";
-import PulseLoader from "react-spinners/PulseLoader";
 import { useContext } from "react";
 import { GlobalContext } from "../context/GlobalState";
 import Button from "./Button";
-import { toFixed3 } from "../utils/equate";
-
+import BigNumber from "bignumber.js";
+import WrappedInput from "./WrappedInput";
 const SwapInput = ({
   title,
   value,
@@ -26,23 +25,28 @@ const SwapInput = ({
   value: Record<any, any> | null;
   pos: number;
   setToken: Function;
-  num: number;
+  num:  string;
   updateNum: Function;
-  balance: number;
+  balance: BigNumber;
   loading: boolean;
   otherToken: string;
   onPerc: Function;
-  perc: string;
-  max: string;
+  perc: BigNumber;
+  max: BigNumber;
 }) => {
   const [showModal, setShowModal] = useState(false);
   const { accountId, handleConnect } = useContext(GlobalContext);
 
   const tokenSelected = (token: Record<any, any>) => {
+    console.log(token);
+
     setToken(token, pos, true);
     setShowModal(false);
   };
 
+  useEffect(() => {
+    console.log(balance);
+  }, [balance]);
   function connectWalletOrShowlist() {
     if (accountId) {
       setShowModal(true);
@@ -75,7 +79,6 @@ const SwapInput = ({
               connectWalletOrShowlist();
             }}
           >
-            {/* <button> */}
             <p className="text-xs text-type-200">{title}</p>
             {value ? (
               <span className="text-sm sm:text-2xl text-type-200 font-bold grid grid-flow-col items-center gap-1">
@@ -85,7 +88,10 @@ const SwapInput = ({
                 <BsChevronDown className="text-type-200" size="16" />
               </span>
             ) : (
-              <p id="selectTokenBtn" className="text-xs text-type-100 border-type-300 border rounded-full px-2 py-1 mt-1">
+              <p
+                id="selectTokenBtn"
+                className="text-xs text-type-100 border-type-300 border rounded-full px-2 py-1 mt-1"
+              >
                 Select token
               </p>
             )}
@@ -96,7 +102,8 @@ const SwapInput = ({
             <div className="flex justify-between items-center">
               <DebounceInput
                 id={`token${pos}-input`}
-                data-test-max ={max}
+                key={`token${pos}-input`}
+                data-test-max={max.dp(5).toString()}
                 max={max}
                 step="any"
                 disabled={loading}
@@ -105,20 +112,17 @@ const SwapInput = ({
                   updateNum(e.target.value);
                 }}
                 onWheel={(event: any) => event.currentTarget.blur()}
-                onKeyDown={(evt) =>
-                  ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()
-                }
+                onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
+                element={WrappedInput}
                 type="number"
                 className="h-full w-full rounded-lg bg-primary-900 text-3xl outline-none overflow-ellipsis focus:placeholder-type-200 placeholder-type-400"
                 placeholder="0.0"
                 value={num}
               />
-              {/* <input /> */}
               <div>
                 {balance ? (
                   <p id={`token${pos}-balance`} className="text-sm text-type-400 whitespace-nowrap text-right">
-                    Balance:{" "}
-                    {toFixed3(balance)}
+                    Balance: {balance.dp(3).toString()}
                   </p>
                 ) : (
                   <></>
@@ -129,11 +133,7 @@ const SwapInput = ({
                                 =$320.08
                                 </p> : <></>
                             } */}
-                {pos === 2 ? null : loading ? (
-                  <div className="text-center">
-                    <PulseLoader color="white" size="4px" margin="5px" />
-                  </div>
-                ) : balance ? (
+                {pos === 2 ? null : balance ? (
                   <div className="text-sm text-type-300 grid grid-flow-col justify-end gap-2">
                     <Button
                       id="maxTrade"
@@ -145,7 +145,7 @@ const SwapInput = ({
                     />
                     <DebounceInput
                       id={`token${pos}-perc-input`}
-                      value={perc}
+                      value={perc.dp(3).toString()}
                       type="number"
                       debounceTimeout={500}
                       onChange={(e) => {
@@ -167,11 +167,7 @@ const SwapInput = ({
         </div>
       </div>
       {showModal ? (
-        <TokenModal
-          onClick={tokenSelected}
-          close={() => setShowModal(false)}
-          otherToken={otherToken}
-        />
+        <TokenModal onClick={tokenSelected} close={() => setShowModal(false)} otherToken={otherToken} />
       ) : (
         <></>
       )}
