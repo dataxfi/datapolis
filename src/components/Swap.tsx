@@ -117,7 +117,7 @@ const Swap = () => {
         console.log("Max Sell", maxSell.toString());
 
         let DtReceivedForMaxSell: BigNumber = new BigNumber(
-          await ocean.getDtReceivedForExactDt(maxSell, token1.info.pool, token2.info.pool)
+          await ocean.getDtReceivedForExactDt(maxSell.toString(), token1.info.pool, token2.info.pool)
         );
         console.log("Dt Received for max sell", DtReceivedForMaxSell.toString());
 
@@ -125,7 +125,7 @@ const Swap = () => {
         console.log("Max Buy", maxBuy);
 
         let DtNeededForMaxBuy: BigNumber = new BigNumber(
-          await ocean.getDtNeededForExactDt(maxBuy, token1.info.pool, token2.info.pool)
+          await ocean.getDtNeededForExactDt(maxBuy.toString(), token1.info.pool, token2.info.pool)
         );
         console.log("Dt Needed for max buy", DtNeededForMaxBuy.toString());
 
@@ -159,7 +159,7 @@ const Swap = () => {
         }
         //Max sell is the amount of OCEAN sold for maxBuy
         maxSell = await calculateExchange(false, maxBuy);
-        console.log("Max Sell:", maxSell, maxSell.toString());
+        console.log("Max Sell:", maxSell.toString());
       }
 
       //Max percent is the percent of the max sell out of token 1 balance
@@ -167,7 +167,7 @@ const Swap = () => {
       if (token1.balance.eq(0)) {
         maxPercent = new BigNumber(0);
       } else {
-        console.log("Max Sell:", maxSell, maxSell.toString());
+        console.log("Max Sell:", maxSell.toString());
         maxPercent = maxSell.div(token1.balance).multipliedBy(100);
       }
 
@@ -176,7 +176,7 @@ const Swap = () => {
 
       if (maxPercent.gt(100)) {
         maxPercent = new BigNumber(100);
-        if (token1.balance.dp(5).lt(0.00001)) {
+        if (token1.balance.dp(5).gt(0.00001)) {
           maxSell = token1.balance.dp(5);
           maxBuy = await calculateExchange(true, maxSell);
         }
@@ -267,7 +267,7 @@ const Swap = () => {
   };
 
   async function swapTokens() {
-    setToken1({ ...token2, value: new BigNumber(0) });
+    setToken1({ ...token2, value: new BigNumber(0), percentage: new BigNumber(0) });
     setToken2({ ...token1, value: new BigNumber(0) });
     setExactToken(1);
   }

@@ -17,6 +17,7 @@ export async function importTokens(metamask: dappeteer.Dappeteer, symbol?: strin
   const ocean = "0x8967BCF84170c91B0d24D4302C2376283b0B3a07";
   const sagkri = "0x1d0c4f1dc8058a5395b097de76d3cd8804ef6bb4";
   const dazorc = "0x8d2da54a1691fd7bd1cd0a242d922109b0616c68";
+  const zeasea = "0xcf6823cf19855696d49c261e926dce2719875c3d";
   await clearMMPopup(metamask);
   switch (symbol) {
     case "SAGKRI-94":
@@ -24,6 +25,9 @@ export async function importTokens(metamask: dappeteer.Dappeteer, symbol?: strin
       break;
     case "DAZORC-13":
       await metamask.addToken(dazorc);
+      break;
+    case "ZEASEA-66":
+      await metamask.addToken(zeasea);
       break;
     default:
       await metamask.addToken(ocean);
@@ -462,8 +466,14 @@ export async function setupRemoveStake(page: puppeteer.Page, unstakeAmt: string,
   await page.waitForSelector("[data-test-max-perc]");
   await page.waitForSelector("[data-test-max-ocean]");
 
-  await page.waitForFunction('Number(document.querySelector("[data-test-max-ocean]").getAttribute("data-test-max-ocean")) > 0', {timeout:5000})
-  await page.waitForFunction('Number(document.querySelector("[data-test-max-perc]").getAttribute("data-test-max-perc")) > 0', {timeout:5000})
+  await page.waitForFunction(
+    'Number(document.querySelector("[data-test-max-ocean]").getAttribute("data-test-max-ocean")) > 0',
+    { timeout: 5000 }
+  );
+  await page.waitForFunction(
+    'Number(document.querySelector("[data-test-max-perc]").getAttribute("data-test-max-perc")) > 0',
+    { timeout: 5000 }
+  );
 
   const maxOcean = new BigNumber(
     await page.evaluate('document.querySelector("[data-test-max-ocean]").getAttribute("data-test-max-ocean")')
@@ -472,13 +482,11 @@ export async function setupRemoveStake(page: puppeteer.Page, unstakeAmt: string,
     await page.evaluate('document.querySelector("[data-test-max-perc]").getAttribute("data-test-max-perc")')
   );
 
-
-
   await page.waitForSelector("#sharesDisplay");
   const sharesInnerText = await page.evaluate('document.querySelector("#sharesDisplay").innerText');
   const sharesString = getAfterColon(sharesInnerText);
   console.log(sharesString);
-  
+
   let shares;
   if (sharesString) {
     shares = new BigNumber(sharesString);
