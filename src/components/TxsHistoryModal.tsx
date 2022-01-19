@@ -134,7 +134,10 @@ function TxHistoryModal() {
     const hours24 = stamp.getHours();
     const amPm = hours24 > 12 ? "Pm" : "Am";
     const hours12 = hours24 > 12 ? hours24 - 12 : hours24;
-    const minutes = stamp.getMinutes();
+    let minutes: string | number = stamp.getMinutes();
+    if(Number(minutes) < 10){
+      minutes = `0${minutes}`
+    }
     return `${hours12}:${minutes} ${amPm}`;
   }
 

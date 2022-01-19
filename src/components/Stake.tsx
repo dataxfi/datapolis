@@ -56,8 +56,8 @@ const Stake = () => {
     setAllStakedPools,
     notifications,
     setNotifications,
-    bgLoading, 
-    setBgLoading
+    bgLoading,
+    setBgLoading,
   } = useContext(GlobalContext);
   const [token, setToken] = useState<any>(null);
   const [dtToOcean, setDtToOcean] = useState<any>(null);
@@ -97,9 +97,8 @@ const Stake = () => {
   useTxModalToggler(txReceipt);
   useCurrentPool(poolAddress, setPoolAddress);
 
-
   async function getMaxStakeAmt() {
-    return new BigNumber(await ocean.getMaxStakeAmount(token.pool, ocean.config.default.oceanTokenAddress));
+    return new BigNumber(await ocean.getMaxStakeAmount(token.pool, ocean.config.default.oceanTokenAddress)).dp(5);
   }
 
   async function setOceanBalance() {
@@ -359,7 +358,7 @@ const Stake = () => {
     } else {
       console.log(2);
       if (balance?.lt(maxStake)) {
-        setOceanValToStake(balance);
+        setOceanValToStake(balance.dp(5));
       } else {
         setOceanValToStake(maxStake.dp(5).minus(1));
       }
@@ -378,6 +377,8 @@ const Stake = () => {
   // }
 
   async function updateNum(val: string | BigNumber, max?: BigNumber) {
+    //initially set state to value to persist the max if the user continuously tries to enter over the max (or balance)
+    setOceanValToStake(new BigNumber(val));
     if (!val) {
       setOceanValToStake(new BigNumber(0));
       return;
@@ -389,13 +390,21 @@ const Stake = () => {
     }
 
     if (max) {
-      if (max.minus(1).lt(val)) {
+      if (balance.lt(val)) {
+        console.log("b");
+
+        setOceanValToStake(balance.dp(5));
+      } else if (max.minus(1).lt(val)) {
+        console.log("a");
+
         setOceanValToStake(max.dp(5).minus(1));
       } else {
+        console.log("c");
+
         setOceanValToStake(val);
       }
     }
-    setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade))
+    setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
   }
 
   async function updateToken(val: any) {

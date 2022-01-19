@@ -360,7 +360,6 @@ const Swap = () => {
     let txType;
     let txDateId = null;
     let decSlippage = slippage.div(100).dp(5).toString();
-    console.log(decSlippage);
     const { t1Val, t2Val } = getTokenVal();
     try {
       if (isOCEAN(token1.info.address)) {
@@ -499,11 +498,9 @@ const Swap = () => {
     if (token1.info && token2.info) {
       //if token 1 or 2 is ocean then always 2 txs (always approve t1)
       if (isOCEAN(token1.info.address) || isOCEAN(token2.info.address)) {
-        console.log("One of the tokens is ocean, two approvals needed");
         setTxsForTPair(new BigNumber(2));
       } else {
         try {
-          console.log("Neither of the tokens are ocean, check if token 1 is approved");
           //if token one is DT and is already approved and token 2 is DT then 1 or 2 txs dpending on t1 approval
           const t1Approved = await ocean.checkIfApproved(
             token1.info.address,
