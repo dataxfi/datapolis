@@ -130,9 +130,9 @@ const RemoveAmount = () => {
     } else if (sharesToRemove.eq(0) || oceanToReceive.eq(0)) {
       setBtnDisabled(true);
       setBtnText("Enter Amount to Remove");
-    } else if (oceanToReceive.lt(0.001)) {
+    } else if (oceanToReceive.lt(0.01)) {
       setBtnDisabled(true);
-      setBtnText("Minimum Removal is .001 OCEAN");
+      setBtnText("Minimum Removal is .01 OCEAN");
     } else {
       setBtnDisabled(false);
       setBtnText("Approve and Withdrawal");

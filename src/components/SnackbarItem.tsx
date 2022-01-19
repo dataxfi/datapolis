@@ -1,9 +1,8 @@
 import { useContext, useEffect, useState } from "react";
 import { BsCheckCircle, BsX } from "react-icons/bs";
 import { GlobalContext } from "../context/GlobalState";
-import { toFixed5 } from "../utils/equate";
 import { getTxUrl, conformTx } from "../utils/txHistoryUtils";
-
+import BigNumber from 'bignumber.js'
 const SnackbarItem = ({
   tx,
   setCurrentNot,
@@ -69,14 +68,14 @@ const SnackbarItem = ({
             {/* <p className="text-type-100 text-sm">{lastTx.txType}</p> */}
             <p>
               {tx.txType === "stake"
-                ? `Stake ${toFixed5(tx.stakeAmt)} OCEAN in ${
+                ? `Stake ${new BigNumber(tx.stakeAmt).dp(5).toString()} OCEAN in ${
                     tokenInfo.token1.symbol
                   }/${tokenInfo.token2.symbol} pool`
                 : tx.txType === "unstake"
-                ? `Unstake ${toFixed5(tx.stakeAmt)} OCEAN from ${
+                ? `Unstake ${new BigNumber(tx.stakeAmt).dp(5).toString()} OCEAN from ${
                     tokenInfo.token1.symbol
                   }/${tokenInfo.token2.symbol} pool`
-                : `Trade ${tokenInfo.token1.value} ${tokenInfo.token1.symbol} for ${tokenInfo.token2.value} ${tokenInfo.token2.symbol}`}
+                : `Trade ${new BigNumber(tokenInfo.token1.value).dp(5).toString()} ${tokenInfo.token1.symbol} for ${new BigNumber(tokenInfo.token2.value).dp(5).toString()} ${tokenInfo.token2.symbol}`}
             </p>
             <p className="text-type-300 text-sm">
               <a
