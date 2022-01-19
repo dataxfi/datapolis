@@ -218,17 +218,21 @@ export async function setUpSwap(
       //input amount into token 1
       await page.waitForSelector("#token1-input");
       await page.click("#token1-input");
-      await page.type("#token1-input", amount, { delay: 300 });
+      await page.waitForTimeout(500);
+      await page.type("#token1-input", amount);
       if (Number(amount) > 0)
         await page.waitForFunction('Number(document.querySelector("#token2-input").value) > 0', { timeout: 5000 });
     } else {
       //input amount into token 2
       await page.waitForSelector("#token2-input");
       await page.click("#token2-input");
-      await page.type("#token2-input", amount, { delay: 300 });
+      await page.waitForTimeout(500);
+      await page.type("#token2-input", amount);
       if (Number(amount) > 0)
         await page.waitForFunction('Number(document.querySelector("#token1-input").value) > 0', { timeout: 5000 });
     }
+
+    if (amount === "0") return;
   }
 
   //get max values for each token
@@ -253,6 +257,8 @@ export async function setUpSwap(
   if (t2Decimals) expect(t2Decimals[1].length).toBeLessThanOrEqual(5);
 
   //test max limits inputs
+  console.log(t1Max.toString(), t2Max.toString());
+
   expect(t1Max.gte(t1Input.toNumber())).toBeTruthy();
   expect(t2Max.gte(t2Input.toNumber())).toBeTruthy();
   if (t1Input.lt(t1Max)) expect(t2Max.gt(t2Input)).toBeTruthy();
@@ -272,7 +278,7 @@ export async function setUpSwap(
     perc = new BigNumber(await page.evaluate('document.querySelector("#token1-perc-input").value'));
     expect(Number(perc)).toBeGreaterThan(0);
     percApprox.gt(100) ? expect(perc).toStrictEqual("100") : expect(perc).toStrictEqual(percApprox);
-  } 
+  }
 }
 
 /**
@@ -313,8 +319,6 @@ async function assertTo3(page: puppeteer.Page, truth: string | number, id: strin
   id = `#${id}`;
   await page.waitForSelector(id);
   let dappBal = await getBalanceInDapp(page, pos);
-  console.log("Balance in Dapp:", dappBal);
-  console.log("Balance to match:", truth);
 
   if (updating && Number(toFixed3(dappBal)) !== Number(toFixed3(truth))) {
     // no-touchy!!
@@ -353,6 +357,13 @@ async function getBalanceInMM(metamask: dappeteer.Dappeteer, symbol: string): Pr
   throw new Error("Couldnt get balance.");
 }
 
+const afterColon = /\:\s(.*)/;
+const commas = /[,]/;
+export function getAfterColon(value: string) {
+  const match = value.match(afterColon);
+  if (match) return match[1].replace(commas, "");
+}
+
 /**
  * Return balance for token entered from dapp
  * @param metamask
@@ -360,8 +371,6 @@ async function getBalanceInMM(metamask: dappeteer.Dappeteer, symbol: string): Pr
  * @return balance as a string
  */
 
-const afterColon = /\:\s(.*)/;
-const commas = /[,]/;
 async function getBalanceInDapp(page: puppeteer.Page, pos: number) {
   await page.bringToFront();
   await page.waitForSelector(`#token${pos}-balance`);
@@ -423,9 +432,12 @@ export async function navToRemoveStake(page: puppeteer.Page, pool: string) {
     }
   }
   await page.click(`#${pool}-lp-item`);
+  await page.waitForSelector("#yourShares");
+  const shares = new BigNumber(await page.evaluate('document.querySelector("#yourShares").innerText'));
   await page.waitForSelector("#lp-remove-link");
   await page.click("#lp-remove-link");
   await page.waitForSelector("#removeStakeModal");
+  return shares;
 }
 
 export async function acceptCookies(page: puppeteer.Page) {
@@ -435,7 +447,49 @@ export async function acceptCookies(page: puppeteer.Page) {
   await page.waitForTimeout(500);
 }
 
-export async function setupRemoveStake(page: puppeteer.Page, unstakeAmt: string) {
+export async function setupRemoveStake(page: puppeteer.Page, unstakeAmt: string, initialShares?: BigNumber) {
+  await page.waitForSelector("#executeUnstake[disabled]");
+
+  //check btn text and btn is disabled
+  await page.$("#executeUnstake[disabled]");
+  const InitBtnText = await page.evaluate('document.querySelector("#executeUnstake").innerText');
+  expect(InitBtnText).toBe("Enter Amount to Remove");
+
+  //wait 6s max for loading lp to dissapear
+  await page.waitForFunction('document.querySelector("#loading-lp") === null', { timeout: 6000 });
+
+  //select input and receive amt to have max data attributes
+  await page.waitForSelector("[data-test-max-perc]");
+  await page.waitForSelector("[data-test-max-ocean]");
+
+  await page.waitForFunction('Number(document.querySelector("[data-test-max-ocean]").getAttribute("data-test-max-ocean")) > 0', {timeout:5000})
+  await page.waitForFunction('Number(document.querySelector("[data-test-max-perc]").getAttribute("data-test-max-perc")) > 0', {timeout:5000})
+
+  const maxOcean = new BigNumber(
+    await page.evaluate('document.querySelector("[data-test-max-ocean]").getAttribute("data-test-max-ocean")')
+  );
+  const maxPerc = new BigNumber(
+    await page.evaluate('document.querySelector("[data-test-max-perc]").getAttribute("data-test-max-perc")')
+  );
+
+
+
+  await page.waitForSelector("#sharesDisplay");
+  const sharesInnerText = await page.evaluate('document.querySelector("#sharesDisplay").innerText');
+  const sharesString = getAfterColon(sharesInnerText);
+  console.log(sharesString);
+  
+  let shares;
+  if (sharesString) {
+    shares = new BigNumber(sharesString);
+  } else {
+    throw new Error("Couldnt get shares");
+  }
+
+  if (initialShares && shares) {
+    expect(initialShares.eq(shares)).toBe(true);
+  }
+
   if (unstakeAmt === "max") {
     await page.waitForSelector("#maxUnstakeBtn");
     await page.click("#maxUnstakeBtn");
@@ -447,10 +501,16 @@ export async function setupRemoveStake(page: puppeteer.Page, unstakeAmt: string)
     await page.waitForSelector("#unstakeAmtInput");
     await page.type("#unstakeAmtInput", unstakeAmt, { delay: 150 });
     await page.waitForSelector("#oceanToReceive");
-    await page.waitForFunction('Number(document.querySelector("#oceanToReceive").innerText) > 0');
+    if (maxOcean.gt(0)) await page.waitForFunction('Number(document.querySelector("#oceanToReceive").innerText) > 0');
+    const oceanReceived = new BigNumber(
+      await page.evaluate('Number(document.querySelector("#oceanToReceive").innerText)')
+    );
+    expect(oceanReceived.dp(5).lte(maxOcean)).toBeTruthy();
+    const input = new BigNumber(await page.evaluate('document.querySelector("#unstakeAmtInput").value'));
+    expect(input.lte(maxPerc)).toBeTruthy();
+    if (maxPerc.gt(Number(unstakeAmt))) expect(input.eq(Number(unstakeAmt)));
   }
 
-  await page.waitForSelector("#executeUnstake");
   await page.waitForFunction('document.querySelector("#executeUnstake").innerText === "Approve and Withdrawal"');
   await page.waitForTimeout(500);
   await page.click("#executeUnstake");

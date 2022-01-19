@@ -15,13 +15,14 @@ import {
   setUpStake,
   useLocalStorage,
 } from "../Utilities";
-
+import BigNumber from 'bignumber.js'
 describe("Execute Standard Trades on StakeX", () => {
   jest.setTimeout(300000);
   let page: puppeteer.Page;
   let browser: puppeteer.Browser;
   let metamask: dappeteer.Dappeteer;
   let lastTestPassed: boolean = true;
+  let initialShares: BigNumber 
 
   beforeAll(async () => {
     const tools = await setupDappBrowser();
@@ -31,7 +32,7 @@ describe("Execute Standard Trades on StakeX", () => {
       metamask = tools?.metamask;
     }
     await setupDataX(page, browser, metamask);
-    await navToRemoveStake(page, "SAGKRI-94");
+    initialShares = await navToRemoveStake(page, "SAGKRI-94");
   });
 
   afterAll(async () => {
@@ -41,7 +42,7 @@ describe("Execute Standard Trades on StakeX", () => {
   //with new .001 min ocean tx feature, design this test to pass if .001 validation stops the transaction
   it("Unstake 1% from SAGKRI-94", async () => {
     try {
-      await setupRemoveStake(page, "1");
+      await setupRemoveStake(page, "1", initialShares);
       await approveTransactions(metamask, page, 2);
       await confirmAndCloseTxDoneModal(page);
       await confirmInputClearedAfterUnstake(page);

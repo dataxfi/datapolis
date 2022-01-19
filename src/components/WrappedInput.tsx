@@ -1,5 +1,6 @@
 import BigNumber from "bignumber.js";
 import { useContext, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { GlobalContext, bgLoadingStates, removeBgLoadingState } from "../context/GlobalState";
 /**
  * Use to check inputs before debounce input. On change will fire immediately and check:
@@ -14,13 +15,14 @@ import { GlobalContext, bgLoadingStates, removeBgLoadingState } from "../context
 export default function WrappedInput(props: any) {
   const { bgLoading, setBgLoading } = useContext(GlobalContext);
   const [internalState, setInternalState] = useState<BigNumber>(new BigNumber(0));
+  const { pathname } = useLocation();
   /**
    * Determines whether to update the token state with a string or a bignumber
    * @param e
    * @returns boolean (true for update with bignumber)
    */
   function getUpdateParams(e: any) {
-    setBgLoading([...bgLoading, bgLoadingStates.calcTrade]);
+    if (pathname !== "/stakeX") setBgLoading([...bgLoading, bgLoadingStates.calcTrade]);
     const value = e.target.value;
     const bnVal = new BigNumber(value);
     let result: "dec" | "trail" | undefined;

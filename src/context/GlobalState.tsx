@@ -187,12 +187,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
     account = account.toLowerCase();
     if (!localSignature || localSignature === "pending") {
       setShowDisclaimer(true);
-    }
-
-    if (disclaimerSigned.client === true) {
       handleSignature(account, web3);
     }
-
     return localSignature;
   }
 
@@ -297,7 +293,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setButtonText(CONNECT_TEXT);
         setChainId(undefined);
         setDisclaimerSigned({ client: false, wallet: false });
-        handleDisclaimer(accounts[0], web3, localSignature);
       }
     });
 
