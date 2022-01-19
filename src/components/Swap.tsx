@@ -107,51 +107,50 @@ const Swap = () => {
 
   async function getMaxExchange() {
     setBgLoading([...bgLoading, bgLoadingStates.maxExchange]);
-    console.log("Changing max buy");
     let maxBuy: BigNumber;
     let maxSell: BigNumber;
     let maxPercent: BigNumber;
     try {
       if (!isOCEAN(token1.info.address) && !isOCEAN(token2.info.address)) {
         maxSell = new BigNumber(await ocean.getMaxExchange(token1.info.pool)).dp(0);
-        console.log("Max Sell", maxSell.toString());
+        // console.log("Max Sell", maxSell.toString());
 
         let DtReceivedForMaxSell: BigNumber = new BigNumber(
           await ocean.getDtReceivedForExactDt(maxSell.toString(), token1.info.pool, token2.info.pool)
         );
-        console.log("Dt Received for max sell", DtReceivedForMaxSell.toString());
+        // console.log("Dt Received for max sell", DtReceivedForMaxSell.toString());
 
         maxBuy = new BigNumber(await ocean.getMaxExchange(token2.info.pool)).dp(0);
-        console.log("Max Buy", maxBuy);
+        // console.log("Max Buy", maxBuy);
 
         let DtNeededForMaxBuy: BigNumber = new BigNumber(
           await ocean.getDtNeededForExactDt(maxBuy.toString(), token1.info.pool, token2.info.pool)
         );
-        console.log("Dt Needed for max buy", DtNeededForMaxBuy.toString());
+        // console.log("Dt Needed for max buy", DtNeededForMaxBuy.toString());
 
         // If the Dt received for the maxSell is less than the maxBuy, then the maxSell can be left as is
         // and the maxBuy is set to the the DT received for the max sell
         if (DtReceivedForMaxSell.lt(maxBuy)) {
-          console.log("Setting maxBuy to DtReceived for maxSell");
+          // console.log("Setting maxBuy to DtReceived for maxSell");
           maxBuy = DtReceivedForMaxSell;
         } else {
           // If the Dt received for the maxSell is greater than the maxBuy, then the maxSell needs to be set
           // to the Dt needed for the maxBuy, and the max buy can stay as is
-          console.log("Setting maxSell to DtNeeded for maxBuy");
+          // console.log("Setting maxSell to DtNeeded for maxBuy");
           maxSell = DtNeededForMaxBuy;
         }
       } else if (isOCEAN(token2.info.address)) {
         // DT to OCEAN
         // Max sell is the max amount of DT that can be traded
         maxSell = new BigNumber(await ocean.getMaxExchange(token1.info.pool));
-        console.log("Exact max sell:", maxSell.toString());
+        // console.log("Exact max sell:", maxSell.toString());
         // Max buy is the amount of OCEAN bought from max sell
         maxBuy = new BigNumber(await calculateExchange(true, maxSell));
       } else {
         // OCEAN to DT
         // Max buy is the max amount of DT that can be traded
         maxBuy = new BigNumber(await ocean.getMaxExchange(token2.info.pool));
-        console.log("Exact max buy:", maxBuy.toString());
+        // console.log("Exact max buy:", maxBuy.toString());
         if (maxBuy.minus(maxBuy.dp(0)).gte(0.05)) {
           maxBuy = maxBuy.dp(0);
         } else {
@@ -159,7 +158,7 @@ const Swap = () => {
         }
         //Max sell is the amount of OCEAN sold for maxBuy
         maxSell = await calculateExchange(false, maxBuy);
-        console.log("Max Sell:", maxSell.toString());
+        // console.log("Max Sell:", maxSell.toString());
       }
 
       //Max percent is the percent of the max sell out of token 1 balance
@@ -167,12 +166,12 @@ const Swap = () => {
       if (token1.balance.eq(0)) {
         maxPercent = new BigNumber(0);
       } else {
-        console.log("Max Sell:", maxSell.toString());
+        // console.log("Max Sell:", maxSell.toString());
         maxPercent = maxSell.div(token1.balance).multipliedBy(100);
       }
 
       //if maxPercent is greater than 100, max buy and sell is determined by the balance of token1
-      console.log("Max percent", Number(maxPercent));
+      // console.log("Max percent", Number(maxPercent));
 
       if (maxPercent.gt(100)) {
         maxPercent = new BigNumber(100);
@@ -579,7 +578,25 @@ const Swap = () => {
     }
 
     if (accountId && token1.info && token2.info && t1BN.gt(0) && t2BN.gt(0) && token1.balance.gt(0)) {
-      if (token1.balance.dp(5).gte(token1.value) && !token1.balance.eq(0)) {
+      if ((isOCEAN(token1.info.address) && t1BN.lt(0.01)) || (isOCEAN(token2.info.address) && t2BN.lt(0.01))) {
+        setBtnProps({
+          text: `Minimum trade is .01 OCEAN`,
+          classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
+          disabled: true,
+        });
+      } else if (t1BN.lt(0.001)) {
+        setBtnProps({
+          text: `Minimum trade is .001 ${token1.info.symbol}`,
+          classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
+          disabled: true,
+        });
+      } else if (t2BN.lt(0.001)) {
+        setBtnProps({
+          text: `Minimum trade is .001 ${token2.info.symbol}`,
+          classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
+          disabled: true,
+        });
+      } else if (token1.balance.dp(5).gte(token1.value) && !token1.balance.eq(0)) {
         setBtnProps({
           text: "Approve & Swap",
           classes: "bg-primary-100 bg-opacity-20 hover:bg-opacity-40 text-background-800",
@@ -601,13 +618,12 @@ const Swap = () => {
     setToken1({ ...token1, value: bnVal });
     if (token1.info && token2.info) {
       let exchangeLimit = { ...INITIAL_MAX_EXCHANGE };
-      
+
       maxExchange.maxSell.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await getMaxExchange());
 
       const { maxSell, maxBuy } = exchangeLimit;
 
       if (bnVal.gt(maxSell)) {
-        console.log("Value > MaxSell");
         setToken2({ ...token2, value: maxBuy });
         setToken1({ ...token1, value: maxSell, percentage: new BigNumber(100) });
         setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
@@ -615,7 +631,6 @@ const Swap = () => {
         const percentage = token1.balance.eq(0)
           ? new BigNumber(100)
           : new BigNumber(bnVal.div(token1.balance).multipliedBy(100));
-        console.log("Value < MaxSell");
         setToken1({
           ...token1,
           value: bnVal,

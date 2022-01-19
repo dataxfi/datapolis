@@ -268,9 +268,7 @@ export async function watchTx({
     txDateId,
   } = tx;
 
-  try {
-    console.log("Tx to watch", txHash);
-    
+  try {    
     const response = txHash
       ? await watcher.waitTransaction(web3, txHash, {
           interval: 250,
@@ -310,10 +308,7 @@ export async function watchTx({
         stakeAmt,
         txReceipt,
       });
-    }
-
-    console.log("Watcher response on", txHash, response);
-    
+    }    
     return response;
   } catch (error: any) {
       console.error(error);

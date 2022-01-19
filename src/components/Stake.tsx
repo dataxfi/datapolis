@@ -250,10 +250,10 @@ const Stake = () => {
         disabled: true,
         classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
       });
-    } else if (oceanValToStake.isLessThan(0.001)) {
+    } else if (oceanValToStake.isLessThan(0.01)) {
       setBtnProps({
         ...INITIAL_BUTTON_STATE,
-        text: "Minimum Stake is .001 OCEAN",
+        text: "Minimum Stake is .01 OCEAN",
         disabled: true,
         classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
       });
@@ -391,16 +391,10 @@ const Stake = () => {
 
     if (max) {
       if (balance.lt(val)) {
-        console.log("b");
-
         setOceanValToStake(balance.dp(5));
       } else if (max.minus(1).lt(val)) {
-        console.log("a");
-
         setOceanValToStake(max.dp(5).minus(1));
       } else {
-        console.log("c");
-
         setOceanValToStake(val);
       }
     }
