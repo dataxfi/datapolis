@@ -2,7 +2,7 @@ import { AiOutlinePlus } from "react-icons/ai";
 import StakeSelect from "./StakeSelect";
 // import PositionBox from "./PositionBox"
 import { useState, useContext, useEffect } from "react";
-import { GlobalContext } from "../context/GlobalState";
+import { bgLoadingStates, GlobalContext, removeBgLoadingState } from "../context/GlobalState";
 import { MoonLoader, PulseLoader } from "react-spinners";
 import Button, { IBtnProps } from "./Button";
 import ConfirmModal from "./ConfirmModal";
@@ -19,6 +19,7 @@ import errorMessages from "../utils/errorMessages";
 import useCurrentPool from "../hooks/useCurrentPool";
 import BigNumber from "bignumber.js";
 import { DebounceInput } from "react-debounce-input";
+import WrappedInput from "./WrappedInput";
 const text = {
   T_STAKE: "StakeX",
   T_SELECT_TOKEN: "Select token",
@@ -55,6 +56,8 @@ const Stake = () => {
     setAllStakedPools,
     notifications,
     setNotifications,
+    bgLoading, 
+    setBgLoading
   } = useContext(GlobalContext);
   const [token, setToken] = useState<any>(null);
   const [dtToOcean, setDtToOcean] = useState<any>(null);
@@ -84,7 +87,7 @@ const Stake = () => {
   //const [perc, setPerc] = useState("");
   const [poolLiquidity, setPoolLiquidity] = useState<IPoolLiquidity | null>(null);
   const [yourLiquidity, setYourLiquidity] = useState<BigNumber>(new BigNumber(0));
-  const [yourShares, setYourShares] = useState<BigNumber>(new BigNumber(0))
+  const [yourShares, setYourShares] = useState<BigNumber>(new BigNumber(0));
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
   const location = useLocation();
   const history = useHistory();
@@ -93,6 +96,7 @@ const Stake = () => {
   usePTxManager(lastTxId);
   useTxModalToggler(txReceipt);
   useCurrentPool(poolAddress, setPoolAddress);
+
 
   async function getMaxStakeAmt() {
     return new BigNumber(await ocean.getMaxStakeAmount(token.pool, ocean.config.default.oceanTokenAddress));
@@ -381,7 +385,7 @@ const Stake = () => {
     val = new BigNumber(val);
 
     if (!max) {
-      maxStakeAmt ? (max = maxStakeAmt) : (max = await getMaxStakeAmt());
+      maxStakeAmt.gt(0) ? (max = maxStakeAmt) : (max = await getMaxStakeAmt());
     }
 
     if (max) {
@@ -391,6 +395,7 @@ const Stake = () => {
         setOceanValToStake(val);
       }
     }
+    setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade))
   }
 
   async function updateToken(val: any) {
@@ -403,7 +408,7 @@ const Stake = () => {
         ocean.getMyPoolSharesForPool(val.pool, accountId),
         ocean.getTotalPoolShares(val.pool),
       ]);
-      setYourShares(new BigNumber(myPoolShares))
+      setYourShares(new BigNumber(myPoolShares));
       setOceanToDt(res1);
       setDtToOcean(res2);
 
@@ -459,7 +464,6 @@ const Stake = () => {
                     <span className="xs:text-sm sm:text-2xl text-type-200 font-bold grid grid-flow-col items-center gap-1">
                       <span className="text-sm sm:text-lg">OCEAN</span>
                     </span>
-                    {/* <p className="text-xs text-type-100 border-type-300 border rounded-full px-2 py-1 mt-1">Select token</p>           */}
                   </div>
                 </div>
                 <div className="col-span-3 mt-3 md:mt-0">
@@ -479,6 +483,7 @@ const Stake = () => {
                         }`}
                         placeholder="0.0"
                         disabled={!token}
+                        element={WrappedInput}
                       />
                       <div>
                         <p id="oceanBalance" className="text-sm text-type-400 whitespace-nowrap text-right">

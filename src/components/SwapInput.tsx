@@ -7,6 +7,7 @@ import { GlobalContext } from "../context/GlobalState";
 import Button from "./Button";
 import BigNumber from "bignumber.js";
 import WrappedInput from "./WrappedInput";
+import { useLocation } from "react-router-dom";
 const SwapInput = ({
   title,
   value,
@@ -37,16 +38,12 @@ const SwapInput = ({
   const [showModal, setShowModal] = useState(false);
   const { accountId, handleConnect } = useContext(GlobalContext);
 
-  const tokenSelected = (token: Record<any, any>) => {
-    console.log(token);
 
+  const tokenSelected = (token: Record<any, any>) => {
     setToken(token, pos, true);
     setShowModal(false);
   };
 
-  useEffect(() => {
-    console.log(balance);
-  }, [balance]);
   function connectWalletOrShowlist() {
     if (accountId) {
       setShowModal(true);
@@ -117,7 +114,7 @@ const SwapInput = ({
                 type="number"
                 className="h-full w-full rounded-lg bg-primary-900 text-3xl outline-none overflow-ellipsis focus:placeholder-type-200 placeholder-type-400"
                 placeholder="0.0"
-                value={num}
+                value={Number(num) > 0? num : ""}
               />
               <div>
                 {balance ? (

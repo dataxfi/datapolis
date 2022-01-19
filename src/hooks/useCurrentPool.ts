@@ -14,6 +14,7 @@ export default function useCurrentPool(
   txReceipt?: any,
   setTxReceipt?: Function
 ) {
+
   const {
     allStakedPools,
     setCurrentStakePool,

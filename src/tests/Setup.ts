@@ -1,6 +1,7 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
+import { approveTransaction } from "./Utilities";
 
 export const testAcctId = "0x867A6D38D30C4731c85bF567444F8CF22885DfAd"
 
@@ -29,12 +30,14 @@ export async function setupDappBrowser() {
   let page: puppeteer.Page;
   let browser: puppeteer.Browser;
   let metamask: dappeteer.Dappeteer;
+
+
   try {
     browser = await dappeteer.launch(puppeteer, {
-      metamaskVersion: "v10.1.1",
+      metamaskVersion: "v10.8.1",
       headless: false,
-      timeout: 0,
-    });
+      timeout: 5000,
+        });
     console.log(
       `Setting up metamask with creds: \n Password: ${process.env.REACT_APP_T_ACCT_PASS} \n Seed: ${process.env.REACT_APP_T_ACCT_SEED}`
     );
@@ -63,21 +66,24 @@ export async function quickConnectWallet(page:puppeteer.Page){
 export async function setupDataX(page: puppeteer.Page, browser: puppeteer.Browser, metamask: dappeteer.Dappeteer) {
   expect(page).toBeDefined();
   await page.setViewport({ width: 1039, height: 913 });
+  await metamask.switchNetwork("rinkeby");
+  await page.bringToFront()
   await quickConnectWallet(page)
   await page.waitForSelector(".sc-hKwDye.iWCqoQ.web3modal-provider-container");
   await page.click(".sc-hKwDye.iWCqoQ.web3modal-provider-container");
+
   try {
-    //Confirm Connection in MetaMaks
-    await metamask.confirmTransaction();
-    await metamask.confirmTransaction();
-  } catch (error) {}
-  page.bringToFront();
-  //Sign disclaimer
-  await page.waitForSelector("#sign-disclaimer-btn");
-  await page.click("#sign-disclaimer-btn");
-  //Sign disclaimer in metatmask
-  await metamask.sign();
-  page.bringToFront();
+    // Confirm Connection in MetaMaks
+    await metamask.approve();
+    await metamask.approve();
+  } catch (error) {
+    console.log("Coudnt connect to site.")
+  }
+  await page.bringToFront();
+  await quickConnectWallet(page)
+  await metamask.page.bringToFront();
+  await approveTransaction(metamask)
+
   //Check wallet address in is the button
   const walletBtn = await page.waitForSelector("#d-view-txs-btn");
   await new Promise((res, rej) => setTimeout(res, 3000));

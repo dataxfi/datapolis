@@ -8,7 +8,7 @@ import Button from "./Button";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
 import UserMessageModal, { userMessage } from "./UserMessageModal";
-import { toFixed18, toFixed5} from "../utils/equate";
+import { toFixed18, toFixed5 } from "../utils/equate";
 import { MoonLoader, PulseLoader } from "react-spinners";
 import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
 import usePTxManager from "../hooks/usePTxManager";
@@ -17,6 +17,7 @@ import errorMessages from "../utils/errorMessages";
 import { DebounceInput } from "react-debounce-input";
 import useCurrentPool from "../hooks/useCurrentPool";
 import BigNumber from "bignumber.js";
+import WrappedInput from "./WrappedInput";
 
 const RemoveAmount = () => {
   const {
@@ -59,12 +60,14 @@ const RemoveAmount = () => {
   interface IMaxUnstake {
     OCEAN: BigNumber;
     shares: BigNumber;
+    userPerc: BigNumber;
   }
 
   //Max possible amount of OCEAN to remove
   const [maxUnstake, setMaxUnstake] = useState<IMaxUnstake | null>({
     OCEAN: new BigNumber(0),
     shares: new BigNumber(0),
+    userPerc: new BigNumber(0),
   });
 
   async function getMaxUnstake(): Promise<IMaxUnstake | void> {
@@ -72,22 +75,24 @@ const RemoveAmount = () => {
 
     try {
       //.98 is a fix for the MAX_OUT_RATIO error from the contract
-      const oceanAmt = new BigNumber(
+      const oceanAmt: BigNumber = new BigNumber(
         await ocean.getMaxUnstakeAmount(currentStakePool.address, ocean.config.default.oceanTokenAddress)
       ).multipliedBy(0.98);
 
-      const shareAmt = new BigNumber(
+      const shareAmt: BigNumber = new BigNumber(
         await ocean.getPoolSharesRequiredToUnstake(
           currentStakePool.address,
           ocean.config.default.oceanTokenAddress,
           oceanAmt.toFixed(18)
         )
       );
-      return { OCEAN: oceanAmt, shares: shareAmt };
+
+      const userPerc: BigNumber = shareAmt.div(Number(currentStakePool.shares)).multipliedBy(100);
+      return { OCEAN: oceanAmt, shares: shareAmt, userPerc };
     } catch (error) {
       console.error(error);
     }
-  }
+  } 
 
   //hooks
   usePTxManager(lastTxId);
@@ -114,11 +119,7 @@ const RemoveAmount = () => {
   useEffect(() => {
     console.log("Currently loading in background:", bgLoading);
     setInputDisabled(false);
-    if (bgLoading.includes(bgLoadingStates.singlePoolData)) {
-      setBtnDisabled(true);
-      setInputDisabled(true);
-      setBtnText("Loading your liquidity information.");
-    } else if (currentStakePool && Number(currentStakePool.shares) === 0) {
+    if (currentStakePool && Number(currentStakePool.shares) === 0) {
       setBtnDisabled(true);
       setInputDisabled(true);
       setBtnText("Not Enough Shares");
@@ -129,10 +130,10 @@ const RemoveAmount = () => {
     } else if (sharesToRemove.eq(0) || oceanToReceive.eq(0)) {
       setBtnDisabled(true);
       setBtnText("Enter Amount to Remove");
-    } else if (oceanToReceive.lt(.001)){
+    } else if (oceanToReceive.lt(0.001)) {
       setBtnDisabled(true);
       setBtnText("Minimum Removal is .001 OCEAN");
-    }else {
+    } else {
       setBtnDisabled(false);
       setBtnText("Approve and Withdrawal");
     }
@@ -159,13 +160,14 @@ const RemoveAmount = () => {
   useEffect(() => {
     console.log(sharesPercToRemove);
   }, [sharesPercToRemove]);
+
   const updateNum = async (val: string) => {
     let max: IMaxUnstake | void;
-    maxUnstake ? (max = maxUnstake) : (max = await getMaxUnstake());
+    maxUnstake?.OCEAN.gt(0) ? (max = maxUnstake) : (max = await getMaxUnstake());
     try {
       if (max && max.OCEAN.gt(0) && max.shares.gt(0)) {
         let percInput: BigNumber = new BigNumber(val);
-        setSharesPercToRemove(new BigNumber(val));
+        setSharesPercToRemove(percInput);
         if (percInput.lte(0)) {
           setSharesPercToRemove(new BigNumber(0));
           setOceanToReceive(new BigNumber(0));
@@ -180,7 +182,7 @@ const RemoveAmount = () => {
           setSharesPercToRemove(new BigNumber(100));
         }
 
-        if (percInput.gt(0) && percInput.lte(100)) setSharesPercToRemove(new BigNumber(val));
+        if (percInput.gt(0) && percInput.lte(100)) setSharesPercToRemove(percInput);
 
         const userTotalStakedOcean: BigNumber = new BigNumber(
           await ocean.getOceanRemovedforPoolShares(currentStakePool.address, currentStakePool.shares)
@@ -206,7 +208,7 @@ const RemoveAmount = () => {
           console.log("User share input is less than max unstake");
           setOceanToReceive(oceanFromPerc);
           setSharesToRemove(sharesNeeded);
-          setSharesPercToRemove(new BigNumber(val))
+          setSharesPercToRemove(new BigNumber(val));
         } else {
           console.log("User share input is greater than max unstake");
           setOceanToReceive(max.OCEAN);
@@ -386,6 +388,7 @@ const RemoveAmount = () => {
                   pulse={true}
                   container={false}
                   timeout={null}
+                  id="loading-lp"
                 />
               ) : null}
             </div>
@@ -409,6 +412,9 @@ const RemoveAmount = () => {
                       placeholder="0.00"
                       value={!sharesPercToRemove ? "" : sharesPercToRemove?.dp(2).toString()}
                       disabled={inputDisabled}
+                      element={WrappedInput}
+                      max={maxUnstake?.userPerc.dp(5).toString()}
+                      data-test-max-perc ={maxUnstake?.userPerc.dp(5).toString()}
                     />
                     %
                   </span>
@@ -440,7 +446,8 @@ const RemoveAmount = () => {
             <div className="px-4 relative my-12">
               <div className="rounded-full border-primary-900 border-4 absolute -top-14 bg-primary-800 w-16 h-16 flex items-center justify-center swap-center">
                 {bgLoading.includes(bgLoadingStates.singlePoolData) ||
-                bgLoading.includes(bgLoadingStates.maxUnstake) ? (
+                bgLoading.includes(bgLoadingStates.maxUnstake) ||
+                bgLoading.includes(bgLoadingStates.calcTrade) ? (
                   <MoonLoader size={25} color={"white"} />
                 ) : (
                   <BsArrowDown size="30" className="text-gray-300" />
@@ -463,15 +470,12 @@ const RemoveAmount = () => {
                     </div>
                     <div>
                       <p
+                        data-test-max-ocean={maxUnstake?.OCEAN.dp(5).toString()}
                         id="oceanToReceive"
                         title={oceanToReceive.toString()}
                         className="text-type-100 w-20 overflow-hidden overflow-ellipsis whitespace-nowrap"
                       >
-                        {bgLoading.includes(bgLoadingStates.calcTrade) ? (
-                          <PulseLoader color="white" size="4px" margin="3px" />
-                        ) : (
-                         oceanToReceive.lt(new BigNumber(.00001))? 0 : oceanToReceive.toString() || 0 
-                        )}
+                        {oceanToReceive.lt(new BigNumber(0.00001)) ? 0 : oceanToReceive.toString() || 0}
                       </p>
                       <p className="text-xs text-type-100">{currentStakePool?.token2.symbol}</p>
                     </div>
@@ -512,7 +516,9 @@ const RemoveAmount = () => {
           currentStakePool && sharesToRemove && oceanToReceive
             ? [
                 `Approve DataX to spend ${sharesToRemove.dp(5).toString()} shares.`,
-                `Unstake ${oceanToReceive.dp(5).toString()} OCEAN from the ${currentStakePool.token1.symbol || "OCEAN"} pool.`,
+                `Unstake ${oceanToReceive.dp(5).toString()} OCEAN from the ${
+                  currentStakePool.token1.symbol || "OCEAN"
+                } pool.`,
               ]
             : []
         }
