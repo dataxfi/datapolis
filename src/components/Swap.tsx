@@ -112,32 +112,39 @@ const Swap = () => {
     let maxPercent: BigNumber;
     try {
       if (!isOCEAN(token1.info.address) && !isOCEAN(token2.info.address)) {
+        // try {
+        // } catch (error) {}
         maxSell = new BigNumber(await ocean.getMaxExchange(token1.info.pool)).dp(0);
-        // console.log("Max Sell", maxSell.toString());
+        console.log("Max Sell", maxSell.toString());
 
         let DtReceivedForMaxSell: BigNumber = new BigNumber(
           await ocean.getDtReceivedForExactDt(maxSell.toString(), token1.info.pool, token2.info.pool)
         );
-        // console.log("Dt Received for max sell", DtReceivedForMaxSell.toString());
+        console.log("Dt Received for max sell", DtReceivedForMaxSell.toString());
+        const oceanNeededForMaxSell = new BigNumber(await ocean.getOceanNeeded(token1.info.pool, maxSell.toString()));
 
         maxBuy = new BigNumber(await ocean.getMaxExchange(token2.info.pool)).dp(0);
-        // console.log("Max Buy", maxBuy);
+        console.log("Max Buy", maxBuy.toString());
+        const oceanNeededForMaxBuy = new BigNumber(await ocean.getOceanNeeded(token2.info.pool, maxBuy.toString()));
 
-        let DtNeededForMaxBuy: BigNumber = new BigNumber(
-          await ocean.getDtNeededForExactDt(maxBuy.toString(), token1.info.pool, token2.info.pool)
+        console.log(
+          `Ocean needed for max sell: ${oceanNeededForMaxSell} \n Ocean Needed for max buy: ${oceanNeededForMaxBuy}`
         );
-        // console.log("Dt Needed for max buy", DtNeededForMaxBuy.toString());
 
-        // If the Dt received for the maxSell is less than the maxBuy, then the maxSell can be left as is
-        // and the maxBuy is set to the the DT received for the max sell
-        if (DtReceivedForMaxSell.lt(maxBuy)) {
-          // console.log("Setting maxBuy to DtReceived for maxSell");
-          maxBuy = DtReceivedForMaxSell;
-        } else {
-          // If the Dt received for the maxSell is greater than the maxBuy, then the maxSell needs to be set
-          // to the Dt needed for the maxBuy, and the max buy can stay as is
-          // console.log("Setting maxSell to DtNeeded for maxBuy");
+        let DtNeededForMaxBuy: BigNumber;
+        //limited by buy token
+        if (oceanNeededForMaxSell.gt(oceanNeededForMaxBuy)) {
+          // If the ocean needed for the maxSell is greater than the ocean needed for the max buy, then the maxSell can be left as is
+          // and the maxBuy is set to the the DT received for the max sell
+          DtNeededForMaxBuy = new BigNumber(
+            await ocean.getDtNeededForExactDt(maxBuy.toString(), token1.info.pool, token2.info.pool)
+          );
           maxSell = DtNeededForMaxBuy;
+        } else {
+            // If the ocean needed for the maxSell is less than the ocean needed for the max buy, then the maxSell needs to be set
+            // to the Dt needed for the maxBuy, and the max buy can stay as is
+          // limited by sell token
+          maxBuy = DtReceivedForMaxSell;
         }
       } else if (isOCEAN(token2.info.address)) {
         // DT to OCEAN
@@ -203,7 +210,12 @@ const Swap = () => {
       console.error(error);
     }
 
-    return INITIAL_MAX_EXCHANGE;
+    return {
+      maxPercent: new BigNumber(100),
+      maxBuy: new BigNumber(1000),
+      maxSell: new BigNumber(1000),
+      postExchange: new BigNumber(0.01234),
+    };
   }
 
   useEffect(() => {
