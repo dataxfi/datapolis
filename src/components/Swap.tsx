@@ -524,6 +524,7 @@ const Swap = () => {
    * Check how many approvals are needed for a transaction.
    */
   async function getNeededApprovals() {
+    const {t1Val} = getTokenVal()
     if (token1.info && token2.info) {
       //if token 1 or 2 is ocean then always 2 txs (always approve t1)
       if (isOCEAN(token1.info.address) || isOCEAN(token2.info.address)) {
@@ -535,7 +536,7 @@ const Swap = () => {
             token1.info.address,
             accountId,
             config.default.routerAddress,
-            token1.value
+            t1Val
           );
           console.log("response from check if approved:", t1Approved);
           t1Approved ? setTxsForTPair(new BigNumber(1)) : setTxsForTPair(new BigNumber(2));
