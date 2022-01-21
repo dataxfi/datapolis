@@ -3,7 +3,7 @@ import { BsArrowDown } from "react-icons/bs";
 import { useLocation } from "react-router";
 import { Link } from "react-router-dom";
 import { GlobalContext, bgLoadingStates, removeBgLoadingState } from "../context/GlobalState";
-import getTokenList from "../utils/tokenListUtils";
+import getTokenList from "../utils/tokenUtils";
 import Button from "./Button";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";

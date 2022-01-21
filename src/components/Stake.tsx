@@ -8,7 +8,7 @@ import Button, { IBtnProps } from "./Button";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
 import { Link, useLocation, useHistory } from "react-router-dom";
-import getTokenList from "../utils/tokenListUtils";
+import getTokenList from "../utils/tokenUtils";
 import UserMessageModal, { userMessage } from "./UserMessageModal";
 import { toFixed5, toFixed18 } from "../utils/equate";
 import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";

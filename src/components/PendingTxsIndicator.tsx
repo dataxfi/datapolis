@@ -9,12 +9,12 @@ export default function PendingTxsIndicator() {
   return accountId && pendingTxs.length > 0 ? (
     <div
       onClick={() => setShowTxHistoryModal(true)}
-      className="block capitalize border border-type-500 text-type-200 rounded-md px-4 py-1 hm-box transition-all ease-in-out transform hover:bg-primary-400 hover:bg-opacity-20"
+      className="flex items-center capitalize border border-type-500 text-type-200 rounded-md pl-4 py-1 hm-box transition-all ease-in-out transform hover:bg-primary-400 hover:bg-opacity-20"
     >
-      <div className="pr-3 flex flex-row">
+      <div className="pr-3 flex flex-row items-center">
         {`${pendingTxs.length} Pending`}{" "}
-        <div className="pt-1 pl-1">
-          <RingLoader size="20px" color="#f3c429" />
+        <div className="ml-2 w-5 h-5">
+          <RingLoader size="24px" color="#f3c429" />
         </div>
       </div>{" "}
     </div>

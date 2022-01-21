@@ -16,6 +16,8 @@ import errorMessages from "../utils/errorMessages";
 import { MoonLoader } from "react-spinners";
 import BigNumber from "bignumber.js";
 import { toFixed5 } from "../utils/equate";
+import UnlockTokenModal from "./UnlockTokenModal";
+import { getAllowance, TokenInfo } from "../utils/tokenUtils";
 const text = {
   T_SWAP: "TradeX",
   T_SWAP_FROM: "You are selling",
@@ -30,9 +32,10 @@ const text = {
 interface IToken {
   balance: BigNumber;
   value: BigNumber | string;
-  info: any;
+  info: any; //TokenInfo ;
   loading: boolean;
   percentage: BigNumber;
+  allowance?: BigNumber;
 }
 
 const INITIAL_TOKEN_STATE: IToken = {
@@ -75,6 +78,7 @@ const Swap = () => {
     setNotifications,
     bgLoading,
     setBgLoading,
+    setShowUnlockTokenModal,
   } = useContext(GlobalContext);
   const [showSettings, setShowSettings] = useState(false);
   const [showConfirmSwapModal, setShowConfirmSwapModal] = useState(false);
@@ -93,8 +97,10 @@ const Swap = () => {
     classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
     disabled: true,
   });
+
   const [maxExchange, setMaxExchange] = useState<IMaxExchange>(INITIAL_MAX_EXCHANGE);
   const [txsForTPair, setTxsForTPair] = useState<BigNumber>(new BigNumber(2));
+
   //hooks
   usePTxManager(lastTxId);
   useTxModalToggler(txReceipt);
@@ -105,16 +111,95 @@ const Swap = () => {
     }
   }, [config]);
 
+  useEffect(() => {}, [token1.info, ocean, config, accountId]);
+
+  let controller = new AbortController();
+  useEffect(() => {
+    controller.abort();
+    controller = new AbortController();
+    if (token1.info && token2.info) {
+      const signal = controller.signal;
+      console.log(signal);
+
+      setMaxExchange(INITIAL_MAX_EXCHANGE);
+      getMaxExchange(signal)
+        .then((res: IMaxExchange) => {
+          console.log(res);
+          if (res) {
+            setMaxExchange(res);
+            if (token1.value && Number(token1.value) > Number(res.maxSell)) {
+              setToken1({ ...token1, value: res.maxSell });
+              setToken2({ ...token2, value: res.maxBuy });
+            }
+          }
+        })
+        .catch(console.error)
+        .finally(() => {
+          setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.maxExchange));
+        });
+    }
+    return () => controller.abort();
+  }, [token1.info, token2.info]);
+
+  useEffect(() => {
+    getButtonProperties();
+  }, [token1, token2]);
+
+  // useEffect(() => {
+  //   setLoading(false);
+  //   getButtonProperties();
+  //   //if unknown network, reset token selection
+  //   if (config && config.default.network === "unknown") {
+  //     setToken1(INITIAL_TOKEN_STATE);
+  //     setToken2(INITIAL_TOKEN_STATE);
+  //     setBtnProps({
+  //       text: "Network Not Supported",
+  //       classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
+  //       disabled: true,
+  //     });
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [config]);
+
+  useEffect(() => {
+    if (token1.info && accountId) {
+      updateBalance(token1.info.address).then((balance) => {
+        getAllowance(token1.info.address, accountId, config.default.routerAddress, ocean).then((res) => {
+          setToken1({ ...token1, allowance: new BigNumber(res), balance });
+          console.log("Allowance:", res);
+        });
+      });
+    }
+
+    if (token2.info && accountId) {
+      updateBalance(token2.info.address).then((balance) => {
+        setToken2({ ...token2, balance });
+      });
+    }
+  }, [accountId]);
+
+  useEffect(() => {
+    //if chain changes, reset tokens
+    if (!network) {
+      setNetwork(chainId);
+    }
+    if (chainId !== network) {
+      setToken1(INITIAL_TOKEN_STATE);
+      setToken2(INITIAL_TOKEN_STATE);
+      setNetwork(chainId);
+    }
+  }, [chainId]);
+
   async function getMaxExchange(signal?: AbortSignal) {
     console.log(signal);
-    
+
     return new Promise<IMaxExchange>(async (resolve, reject) => {
       signal?.addEventListener("abort", (e) => {
         console.log("rejecting", e);
         reject(new Error("aborted"));
       });
-    console.log(signal);
-    
+      console.log(signal);
+
       setBgLoading([...bgLoading, bgLoadingStates.maxExchange]);
       let maxBuy: BigNumber;
       let maxSell: BigNumber;
@@ -228,62 +313,12 @@ const Swap = () => {
     });
   }
 
-  let controller = new AbortController();
-  useEffect(() => {
-    controller.abort();
-    controller = new AbortController();
-    if (token1.info && token2.info) {
-      const signal = controller.signal;
-      console.log(signal);
-      
-      setMaxExchange(INITIAL_MAX_EXCHANGE);
-      getMaxExchange(signal)
-        .then((res: IMaxExchange) => {
-          console.log(res)
-          if (res) {
-            setMaxExchange(res);
-            if (token1.value && Number(token1.value) > Number(res.maxSell)) {
-              setToken1({ ...token1, value: res.maxSell });
-              setToken2({ ...token2, value: res.maxBuy });
-            }
-          }
-        })
-        .catch(console.error)
-        .finally(() => {
-          setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.maxExchange));
-        });
-    }
-    return () => controller.abort()
-  }, [token1.info, token2.info]);
-
-  useEffect(() => {
-    setLoading(false);
-    getButtonProperties();
-    //if unknown network, reset token selection
-    if (config && config.default.network === "unknown") {
-      setToken1(INITIAL_TOKEN_STATE);
-      setToken2(INITIAL_TOKEN_STATE);
-      setBtnProps({
-        text: "Network Not Supported",
-        classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
-        disabled: true,
-      });
-    }
-
-    //if chain changes, reset tokens
-    if (!network) {
-      setNetwork(chainId);
-    }
-    if (chainId !== network) {
-      setToken1(INITIAL_TOKEN_STATE);
-      setToken2(INITIAL_TOKEN_STATE);
-      setNetwork(chainId);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token1, token2, accountId, config, chainId]);
+  async function updateBalance(address: string) {
+    return new BigNumber(await ocean.getBalance(address, accountId));
+  }
 
   const setToken = async (info: Record<any, any>, pos: number) => {
-    const balance: BigNumber = new BigNumber(await ocean.getBalance(info.address, accountId));
+    const balance = await updateBalance(info.address);
     if (pos === 1) {
       setToken1({ ...token1, info, balance, value: new BigNumber(0) });
       setToken2({ ...token2, value: new BigNumber(0) });
@@ -520,11 +555,12 @@ const Swap = () => {
       });
     }
   }
+
   /**
    * Check how many approvals are needed for a transaction.
    */
   async function getNeededApprovals() {
-    const {t1Val} = getTokenVal()
+    const { t1Val } = getTokenVal();
     if (token1.info && token2.info) {
       //if token 1 or 2 is ocean then always 2 txs (always approve t1)
       if (isOCEAN(token1.info.address) || isOCEAN(token2.info.address)) {
@@ -608,8 +644,14 @@ const Swap = () => {
       });
     }
 
-    if (accountId && token1.info && token2.info && t1BN.gt(0) && t2BN.gt(0) && token1.balance.gt(0)) {
-      if ((isOCEAN(token1.info.address) && t1BN.lt(0.01)) || (isOCEAN(token2.info.address) && t2BN.lt(0.01))) {
+    if (accountId && token1.info && token2.info && t1BN.gt(0) && t2BN.gt(0)) {
+      if (token1.balance.eq(0)) {
+        setBtnProps({
+          text: `Not Enough ${token1.info.symbol}`,
+          classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
+          disabled: true,
+        });
+      } else if ((isOCEAN(token1.info.address) && t1BN.lt(0.01)) || (isOCEAN(token2.info.address) && t2BN.lt(0.01))) {
         setBtnProps({
           text: `Minimum trade is .01 OCEAN`,
           classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
@@ -627,17 +669,17 @@ const Swap = () => {
           classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
           disabled: true,
         });
+      } else if (token1.allowance?.lt(t1BN)) {
+        setBtnProps({
+          text: `Unlock ${token1.info.symbol}`,
+          classes: "bg-primary-100 bg-opacity-20 hover:bg-opacity-40 text-background-800",
+          disabled: false,
+        });
       } else if (token1.balance.dp(5).gte(token1.value) && !token1.balance.eq(0)) {
         setBtnProps({
           text: "Approve & Swap",
           classes: "bg-primary-100 bg-opacity-20 hover:bg-opacity-40 text-background-800",
           disabled: false,
-        });
-      } else {
-        setBtnProps({
-          text: `Not Enough ${token1.info.symbol}`,
-          classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
-          disabled: true,
         });
       }
     }
@@ -837,11 +879,17 @@ const Swap = () => {
               id="executeTradeBtn"
               text={btnProps.text}
               onClick={() => {
-                if (btnProps.text === "Connect Wallet") {
-                  handleConnect();
-                } else {
-                  setShowConfirmSwapModal(true);
-                  getNeededApprovals();
+                switch (btnProps.text) {
+                  case "Connect Wallet":
+                    handleConnect();
+                    break;
+                  case `Unlock ${token1.info.symbol}`:
+                    setShowUnlockTokenModal(true);
+                    break;
+                  default:
+                    setShowConfirmSwapModal(true);
+                    getNeededApprovals();
+                    break;
                 }
               }}
               classes={"px-4 py-4 rounded-lg w-full " + btnProps.classes}
@@ -870,6 +918,7 @@ const Swap = () => {
         txs={getConfirmModalProperties()}
       />
       <TransactionDoneModal show={showTxDone} txHash={lastTxUrl} close={() => setShowTxDone(false)} />
+      <UnlockTokenModal token={token1} setToken={setToken1} setShowConfrimSwapModal={setShowConfirmSwapModal} />
     </>
   );
 };
