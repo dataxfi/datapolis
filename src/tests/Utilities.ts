@@ -323,7 +323,8 @@ async function assertTo3(page: puppeteer.Page, truth: string | number, id: strin
   id = `#${id}`;
   await page.waitForSelector(id);
   let dappBal = await getBalanceInDapp(page, pos);
-
+  console.log(dappBal, truth);
+  
   if (updating && Number(toFixed3(dappBal)) !== Number(toFixed3(truth))) {
     // no-touchy!!
     await page.waitForFunction(
