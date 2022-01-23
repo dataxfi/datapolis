@@ -576,7 +576,7 @@ const Swap = () => {
           console.log("response from check if approved:", t1Approved);
           t1Approved ? setTxsForTPair(new BigNumber(1)) : setTxsForTPair(new BigNumber(2));
         } catch (error) {
-          console.error(error)
+          console.error(error);
         }
       }
     }
@@ -894,7 +894,7 @@ const Swap = () => {
         token1={token1}
         token2={token2}
         setToken={setToken1}
-        setShowConfirmSwapModal={setShowConfirmSwapModal}
+        nextFunction={() => setShowConfirmSwapModal(false)}
       />
       <ConfirmSwapModal
         close={() => setShowConfirmSwapModal(false)}

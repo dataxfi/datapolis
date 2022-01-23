@@ -11,12 +11,12 @@ export default function UnlockTokenModal({
   token1,
   token2,
   setToken,
-  setShowConfirmSwapModal,
+  nextFunction,
 }: {
   token1: IToken;
   token2: IToken;
   setToken: Function;
-  setShowConfirmSwapModal: Function;
+  nextFunction: Function;
 }) {
   const { accountId, config, ocean, showUnlockTokenModal, setShowUnlockTokenModal } = useContext(GlobalContext);
   const [approving, setApproving] = useState<approvalStates>("pending");
@@ -54,7 +54,7 @@ export default function UnlockTokenModal({
         }
         setApproving("approved");
         setShowUnlockTokenModal(false);
-        setShowConfirmSwapModal(true);
+        nextFunction();
       } catch (error) {
         console.error(error);
         setApproving("pending");
