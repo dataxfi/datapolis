@@ -96,7 +96,7 @@ const RemoveAmount = () => {
 
   //hooks
   usePTxManager(lastTxId);
-  useTxModalToggler(txReceipt);
+  useTxModalToggler(txReceipt, setTxReceipt);
   useCurrentPool(poolAddress, setPoolAddress, txReceipt, setTxReceipt);
 
   useEffect(() => {

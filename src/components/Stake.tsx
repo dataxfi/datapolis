@@ -94,7 +94,7 @@ const Stake = () => {
 
   //hooks
   usePTxManager(lastTxId);
-  useTxModalToggler(txReceipt);
+  useTxModalToggler(txReceipt, setTxReceipt);
   useCurrentPool(poolAddress, setPoolAddress);
 
   async function getMaxStakeAmt() {
