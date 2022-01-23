@@ -12,11 +12,13 @@ export default function UnlockTokenModal({
   token2,
   setToken,
   nextFunction,
+  remove,
 }: {
   token1: IToken;
   token2: IToken;
   setToken: Function;
   nextFunction: Function;
+  remove?: boolean;
 }) {
   const { accountId, config, ocean, showUnlockTokenModal, setShowUnlockTokenModal } = useContext(GlobalContext);
   const [approving, setApproving] = useState<approvalStates>("pending");
@@ -32,7 +34,10 @@ export default function UnlockTokenModal({
       let pool;
       let address;
 
-      if (isOCEAN(token1.info.address, ocean)) {
+      if(remove){
+        pool = token1.info.pool
+        address = token1.info.tokenAddress
+      } else if (isOCEAN(token1.info.address, ocean)) {
         pool = token2.info.pool;
         address = token1.info.address;
       } else if (isOCEAN(token2.info.address, ocean)) {
@@ -47,10 +52,10 @@ export default function UnlockTokenModal({
         setApproving("approving");
         if (amount === "perm") {
           await ocean.approve(address, pool, new BigNumber(18e10).toString(), accountId);
-          setToken({ ...token1, allowance: new BigNumber(18e10) });
+          remove ? setToken(new BigNumber(18e10)) : setToken({ ...token1, allowance: new BigNumber(18e10) });
         } else {
           await ocean.approve(address, pool, token1.value.toString(), accountId);
-          setToken({ ...token1, allowance: token1.value });
+          remove ? setToken(new BigNumber(token1.value)) : setToken({ ...token1, allowance: token1.value });
         }
         setApproving("approved");
         setShowUnlockTokenModal(false);
@@ -91,7 +96,7 @@ export default function UnlockTokenModal({
         )}
         <h3 className="text-sm lg:text-2xl pb-5">Unlock {token1.info.symbol}</h3>
         <p className="text-sm lg:text-base text-center pb-5">
-          DataX contracts need your permission to spend {t1BN.dp(5).toString()} {token1.info.symbol}.
+          DataX contracts need your permission to spend {t1BN.dp(5).toString()} {remove? "shares" : token1.info.symbol}.
         </p>
 
         <button

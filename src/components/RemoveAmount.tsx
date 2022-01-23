@@ -3,7 +3,7 @@ import { BsArrowDown } from "react-icons/bs";
 import { useLocation } from "react-router";
 import { Link } from "react-router-dom";
 import { GlobalContext, bgLoadingStates, removeBgLoadingState } from "../context/GlobalState";
-import getTokenList from "../utils/tokenUtils";
+import getTokenList, { getAllowance } from "../utils/tokenUtils";
 import Button from "./Button";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
@@ -18,6 +18,7 @@ import { DebounceInput } from "react-debounce-input";
 import useCurrentPool from "../hooks/useCurrentPool";
 import BigNumber from "bignumber.js";
 import WrappedInput from "./WrappedInput";
+import UnlockTokenModal from "./UnlockTokenModal";
 
 const RemoveAmount = () => {
   const {
@@ -37,6 +38,7 @@ const RemoveAmount = () => {
     setShowTxDone,
     notifications,
     setNotifications,
+    setShowUnlockTokenModal,
   } = useContext(GlobalContext);
   const [noWallet, setNoWallet] = useState<boolean>(false);
   const [recentTxHash, setRecentTxHash] = useState("");
@@ -56,7 +58,7 @@ const RemoveAmount = () => {
   const [sharesToRemove, setSharesToRemove] = useState<BigNumber>(new BigNumber(0));
   //Amount to be recieved from remove amount (this might not be neccessary)
   const [oceanToReceive, setOceanToReceive] = useState<BigNumber>(new BigNumber(0));
-
+  const [allowance, setAllowance] = useState<BigNumber>(new BigNumber(0));
   interface IMaxUnstake {
     OCEAN: BigNumber;
     shares: BigNumber;
@@ -92,7 +94,7 @@ const RemoveAmount = () => {
     } catch (error) {
       console.error(error);
     }
-  } 
+  }
 
   //hooks
   usePTxManager(lastTxId);
@@ -112,12 +114,18 @@ const RemoveAmount = () => {
         .finally(() => {
           setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.maxUnstake));
         });
+
+      getAllowance(currentStakePool.token1.tokenAddress, accountId, currentStakePool.address, ocean).then((res) => {
+        setAllowance(new BigNumber(res));
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ocean, currentStakePool]);
 
   useEffect(() => {
     console.log("Currently loading in background:", bgLoading);
+    console.log(currentStakePool);
+
     setInputDisabled(false);
     if (currentStakePool && Number(currentStakePool.shares) === 0) {
       setBtnDisabled(true);
@@ -133,7 +141,10 @@ const RemoveAmount = () => {
     } else if (oceanToReceive.lt(0.01)) {
       setBtnDisabled(true);
       setBtnText("Minimum Removal is .01 OCEAN");
-    } else {
+    } else if(allowance.lt(oceanToReceive)){
+      setBtnDisabled(false)
+      setBtnText(`Unlock ${currentStakePool.token1.symbol}`)
+    }else {
       setBtnDisabled(false);
       setBtnText("Approve and Withdrawal");
     }
@@ -414,7 +425,7 @@ const RemoveAmount = () => {
                       disabled={inputDisabled}
                       element={WrappedInput}
                       max={maxUnstake?.userPerc.dp(5).toString()}
-                      data-test-max-perc ={maxUnstake?.userPerc.dp(5).toString()}
+                      data-test-max-perc={maxUnstake?.userPerc.dp(5).toString()}
                     />
                     %
                   </span>
@@ -489,8 +500,12 @@ const RemoveAmount = () => {
                 id="executeUnstake"
                 text={btnText}
                 onClick={() => {
-                  setShowConfirmModal(true);
-                  handleUnstake();
+                  if (allowance.lt(oceanToReceive)) {
+                    setShowUnlockTokenModal(true);
+                  } else {
+                    setShowConfirmModal(true);
+                    handleUnstake();
+                  }
                 }}
                 classes={`px-4 py-4 rounded-lg w-full ${
                   btnDisabled
@@ -509,13 +524,35 @@ const RemoveAmount = () => {
         </div>
       </div>
 
+      <UnlockTokenModal
+        token1={{
+          value: sharesToRemove,
+          percentage: sharesPercToRemove,
+          loading: false,
+          info: {...currentStakePool.token1, pool: currentStakePool.address},
+          balance: currentStakePool.shares,
+        }}
+        token2={{
+          value: new BigNumber(0),
+          percentage: new BigNumber(0),
+          loading: false,
+          info: currentStakePool.token1,
+          balance: new BigNumber(0),
+        }}
+        setToken={setAllowance}
+        nextFunction={() => {
+          setShowConfirmModal(true);
+          handleUnstake();
+        }}
+        remove={true}
+      />
+
       <ConfirmModal
         show={showConfirmModal}
         close={() => setShowConfirmModal(false)}
         txs={
           currentStakePool && sharesToRemove && oceanToReceive
             ? [
-                `Approve DataX to spend ${sharesToRemove.dp(5).toString()} shares.`,
                 `Unstake ${oceanToReceive.dp(5).toString()} OCEAN from the ${
                   currentStakePool.token1.symbol || "OCEAN"
                 } pool.`,

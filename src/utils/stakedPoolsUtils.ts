@@ -4,14 +4,18 @@ import { Ocean } from "@dataxfi/datax.js";
 import { removeBgLoadingState, bgLoadingStates } from "../context/GlobalState";
 import Web3 from "web3";
 
+interface ITokenDetails extends TokenDetails{
+  tokenAddress:string
+}
+
 export interface PoolData {
   //user wallet ID (hash)
   accountId: string;
   //pool address
   address: string;
   //tokens in pool
-  token1: TokenDetails;
-  token2: TokenDetails;
+  token1: ITokenDetails;
+  token2: ITokenDetails;
   //the amount of shares you own
   shares: string;
   //total dt in pool
@@ -158,8 +162,8 @@ export async function getPoolInfoFromUserShares({
     yourPoolSharePerc,
     dtAmount,
     oceanAmount,
-    token1,
-    token2,
+    token1: {...token1, tokenAddress: tokens[0]},
+    token2: {...token2, tokenAddress: tokens[1]},
   };
 }
 
