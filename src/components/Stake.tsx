@@ -7,7 +7,7 @@ import { MoonLoader, PulseLoader } from "react-spinners";
 import Button, { IBtnProps } from "./Button";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
-import { Link, useLocation, useHistory } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import getTokenList, { getAllowance, TokenInfo } from "../utils/tokenUtils";
 import UserMessageModal, { userMessage } from "./UserMessageModal";
 import { toFixed5, toFixed18 } from "../utils/equate";
@@ -101,7 +101,7 @@ const Stake = () => {
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
 
   const location = useLocation();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   //hooks
   usePTxManager(lastTxId);
@@ -216,7 +216,7 @@ const Stake = () => {
             message: "Couldn't preload token",
             link: null,
           });
-          history.push("/stakeX");
+          navigate("/stakeX");
         } else {
           updateToken(currentToken);
           setUserMessage(false);
