@@ -46,11 +46,14 @@ export default function useCurrentPool(
           (pool: { address: string }) => pool.address === poolAddress
         );
         setCurrentStakePool(currentPool);
+        console.log(currentPool);
       }
     }
     setBgLoading(
       removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData)
     );
+
+    
   }, [allStakedPools, poolAddress]);
 
   useEffect(() => {

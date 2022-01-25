@@ -16,6 +16,8 @@ import errorMessages from "../utils/errorMessages";
 import { MoonLoader } from "react-spinners";
 import BigNumber from "bignumber.js";
 import { toFixed5 } from "../utils/equate";
+import UnlockTokenModal from "./UnlockTokenModal";
+import { getAllowance, TokenInfo } from "../utils/tokenUtils";
 const text = {
   T_SWAP: "TradeX",
   T_SWAP_FROM: "You are selling",
@@ -27,15 +29,16 @@ const text = {
 //   classes: string
 //   disabled: boolean
 // }
-interface IToken {
+export interface IToken {
   balance: BigNumber;
   value: BigNumber | string;
-  info: any;
+  info: any; //TokenInfo ;
   loading: boolean;
   percentage: BigNumber;
+  allowance?: BigNumber;
 }
 
-const INITIAL_TOKEN_STATE: IToken = {
+export const INITIAL_TOKEN_STATE: IToken = {
   info: null,
   value: new BigNumber(0),
   balance: new BigNumber(0),
@@ -57,6 +60,26 @@ const INITIAL_MAX_EXCHANGE: IMaxExchange = {
   postExchange: new BigNumber(0),
 };
 
+interface ITokenTypes {
+  t1Val: string;
+  t2Val: string;
+  t1BN: BigNumber;
+  t2BN: BigNumber;
+}
+
+export function isOCEAN(tokenAddress: string, ocean: any) {
+  return tokenAddress.toLowerCase() === ocean.config.default.oceanTokenAddress.toLowerCase();
+}
+
+export function getTokenVal(token1: IToken, token2?: IToken) {
+  let t1Val;
+  let t2Val;
+  typeof token1.value === "string" ? (t1Val = token1.value) : (t1Val = token1.value.dp(5).toString());
+  if (!token2) return { t1Val, t2Val: "", t1BN: new BigNumber(t1Val), t2BN: new BigNumber(0) };
+  typeof token2.value === "string" ? (t2Val = token1.value) : (t2Val = token2.value.dp(5).toString());
+  return { t1Val, t2Val, t1BN: new BigNumber(t1Val), t2BN: new BigNumber(t2Val) } as ITokenTypes;
+}
+
 const Swap = () => {
   const {
     handleConnect,
@@ -75,6 +98,7 @@ const Swap = () => {
     setNotifications,
     bgLoading,
     setBgLoading,
+    setShowUnlockTokenModal,
   } = useContext(GlobalContext);
   const [showSettings, setShowSettings] = useState(false);
   const [showConfirmSwapModal, setShowConfirmSwapModal] = useState(false);
@@ -93,34 +117,93 @@ const Swap = () => {
     classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
     disabled: true,
   });
+
   const [maxExchange, setMaxExchange] = useState<IMaxExchange>(INITIAL_MAX_EXCHANGE);
   const [txsForTPair, setTxsForTPair] = useState<BigNumber>(new BigNumber(2));
+  const [swap, setSwap] = useState<boolean>(false);
   //hooks
   usePTxManager(lastTxId);
-  useTxModalToggler(txReceipt);
+  useTxModalToggler(txReceipt, setTxReceipt, setToken1, setToken2);
+
+  let controller = new AbortController();
+  useEffect(() => {
+    if (txReceipt) return;
+    controller.abort();
+    controller = new AbortController();
+    if (token1.info && token2.info) {
+      const signal = controller.signal;
+      setMaxExchange(INITIAL_MAX_EXCHANGE);
+      getMaxExchange(signal)
+        .then((res: IMaxExchange) => {
+          if (res) {
+            setMaxExchange(res);
+            if (token1.value && Number(token1.value) > Number(res.maxSell)) {
+              setToken1({ ...token1, value: res.maxSell });
+              setToken2({ ...token2, value: res.maxBuy });
+            }
+          }
+        })
+        .catch(console.error)
+        .finally(() => {
+          setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.maxExchange));
+        });
+    }
+    if (token1.info && token2.info && accountId) {
+      updateBalance(token1.info.address).then((balance) => {
+        if (isOCEAN(token1.info.address, ocean)) {
+          getAllowance(token1.info.address, accountId, token2.info.pool, ocean).then((res) => {
+            setToken1({ ...token1, allowance: new BigNumber(res), balance });
+            console.log("Allowance:", res);
+          });
+        } else if (isOCEAN(token2.info.address, ocean)) {
+          getAllowance(token1.info.address, accountId, token1.info.pool, ocean).then((res) => {
+            setToken1({ ...token1, allowance: new BigNumber(res), balance });
+            console.log("Allowance:", res);
+          });
+        } else {
+          getAllowance(token1.info.address, accountId, config.default.routerAddress, ocean).then((res) => {
+            setToken1({ ...token1, allowance: new BigNumber(res), balance });
+            console.log("Allowance:", res);
+          });
+        }
+      });
+    }
+
+    if (token2.info && accountId) {
+      updateBalance(token2.info.address).then((balance) => {
+        setToken2({ ...token2, balance });
+      });
+    }
+    return () => controller.abort();
+  }, [token1.info, token2.info]);
 
   useEffect(() => {
-    if (config) {
-      console.log("Known - ", config);
+    getButtonProperties();
+  }, [token1, token2, accountId]);
+
+  useEffect(() => {
+    //if chain changes, reset tokens
+    if (!network) {
+      setNetwork(chainId);
     }
-  }, [config]);
+    if (chainId !== network) {
+      setToken1(INITIAL_TOKEN_STATE);
+      setToken2(INITIAL_TOKEN_STATE);
+      setNetwork(chainId);
+    }
+  }, [chainId]);
 
   async function getMaxExchange(signal?: AbortSignal) {
-    console.log(signal);
-    
     return new Promise<IMaxExchange>(async (resolve, reject) => {
       signal?.addEventListener("abort", (e) => {
-        console.log("rejecting", e);
         reject(new Error("aborted"));
       });
-    console.log(signal);
-    
       setBgLoading([...bgLoading, bgLoadingStates.maxExchange]);
       let maxBuy: BigNumber;
       let maxSell: BigNumber;
       let maxPercent: BigNumber;
       try {
-        if (!isOCEAN(token1.info.address) && !isOCEAN(token2.info.address)) {
+        if (!isOCEAN(token1.info.address, ocean) && !isOCEAN(token2.info.address, ocean)) {
           // try {
           // } catch (error) {}
           maxSell = new BigNumber(await ocean.getMaxExchange(token1.info.pool)).dp(0);
@@ -155,7 +238,7 @@ const Swap = () => {
             // limited by sell token
             maxBuy = DtReceivedForMaxSell;
           }
-        } else if (isOCEAN(token2.info.address)) {
+        } else if (isOCEAN(token2.info.address, ocean)) {
           // DT to OCEAN
           // Max sell is the max amount of DT that can be traded
           maxSell = new BigNumber(await ocean.getMaxExchange(token1.info.pool));
@@ -183,13 +266,18 @@ const Swap = () => {
           maxPercent = new BigNumber(0);
         } else {
           // console.log("Max Sell:", maxSell.toString());
+          console.log(`max sell (${maxSell.toString()} div balance (${token1.balance.toString()} times 100 = ${maxSell.div(token1.balance).multipliedBy(100)}))`);
+          
           maxPercent = maxSell.div(token1.balance).multipliedBy(100);
         }
 
         //if maxPercent is greater than 100, max buy and sell is determined by the balance of token1
         // console.log("Max percent", Number(maxPercent));
-
+        console.log(maxPercent.gt(100));
+        
         if (maxPercent.gt(100)) {
+          console.log("inside max gt 100");
+          
           maxPercent = new BigNumber(100);
           if (token1.balance.dp(5).gt(0.00001)) {
             maxSell = token1.balance.dp(5);
@@ -218,72 +306,22 @@ const Swap = () => {
       } catch (error) {
         console.error(error);
       }
-
+      //This is here to not restict the user from attempting a trade if the max exchange could not be determined.
       resolve({
         maxPercent: new BigNumber(100),
-        maxBuy: new BigNumber(1000),
-        maxSell: new BigNumber(1000),
+        maxBuy: new BigNumber(10000),
+        maxSell: new BigNumber(10000),
         postExchange: new BigNumber(0.01234),
       });
     });
   }
 
-  let controller = new AbortController();
-  useEffect(() => {
-    controller.abort();
-    controller = new AbortController();
-    if (token1.info && token2.info) {
-      const signal = controller.signal;
-      console.log(signal);
-      
-      setMaxExchange(INITIAL_MAX_EXCHANGE);
-      getMaxExchange(signal)
-        .then((res: IMaxExchange) => {
-          console.log(res)
-          if (res) {
-            setMaxExchange(res);
-            if (token1.value && Number(token1.value) > Number(res.maxSell)) {
-              setToken1({ ...token1, value: res.maxSell });
-              setToken2({ ...token2, value: res.maxBuy });
-            }
-          }
-        })
-        .catch(console.error)
-        .finally(() => {
-          setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.maxExchange));
-        });
-    }
-    return () => controller.abort()
-  }, [token1.info, token2.info]);
-
-  useEffect(() => {
-    setLoading(false);
-    getButtonProperties();
-    //if unknown network, reset token selection
-    if (config && config.default.network === "unknown") {
-      setToken1(INITIAL_TOKEN_STATE);
-      setToken2(INITIAL_TOKEN_STATE);
-      setBtnProps({
-        text: "Network Not Supported",
-        classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
-        disabled: true,
-      });
-    }
-
-    //if chain changes, reset tokens
-    if (!network) {
-      setNetwork(chainId);
-    }
-    if (chainId !== network) {
-      setToken1(INITIAL_TOKEN_STATE);
-      setToken2(INITIAL_TOKEN_STATE);
-      setNetwork(chainId);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token1, token2, accountId, config, chainId]);
+  async function updateBalance(address: string) {
+    return new BigNumber(await ocean.getBalance(address, accountId));
+  }
 
   const setToken = async (info: Record<any, any>, pos: number) => {
-    const balance: BigNumber = new BigNumber(await ocean.getBalance(info.address, accountId));
+    const balance = await updateBalance(info.address);
     if (pos === 1) {
       setToken1({ ...token1, info, balance, value: new BigNumber(0) });
       setToken2({ ...token2, value: new BigNumber(0) });
@@ -296,9 +334,12 @@ const Swap = () => {
   };
 
   async function swapTokens() {
+    setSwap(true);
     setToken1({ ...token2, value: new BigNumber(0), percentage: new BigNumber(0) });
     setToken2({ ...token1, value: new BigNumber(0) });
     setExactToken(1);
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    setSwap(false);
   }
 
   // fromToken needs to be removed from this function (its always true)
@@ -347,7 +388,7 @@ const Swap = () => {
         return new BigNumber(0);
       }
       // OCEAN to DT where amount is either from sell or buy input
-      if (isOCEAN(token1.info.address)) {
+      if (isOCEAN(token1.info.address, ocean)) {
         if (from) {
           return new BigNumber(await ocean.getDtReceived(token2.info.pool, amount.dp(18).toString()));
         } else {
@@ -356,7 +397,7 @@ const Swap = () => {
       }
 
       // DT to OCEAN where amount is either from sell or buy input
-      if (isOCEAN(token2.info.address)) {
+      if (isOCEAN(token2.info.address, ocean)) {
         if (from) {
           return new BigNumber(await ocean.getOceanReceived(token1.info.pool, amount.dp(18).toString()));
         } else {
@@ -380,18 +421,14 @@ const Swap = () => {
     }
   }
 
-  function isOCEAN(tokenAddress: string) {
-    return tokenAddress.toLowerCase() === ocean.config.default.oceanTokenAddress.toLowerCase();
-  }
-
   async function makeTheSwap() {
     let txReceipt = null;
     let txType;
     let txDateId = null;
     let decSlippage = slippage.div(100).dp(5).toString();
-    const { t1Val, t2Val } = getTokenVal();
+    const { t1Val, t2Val } = getTokenVal(token1, token2);
     try {
-      if (isOCEAN(token1.info.address)) {
+      if (isOCEAN(token1.info.address, ocean)) {
         if (exactToken === 1) {
           console.log("exact ocean to dt");
           console.log(accountId, token2.info.pool.toString(), token2.value.toString(), token1.value.toString());
@@ -400,7 +437,7 @@ const Swap = () => {
           setLastTxId(txDateId);
           txType = "Ocean to DT";
 
-          txReceipt = await ocean.swapExactOceanToDt(accountId, token2.info.pool.toString(), t2Val, t1Val, decSlippage);
+          txReceipt = await ocean.swapExactOceanToDt(accountId, token2.info.pool, t2Val, t1Val, decSlippage);
         } else {
           console.log("ocean to exact dt");
           // prettier-ignore
@@ -411,7 +448,7 @@ const Swap = () => {
 
           txReceipt = await ocean.swapExactOceanToDt(accountId, token2.info.pool, t2Val, t1Val, decSlippage);
         }
-      } else if (isOCEAN(token2.info.address)) {
+      } else if (isOCEAN(token2.info.address, ocean)) {
         if (exactToken === 1) {
           console.log("exact dt to ocean");
           // prettier-ignore
@@ -491,8 +528,6 @@ const Swap = () => {
           status: "indexing",
           txReceipt,
         });
-        setToken1(INITIAL_TOKEN_STATE);
-        setToken2(INITIAL_TOKEN_STATE);
         setPostExchange(new BigNumber(0));
       } else {
         throw new Error("Didn't receive a receipt.");
@@ -520,47 +555,40 @@ const Swap = () => {
       });
     }
   }
+
   /**
    * Check how many approvals are needed for a transaction.
    */
   async function getNeededApprovals() {
+    const { t1Val } = getTokenVal(token1, token2);
     if (token1.info && token2.info) {
-      //if token 1 or 2 is ocean then always 2 txs (always approve t1)
-      if (isOCEAN(token1.info.address) || isOCEAN(token2.info.address)) {
-        setTxsForTPair(new BigNumber(2));
+      if (isOCEAN(token1.info.address, ocean)) {
+        const t1Approved = await ocean.checkIfApproved(token1.info.address, accountId, token2.info.pool, t1Val);
+        console.log("response from check if approved:", t1Approved);
+        t1Approved ? setTxsForTPair(new BigNumber(1)) : setTxsForTPair(new BigNumber(2));
+      } else if (isOCEAN(token2.info.address, ocean)) {
+        const t1Approved = await ocean.checkIfApproved(token1.info.address, accountId, token1.info.pool, t1Val);
+        console.log("response from check if approved:", t1Approved);
+        t1Approved ? setTxsForTPair(new BigNumber(1)) : setTxsForTPair(new BigNumber(2));
       } else {
         try {
-          //if token one is DT and is already approved and token 2 is DT then 1 or 2 txs dpending on t1 approval
           const t1Approved = await ocean.checkIfApproved(
             token1.info.address,
             accountId,
             config.default.routerAddress,
-            token1.value
+            t1Val
           );
           console.log("response from check if approved:", t1Approved);
           t1Approved ? setTxsForTPair(new BigNumber(1)) : setTxsForTPair(new BigNumber(2));
-        } catch (error) {}
+        } catch (error) {
+          console.error(error);
+        }
       }
     }
   }
 
-  interface ITokenTypes {
-    t1Val: string;
-    t2Val: string;
-    t1BN: BigNumber;
-    t2BN: BigNumber;
-  }
-
-  function getTokenVal() {
-    let t1Val;
-    let t2Val;
-    typeof token1.value === "string" ? (t1Val = token1.value) : (t1Val = token1.value.dp(5).toString());
-    typeof token2.value === "string" ? (t2Val = token1.value) : (t2Val = token2.value.dp(5).toString());
-    return { t1Val, t2Val, t1BN: new BigNumber(t1Val), t2BN: new BigNumber(t2Val) } as ITokenTypes;
-  }
-
   function getConfirmModalProperties(): string[] {
-    const { t1Val, t2Val } = getTokenVal();
+    const { t1Val, t2Val } = getTokenVal(token1, token2);
     if (token1.info && token2.info) {
       switch (txsForTPair.toString()) {
         case "1":
@@ -582,7 +610,7 @@ const Swap = () => {
   }
 
   function getButtonProperties() {
-    const { t1BN, t2BN } = getTokenVal();
+    const { t1BN, t2BN } = getTokenVal(token1, token2);
     if (!accountId) {
       setBtnProps({
         text: "Connect Wallet",
@@ -607,8 +635,17 @@ const Swap = () => {
       });
     }
 
-    if (accountId && token1.info && token2.info && t1BN.gt(0) && t2BN.gt(0) && token1.balance.gt(0)) {
-      if ((isOCEAN(token1.info.address) && t1BN.lt(0.01)) || (isOCEAN(token2.info.address) && t2BN.lt(0.01))) {
+    if (accountId && token1.info && token2.info && t1BN.gt(0) && t2BN.gt(0)) {
+      if (token1.balance.eq(0)) {
+        setBtnProps({
+          text: `Not Enough ${token1.info.symbol}`,
+          classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
+          disabled: true,
+        });
+      } else if (
+        (isOCEAN(token1.info.address, ocean) && t1BN.lt(0.01)) ||
+        (isOCEAN(token2.info.address, ocean) && t2BN.lt(0.01))
+      ) {
         setBtnProps({
           text: `Minimum trade is .01 OCEAN`,
           classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
@@ -626,17 +663,17 @@ const Swap = () => {
           classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
           disabled: true,
         });
-      } else if (token1.balance.dp(5).gte(token1.value) && !token1.balance.eq(0)) {
+      } else if (token1.allowance?.lt(t1BN)) {
         setBtnProps({
-          text: "Approve & Swap",
+          text: `Unlock ${token1.info.symbol}`,
           classes: "bg-primary-100 bg-opacity-20 hover:bg-opacity-40 text-background-800",
           disabled: false,
         });
-      } else {
+      } else if (token1.balance.dp(5).gte(token1.value) && !token1.balance.eq(0)) {
         setBtnProps({
-          text: `Not Enough ${token1.info.symbol}`,
-          classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
-          disabled: true,
+          text: "Swap",
+          classes: "bg-primary-100 bg-opacity-20 hover:bg-opacity-40 text-background-800",
+          disabled: false,
         });
       }
     }
@@ -651,11 +688,11 @@ const Swap = () => {
 
       maxExchange.maxSell.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await getMaxExchange());
 
-      const { maxSell, maxBuy } = exchangeLimit;
+      const { maxSell, maxBuy, maxPercent } = exchangeLimit;
 
       if (bnVal.gt(maxSell)) {
         setToken2({ ...token2, value: maxBuy });
-        setToken1({ ...token1, value: maxSell, percentage: new BigNumber(100) });
+        setToken1({ ...token1, value: maxSell, percentage: maxPercent });
         setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
       } else {
         const percentage = token1.balance.eq(0)
@@ -672,6 +709,8 @@ const Swap = () => {
   }
 
   async function onPercToken1(val: string) {
+    setBgLoading([...bgLoading, bgLoadingStates.calcTrade]);
+
     let bnVal = new BigNumber(val);
     let exchangeLimit;
 
@@ -790,13 +829,13 @@ const Swap = () => {
             <div
               id="swapTokensBtn"
               onClick={() => {
-                if (token2 && !token2.loading) {
+                if (token2 && !token2.loading && !swap) {
                   swapTokens();
                 }
               }}
               role="button"
               tabIndex={0}
-              className="rounded-full border-primary-900 border-4 absolute -top-14 bg-primary-800 w-16 h-16 flex swap-center items-center justify-center"
+              className="rounded-full border-primary-900 border-4 absolute -top-14 bg-primary-800 hover:bg-primary-600 transition-colors duration-200 w-16 h-16 flex swap-center items-center justify-center"
             >
               {token2.loading || token1.loading || bgLoading.includes(bgLoadingStates.calcTrade) ? (
                 <MoonLoader size={25} color={"white"} />
@@ -836,11 +875,17 @@ const Swap = () => {
               id="executeTradeBtn"
               text={btnProps.text}
               onClick={() => {
-                if (btnProps.text === "Connect Wallet") {
-                  handleConnect();
-                } else {
-                  setShowConfirmSwapModal(true);
-                  getNeededApprovals();
+                switch (btnProps.text) {
+                  case "Connect Wallet":
+                    handleConnect();
+                    break;
+                  case `Unlock ${token1.info.symbol}`:
+                    setShowUnlockTokenModal(true);
+                    break;
+                  default:
+                    setShowConfirmSwapModal(true);
+                    getNeededApprovals();
+                    break;
                 }
               }}
               classes={"px-4 py-4 rounded-lg w-full " + btnProps.classes}
@@ -850,6 +895,12 @@ const Swap = () => {
         </div>
       </div>
 
+      <UnlockTokenModal
+        token1={token1}
+        token2={token2}
+        setToken={setToken1}
+        nextFunction={() => setShowConfirmSwapModal(true)}
+      />
       <ConfirmSwapModal
         close={() => setShowConfirmSwapModal(false)}
         confirm={() => {
