@@ -6,6 +6,7 @@ import {
   approveTransactions,
   confirmAndCloseTxDoneModal,
   confirmInputClearedAfterStake,
+  executeTransaction,
   navToStake,
   reloadOrContinue,
   setUpStake,
@@ -33,11 +34,11 @@ describe("Execute Standard Trades on StakeX", () => {
     await closeBrowser(browser);
   });
 
-
   it("Stake 10 OCEAN in SAGKRI-94", async () => {
     try {
       await setUpStake(page, "SAGKRI-94", "10");
-      await approveTransactions(metamask, page, 2);
+      await executeTransaction(page, metamask, "stake");
+      await approveTransactions(metamask, page, 1);
       await confirmAndCloseTxDoneModal(page);
       await confirmInputClearedAfterStake(page);
       lastTestPassed = true;
@@ -51,7 +52,8 @@ describe("Execute Standard Trades on StakeX", () => {
     try {
       await reloadOrContinue(lastTestPassed, page, true);
       await setUpStake(page, "SAGKRI-94", ".1");
-      await approveTransactions(metamask, page, 2);
+      await executeTransaction(page, metamask, "stake");
+      await approveTransactions(metamask, page, 1);
       await confirmAndCloseTxDoneModal(page);
       await confirmInputClearedAfterStake(page);
       lastTestPassed = true;
@@ -61,11 +63,12 @@ describe("Execute Standard Trades on StakeX", () => {
     }
   });
 
-  it("Stake max OCEAN in SAGKRI-94",async () => {
+  it("Stake max OCEAN in SAGKRI-94", async () => {
     try {
       await reloadOrContinue(lastTestPassed, page, true);
       await setUpStake(page, "SAGKRI-94", "max");
-      await approveTransactions(metamask, page, 2);
+      await executeTransaction(page, metamask, "stake");
+      await approveTransactions(metamask, page, 1);
       await confirmAndCloseTxDoneModal(page);
       await confirmInputClearedAfterStake(page);
       lastTestPassed = true;
