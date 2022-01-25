@@ -1,5 +1,5 @@
 import Navbar from "./components/Navbar";
-import { BrowserRouter as Router, Route } from "react-router-dom";
+import { BrowserRouter as Router, Route, useRoutes, Routes } from "react-router-dom";
 import Swap from "./components/Swap";
 import Stake from "./components/Stake";
 import LiquidityPosition from "./components/LiquidityPosition";
@@ -14,13 +14,13 @@ import TxHistoryModal from "./components/TxsHistoryModal";
 import Footer from "./components/Footer";
 import NotificationArea from "./components/NotificationArea";
 import usePTxInitializer from "./hooks/usePTxInitializer";
-import BigNumber from 'bignumber.js'
+import BigNumber from "bignumber.js";
+import LandingPage from "./components/LandingPage";
 BigNumber.config({ DECIMAL_PLACES: 18, ROUNDING_MODE: BigNumber.ROUND_DOWN, EXPONENTIAL_AT: 18 });
 
 //import "./stars.css"
 function App() {
-  const { unsupportedNet, showDisclaimer, cookiesAllowed } =
-    useContext(GlobalContext);
+  const { unsupportedNet, showDisclaimer, cookiesAllowed } = useContext(GlobalContext);
 
   document.getElementById("loader");
 
@@ -33,12 +33,12 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cookiesAllowed]);
 
-  useEffect(()=>{
+  useEffect(() => {
     document.getElementById("loadText")?.remove();
     document.getElementById("loadCenter")?.remove();
     document.getElementById("loader")?.remove();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="min-h-full relative">
@@ -49,22 +49,19 @@ function App() {
         <UnsupportedNetwork />
       ) : (
         <Router>
+          {/* <Route path="/" exact component={LandingPage} /> */}
           <Navbar />
           {showDisclaimer ? (
             <DisclaimerModal />
           ) : (
             <div className="pb-16 md:pt-10 h-full">
-              <Route path="/" exact component={Swap} />
-              <Route path="/stakeX" exact component={Stake} />
-              <Route path="/stakeX/remove" exact component={RemoveAmount} />
-              <Route path="/stakeX/list" exact component={LiquidityPosition} />
-              {/* <Snackbar text="Approve LINK" onClose={() => {}} /> */}
+              <Routes>
+              <Route path="/" element={<Swap />} />
+              <Route path="/stakeX" element={<Stake />} />
+              <Route path="/stakeX/remove" element={<RemoveAmount />} />
+              <Route path="/stakeX/list" element={<LiquidityPosition />} />
+              </Routes>
               {/* <CreatePoolModal /> */}
-              {/* <ConfirmModal /> */}
-              {/* <TransactionDoneModal show={true} close={() => {}} /> */}
-              {/*<LiquidityPosition />*/}
-              {/*<RemoveAmount />*/}
-              {/* <ConfirmSwapModal /> */}
             </div>
           )}
         </Router>
