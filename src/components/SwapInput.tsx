@@ -3,7 +3,7 @@ import { BsChevronDown } from "react-icons/bs";
 import TokenModal from "./TokenModal";
 import { DebounceInput } from "react-debounce-input";
 import { useContext } from "react";
-import { GlobalContext } from "../context/GlobalState";
+import { bgLoadingStates, GlobalContext } from "../context/GlobalState";
 import Button from "./Button";
 import BigNumber from "bignumber.js";
 import WrappedInput from "./WrappedInput";
@@ -26,7 +26,7 @@ const SwapInput = ({
   value: Record<any, any> | null;
   pos: number;
   setToken: Function;
-  num:  string;
+  num: string;
   updateNum: Function;
   balance: BigNumber;
   loading: boolean;
@@ -36,8 +36,7 @@ const SwapInput = ({
   max: BigNumber;
 }) => {
   const [showModal, setShowModal] = useState(false);
-  const { accountId, handleConnect } = useContext(GlobalContext);
-
+  const { accountId, handleConnect, bgLoading, setBgLoading } = useContext(GlobalContext);
 
   const tokenSelected = (token: Record<any, any>) => {
     setToken(token, pos, true);
@@ -114,7 +113,7 @@ const SwapInput = ({
                 type="number"
                 className="h-full w-full rounded-lg bg-primary-900 text-3xl outline-none overflow-ellipsis focus:placeholder-type-200 placeholder-type-400"
                 placeholder="0.0"
-                value={Number(num) > 0? num : ""}
+                value={Number(num) > 0 ? num : ""}
               />
               <div>
                 {balance ? (
@@ -135,10 +134,11 @@ const SwapInput = ({
                     <Button
                       id="maxTrade"
                       onClick={() => {
-                        onPerc(100);
+                        if (accountId && otherToken && value) onPerc(100);
                       }}
                       text="Max"
-                      classes="px-2 py-0 border border-type-300 rounded-full text-xs"
+                      classes="px-2 py-0 border border-type-300 rounded-full text-xs "
+                      disabled={accountId && otherToken && value ? false : true}
                     />
                     <DebounceInput
                       id={`token${pos}-perc-input`}
@@ -146,10 +146,11 @@ const SwapInput = ({
                       type="number"
                       debounceTimeout={500}
                       onChange={(e) => {
-                        onPerc(e.target.value);
+                        if (accountId && otherToken && value) onPerc(e.target.value);
                       }}
-                      className="text-xs text-type-200 placeholder-gray-500 bg-primary-700 py-1 rounded px-1 w-12 outline-none"
+                      className="text-xs text-type-200 placeholder-gray-500 bg-primary-700  py-1 rounded px-1 w-12 outline-none"
                       placeholder="%"
+                      disabled={accountId && otherToken && value ? false : true}
                     />
                   </div>
                 ) : (

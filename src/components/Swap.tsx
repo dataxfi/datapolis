@@ -266,18 +266,17 @@ const Swap = () => {
           maxPercent = new BigNumber(0);
         } else {
           // console.log("Max Sell:", maxSell.toString());
-          console.log(`max sell (${maxSell.toString()} div balance (${token1.balance.toString()} times 100 = ${maxSell.div(token1.balance).multipliedBy(100)}))`);
-          
+
           maxPercent = maxSell.div(token1.balance).multipliedBy(100);
         }
 
         //if maxPercent is greater than 100, max buy and sell is determined by the balance of token1
         // console.log("Max percent", Number(maxPercent));
         console.log(maxPercent.gt(100));
-        
+
         if (maxPercent.gt(100)) {
           console.log("inside max gt 100");
-          
+
           maxPercent = new BigNumber(100);
           if (token1.balance.dp(5).gt(0.00001)) {
             maxSell = token1.balance.dp(5);
@@ -309,8 +308,8 @@ const Swap = () => {
       //This is here to not restict the user from attempting a trade if the max exchange could not be determined.
       resolve({
         maxPercent: new BigNumber(100),
-        maxBuy: new BigNumber(10000),
-        maxSell: new BigNumber(10000),
+        maxBuy: new BigNumber(18e10),
+        maxSell: new BigNumber(18e10),
         postExchange: new BigNumber(0.01234),
       });
     });
@@ -338,7 +337,7 @@ const Swap = () => {
     setToken1({ ...token2, value: new BigNumber(0), percentage: new BigNumber(0) });
     setToken2({ ...token1, value: new BigNumber(0) });
     setExactToken(1);
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 250));
     setSwap(false);
   }
 
@@ -708,9 +707,10 @@ const Swap = () => {
     }
   }
 
-  async function onPercToken1(val: string) {
-    setBgLoading([...bgLoading, bgLoadingStates.calcTrade]);
+  useEffect(() => {console.log("bgLoading", bgLoading);
+  }, [bgLoading]);
 
+  async function onPercToken1(val: string) {
     let bnVal = new BigNumber(val);
     let exchangeLimit;
 
@@ -726,10 +726,10 @@ const Swap = () => {
       });
       setToken2({ ...token2, value: maxBuy });
       setPostExchange(postExchange);
-      setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
     } else {
       updateValueFromPercentage(true, val);
     }
+    // setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
   }
 
   async function dbUpdateToken2(value: string) {
