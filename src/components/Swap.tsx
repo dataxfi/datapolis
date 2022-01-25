@@ -266,13 +266,18 @@ const Swap = () => {
           maxPercent = new BigNumber(0);
         } else {
           // console.log("Max Sell:", maxSell.toString());
+          console.log(`max sell (${maxSell.toString()} div balance (${token1.balance.toString()} times 100 = ${maxSell.div(token1.balance).multipliedBy(100)}))`);
+          
           maxPercent = maxSell.div(token1.balance).multipliedBy(100);
         }
 
         //if maxPercent is greater than 100, max buy and sell is determined by the balance of token1
         // console.log("Max percent", Number(maxPercent));
-
+        console.log(maxPercent.gt(100));
+        
         if (maxPercent.gt(100)) {
+          console.log("inside max gt 100");
+          
           maxPercent = new BigNumber(100);
           if (token1.balance.dp(5).gt(0.00001)) {
             maxSell = token1.balance.dp(5);
@@ -432,7 +437,7 @@ const Swap = () => {
           setLastTxId(txDateId);
           txType = "Ocean to DT";
 
-          txReceipt = await ocean.swapExactOceanToDt(accountId, token2.info.pool.toString(), t2Val, t1Val, decSlippage);
+          txReceipt = await ocean.swapExactOceanToDt(accountId, token2.info.pool, t2Val, t1Val, decSlippage);
         } else {
           console.log("ocean to exact dt");
           // prettier-ignore
@@ -683,11 +688,11 @@ const Swap = () => {
 
       maxExchange.maxSell.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await getMaxExchange());
 
-      const { maxSell, maxBuy } = exchangeLimit;
+      const { maxSell, maxBuy, maxPercent } = exchangeLimit;
 
       if (bnVal.gt(maxSell)) {
         setToken2({ ...token2, value: maxBuy });
-        setToken1({ ...token1, value: maxSell, percentage: new BigNumber(100) });
+        setToken1({ ...token1, value: maxSell, percentage: maxPercent });
         setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
       } else {
         const percentage = token1.balance.eq(0)
@@ -894,7 +899,7 @@ const Swap = () => {
         token1={token1}
         token2={token2}
         setToken={setToken1}
-        nextFunction={() => setShowConfirmSwapModal(false)}
+        nextFunction={() => setShowConfirmSwapModal(true)}
       />
       <ConfirmSwapModal
         close={() => setShowConfirmSwapModal(false)}

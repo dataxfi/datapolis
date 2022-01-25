@@ -20,6 +20,12 @@ import BigNumber from "bignumber.js";
 import WrappedInput from "./WrappedInput";
 import UnlockTokenModal from "./UnlockTokenModal";
 
+interface IMaxUnstake {
+  OCEAN: BigNumber;
+  shares: BigNumber;
+  userPerc: BigNumber;
+}
+
 const RemoveAmount = () => {
   const {
     chainId,
@@ -59,11 +65,6 @@ const RemoveAmount = () => {
   //Amount to be recieved from remove amount (this might not be neccessary)
   const [oceanToReceive, setOceanToReceive] = useState<BigNumber>(new BigNumber(0));
   const [allowance, setAllowance] = useState<BigNumber>(new BigNumber(0));
-  interface IMaxUnstake {
-    OCEAN: BigNumber;
-    shares: BigNumber;
-    userPerc: BigNumber;
-  }
 
   //Max possible amount of OCEAN to remove
   const [maxUnstake, setMaxUnstake] = useState<IMaxUnstake | null>({

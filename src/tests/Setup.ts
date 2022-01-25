@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
-import { approveTransaction } from "./Utilities";
+import { approveTransactions } from "./Utilities";
 
 export const testAcctId = "0x867A6D38D30C4731c85bF567444F8CF22885DfAd"
 
@@ -16,7 +16,7 @@ export async function setupPuppBrowser(){
   let page: puppeteer.Page;
   let browser: puppeteer.Browser;
   try {
-    browser = await puppeteer.launch({headless:false});
+    browser = await puppeteer.launch({headless:false, timeout:5000});
     page = await browser.newPage();
     await page.goto("http://localhost:3000/");
     return { page, browser };
@@ -81,14 +81,15 @@ export async function setupDataX(page: puppeteer.Page, browser: puppeteer.Browse
   }
   await page.bringToFront();
   await quickConnectWallet(page)
-  await metamask.page.bringToFront();
-  await approveTransaction(metamask)
-
+  await metamask.page.bringToFront();  
+  await approveTransactions(metamask, page, 1)
+  
   //Check wallet address in is the button
   const walletBtn = await page.waitForSelector("#d-view-txs-btn");
+  
   await new Promise((res, rej) => setTimeout(res, 3000));
   const btnText = await page.evaluate((el) => el.textContent, walletBtn);
-  expect(btnText).toBe("0x867...DfAd");
+  expect(btnText).toBe("0x867...DfAd");  
 }
 
 // Test priority

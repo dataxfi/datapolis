@@ -3,10 +3,10 @@ import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
 import { setupDappBrowser, setupDataX, closeBrowser } from "../Setup";
 import {
-  approveTransaction,
   approveTransactions,
   checkBalance,
   confirmAndCloseTxDoneModal,
+  confirmSwapModal,
   confirmTokensClearedAfterTrade,
   executeTransaction,
   reloadOrContinue,
@@ -31,135 +31,58 @@ describe("Execute Standard Trades on TradeX", () => {
   });
 
   afterAll(async () => {
-    // await closeBrowser(browser);
+    await closeBrowser(browser);
   });
-  it("10 OCEAN -> SAGKRI-94", async () => {
+
+  async function stdTradeFlow(t1Symbol:string, t2Symbol:string, amt:string, pos:number){
     try {
-      await setUpSwap(page, metamask, "OCEAN", "SAGKRI-94", "10", 1);
-      await checkBalance(page, metamask, false, "SAGKRI-94");
-      const confirmations = await executeTransaction(page, "trade");
-      confirmations > 1 ? await approveTransactions(metamask, page, confirmations) : await approveTransaction(metamask);
+      await setUpSwap(page, metamask, t1Symbol, t2Symbol, amt, pos);
+      await checkBalance(page, metamask, false, t2Symbol, t1Symbol);
+      await executeTransaction(page, metamask, "trade");
+      await approveTransactions(metamask, page, 1);
       await confirmAndCloseTxDoneModal(page);
       await confirmTokensClearedAfterTrade(page);
-      await setUpSwap(page, metamask, "OCEAN", "SAGKRI-94", "0", 1);
-      await checkBalance(page, metamask, true, "SAGKRI-94");
+      await setUpSwap(page, metamask, t1Symbol, t2Symbol, "0", pos);
+      await checkBalance(page, metamask, true, t2Symbol, t1Symbol);
+      lastTestPassed = true
     } catch (error) {
       lastTestPassed = false;
       throw error;
     }
+  }
+
+  it("10 OCEAN -> SAGKRI-94", async () => {
+    await stdTradeFlow("OCEAN", "SAGKRI-94", "10", 1)
   });
 
   it(".1 OCEAN -> SAGKRI-94", async () => {
-    try {
-      await reloadOrContinue(lastTestPassed, page);
-      await setUpSwap(page, metamask, "OCEAN", "SAGKRI-94", ".1", 1);
-      await checkBalance(page, metamask, false, "SAGKRI-94");
-      const confirmations = await executeTransaction(page, "trade");
-      confirmations > 1 ? await approveTransactions(metamask, page, confirmations) : await approveTransaction(metamask);
-      await confirmAndCloseTxDoneModal(page);
-      await confirmTokensClearedAfterTrade(page);
-      await setUpSwap(page, metamask, "OCEAN", "SAGKRI-94", "0", 1);
-      await checkBalance(page, metamask, true, "SAGKRI-94");
-      lastTestPassed = true;
-    } catch (error) {
-      lastTestPassed = false;
-      throw error;
-    }
+    await reloadOrContinue(lastTestPassed, page);
+    await stdTradeFlow("OCEAN", "SAGKRI-94", ".1", 1)
   });
 
   it("MAX OCEAN -> SAGKRI-94", async () => {
-    try {
-      await reloadOrContinue(lastTestPassed, page);
-      await setUpSwap(page, metamask, "OCEAN", "SAGKRI-94", "max", 1);
-      await checkBalance(page, metamask, false, "SAGKRI-94");
-     const confirmations =  await executeTransaction(page, "trade");
-      confirmations > 1 ? await approveTransactions(metamask, page, confirmations) : await approveTransaction(metamask);
-      await confirmAndCloseTxDoneModal(page);
-      await confirmTokensClearedAfterTrade(page);
-      await setUpSwap(page, metamask, "OCEAN", "SAGKRI-94", "0", 1);
-      await checkBalance(page, metamask, true, "SAGKRI-94");
-      lastTestPassed = true;
-    } catch (error) {
-      lastTestPassed = false;
-      throw error;
-    }
+    await reloadOrContinue(lastTestPassed, page);
+    await stdTradeFlow("OCEAN", "SAGKRI-94", "max", 1)
   });
 
   it("1 SAGKRI-94 -> OCEAN", async () => {
-    try {
-      await reloadOrContinue(false, page);
-      await setUpSwap(page, metamask, "SAGKRI-94", "OCEAN", "1", 1);
-      await checkBalance(page, metamask, false, "OCEAN", "SAGKRI-94");
-      const confirmations =  await executeTransaction(page, "trade");
-      confirmations > 1 ? await approveTransactions(metamask, page, confirmations) : await approveTransaction(metamask);
-      await reloadOrContinue(lastTestPassed, page);
-      await confirmAndCloseTxDoneModal(page);
-      await confirmTokensClearedAfterTrade(page);
-      await setUpSwap(page, metamask, "SAGKRI-94","OCEAN" , "0", 1);
-      await checkBalance(page, metamask, true, "OCEAN", "SAGKRI-94");
-      lastTestPassed = true;
-    } catch (error) {
-      lastTestPassed = false;
-      throw error;
-    }
+    await reloadOrContinue(false, page);
+    await stdTradeFlow("SAGKRI-94", "OCEAN", "1", 1)
   });
 
   it("1 SAGKRI-94 -> DAZORC-13", async () => {
-    try {
-      await reloadOrContinue(lastTestPassed, page);
-      await setUpSwap(page, metamask, "SAGKRI-94", "DAZORC-13", "1", 1);
-      await checkBalance(page, metamask, false, "DAZORC-13", "SAGKRI-94");
-      const confirmations = await executeTransaction(page, "trade");
-      confirmations > 1 ? await approveTransactions(metamask, page, confirmations) : await approveTransaction(metamask);
-      await confirmAndCloseTxDoneModal(page);
-      await confirmTokensClearedAfterTrade(page);
-      await setUpSwap(page, metamask, "OCEAN", "SAGKRI-94", "0", 1);
-      await checkBalance(page, metamask, true, "DAZORC-13", "SAGKRI-94");
-      lastTestPassed = true;
-    } catch (error) {
-      lastTestPassed = false;
-      throw error;
-    }
+    await reloadOrContinue(lastTestPassed, page);
+    await stdTradeFlow("SAGKRI-94", "DAZORC-13", "1", 1)
   });
 
   it("MAX DAZORC-13 -> SAGKRI-94", async () => {
-    try {
-      await reloadOrContinue(lastTestPassed, page);
-      await setUpSwap(page, metamask, "DAZORC-13", "SAGKRI-94", "max", 1);
-      await checkBalance(page, metamask, false, "SAGKRI-94", "DAZORC-13");
-      const confirmations = await executeTransaction(page, "trade");
-      confirmations > 1 ? await approveTransactions(metamask, page, confirmations) : await approveTransaction(metamask);
-      await confirmAndCloseTxDoneModal(page);
-      await confirmTokensClearedAfterTrade(page);
-      await setUpSwap(page, metamask,  "DAZORC-13", "SAGKRI-94", "0", 1);
-      await checkBalance(page, metamask, true, "SAGKRI-94", "DAZORC-13");
-      lastTestPassed = true;
-    } catch (error) {
-      lastTestPassed = false;
-      throw error;
-    }
+    await reloadOrContinue(lastTestPassed, page);
+    await stdTradeFlow("DAZORC-13", "SAGKRI-94", "max", 1)
   });
 
-  async function maxTradeSAGKRI() {
-    await setUpSwap(page, metamask, "SAGKRI-94", "OCEAN", "max", 1);
-    await checkBalance(page, metamask, false, "OCEAN","SAGKRI-94");
-    const confirmations = await executeTransaction(page, "trade");
-    confirmations > 1 ? await approveTransactions(metamask, page, confirmations) : await approveTransaction(metamask);
-    await confirmAndCloseTxDoneModal(page);
-    await confirmTokensClearedAfterTrade(page);
-    await setUpSwap(page, metamask, "SAGKRI-94", "OCEAN", "0", 1);
-    await checkBalance(page, metamask, true, "OCEAN","SAGKRI-94");
-  }
-
   it("MAX SAGKRI-94 -> OCEAN", async () => {
-    try {
       await reloadOrContinue(lastTestPassed, page);
-      await maxTradeSAGKRI();
-      lastTestPassed = true;
-    } catch (error) {
-      lastTestPassed = false;
-      throw error;
-    }
+      await stdTradeFlow("SAGKRI-94", "OCEAN", "max", 1);
   });
 
   // it("Trade All but .1 DT to OCEAN", async () => {
