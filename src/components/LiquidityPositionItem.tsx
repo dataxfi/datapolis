@@ -114,6 +114,7 @@ function LiquidityPositionItem({ pool, index }: { pool: PoolData; index: number 
             </div>
             <div className="grid grid-cols-2 gap-2 mt-4">
               <Link
+              id="lp-add-link"
                 key="stakeX"
                 to={`/stakeX?pool=${address}`}
                 className="bg-primary-600 transition-colors hover:bg-primary-500 text-type-100 rounded-lg px-4 py-3 text-center"

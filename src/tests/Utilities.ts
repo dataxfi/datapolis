@@ -201,6 +201,8 @@ export async function swapOrSelect(page: puppeteer.Page, t1Symbol: string, t2Sym
   await page.waitForFunction(`document.querySelector("#selectedToken2").innerText === "${t2Symbol}"`);
 }
 
+
+
 export async function approveTransactions(metamask: dappeteer.Dappeteer, page: puppeteer.Page, txAmount: number) {
   //open MM
   await metamask.page.bringToFront();
@@ -435,7 +437,7 @@ async function assertTo3(page: puppeteer.Page, truth: string | number, id: strin
  * @return string of balance
  */
 
-async function getBalanceInMM(metamask: dappeteer.Dappeteer, symbol: string): Promise<string> {
+export async function getBalanceInMM(metamask: dappeteer.Dappeteer, symbol: string): Promise<string> {
   await metamask.page.bringToFront();
   const assets: puppeteer.JSHandle | undefined = await useXPath(metamask.page, "button", "Assets", false);
   //@ts-ignore
@@ -543,15 +545,18 @@ export async function navToStake(page: puppeteer.Page) {
 
 export async function navToLp(page: puppeteer.Page) {
   await navToStake(page);
-  await acceptCookies(page);
   await page.waitForSelector("#lpLink");
   await page.click("#lpLink");
   await page.waitForSelector("#lpModal");
 }
 
-export async function navToRemoveStake(page: puppeteer.Page, pool: string) {
-  await navToLp(page);
+export async function navToTrade(page: puppeteer.Page){
+  await page.bringToFront();
+  await page.waitForSelector("#TradeX-link")
+  await page.click("#TradeX-link")
+}
 
+export async function grabOrImportPool(page:puppeteer.Page, pool:string, select:boolean){
   try {
     await page.waitForSelector(`#${pool}-lp-item`, { timeout: 3000 });
   } catch (error) {
@@ -563,12 +568,30 @@ export async function navToRemoveStake(page: puppeteer.Page, pool: string) {
     }
   }
   await page.click(`#${pool}-lp-item`);
+}
+
+export async function navToRemoveStake(page: puppeteer.Page, pool: string) {
+  await navToLp(page);
+  grabOrImportPool(page, pool, true)
   await page.waitForSelector("#yourShares");
   const shares = new BigNumber(await page.evaluate('document.querySelector("#yourShares").innerText'));
   await page.waitForSelector("#lp-remove-link");
   await page.click("#lp-remove-link");
   await page.waitForSelector("#removeStakeModal");
   return shares;
+}
+
+export async function navToStakeWPool(page:puppeteer.Page, pool:string){
+  grabOrImportPool(page, pool, true)
+  await page.waitForSelector("#lp-add-link");
+  await page.click("#lp-add-link");
+  await page.waitForSelector("#stakeModal");
+}
+
+export async function navToLpFromUnstake(page: puppeteer.Page){
+  await page.waitForSelector("#remove-lp-link")
+  await page.click("#remove-lp-link")
+  await page.waitForSelector("#lpModal")
 }
 
 export async function acceptCookies(page: puppeteer.Page) {
