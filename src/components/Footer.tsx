@@ -1,3 +1,4 @@
+import { useEffect, useState, useContext } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faTwitter,
@@ -6,7 +7,23 @@ import {
   faGithub,
 } from "@fortawesome/free-brands-svg-icons";
 import { FaBook } from "react-icons/fa";
+import { getCommitInfo } from '../utils/gitInfo'
+import { GlobalContext } from "../context/GlobalState";
+import Web3 from "web3";
+
 export default function Footer() {
+
+  const { web3 } = useContext(GlobalContext);
+  console.log(web3)
+  const [blockNo, setBlockNo] = useState(0)
+
+  useEffect(() => {
+    async function getBlockNumber() {
+      if (web3) setBlockNo(await web3.eth.getBlockNumber())
+    }
+    getBlockNumber()
+  }, [web3])
+
   return (
     <footer className="absolute bottom-0 pb-2 w-full justify-center z-0 mt-5">
       <div className="flex flex-col text-center">
@@ -69,6 +86,8 @@ export default function Footer() {
           </li>
         </ul>
         <p>Copyright © DataX 2021</p>
+        <p>commit {getCommitInfo()} </p>
+        <p>block {blockNo}</p>
       </div>
     </footer>
   );

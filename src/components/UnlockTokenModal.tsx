@@ -110,7 +110,7 @@ export default function UnlockTokenModal({
         )}
         <h3 className="text-sm lg:text-2xl pb-5">Unlock {token1.info.symbol}</h3>
         <p className="text-sm lg:text-base text-center pb-5">
-          DataX contracts need your permission to spend {t1BN.dp(5).toString()} {remove ? "shares" : token1.info.symbol}
+          DataX need your permission to spend {t1BN.dp(5).toString()} {remove ? "shares" : token1.info.symbol}
           .
         </p>
 
@@ -119,14 +119,13 @@ export default function UnlockTokenModal({
           onClick={() => {
             unlockTokens("perm");
           }}
-          className={`w-full p-2 rounded mb-2 bg-opacity-20  ${
-            approving === "approving"
+          className={`w-full p-2 rounded mb-2 bg-opacity-20  ${approving === "approving"
               ? "bg-primary-600 text-primary-400"
               : "hover:bg-opacity-40 bg-primary-100 hover:bg-primary-300 text-background-800"
-          }`}
+            }`}
           disabled={approving === "approving" ? true : false}
         >
-          Unlock Permenantly
+          Unlock Permanently
         </button>
         <button
           id="unlock-once-btn"
@@ -134,11 +133,10 @@ export default function UnlockTokenModal({
             unlockTokens("once");
           }}
           disabled={approving === "approving" ? true : false}
-          className={`w-full p-2 rounded mb-2 bg-opacity-20  ${
-            approving === "approving"
+          className={`w-full p-2 rounded mb-2 bg-opacity-20  ${approving === "approving"
               ? "bg-primary-600 text-primary-400"
               : "hover:bg-opacity-40 bg-primary-100 hover:bg-primary-300 text-background-800"
-          }`}
+            }`}
         >
           Unlock this time only
         </button>
