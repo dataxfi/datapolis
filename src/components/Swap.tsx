@@ -117,7 +117,7 @@ const Swap = () => {
     classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
     disabled: true,
   });
-  const [percLoading, setPercLoading] = useState(false)
+  const [percLoading, setPercLoading] = useState(false);
 
   const [maxExchange, setMaxExchange] = useState<IMaxExchange>(INITIAL_MAX_EXCHANGE);
   const [txsForTPair, setTxsForTPair] = useState<BigNumber>(new BigNumber(2));
@@ -199,6 +199,15 @@ const Swap = () => {
       signal?.addEventListener("abort", (e) => {
         reject(new Error("aborted"));
       });
+
+      if (token1.balance.lt(.00001))
+        resolve({
+          maxPercent: new BigNumber(100),
+          maxSell: new BigNumber(0),
+          maxBuy: new BigNumber(0),
+          postExchange: new BigNumber(0),
+        });
+
       setBgLoading([...bgLoading, bgLoadingStates.maxExchange]);
       let maxBuy: BigNumber;
       let maxSell: BigNumber;
@@ -707,8 +716,8 @@ const Swap = () => {
   }
 
   async function onPercToken1(val: string) {
-    setPercLoading(true)
-    if(val === "") val = "0"
+    setPercLoading(true);
+    if (val === "") val = "0";
     let bnVal = new BigNumber(val);
     let exchangeLimit;
 
@@ -728,7 +737,7 @@ const Swap = () => {
       updateValueFromPercentage(true, val);
     }
     // setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
-    setPercLoading(false)
+    setPercLoading(false);
   }
 
   async function dbUpdateToken2(value: string) {
