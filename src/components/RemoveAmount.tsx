@@ -147,7 +147,7 @@ const RemoveAmount = () => {
       setBtnText(`Unlock ${currentStakePool.token1.symbol}`)
     }else {
       setBtnDisabled(false);
-      setBtnText("Approve and Withdrawal");
+      setBtnText("Withdrawal");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bgLoading.length, sharesToRemove, pendingUnstakeTx, currentStakePool, maxUnstake]);
