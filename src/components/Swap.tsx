@@ -200,7 +200,7 @@ const Swap = () => {
         reject(new Error("aborted"));
       });
 
-      if (token1.balance.lt(.00001))
+      if (token1.balance.lt(0.00001))
         resolve({
           maxPercent: new BigNumber(100),
           maxSell: new BigNumber(0),
@@ -597,21 +597,10 @@ const Swap = () => {
   function getConfirmModalProperties(): string[] {
     const { t1Val, t2Val } = getTokenVal(token1, token2);
     if (token1.info && token2.info) {
-      switch (txsForTPair.toString()) {
-        case "1":
-          return [
-            `Swap ${token1.value} ${token1.info.symbol} for ${t2Val} 
+      return [
+        `Swap ${token1.value} ${token1.info.symbol} for ${t2Val} 
     ${token2.info.symbol}`,
-          ];
-        case "2":
-          return [
-            `Approve TradeX to spend ${t1Val} ${token1.info.symbol}`,
-            `Swap ${t1Val} ${token1.info.symbol} for ${t2Val} 
-  ${token2.info.symbol}`,
-          ];
-        default:
-          return [];
-      }
+      ];
     }
     return [];
   }
