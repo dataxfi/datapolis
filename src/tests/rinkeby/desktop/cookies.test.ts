@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
 import "regenerator-runtime/runtime";
-import { closeBrowser, setupPuppBrowser } from "../Setup";
-import { acceptCookies } from "../Utilities";
+import { closeBrowser, setupPuppBrowser } from "../../Setup";
+import { acceptCookies } from "../../Utilities";
 
 describe("Execute Standard Trades on StakeX", () => {
   jest.setTimeout(300000);

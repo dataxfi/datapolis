@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
-import { setupDappBrowser, setupDataX, closeBrowser } from "../Setup";
+import { setupDappBrowser, setupDataX, closeBrowser } from "../../Setup";
 import {
   approveTransactions,
   checkBalance,
@@ -11,7 +11,7 @@ import {
   executeTransaction,
   reloadOrContinue,
   setUpSwap,
-} from "../Utilities";
+} from "../../Utilities";
 
 describe("Execute Standard Trades on TradeX", () => {
   jest.setTimeout(300000);
@@ -27,7 +27,7 @@ describe("Execute Standard Trades on TradeX", () => {
       browser = tools?.browser;
       metamask = tools?.metamask;
     }
-    await setupDataX(page, browser, metamask);
+    await setupDataX(page, metamask, "rinkeby", false);
   });
 
   afterAll(async () => {

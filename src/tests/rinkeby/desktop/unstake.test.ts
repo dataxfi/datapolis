@@ -1,22 +1,17 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
-import { setupDappBrowser, setupDataX, closeBrowser, quickConnectWallet, testAcctId } from "../Setup";
+import { setupDappBrowser, setupDataX, closeBrowser} from "../../Setup";
 import {
   approveTransactions,
   confirmAndCloseTxDoneModal,
-  confirmInputClearedAfterStake,
   confirmInputClearedAfterUnstake,
-  importStakeInfo,
-  navToLp,
   navToRemoveStake,
   reloadOrContinue,
   setupUnstake,
-  setUpStake,
-  useLocalStorage,
   executeTransaction,
   awaitUpdateShares,
-} from "../Utilities";
+} from "../../Utilities";
 import BigNumber from "bignumber.js";
 describe("Execute Standard Trades on StakeX", () => {
   jest.setTimeout(300000);
@@ -33,7 +28,7 @@ describe("Execute Standard Trades on StakeX", () => {
       browser = tools?.browser;
       metamask = tools?.metamask;
     }
-    await setupDataX(page, browser, metamask);
+    await setupDataX(page, metamask, "rinkeby", false);
     initialShares = await navToRemoveStake(page, "SAGKRI-94");
   });
 

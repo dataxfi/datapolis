@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
-import { setupDappBrowser, setupDataX, closeBrowser, quickConnectWallet, testAcctId } from "../Setup";
+import { setupDappBrowser, setupDataX, closeBrowser, quickConnectWallet, testAcctId } from "../../Setup";
 import {
   approveTransactions,
   confirmAndCloseTxDoneModal,
@@ -11,7 +11,7 @@ import {
   reloadOrContinue,
   setUpStake,
   useLocalStorage,
-} from "../Utilities";
+} from "../../Utilities";
 
 describe("Execute Standard Trades on StakeX", () => {
   jest.setTimeout(300000);
@@ -27,7 +27,7 @@ describe("Execute Standard Trades on StakeX", () => {
       browser = tools?.browser;
       metamask = tools?.metamask;
     }
-    await setupDataX(page, browser, metamask);
+    await setupDataX(page, metamask, "rinkeby", false);
     await page.evaluate((testAcctId) => {window.localStorage.removeItem(`allStakedPools@4@${testAcctId}`)}, testAcctId);
     await navToLp(page);
   });
