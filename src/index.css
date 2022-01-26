@@ -17,27 +17,45 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-
-body, html, #loader {
-@apply text-type-100 bg-no-repeat md:h-full m-0 bg-fixed;
-background: rgb(128,140,171);
-background: radial-gradient(circle, rgba(128,140,171,1) 0%, rgba(62,72,103,1) 54%, rgba(11,16,46,1) 100%);
+body,
+html,
+#loader {
+  @apply text-type-100 bg-no-repeat md:h-full m-0 bg-fixed;
+  background: rgb(128, 140, 171);
+  background: radial-gradient(circle, rgba(128, 140, 171, 1) 0%, rgba(62, 72, 103, 1) 54%, rgba(11, 16, 46, 1) 100%);
 }
-
-#root{
+html,
+body,
+#root {
+  @apply h-full;
+}
+/* #root{
   @apply h-screen md:h-full 
+} */
+
+#bg-stake {
+  @apply absolute bg-dataXstake bg-cover bg-bottom;
 }
 
-#root:empty, html:empty{
- @apply hidden
+#bg-trade {
+  @apply absolute bg-dataXtrade bg-cover bg-bottom;
 }
 
-#loader{
-  @apply flex flex-row h-full w-full justify-center  items-center bg-center bg-no-repeat bg-fixed bg-dataXgif sm:bg-sm md:bg-md
+#bg-home {
+  @apply absolute bg-dataXcity bg-cover bg-bottom;
 }
 
-#loadText{
-  @apply animate-pulse
+#root:empty,
+html:empty {
+  @apply hidden;
+}
+
+#loader {
+  @apply flex flex-row h-full w-full justify-center  items-center bg-center bg-no-repeat bg-fixed bg-dataXgif sm:bg-sm md:bg-md;
+}
+
+#loadText {
+  @apply animate-pulse;
 }
 /* Links */
 .hm-link {
@@ -90,8 +108,7 @@ background: radial-gradient(circle, rgba(128,140,171,1) 0%, rgba(62,72,103,1) 54
 }
 
 .hm-box {
-  box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px,
-    rgba(0, 0, 0, 0.22) 0px 15px 12px;
+  box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */

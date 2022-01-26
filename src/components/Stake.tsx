@@ -22,6 +22,7 @@ import { DebounceInput } from "react-debounce-input";
 import WrappedInput from "./WrappedInput";
 import UnlockTokenModal from "./UnlockTokenModal";
 import { IToken } from "./Swap";
+import useBgToggler from "../hooks/useBgToggler";
 const text = {
   T_STAKE: "StakeX",
   T_SELECT_TOKEN: "Select token",
@@ -107,6 +108,7 @@ const Stake = () => {
   usePTxManager(lastTxId);
   useTxModalToggler(txReceipt, setTxReceipt);
   useCurrentPool(poolAddress, setPoolAddress);
+  useBgToggler()
 
   async function getMaxStakeAmt() {
     if (token)
@@ -444,7 +446,7 @@ const Stake = () => {
 
   return (
     <>
-      <div className="flex flex-col my-3 w-full items-center justify-center lg:h-3/4 px-4">
+      <div className="flex flex-col my-3 w-full items-center justify-center lg:h-3/4 px-4 pt-16">
         <div>
           <div className="max-w-2xl lg:mx-auto bg-primary-900 w-full rounded-lg p-4 phm-box ">
             <div className="flex justify-between">

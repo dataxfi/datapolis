@@ -11,6 +11,7 @@ import {
 } from "../utils/stakedPoolsUtils";
 import TokenModal from "./TokenModal";
 import { PulseLoader } from "react-spinners";
+import useBgToggler from "../hooks/useBgToggler";
 
 const LiquidityPosition = () => {
   const {
@@ -32,6 +33,8 @@ const LiquidityPosition = () => {
   const [userMessage, setUserMessage] = useState<string | userMessage | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [messageId, setMessageId] = useState<string | null>(null)
+
+  useBgToggler()
 
   useEffect(() => {
     setAllStakedPools(null);
@@ -141,7 +144,7 @@ const LiquidityPosition = () => {
   }
 
   return (
-    <div id="lpModal" className="w-full pb-5 flex justify-center ">
+    <div id="lpModal" className="w-full pb-5 flex justify-center pt-16">
       <div className=" bg-primary-900 max-w-2xl p-2 rounded-lg w-full flex flex-col px-3 ">
         <div className="flex flex-row w-full justify-center">
           <div className="max-w-2xl w-full flex py-2 rounded-lg justify-between bg-primary-900">

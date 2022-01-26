@@ -4,7 +4,6 @@ import { useContext, useEffect, useState } from "react";
 import ConfirmSwapItem from "./ConfirmSwapItem";
 import ConfirmSwapListItem from "./ConfirmSwapListItem";
 import { GlobalContext } from "../context/GlobalState";
-import { toFixed5 } from "../utils/equate";
 import BigNumber from "bignumber.js";
 const ConfirmSwapModal = ({
   confirm,

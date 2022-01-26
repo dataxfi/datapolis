@@ -8,7 +8,7 @@ import {
 import { FaBook } from "react-icons/fa";
 export default function Footer() {
   return (
-    <footer className="absolute bottom-0 pb-2 w-full justify-center z-0 mt-5">
+    <footer className="absolute bottom-0 pb-2 w-full justify-center z-20 mt-5">
       <div className="flex flex-col text-center">
         <ul className="inline-flex text-2xl justify-center">
           <li className="list-inline-item mr-2">

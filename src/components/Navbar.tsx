@@ -18,7 +18,7 @@ const Navbar = () => {
   // const [accounts, setAccounts] = useState([])
 
   const links = [
-    { name: text.T_SWAP, link: "/" },
+    { name: text.T_SWAP, link: "/tradeX" },
     { name: text.T_STAKE, link: "/stakeX" },
   ];
 
@@ -66,7 +66,6 @@ const Navbar = () => {
         truncateId={truncateId}
         network= {getNetName()}
         handleModalOrConnect = {handleModalOrConnect}
-
       />
     </nav>
   );

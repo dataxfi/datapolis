@@ -19,6 +19,7 @@ import useCurrentPool from "../hooks/useCurrentPool";
 import BigNumber from "bignumber.js";
 import WrappedInput from "./WrappedInput";
 import UnlockTokenModal from "./UnlockTokenModal";
+import useBgToggler from "../hooks/useBgToggler";
 
 interface IMaxUnstake {
   OCEAN: BigNumber;
@@ -101,6 +102,7 @@ const RemoveAmount = () => {
   usePTxManager(lastTxId);
   useTxModalToggler(txReceipt, setTxReceipt);
   useCurrentPool(poolAddress, setPoolAddress, txReceipt, setTxReceipt);
+  useBgToggler()
 
   useEffect(() => {
     if (ocean && currentStakePool) {
@@ -368,7 +370,7 @@ const RemoveAmount = () => {
     />
   ) : currentStakePool ? (
     <>
-      <div id="removeStakeModal" className="flex w-full items-center mb-20">
+      <div id="removeStakeModal" className="flex w-full items-center mb-20 pt-16">
         <div className="max-w-2xl mx-auto w-full p-4">
           <div className="max-w-2xl mx-auto bg-primary-900 w-full rounded-lg p-4 hm-box">
             <div className="flex flex-row pb-2 justify-between">

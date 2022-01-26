@@ -18,6 +18,9 @@ module.exports = {
       pollerOne: ['"Poller One"', "cursive"],
     },
     backgroundSize: {
+      'auto': 'auto',
+      'cover': 'cover',
+      'contain': 'contain',
       lg: "300px",
       md: "150px",
       sm: "100px",
@@ -41,6 +44,9 @@ module.exports = {
       //  }
       backgroundImage: {
         dataXgif: 'url("./assets/YellowXLoader.gif")',
+        dataXcity: 'url("./assets/DataX-Main-Cover.jpg")', 
+        dataXtrade: 'url("./assets/TradeX-New.jpg")', 
+        dataXstake: 'url("./assets/StakeX.jpg")'
       },
       colors: {
         primary: colors.coolGray,

@@ -107,6 +107,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
   const [showUnlockTokenModal, setShowUnlockTokenModal] = useState<boolean>(false)
 
+  const [location,setLocation] = useState<string>("/")
   // remove all pending signatures to instantiate disclaimer flow upon user reconnection
   useEffect(() => {
     for (let i = 0; i < localStorage.length; i++) {
@@ -380,7 +381,9 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         notifications,
         setNotifications,
         showUnlockTokenModal, 
-        setShowUnlockTokenModal
+        setShowUnlockTokenModal, 
+        location, 
+        setLocation
       }}
     >
       {children}

@@ -207,20 +207,8 @@ export async function approveTransactions(metamask: dappeteer.Dappeteer, page: p
   const activity = await useXPath(metamask.page, "button", "Activity", false);
   //@ts-ignore
   await activity.click();
-  // if (txAmount > 1)
-  //   try {
-  //     console.log("a1");
-
-  //     await clearMMPopup(metamask);
-  //     await metamask.page.waitForSelector(".list-item.transaction-list-item.transaction-list-item--unconfirmed");
-  //     await metamask.page.click(".list-item.transaction-list-item.transaction-list-item--unconfirmed");
-  //     await metamask.page.waitForSelector(".btn-primary", { timeout: 45000 });
-  //     await metamask.confirmTransaction();
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
   for (let tx = 0; tx < txAmount; tx++) {
-    //wait for second tx, click and confirm
+    //wait for tx, click and confirm
     try {
       await clearMMPopup(metamask);
       await metamask.page.waitForSelector(".home__container");

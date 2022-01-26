@@ -1,5 +1,5 @@
 import Navbar from "./components/Navbar";
-import { BrowserRouter as Router, Route, useRoutes, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, useLocation } from "react-router-dom";
 import Swap from "./components/Swap";
 import Stake from "./components/Stake";
 import LiquidityPosition from "./components/LiquidityPosition";
@@ -20,12 +20,15 @@ BigNumber.config({ DECIMAL_PLACES: 18, ROUNDING_MODE: BigNumber.ROUND_DOWN, EXPO
 
 //import "./stars.css"
 function App() {
-  const { unsupportedNet, showDisclaimer, cookiesAllowed } = useContext(GlobalContext);
+  const { unsupportedNet, showDisclaimer, cookiesAllowed, location } = useContext(GlobalContext);
 
   document.getElementById("loader");
 
-  usePTxInitializer();
+  useEffect(() => {
+    console.log(location);
+  }, [location]);
 
+  usePTxInitializer();
   useEffect(() => {
     if (cookiesAllowed) {
       initializeGA();
@@ -41,35 +44,79 @@ function App() {
   }, []);
 
   return (
-    <div className="min-h-full relative">
-      {/* <div id="stars"></div>
-      <div id="stars1"></div>
-      <div id="stars2"></div> */}
-      {unsupportedNet ? (
-        <UnsupportedNetwork />
-      ) : (
-        <Router>
-          {/* <Route path="/" exact component={LandingPage} /> */}
-          <Navbar />
-          {showDisclaimer ? (
-            <DisclaimerModal />
+    <div className="w-full h-full relative">
+      <div
+        className={`w-full h-full ${
+          location === "/tradeX"
+            ? "absolute bg-dataXtrade bg-cover bg-bottom"
+            : location === "/stakeX"
+            ? "absolute bg-dataXstake bg-cover bg-bottom"
+            : "relative"
+        }`}
+      >
+        <div className={`min-h-full relative`}>
+          {unsupportedNet ? (
+            <UnsupportedNetwork />
           ) : (
-            <div className="pb-16 md:pt-10 h-full">
-              <Routes>
-              <Route path="/" element={<Swap />} />
-              <Route path="/stakeX" element={<Stake />} />
-              <Route path="/stakeX/remove" element={<RemoveAmount />} />
-              <Route path="/stakeX/list" element={<LiquidityPosition />} />
-              </Routes>
-              {/* <CreatePoolModal /> */}
-            </div>
+            <Router>
+              {showDisclaimer ? (
+                <DisclaimerModal />
+              ) : (
+                <Routes>
+                  <Route
+                    path="/"
+                    element={
+                      <>
+                        <LandingPage />
+                      </>
+                    }
+                  />
+                  <Route
+                    path="/tradeX"
+                    element={
+                      <>
+                        <Navbar />
+                        <Swap />
+                      </>
+                    }
+                  />
+                  <Route
+                    path="/stakeX"
+                    element={
+                      <>
+                        <Navbar />
+                        <Stake />
+                      </>
+                    }
+                  />
+                  <Route
+                    path="/stakeX/remove"
+                    element={
+                      <>
+                        <Navbar />
+                        <RemoveAmount />
+                      </>
+                    }
+                  />
+                  <Route
+                    path="/stakeX/list"
+                    element={
+                      <>
+                        <Navbar />
+                        <LiquidityPosition />
+                      </>
+                    }
+                  />
+                </Routes>
+              )}
+            </Router>
           )}
-        </Router>
-      )}
-      {cookiesAllowed === null ? <CookiesModal /> : null}
-      <NotificationArea />
-      <TxHistoryModal />
-      <Footer />
+          {cookiesAllowed === null ? <CookiesModal /> : null}
+          <NotificationArea />
+          <TxHistoryModal />
+          <Footer />
+        </div>
+      </div>
     </div>
   );
 }

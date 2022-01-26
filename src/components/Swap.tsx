@@ -18,6 +18,7 @@ import BigNumber from "bignumber.js";
 import { toFixed5 } from "../utils/equate";
 import UnlockTokenModal from "./UnlockTokenModal";
 import { getAllowance, TokenInfo } from "../utils/tokenUtils";
+import useBgToggler from "../hooks/useBgToggler";
 const text = {
   T_SWAP: "TradeX",
   T_SWAP_FROM: "You are selling",
@@ -124,7 +125,7 @@ const Swap = () => {
   //hooks
   usePTxManager(lastTxId);
   useTxModalToggler(txReceipt, setTxReceipt, setToken1, setToken2);
-
+  useBgToggler()
   let controller = new AbortController();
   useEffect(() => {
     if (txReceipt) return;
@@ -272,7 +273,6 @@ const Swap = () => {
 
         //if maxPercent is greater than 100, max buy and sell is determined by the balance of token1
         // console.log("Max percent", Number(maxPercent));
-        console.log(maxPercent.gt(100));
 
         if (maxPercent.gt(100)) {
           console.log("inside max gt 100");
@@ -758,7 +758,7 @@ const Swap = () => {
 
   return (
     <>
-      <div id="swapModal" className="flex my-3 w-full h-full items-center justify-center ">
+      <div id="swapModal" className="flex my-3 w-full h-full items-center justify-center pt-16">
         <div className="max-w-2xl lg:mx-auto sm:mx-4 mx-3 bg-primary-900 w-full rounded-lg p-4 hm-box ">
           <div className="flex justify-between relative">
             <p className="text-xl">{text.T_SWAP}</p>
