@@ -56,6 +56,10 @@ const SwapInput = ({
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, [accountId]);
 
+  function checksPass() {
+    return accountId && otherToken && value && balance.gt(0.00001);
+  }
+
   return (
     <div id={`${pos}-swapInput`} className="mt-4 bg-primary-800 p-4 rounded-lg">
       <div className="md:grid md:grid-cols-5">
@@ -134,11 +138,13 @@ const SwapInput = ({
                     <Button
                       id="maxTrade"
                       onClick={() => {
-                        if (accountId && otherToken && value) onPerc(100);
+                        if (checksPass()) onPerc(100);
                       }}
                       text="Max"
-                      classes={`${accountId && otherToken && value? "border-type-300 hover:bg-primary-600":"text-type-600 border-type-600"} px-2 py-0 border rounded-full text-xs`}
-                      disabled={accountId && otherToken && value ? false : true}
+                      classes={`${
+                        checksPass() ? "border-type-300 hover:bg-primary-600" : "text-type-600 border-type-600"
+                      } px-2 py-0 border rounded-full text-xs`}
+                      disabled={checksPass() ? false : true}
                     />
                     <DebounceInput
                       id={`token${pos}-perc-input`}
@@ -146,11 +152,15 @@ const SwapInput = ({
                       type="number"
                       debounceTimeout={500}
                       onChange={(e) => {
-                        if (accountId && otherToken && value) onPerc(e.target.value);
+                        if (checksPass()) onPerc(e.target.value);
                       }}
-                      className={`text-xs ${accountId && otherToken && value? "text-type-200 placeholder-gray-500 bg-primary-700 ":"text-type-600 border-type-600 bg-primary-700"}   py-1 rounded px-1 w-12 outline-none`}
+                      className={`text-xs ${
+                        checksPass()
+                          ? "text-type-200 placeholder-gray-500 bg-primary-700 "
+                          : "text-type-600 border-type-600 bg-primary-700"
+                      }   py-1 rounded px-1 w-12 outline-none`}
                       placeholder="%"
-                      disabled={accountId && otherToken && value ? false : true}
+                      disabled={checksPass() ? false : true}
                     />
                   </div>
                 ) : (
