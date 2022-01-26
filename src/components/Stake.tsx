@@ -522,9 +522,9 @@ const Stake = () => {
                             id="maxStake"
                             text="Max Stake"
                             classes={`px-2 py-0 lg:w-20 border rounded-full text-xs ${
-                              balance?.isNaN() || balance?.eq(0) || !accountId
+                              balance?.isNaN() || balance?.eq(0) || !accountId || !token
                                 ? "text-gray-600 border-gray-600"
-                                : "border-type-300"
+                                : "border-type-300 hover:bg-primary-600"
                             }`}
                             disabled={balance && accountId ? false : true}
                           />

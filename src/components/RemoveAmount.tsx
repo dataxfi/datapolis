@@ -448,7 +448,7 @@ const RemoveAmount = () => {
                       disabled={Number(currentStakePool.shares) === 0}
                       text="Max Unstake"
                       classes={`px-2 lg:w-24 py-0 border border-type-300 rounded-full text-xs ${
-                        inputDisabled || Number(currentStakePool.shares) === 0 ? "text-gray-700" : null
+                        inputDisabled || Number(currentStakePool.shares) === 0 ? "text-gray-700" : "hover:bg-primary-600"
                       }`}
                     />
                   </div>

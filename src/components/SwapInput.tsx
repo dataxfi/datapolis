@@ -77,7 +77,7 @@ const SwapInput = ({
           >
             <p className="text-xs text-type-200">{title}</p>
             {value ? (
-              <span className="text-sm sm:text-2xl text-type-200 font-bold grid grid-flow-col items-center gap-1">
+              <span className="text-sm sm:text-2xl text-type-200 font-bold grid grid-flow-col items-center gap-1 ">
                 <span id={`selectedToken${pos}`} className="text-sm sm:text-lg">
                   {value.symbol}
                 </span>
@@ -86,7 +86,7 @@ const SwapInput = ({
             ) : (
               <p
                 id="selectTokenBtn"
-                className="text-xs text-type-100 border-type-300 border rounded-full px-2 py-1 mt-1"
+                className="text-xs text-type-100 border-type-300 border rounded-full px-2 py-1 mt-1 hover:bg-primary-600"
               >
                 Select token
               </p>
@@ -137,7 +137,7 @@ const SwapInput = ({
                         if (accountId && otherToken && value) onPerc(100);
                       }}
                       text="Max"
-                      classes="px-2 py-0 border border-type-300 rounded-full text-xs "
+                      classes={`${accountId && otherToken && value? "border-type-300 hover:bg-primary-600":"text-type-600 border-type-600"} px-2 py-0 border rounded-full text-xs`}
                       disabled={accountId && otherToken && value ? false : true}
                     />
                     <DebounceInput
@@ -148,7 +148,7 @@ const SwapInput = ({
                       onChange={(e) => {
                         if (accountId && otherToken && value) onPerc(e.target.value);
                       }}
-                      className="text-xs text-type-200 placeholder-gray-500 bg-primary-700  py-1 rounded px-1 w-12 outline-none"
+                      className={`text-xs ${accountId && otherToken && value? "text-type-200 placeholder-gray-500 bg-primary-700 ":"text-type-600 border-type-600 bg-primary-700"}   py-1 rounded px-1 w-12 outline-none`}
                       placeholder="%"
                       disabled={accountId && otherToken && value ? false : true}
                     />
