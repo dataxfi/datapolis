@@ -4,6 +4,7 @@ import { BiLockAlt, BiLockOpenAlt } from "react-icons/bi";
 import { MdClose } from "react-icons/md";
 import BigNumber from "bignumber.js";
 import { getTokenVal, isOCEAN, IToken } from "./Swap";
+import errorMessages from "../utils/errorMessages";
 
 export type approvalStates = "approved" | "approving" | "pending";
 
@@ -20,7 +21,8 @@ export default function UnlockTokenModal({
   nextFunction: Function;
   remove?: boolean;
 }) {
-  const { accountId, config, ocean, showUnlockTokenModal, setShowUnlockTokenModal } = useContext(GlobalContext);
+  const { accountId, config, ocean, showUnlockTokenModal, setShowUnlockTokenModal, notifications, setNotifications } =
+    useContext(GlobalContext);
   const [approving, setApproving] = useState<approvalStates>("pending");
   const [t1BN, setT1BN] = useState<BigNumber>(new BigNumber(0));
   useEffect(() => {
@@ -64,6 +66,17 @@ export default function UnlockTokenModal({
       } catch (error) {
         console.error(error);
         setApproving("pending");
+        const allNotifications = notifications;
+        allNotifications.push({
+          type: "alert",
+          alert: {
+            message: errorMessages(error),
+            link: null,
+            type: "alert",
+          },
+        });
+        setNotifications([...allNotifications]);
+        setShowUnlockTokenModal(false);
       }
     }
   }
@@ -106,7 +119,12 @@ export default function UnlockTokenModal({
           onClick={() => {
             unlockTokens("perm");
           }}
-          className="w-full p-2 bg-primary-100 rounded mb-2 bg-opacity-20 hover:bg-opacity-40 hover:bg-primary-300 text-background-800"
+          className={`w-full p-2 rounded mb-2 bg-opacity-20  ${
+            approving === "approving"
+              ? "bg-primary-600 text-primary-400"
+              : "hover:bg-opacity-40 bg-primary-100 hover:bg-primary-300 text-background-800"
+          }`}
+          disabled={approving === "approving" ? true : false}
         >
           Unlock Permenantly
         </button>
@@ -115,7 +133,12 @@ export default function UnlockTokenModal({
           onClick={() => {
             unlockTokens("once");
           }}
-          className="w-full p-2 bg-primary-100 rounded mb-2 bg-opacity-20 hover:bg-opacity-40 hover:bg-primary-300 text-background-800"
+          disabled={approving === "approving" ? true : false}
+          className={`w-full p-2 rounded mb-2 bg-opacity-20  ${
+            approving === "approving"
+              ? "bg-primary-600 text-primary-400"
+              : "hover:bg-opacity-40 bg-primary-100 hover:bg-primary-300 text-background-800"
+          }`}
         >
           Unlock this time only
         </button>
