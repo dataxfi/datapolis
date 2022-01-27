@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
-import { approveTransactions } from "./Utilities";
+import { approve, approveTransactions } from "./Utilities";
 
 export const testAcctId = "0x867A6D38D30C4731c85bF567444F8CF22885DfAd";
 
@@ -26,7 +26,7 @@ export async function setupPuppBrowser() {
   }
 }
 
-export async function setupDappBrowser() {
+export async function setupDappBrowser(acct2: boolean = false) {
   let page: puppeteer.Page;
   let browser: puppeteer.Browser;
   let metamask: dappeteer.Dappeteer;
@@ -36,6 +36,7 @@ export async function setupDappBrowser() {
       metamaskVersion: "v10.8.1",
       headless: false,
       timeout: 5000,
+      ignoreDefaultArgs:["--disable-popup-blocking", "--disable-extensions"]
     });
     console.log(
       `Setting up metamask with creds: \n Password: ${process.env.REACT_APP_T_ACCT_PASS} \n Seed: ${process.env.REACT_APP_T_ACCT_SEED}`
@@ -45,9 +46,14 @@ export async function setupDappBrowser() {
       seed: process.env.REACT_APP_T_ACCT_SEED,
       password: process.env.REACT_APP_T_ACCT_PASS,
     });
+
+    if (acct2 && process.env.REACT_APP_T_ACCT2_PK && process.env.REACT_APP_T_ACCT_PASS) {
+      await metamask.importPK(process.env.REACT_APP_T_ACCT2_PK);
+      await metamask.switchAccount(1)
+    }
+
     await metamask.switchNetwork("rinkeby");
-    // Add Ocean Token to MetaMask
-    // await metamask.addToken("0x8967bcf84170c91b0d24d4302c2376283b0b3a07");
+
     page = await browser.newPage();
     await page.goto("http://localhost:3000/");
     return { page, browser, metamask };
@@ -75,11 +81,11 @@ export async function setupDataX(
   await quickConnectWallet(page);
   await page.waitForSelector(".sc-hKwDye.iWCqoQ.web3modal-provider-container");
   await page.click(".sc-hKwDye.iWCqoQ.web3modal-provider-container");
-
+  
   try {
     // Confirm Connection in MetaMaks
-    await metamask.approve();
-    await metamask.approve();
+    await approve(metamask.page, true);
+    await approve(metamask.page, true);
   } catch (error) {
     console.log("Coudnt connect to site.");
   }
