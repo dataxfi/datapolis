@@ -7,7 +7,7 @@ import { GlobalContext } from "../context/GlobalState";
 
 export default function Footer() {
   const { web3 } = useContext(GlobalContext);
-  console.log(web3);
+  // console.log(web3);
   const [blockNo, setBlockNo] = useState(0);
 
   useEffect(() => {

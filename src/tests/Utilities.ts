@@ -153,9 +153,9 @@ export async function swapTokens(page: puppeteer.Page) {
 
   //check all inputs reset
   await page.waitForSelector("#token1-input");
-  await page.waitForFunction('document.querySelector("#token1-input").value === ""', { timeout: 1000 });
-  await page.waitForFunction('document.querySelector("#token2-input").value === ""', { timeout: 1000 });
-  await page.waitForFunction('document.querySelector("#token1-perc-input").value === "0"', { timeout: 1000 });
+  await page.waitForFunction('document.querySelector("#token1-input").value === ""', { timeout: 2000 });
+  await page.waitForFunction('document.querySelector("#token2-input").value === ""', { timeout: 2000 });
+  await page.waitForFunction('document.querySelector("#token1-perc-input").value === "0"', { timeout: 2000 });
   await page.waitForTimeout(1000);
   expect(t1Bal).toBe(await getBalanceInDapp(page, 2));
   expect(t2Bal).toBe(await getBalanceInDapp(page, 1));
@@ -265,12 +265,23 @@ export async function typeAmount(
   t2Symbol: string,
   increment: boolean = true
 ) {
+  const otherPos = pos === 1 ? 2 : 1;
+  const currentInput = await page.evaluate(`document.querySelector("#token${otherPos}-input").value`);
   await page.waitForSelector(`#token${pos}-input`);
   await page.click(`#token${pos}-input`);
   await page.waitForTimeout(500);
   await page.type(`#token${pos}-input`, amount);
-  if (Number(amount) > 0) {
-    await page.waitForFunction('Number(document.querySelector("#token2-input").value) > 0', { timeout: 5000 });
+  if (Number(currentInput) > 0) {
+    await page.waitForFunction(
+      `Number(document.querySelector("#token${otherPos}-input").value) !== "${currentInput}"`,
+      {
+        timeout: 5000,
+      }
+    );
+  } else if (Number(amount) > 0) {
+    await page.waitForFunction(`Number(document.querySelector("#token${otherPos}-input").value) > 0`, {
+      timeout: 5000,
+    });
     if (increment) await incrementUntilValid(page, amount, t1Symbol, t2Symbol, 1);
   }
 }
@@ -311,8 +322,10 @@ export async function setUpSwap(
     if (amount === "0") return;
   }
 
+  const t1Bal = new BigNumber(await getBalanceInDapp(page, 1));
+
   //get max values for each token and value in input field
-  const { t1Max, t2Max, t1Input, t2Input } = await evaluateMax(page);
+  const { t1Max, t2Max, t1Input, t2Input } = await evaluateMax(page, t1Bal);
 
   //test decimals limited to 5
   const afterPeriod = /\.(.*)/;
@@ -358,7 +371,7 @@ interface IMaxEval {
   limit: "max" | "bal";
 }
 
-export async function evaluateMax(page: puppeteer.Page): Promise<IMaxEval> {
+export async function evaluateMax(page: puppeteer.Page, t1Bal: BigNumber): Promise<IMaxEval> {
   //get max values for each token
   await page.waitForSelector("[data-test-max]");
   await page.waitForSelector("[data-test-max]");
@@ -378,7 +391,7 @@ export async function evaluateMax(page: puppeteer.Page): Promise<IMaxEval> {
 
   let limit: "max" | "bal";
 
-  if (t1Max > t1Input || t2Max > t2Input) {
+  if (t1Input.eq(t1Bal)) {
     limit = "bal";
   } else {
     limit = "max";
@@ -524,17 +537,28 @@ export async function getBalanceInDapp(page: puppeteer.Page, pos: number): Promi
 
 type ITxType = "trade" | "stake" | "unstake";
 
-export async function getExecuteButtonText(page: puppeteer.Page, txType: ITxType) {
+export async function getExecuteButtonText(page: puppeteer.Page, txType: ITxType, text?: string) {
   switch (txType) {
     case "stake":
       await page.waitForSelector("#executeStake");
+      if (text)
+        await page.waitForFunction(`document.querySelector("#executeStake").innerText === "${text}"`, {
+          timeout: 1250,
+        });
       return await page.evaluate('document.querySelector("#executeStake").innerText');
     case "unstake":
       await page.waitForSelector("#executeUnstake");
+      if (text)
+        await page.waitForFunction(`document.querySelector("#executeUnstake").innerText === "${text}"`, {
+          timeout: 1250,
+        });
       return await page.evaluate('document.querySelector("#executeUnstake").innerText');
-      break;
     default:
       await page.waitForSelector("#executeTradeBtn");
+      if (text)
+        await page.waitForFunction(`document.querySelector("#executeTradeBtn").innerText === "${text}"`, {
+          timeout: 1250,
+        });
       return await page.evaluate('document.querySelector("#executeTradeBtn").innerText');
   }
 }

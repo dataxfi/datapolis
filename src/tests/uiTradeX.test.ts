@@ -70,7 +70,7 @@ describe("User Interface Works as Expected", () => {
 
   it("Max exchange should limit input when less than balance", async () => {
     await clickMaxTrade(page);
-    const { limit, t1Max, t2Max, t1Input, t2Input } = await evaluateMax(page);
+    const { limit, t1Max, t2Max, t1Input, t2Input } = await evaluateMax(page, acc1DapBalT1);
     expect(limit).toBe("max");
     expect(t1Max.toNumber()).toBeLessThan(acc1DapBalT1.toNumber());
     expect(t1Input.toNumber()).toBeCloseTo(t1Max.toNumber());
@@ -98,17 +98,17 @@ describe("User Interface Works as Expected", () => {
 
   it("Balance should limit input when less than max exchange", async () => {
     await clickMaxTrade(page);
-    const { limit, t1Max, t2Max, t1Input, t2Input } = await evaluateMax(page);
+    const { limit, t1Max, t2Max, t1Input, t2Input } = await evaluateMax(page, acc2DapBalT1);
     expect(limit).toBe("bal");
     expect(t1Input.toNumber()).toBeCloseTo(acc2DapBalT1.toNumber());
-    expect(t1Input.toNumber()).toBeLessThan(t1Max.toNumber());
-    expect(t2Input.toNumber()).toBeLessThan(t2Max.toNumber());
+    expect(t1Input.toNumber()).toEqual(t1Max.toNumber());
+    expect(t2Input.toNumber()).toEqual(t2Max.toNumber());
   });
 
   it("Inputs and perc are all reset to 0 when token 1 or 2 changes", async () => {
     await selectToken(page, "DAZORC-13", 1);
     await awaitTokenSelect(page, "DAZORC-13", 1);
-    const { t1Input, t2Input } = await evaluateMax(page);
+    const { t1Input, t2Input } = await evaluateMax(page, acc2DapBalT1);
     expect(t1Input.toString()).toBe("0");
     expect(t2Input.toString()).toBe("0");
     const perc = await getPercInDapp(page);
@@ -124,8 +124,8 @@ describe("User Interface Works as Expected", () => {
 
   it("If balance is 0 the execute transaction button says not enough token", async () => {
     await typeAmount(page, "10", 1, "ZEASEA-66", "SAGKRI-94");
-    const btnText = await getExecuteButtonText(page, "trade");
-    const { t1Input, t2Input } = await evaluateMax(page);
+    const btnText = await getExecuteButtonText(page, "trade", "Not Enough ZEASEA-66");
+    const { t1Input, t2Input } = await evaluateMax(page, acc2DapBalT1);
     expect(t1Input.toString()).toBe("10");
     expect(t2Input.toNumber()).toBeGreaterThan(0);
     expect(btnText).toBe("Not Enough ZEASEA-66");
