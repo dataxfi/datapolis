@@ -87,7 +87,7 @@ export async function setupDataX(page: puppeteer.Page, browser: puppeteer.Browse
   //Check wallet address in is the button
   const walletBtn = await page.waitForSelector("#d-view-txs-btn");
   
-  await new Promise((res, rej) => setTimeout(res, 3000));
+  await new Promise((res, rej) => setTimeout(res, 500));
   const btnText = await page.evaluate((el) => el.textContent, walletBtn);
   expect(btnText).toBe("0x867...DfAd");  
 }

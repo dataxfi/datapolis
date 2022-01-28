@@ -15,7 +15,6 @@ import Footer from "./components/Footer";
 import NotificationArea from "./components/NotificationArea";
 import usePTxInitializer from "./hooks/usePTxInitializer";
 import BigNumber from "bignumber.js";
-import LandingPage from "./components/LandingPage";
 BigNumber.config({ DECIMAL_PLACES: 18, ROUNDING_MODE: BigNumber.ROUND_DOWN, EXPONENTIAL_AT: 18 });
 
 //import "./stars.css"

@@ -118,6 +118,7 @@ const Swap = () => {
     classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
     disabled: true,
   });
+  const [percLoading, setPercLoading] = useState(false)
 
   const [maxExchange, setMaxExchange] = useState<IMaxExchange>(INITIAL_MAX_EXCHANGE);
   const [txsForTPair, setTxsForTPair] = useState<BigNumber>(new BigNumber(2));
@@ -707,10 +708,9 @@ const Swap = () => {
     }
   }
 
-  useEffect(() => {console.log("bgLoading", bgLoading);
-  }, [bgLoading]);
-
   async function onPercToken1(val: string) {
+    setPercLoading(true)
+    if(val === "") val = "0"
     let bnVal = new BigNumber(val);
     let exchangeLimit;
 
@@ -730,6 +730,7 @@ const Swap = () => {
       updateValueFromPercentage(true, val);
     }
     // setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
+    setPercLoading(false)
   }
 
   async function dbUpdateToken2(value: string) {
@@ -837,7 +838,7 @@ const Swap = () => {
               tabIndex={0}
               className="rounded-full border-primary-900 border-4 absolute -top-14 bg-primary-800 hover:bg-primary-600 transition-colors duration-200 w-16 h-16 flex swap-center items-center justify-center"
             >
-              {token2.loading || token1.loading || bgLoading.includes(bgLoadingStates.calcTrade) ? (
+              {token2.loading || token1.loading || bgLoading.includes(bgLoadingStates.calcTrade) || percLoading ? (
                 <MoonLoader size={25} color={"white"} />
               ) : (
                 <IoSwapVertical size="30" className="text-gray-300" />
