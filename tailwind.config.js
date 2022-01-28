@@ -18,9 +18,9 @@ module.exports = {
       pollerOne: ['"Poller One"', "cursive"],
     },
     backgroundSize: {
-      'auto': 'auto',
-      'cover': 'cover',
-      'contain': 'contain',
+      auto: "auto",
+      cover: "cover",
+      contain: "contain",
       lg: "300px",
       md: "150px",
       sm: "100px",
@@ -44,18 +44,30 @@ module.exports = {
       //  }
       backgroundImage: {
         dataXgif: 'url("./assets/YellowXLoader.gif")',
-        dataXcity: 'url("./assets/DataX-Main-Cover.jpg")', 
-        dataXtrade: 'url("./assets/TradeX-New.jpg")', 
-        dataXstake: 'url("./assets/StakeX.jpg")'
+        dataXcity: 'url("./assets/DataX-City.jpeg")',
+        dataXtrade: 'url("./assets/TradeX.jpeg")',
+        dataXstake: 'url("./assets/StakeX.jpeg")',
       },
       colors: {
-        primary: colors.coolGray,
+        primary: colors.trueGray,
         secondary: colors.indigo,
         tertiary: colors.sky,
         type: colors.warmGray,
         background: colors.black,
         yellow: {
           DEFAULT: "#f3c429",
+        },
+        stake: {
+          blue: "#0a456e",
+          darkBlue: "#1a2646",
+        },
+        trade: {
+          blue: "#313b65",
+          darkBlue: "#0C161F",
+        },
+        city: {
+          blue: "#3a7bbf",
+          darkBlue: "#222222",
         },
       },
 

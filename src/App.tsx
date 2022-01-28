@@ -15,6 +15,7 @@ import Footer from "./components/Footer";
 import NotificationArea from "./components/NotificationArea";
 import usePTxInitializer from "./hooks/usePTxInitializer";
 import BigNumber from "bignumber.js";
+import LandingPage from "./components/LandingPage";
 BigNumber.config({ DECIMAL_PLACES: 18, ROUNDING_MODE: BigNumber.ROUND_DOWN, EXPONENTIAL_AT: 18 });
 
 //import "./stars.css"
@@ -47,13 +48,13 @@ function App() {
       <div
         className={`w-full h-full ${
           location === "/tradeX"
-            ? "absolute bg-dataXtrade bg-cover bg-bottom"
-            : location === "/stakeX"
+            ? "absolute bg-dataXtrade bg-cover bg-top"
+            : location !== "/"
             ? "absolute bg-dataXstake bg-cover bg-bottom"
             : "relative"
         }`}
       >
-        <div className={`min-h-full relative`}>
+        <div className={`min-h-full relative bg-black bg-opacity-40`}>
           {unsupportedNet ? (
             <UnsupportedNetwork />
           ) : (
@@ -62,14 +63,7 @@ function App() {
                 <DisclaimerModal />
               ) : (
                 <Routes>
-                  <Route
-                    path="/"
-                    element={
-                      <>
-                        <LandingPage />
-                      </>
-                    }
-                  />
+                  <Route path="/" element={<LandingPage />} />
                   <Route
                     path="/tradeX"
                     element={

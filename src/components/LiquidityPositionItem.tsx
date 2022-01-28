@@ -31,7 +31,7 @@ function LiquidityPositionItem({ pool, index }: { pool: PoolData; index: number 
           onClick={() => setVisible(!visible)}
           className={`flex justify-between p-4  ${
             visible ? "rounded-t-lg" : "rounded-lg mb-2"
-          } bg-primary-800 select-none `}
+          } bg-trade-darkBlue select-none `}
           role="button"
         >
           <div className="grid grid-flow-col gap-2 items-center justify-start">
@@ -55,8 +55,8 @@ function LiquidityPositionItem({ pool, index }: { pool: PoolData; index: number 
           </div>
         </div>
         {visible ? (
-          <div id={`${token1.symbol}-lp-info`} className={`p-4 bg-primary-800 rounded-b-lg mb-2`}>
-            <div className="p-4 bg-primary-900 rounded-lg">
+          <div id={`${token1.symbol}-lp-info`} className={`p-4 bg-trade-darkBlue rounded-b-lg mb-2`}>
+            <div className="p-4 bg-gray-800 rounded-lg">
               <div className="grid grid-cols-2 justify-between">
                 <div>
                   <p id="totalSharesTitle" className="text-type-300 text-sm">

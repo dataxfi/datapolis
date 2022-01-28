@@ -610,11 +610,13 @@ const Swap = () => {
   }
 
   function getButtonProperties() {
+    const enabled = "bg-gray-700 hover:bg-opacity-60 text-background-800"
+    const disabled = "bg-trade-darkBlue bg-opacity-75 text-gray-400 cursor-not-allowed"
     const { t1BN, t2BN } = getTokenVal(token1, token2);
     if (!accountId) {
       setBtnProps({
         text: "Connect Wallet",
-        classes: "bg-primary-100 bg-opacity-20 hover:bg-opacity-40 text-background-800",
+        classes: enabled,
         disabled: false,
       });
     }
@@ -622,7 +624,7 @@ const Swap = () => {
     if (accountId && !(token1.info && token2.info)) {
       setBtnProps({
         text: "Select Tokens",
-        classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
+        classes: disabled,
         disabled: true,
       });
     }
@@ -630,7 +632,7 @@ const Swap = () => {
     if ((accountId && token1.info && token2.info && t1BN.eq(0)) || !t2BN.eq(0)) {
       setBtnProps({
         text: "Enter Token Amount",
-        classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
+        classes: disabled,
         disabled: true,
       });
     }
@@ -639,7 +641,7 @@ const Swap = () => {
       if (token1.balance.eq(0)) {
         setBtnProps({
           text: `Not Enough ${token1.info.symbol}`,
-          classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
+          classes: disabled,
           disabled: true,
         });
       } else if (
@@ -648,31 +650,31 @@ const Swap = () => {
       ) {
         setBtnProps({
           text: `Minimum trade is .01 OCEAN`,
-          classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
+          classes: disabled,
           disabled: true,
         });
       } else if (t1BN.lt(0.001)) {
         setBtnProps({
           text: `Minimum trade is .001 ${token1.info.symbol}`,
-          classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
+          classes: disabled,
           disabled: true,
         });
       } else if (t2BN.lt(0.001)) {
         setBtnProps({
           text: `Minimum trade is .001 ${token2.info.symbol}`,
-          classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
+          classes: disabled,
           disabled: true,
         });
       } else if (token1.allowance?.lt(t1BN)) {
         setBtnProps({
           text: `Unlock ${token1.info.symbol}`,
-          classes: "bg-primary-100 bg-opacity-20 hover:bg-opacity-40 text-background-800",
+          classes: enabled,
           disabled: false,
         });
       } else if (token1.balance.dp(5).gte(token1.value) && !token1.balance.eq(0)) {
         setBtnProps({
           text: "Swap",
-          classes: "bg-primary-100 bg-opacity-20 hover:bg-opacity-40 text-background-800",
+          classes: enabled,
           disabled: false,
         });
       }
@@ -760,7 +762,7 @@ const Swap = () => {
   return (
     <>
       <div id="swapModal" className="flex my-3 w-full h-full items-center justify-center pt-16">
-        <div className="max-w-2xl lg:mx-auto sm:mx-4 mx-3 bg-primary-900 w-full rounded-lg p-4 hm-box ">
+        <div className="max-w-2xl lg:mx-auto sm:mx-4 mx-3 bg-black bg-opacity-95 w-full rounded-lg p-4 hm-box">
           <div className="flex justify-between relative">
             <p className="text-xl">{text.T_SWAP}</p>
             <div className="grid grid-flow-col gap-2 items-center">
@@ -780,12 +782,12 @@ const Swap = () => {
                     setShowSettings(false);
                   }}
                 >
-                  <div className="bg-primary-900 rounded-lg border border-gray-700 p-4 w-full">
+                  <div className="bg-black rounded-lg border bg-opacity-90 border-primary-500 p-4 w-full">
                     <p className="text-type-100">Transaction settings</p>
                     <div className="mt-2">
                       <p className="text-type-300 text-sm">Slippage tolerance</p>
                       <div className="grid grid-flow-col gap-2 items-center">
-                        <div className="flex justify-between focus:border-secondary-500 bg-primary-700 rounded-lg items-center px-2 py-1">
+                        <div className="flex justify-between focus:border-white bg-primary-700 rounded-lg items-center px-2 py-1">
                           <input
                             id="slippageInput"
                             type="number"
@@ -836,7 +838,7 @@ const Swap = () => {
               }}
               role="button"
               tabIndex={0}
-              className="rounded-full border-primary-900 border-4 absolute -top-14 bg-primary-800 hover:bg-primary-600 transition-colors duration-200 w-16 h-16 flex swap-center items-center justify-center"
+              className="rounded-full border-black bg-opacity-100 border-4 absolute -top-14 bg-trade-darkBlue hover:bg-gray-600 transition-colors duration-200 w-16 h-16 flex swap-center items-center justify-center"
             >
               {token2.loading || token1.loading || bgLoading.includes(bgLoadingStates.calcTrade) || percLoading ? (
                 <MoonLoader size={25} color={"white"} />
@@ -861,7 +863,7 @@ const Swap = () => {
           />
 
           {token1.info && token2.info && postExchange.isNaN && postExchange.gt(0) ? (
-            <div className="my-4 p-2 bg-primary-800 flex justify-between text-type-400 text-sm rounded-lg">
+            <div className="my-4 p-2 bg-trade-darkBlue flex justify-between text-type-400 text-sm rounded-lg">
               <p>Exchange rate</p>
               <p>
                 1 {token1.info.symbol} = {postExchange.dp(5).toString()} {`${" "}${token2.info.symbol}`}
@@ -889,7 +891,7 @@ const Swap = () => {
                     break;
                 }
               }}
-              classes={"px-4 py-4 rounded-lg w-full " + btnProps.classes}
+              classes={"px-4 py-4 rounded-lg w-full  transition-color duration-200 " + btnProps.classes}
               disabled={btnProps.disabled}
             />
           </div>

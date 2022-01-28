@@ -24,7 +24,7 @@ const StakeSelect = ({ value, setToken }: { value: Record<any, any> | null; setT
   
   return (
     <div>
-      <div className="mt-4 bg-primary-800 p-4 rounded-lg">
+      <div className="mt-4 bg-trade-darkBlue p-4 rounded-lg">
         <div className="md:grid md:grid-cols-5">
           <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center">
             {value ? (
@@ -51,7 +51,7 @@ const StakeSelect = ({ value, setToken }: { value: Record<any, any> | null; setT
                   </span>
                 </div>
               ) : (
-                <p className="text-xs text-type-100 border-type-300 border rounded-full px-2 py-1 mt-1">Select token</p>
+                <p className="text-xs text-type-100 border-type-300 border rounded-full px-2 py-1 mt-1 hover:bg-gray-400">Select token</p>
               )}
             </div>
           </div>

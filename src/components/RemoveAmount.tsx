@@ -47,11 +47,14 @@ const RemoveAmount = () => {
     setNotifications,
     setShowUnlockTokenModal,
   } = useContext(GlobalContext);
+  const enabled = "bg-gray-700 hover:bg-opacity-60 text-background-800";
+  const disabled = "bg-trade-darkBlue bg-opacity-75 text-gray-400 cursor-not-allowed";
   const [noWallet, setNoWallet] = useState<boolean>(false);
   const [recentTxHash, setRecentTxHash] = useState("");
   const [noStakedPools, setNoStakedPools] = useState<boolean>(false);
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
-  const [btnText, setBtnText] = useState("Approve and Withdrawal");
+  const [btnText, setBtnText] = useState("Enter Amount to Remove");
+  const [btnStyle, setBtnStyle] = useState(disabled);
   const [inputDisabled, setInputDisabled] = useState(false);
   const [poolAddress, setPoolAddress] = useState<string>("");
   const [pendingUnstakeTx, setPendingUnstakeTx] = useState<number | string>();
@@ -102,7 +105,7 @@ const RemoveAmount = () => {
   usePTxManager(lastTxId);
   useTxModalToggler(txReceipt, setTxReceipt);
   useCurrentPool(poolAddress, setPoolAddress, txReceipt, setTxReceipt);
-  useBgToggler()
+  useBgToggler();
 
   useEffect(() => {
     if (ocean && currentStakePool) {
@@ -133,23 +136,29 @@ const RemoveAmount = () => {
     if (currentStakePool && Number(currentStakePool.shares) === 0) {
       setBtnDisabled(true);
       setInputDisabled(true);
+      setBtnStyle(disabled);
       setBtnText("Not Enough Shares");
     } else if (pendingUnstakeTx) {
       setBtnDisabled(true);
       setInputDisabled(true);
+      setBtnStyle(disabled);
       setBtnText("Processing Transaction ...");
     } else if (sharesToRemove.eq(0) || oceanToReceive.eq(0)) {
       setBtnDisabled(true);
       setBtnText("Enter Amount to Remove");
+      setBtnStyle(disabled);
     } else if (oceanToReceive.lt(0.01)) {
       setBtnDisabled(true);
       setBtnText("Minimum Removal is .01 OCEAN");
-    } else if(allowance.lt(oceanToReceive)){
-      setBtnDisabled(false)
-      setBtnText(`Unlock ${currentStakePool.token1.symbol}`)
-    }else {
+      setBtnStyle(disabled);
+    } else if (allowance.lt(oceanToReceive)) {
+      setBtnDisabled(false);
+      setBtnText(`Unlock ${currentStakePool.token1.symbol}`);
+      setBtnStyle(enabled);
+    } else {
       setBtnDisabled(false);
       setBtnText("Withdrawal");
+      setBtnStyle(enabled);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bgLoading.length, sharesToRemove, pendingUnstakeTx, currentStakePool, maxUnstake]);
@@ -372,7 +381,7 @@ const RemoveAmount = () => {
     <>
       <div id="removeStakeModal" className="flex w-full items-center mb-20 pt-16">
         <div className="max-w-2xl mx-auto w-full p-4">
-          <div className="max-w-2xl mx-auto bg-primary-900 w-full rounded-lg p-4 hm-box">
+          <div className="max-w-2xl mx-auto bg-black opacity-90 w-full rounded-lg p-4 hm-box">
             <div className="flex flex-row pb-2 justify-between">
               <div className="flex flex-row">
                 <img
@@ -406,11 +415,11 @@ const RemoveAmount = () => {
                 />
               ) : null}
             </div>
-            <div className="md:grid md:grid-cols-5 bg-primary-800 p-4 rounded">
+            <div className="md:grid md:grid-cols-5 bg-trade-darkBlue p-4 rounded">
               <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center">
                 <p className="text-type-100">Amount to unstake</p>
               </div>
-              <div className="col-span-3 flex justify-between mt-3 md:mt-0 bg-primary-900 rounded-lg p-2">
+              <div className="col-span-3 flex justify-between mt-3 md:mt-0 bg-trade-darkBlue rounded-lg p-2 border-primary-400 border-b">
                 <div className="flex w-full items-center">
                   {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
                   <span className={`text-2xl ${sharesToRemove ? "text-primary-400" : null}`}>
@@ -422,7 +431,7 @@ const RemoveAmount = () => {
                       onWheel={(event: any) => event.currentTarget.blur()}
                       onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
                       type="number"
-                      className="h-full w-24 rounded-lg bg-primary-900 text-2xl px-1 outline-none focus:placeholder-type-200 placeholder-type-400 text-right"
+                      className="h-full w-24 rounded-lg bg-trade-darkBlue text-2xl px-1 outline-none focus:placeholder-type-200 placeholder-type-400 text-right"
                       placeholder="0.00"
                       value={!sharesPercToRemove ? "" : sharesPercToRemove?.dp(2).toString()}
                       disabled={inputDisabled}
@@ -450,7 +459,9 @@ const RemoveAmount = () => {
                       disabled={Number(currentStakePool.shares) === 0}
                       text="Max Unstake"
                       classes={`px-2 lg:w-24 py-0 border border-type-300 rounded-full text-xs ${
-                        inputDisabled || Number(currentStakePool.shares) === 0 ? "text-gray-700" : "hover:bg-primary-600"
+                        inputDisabled || Number(currentStakePool.shares) === 0
+                          ? "text-gray-700"
+                          : "hover:bg-primary-600"
                       }`}
                     />
                   </div>
@@ -458,7 +469,7 @@ const RemoveAmount = () => {
               </div>
             </div>
             <div className="px-4 relative my-12">
-              <div className="rounded-full border-primary-900 border-4 absolute -top-14 bg-primary-800 w-16 h-16 flex items-center justify-center swap-center">
+              <div className="rounded-full border-black border-4 absolute -top-14 bg-trade-darkBlue w-16 h-16 flex items-center justify-center swap-center">
                 {bgLoading.includes(bgLoadingStates.singlePoolData) ||
                 bgLoading.includes(bgLoadingStates.maxUnstake) ||
                 bgLoading.includes(bgLoadingStates.calcTrade) ? (
@@ -468,13 +479,13 @@ const RemoveAmount = () => {
                 )}
               </div>
             </div>
-            <div className="bg-primary-800 p-4 rounded ">
-              <div className="md:grid md:grid-cols-5 bg-primary-800 p-4">
+            <div className="bg-trade-darkBlue p-4 rounded ">
+              <div className="md:grid md:grid-cols-5 bg-trade-darkBlue p-4">
                 <div className="col-span-2">
                   <p className="text-type-100">You will receive</p>
                 </div>
                 <div className="col-span-3 grid grid-cols-2 gap-4">
-                  <div className="bg-primary-900 grid grid-flow-col gap-2 p-2 rounded-lg">
+                  <div className="bg-black grid grid-flow-col gap-2 p-2 rounded-lg">
                     <div>
                       <img
                         src="https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY"
@@ -510,11 +521,7 @@ const RemoveAmount = () => {
                     handleUnstake();
                   }
                 }}
-                classes={`px-4 py-4 rounded-lg w-full ${
-                  btnDisabled
-                    ? "bg-gray-800 text-gray-400 cursor-not-allowed"
-                    : "bg-primary-100 bg-opacity-20 hover:bg-opacity-40 text-background-800"
-                }`}
+                classes={`px-4 py-4 rounded-lg w-full transition-color duration-200 ${btnStyle}`}
                 disabled={btnDisabled}
               />
             </div>
@@ -532,7 +539,7 @@ const RemoveAmount = () => {
           value: sharesToRemove,
           percentage: sharesPercToRemove,
           loading: false,
-          info: {...currentStakePool.token1, pool: currentStakePool.address},
+          info: { ...currentStakePool.token1, pool: currentStakePool.address },
           balance: currentStakePool.shares,
         }}
         token2={{

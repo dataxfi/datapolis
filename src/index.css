@@ -72,7 +72,7 @@ html:empty {
 }
 
 .hm-btn.hm-btn-light {
-  @apply bg-primary-800 text-type-200 hover:bg-primary-700;
+  @apply bg-black bg-opacity-75 text-type-200 hover:bg-primary-800 hover:bg-opacity-75 transition-all duration-200;
 }
 
 .hm-loading {

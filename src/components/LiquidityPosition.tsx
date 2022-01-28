@@ -145,9 +145,9 @@ const LiquidityPosition = () => {
 
   return (
     <div id="lpModal" className="w-full pb-5 flex justify-center pt-16">
-      <div className=" bg-primary-900 max-w-2xl p-2 rounded-lg w-full flex flex-col px-3 ">
+      <div className=" bg-black bg-opacity-90 max-w-2xl p-2 rounded-lg w-full flex flex-col px-3 ">
         <div className="flex flex-row w-full justify-center">
-          <div className="max-w-2xl w-full flex py-2 rounded-lg justify-between bg-primary-900">
+          <div className="max-w-2xl w-full flex py-2 rounded-lg justify-between">
             <h2 className="text-2xl">Your staked pools</h2>
             {(bgLoading.includes(bgLoadingStates.allStakedPools) ||
               bgLoading.includes(bgLoadingStates.singlePoolData)) &&
@@ -163,7 +163,7 @@ const LiquidityPosition = () => {
         </div>
 
         {userMessage ? (
-          <div className="flex flex-row justify-center items-center h-60 bg-primary-800 rounded-lg">
+          <div className="flex flex-row justify-center items-center h-60 bg-trade-darkBlue rounded-lg">
             <UserMessageModal id={messageId} message={userMessage} pulse={false} container={false} timeout={null} />
           </div>
         ) : (
@@ -187,7 +187,7 @@ const LiquidityPosition = () => {
           <></>
         )}
         <div className="flex flex-row w-full justify-center">
-          <div className="max-w-2xl w-full py-2 rounded-lg bg-primary-900">
+          <div className="max-w-2xl w-full py-2 bg-black">
             <div className="w-full flex justify-center">
               <div className="w-full pr-1">
                 <button
@@ -197,8 +197,8 @@ const LiquidityPosition = () => {
                   onClick={() => {
                     setShowModal(true);
                   }}
-                  className={`p-3 w-full  bg-primary-600 rounded ${
-                    accountId ? "bg-primary-600 text-white hover:bg-primary-500" : "bg-primary-800 text-gray-500"
+                  className={`p-3 w-full rounded ${
+                    accountId ? "bg-gray-700 hover:bg-opacity-60 text-background-800" : "bg-trade-darkBlue bg-opacity-75 text-gray-400 cursor-not-allowed"
                   }`}
                 >
                   Import
