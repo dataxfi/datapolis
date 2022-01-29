@@ -54,52 +54,21 @@ function App() {
             : "relative"
         }`}
       >
-        <div className={`min-h-full relative bg-black bg-opacity-40`}>
+        <div className={`min-h-full relative bg-black bg-opacity-40 overflow-hidden`}>
           {unsupportedNet ? (
             <UnsupportedNetwork />
           ) : (
             <Router>
+              <Navbar />
               {showDisclaimer ? (
                 <DisclaimerModal />
               ) : (
                 <Routes>
                   <Route path="/" element={<LandingPage />} />
-                  <Route
-                    path="/tradeX"
-                    element={
-                      <>
-                        <Navbar />
-                        <Swap />
-                      </>
-                    }
-                  />
-                  <Route
-                    path="/stakeX"
-                    element={
-                      <>
-                        <Navbar />
-                        <Stake />
-                      </>
-                    }
-                  />
-                  <Route
-                    path="/stakeX/remove"
-                    element={
-                      <>
-                        <Navbar />
-                        <RemoveAmount />
-                      </>
-                    }
-                  />
-                  <Route
-                    path="/stakeX/list"
-                    element={
-                      <>
-                        <Navbar />
-                        <LiquidityPosition />
-                      </>
-                    }
-                  />
+                  <Route path="/tradeX" element={<Swap />} />
+                  <Route path="/stakeX" element={<Stake />} />
+                  <Route path="/stakeX/remove" element={<RemoveAmount />} />
+                  <Route path="/stakeX/list" element={<LiquidityPosition />} />
                 </Routes>
               )}
             </Router>

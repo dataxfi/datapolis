@@ -760,9 +760,9 @@ const Swap = () => {
   }
 
   return (
-    <>
+    <div className="w-full h-full absolute top-0 ">
       <div id="swapModal" className="flex my-3 w-full h-full items-center justify-center pt-16">
-        <div className="max-w-2xl lg:mx-auto sm:mx-4 mx-3 bg-black bg-opacity-95 w-full rounded-lg p-4 hm-box">
+        <div className="max-w-2xl lg:mx-auto sm:mx-4 mx-3 mb-40 bg-black bg-opacity-95 w-full rounded-lg p-4 hm-box">
           <div className="flex justify-between relative">
             <p className="text-xl">{text.T_SWAP}</p>
             <div className="grid grid-flow-col gap-2 items-center">
@@ -923,7 +923,7 @@ const Swap = () => {
         txs={getConfirmModalProperties()}
       />
       <TransactionDoneModal show={showTxDone} txHash={lastTxUrl} close={() => setShowTxDone(false)} />
-    </>
+    </div>
   );
 };
 

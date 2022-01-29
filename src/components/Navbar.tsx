@@ -22,7 +22,7 @@ const Navbar = () => {
     { name: text.T_STAKE, link: "/stakeX" },
   ];
 
-  const { buttonText, config, chainId, accountId, setShowTxHistoryModal, handleConnect } = useContext(GlobalContext);
+  const { buttonText, config, chainId, accountId, setShowTxHistoryModal, handleConnect, location } = useContext(GlobalContext);
 
   function truncateId() {
     return (buttonText.substring(0, 5) +
@@ -47,7 +47,7 @@ const Navbar = () => {
   }
 
   return (
-    <nav>
+    <nav className={`${location === "/" ? "hidden" : ""} absolute top-0 z-10 w-full`}>
       {/* Separating the UI logic because figuring out code reuse here will take more time. 
             i.e. It's not a simple cascade of columns to rows. There is a toggle and the connect to wallet 
             button is at the bottom */}

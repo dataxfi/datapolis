@@ -13,12 +13,14 @@ const UserMessageModal = ({
   pulse = false,
   container = false,
   timeout = null,
+  className=""
 }: {
   id?: string | null;
   message: string | userMessage;
   pulse: boolean;
   container: boolean;
   timeout: null | { showState: Function; time: number };
+  className?:string
 }) => {
   let link: any;
   let userMessage;
@@ -100,7 +102,7 @@ const UserMessageModal = ({
   const floatMessageEl = (
     <div
       id={id}
-      className={`max-w-xs fixed md:top-8 md:right-8 w-full mx-auto bg-primary-800 rounded-lg p-4 transition-opacity ease-in-out opacity-${messageOpacity} duration-500`}
+      className={`max-w-xs fixed md:top-8 md:right-8 w-full mx-auto bg-trade-darkBlue rounded-lg p-4 transition-opacity ease-in-out opacity-${messageOpacity} duration-500 ${className? className: ""}`}
     >
       <div className="flex justify-between items-start">
         <div className="grid grid-flow-col gap-4 items-center justify-center">
