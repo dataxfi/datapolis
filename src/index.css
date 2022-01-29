@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap");
-
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,800;0,900;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,800;0,900;1,800;1,900&family=Special+Elite&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -124,4 +125,68 @@ html:empty {
 
 .swap-center {
   left: 45%;
+}
+
+.text-shadow-bold{
+  text-shadow: 3px 3px 4px black;
+}
+
+.text-shadow-light{
+  text-shadow: 2px 2px 4px black;
+}
+
+
+.wiggle {
+  -webkit-animation: squiggly-anim 0.34s linear infinite;
+  animation: squiggly-anim 0.34s linear infinite;
+}
+
+.money {
+  vertical-align: middle;
+  width: 100%;
+  outline: none;
+  text-align: center;
+}
+.small {
+  font-size: 0.5em;
+}
+.smaller {
+  font-size: 0.4em;
+}
+p {
+  margin: 0;
+}
+@-webkit-keyframes squiggly-anim {
+  0% {
+    filter: url('#squiggly-0');
+  }
+  25% {
+    filter: url('#squiggly-1');
+  }
+  50% {
+    filter: url('#squiggly-2');
+  }
+  75% {
+    filter: url('#squiggly-3');
+  }
+  100% {
+    filter: url('#squiggly-4');
+  }
+}
+@keyframes squiggly-anim {
+  0% {
+    filter: url('#squiggly-0');
+  }
+  25% {
+    filter: url('#squiggly-1');
+  }
+  50% {
+    filter: url('#squiggly-2');
+  }
+  75% {
+    filter: url('#squiggly-3');
+  }
+  100% {
+    filter: url('#squiggly-4');
+  }
 }

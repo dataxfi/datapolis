@@ -16,6 +16,8 @@ module.exports = {
     fontFamily: {
       sans: ["DM Sans", "Helvetica", "Arial", "sans-serif"],
       pollerOne: ['"Poller One"', "cursive"],
+      montserrat: ["'Montserrat'", "sans-serif"], 
+      grit: ["'Special Elite'", "Montserrat", "sans-serif"]
     },
     backgroundSize: {
       auto: "auto",
