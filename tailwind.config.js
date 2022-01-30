@@ -36,6 +36,12 @@ module.exports = {
         98: "25rem",
         100: "26rem",
         102: "27rem",
+        103: "28rem",
+        104: "29rem",
+        105: "30rem",
+        107: "32rem", 
+        109: "34rem", 
+        111: "36rem,"
       },
       //  colors: {
       //   'primary': colors.trueGray,

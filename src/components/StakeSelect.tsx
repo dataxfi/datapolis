@@ -24,13 +24,13 @@ const StakeSelect = ({ value, setToken }: { value: Record<any, any> | null; setT
   
   return (
     <div>
-      <div className="mt-4 bg-trade-darkBlue p-4 rounded-lg">
+      <div className="mt-4 bg-trade-darkBlue p-2 rounded-lg">
         <div className="md:grid md:grid-cols-5">
           <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center">
             {value ? (
-              <img src={value.logoURI} className="w-14 h-14 rounded-md" alt="" />
+              <img src={value.logoURI} className="w-10 h-10 rounded-md" alt="" />
             ) : (
-              <div className="w-14 h-14 rounded-md bg-background font-pollerOne text-yellow text-center pt-3 text-3xl">
+              <div className="w-12 h-12 rounded-md bg-background font-pollerOne text-yellow text-center pt-2 text-3xl">
                 X
               </div>
             )}
@@ -45,8 +45,8 @@ const StakeSelect = ({ value, setToken }: { value: Record<any, any> | null; setT
               {value ? (
                 <div>
                   <p className="text-type-100 text-xs">DataToken</p>
-                  <span className="text-2xl text-type-200 font-bold grid grid-flow-col items-center gap-1">
-                    <span id="stakeToken" className="text-xs sm:text-xl">{value.symbol}</span>
+                  <span className="text-type-200 font-bold grid grid-flow-col items-center gap-1">
+                    <span id="stakeToken" className="text-xs sm:text-lg">{value.symbol}</span>
                     <BsChevronDown className="text-type-200" size="16" />
                   </span>
                 </div>
@@ -55,11 +55,11 @@ const StakeSelect = ({ value, setToken }: { value: Record<any, any> | null; setT
               )}
             </div>
           </div>
-          <div className="col-span-3 mt-3 md:mt-0">
+          <div className="col-span-3 ml-4 mt-3 md:mt-0">
             {value ? (
               <div>
-                <p className="text-type-100 uppercase text-xs md:text-lg">{value.name}</p>
-                <div className="grid grid-flow-col justify-start gap-4">
+                <p className="text-type-100 uppercase text-xs md:text-base">{value.name}</p>
+                <div className="grid grid-flow-col justify-start gap-4 text-sm">
                   <a
                     id="stakePoolLink"
                     href={config.default.explorerUri + "/address/" + value.pool}
