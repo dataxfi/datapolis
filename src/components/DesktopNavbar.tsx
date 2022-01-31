@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 // import { Config } from '@dataxfi/datax.js'
-import { ReactComponent as Logo } from "../assets/logo-test.svg";
+import { ReactComponent as Logo } from "../assets/datax-logo.svg";
 import Button from "./Button";
 import { GlobalContext } from "../context/GlobalState";
 import PendingTxsIndicator from "./PendingTxsIndicator";

@@ -761,8 +761,8 @@ const Swap = () => {
 
   return (
     <div className="w-full h-full absolute top-0 ">
-      <div id="swapModal" className="flex my-3 w-full h-full items-center justify-center pt-16">
-        <div className="max-w-2xl lg:mx-auto sm:mx-4 mx-3 mb-40 bg-black bg-opacity-95 w-full rounded-lg p-4 hm-box">
+      <div id="swapModal" className="flex my-3 w-full pb-14 h-full items-center justify-center pt-16">
+        <div className="w-107 lg:mx-auto sm:mx-4 mx-3  bg-black bg-opacity-95 rounded-lg p-4 hm-box">
           <div className="flex justify-between relative">
             <p className="text-xl">{text.T_SWAP}</p>
             <div className="grid grid-flow-col gap-2 items-center">
@@ -828,7 +828,7 @@ const Swap = () => {
             loading={token1.loading}
             updateNum={dbUpdateToken1}
           />
-          <div className="px-4 relative my-12">
+          <div className="px-4 relative mt-6 mb-8">
             <div
               id="swapTokensBtn"
               onClick={() => {
@@ -838,7 +838,7 @@ const Swap = () => {
               }}
               role="button"
               tabIndex={0}
-              className="rounded-full border-black bg-opacity-100 border-4 absolute -top-14 bg-trade-darkBlue hover:bg-gray-600 transition-colors duration-200 w-16 h-16 flex swap-center items-center justify-center"
+              className="rounded-full border-black bg-opacity-100 border-4 absolute -top-8 bg-trade-darkBlue hover:bg-gray-600 transition-colors duration-200 w-12 h-12 flex swap-center items-center justify-center"
             >
               {token2.loading || token1.loading || bgLoading.includes(bgLoadingStates.calcTrade) || percLoading ? (
                 <MoonLoader size={25} color={"white"} />
@@ -891,7 +891,7 @@ const Swap = () => {
                     break;
                 }
               }}
-              classes={"px-4 py-4 rounded-lg w-full  transition-color duration-200 " + btnProps.classes}
+              classes={"p-2 rounded-lg w-full  transition-color duration-200 " + btnProps.classes}
               disabled={btnProps.disabled}
             />
           </div>

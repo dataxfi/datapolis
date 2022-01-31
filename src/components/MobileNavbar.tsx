@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { MdMenu, MdClose } from "react-icons/md";
 import { useState, useEffect, useContext } from "react";
-import { ReactComponent as Logo } from "../assets/logo-test.svg";
+import { ReactComponent as Logo } from "../assets/datax-logo.svg";
 import { GlobalContext } from "../context/GlobalState";
 import Button from "./Button";
 import PendingTxsIndicator from "./PendingTxsIndicator";
