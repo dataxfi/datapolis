@@ -380,7 +380,7 @@ const RemoveAmount = () => {
   ) : currentStakePool ? (
     <>
       <div id="removeStakeModal" className="flex w-full items-center mb-20 pt-16">
-        <div className="max-w-2xl mx-auto w-full p-4">
+        <div className="w-107 mx-auto p-4">
           <div className="max-w-2xl mx-auto bg-black opacity-90 w-full rounded-lg p-4 hm-box">
             <div className="flex flex-row pb-2 justify-between">
               <div className="flex flex-row">

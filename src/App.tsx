@@ -42,7 +42,7 @@ function App() {
     document.getElementById("loader")?.remove();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+  
   return (
     <div className="w-full h-full relative">
       <div

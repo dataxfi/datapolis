@@ -145,11 +145,14 @@ const LiquidityPosition = () => {
   }
 
   return (
-    <div id="lpModal" className="absolute top-0 z-0 w-full h-full overflow-scroll pt-36  hm-hide-scrollbar">
-      <div className="w-full h-full pb-5 flex flex-col items-center justify-center ">
-        <div className="bg-black bg-opacity-90 max-w-2xl p-2 rounded-lg w-full flex flex-col px-3 ">
-          <div className="flex flex-row w-full justify-center">
-            <div className="max-w-2xl w-full flex py-2 rounded-lg justify-between">
+    <div id="lpModal" className="absolute top-18 w-full h-full overflow-scroll hm-hide-scrollbar py-16">
+      <div className="w-full fixed top-18 z-20 h-5">
+        <div className="h-full w-107 lpGrad m-auto" />
+      </div>
+      <div className="flex flex-col m-auto mb-16">
+        <div className="bg-black bg-opacity-90 w-107 p-2 rounded-lg px-3 m-auto">
+          <div className="flex flex-row w-full m-auto">
+            <div className="w-full flex py-2 rounded-lg justify-between">
               <h2 className="text-2xl">Your staked pools</h2>
               {(bgLoading.includes(bgLoadingStates.allStakedPools) ||
                 bgLoading.includes(bgLoadingStates.singlePoolData)) &&
@@ -195,7 +198,7 @@ const LiquidityPosition = () => {
           ) : (
             <></>
           )}
-          <div className="flex flex-row w-full justify-center">
+          <div className="flex flex-row w-full m-auto">
             <div className="max-w-2xl w-full py-2 bg-black">
               <div className="w-full flex justify-center">
                 <div className="w-full pr-1">
@@ -235,7 +238,6 @@ const LiquidityPosition = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };

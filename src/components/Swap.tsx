@@ -760,8 +760,8 @@ const Swap = () => {
   }
 
   return (
-    <div className="w-full h-full absolute top-0 ">
-      <div id="swapModal" className="flex my-3 w-full pb-14 h-full items-center justify-center pt-16">
+    <div className="w-full h-full absolute top-18 ">
+      <div id="swapModal" className="flex my-3 w-full pb-24 h-full items-center justify-center ">
         <div className="w-107 lg:mx-auto sm:mx-4 mx-3  bg-black bg-opacity-95 rounded-lg p-4 hm-box">
           <div className="flex justify-between relative">
             <p className="text-xl">{text.T_SWAP}</p>

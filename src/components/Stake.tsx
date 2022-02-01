@@ -447,10 +447,10 @@ const Stake = () => {
   }
 
   return (
-    <div className="w-full h-full absolute top-0">
-      <div className="flex flex-col h-full my-3 w-full items-center justify-center mb-36 px-4 pt-10">
-        <div>
-          <div className="w-107 lg:mx-auto bg-black bg-opacity-90 rounded-lg p-4 hm-box ">
+    <div className="w-full h-full absolute top-18">
+      <div className="flex flex-col h-full w-full items-center justify-center">
+        <div className="mb-36">
+          <div className="w-107 bg-black bg-opacity-90 rounded-lg p-4 hm-box">
             <div className="flex justify-between">
               <p className="text-xl">{text.T_STAKE}</p>
               {userMessage && userMessage.type === "error" ? (

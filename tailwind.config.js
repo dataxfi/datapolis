@@ -3,7 +3,7 @@ const colors = require("tailwindcss/colors");
 
 module.exports = {
   purge: ["./src/**/*.{js,jsx,ts,tsx}", "./public/index.html"],
-  darkMode: false, // or 'media' or 'class'
+  darkMode: false, // or 'media' or 'class',
   theme: {
     screens: {
       xs: "280px",
@@ -76,7 +76,7 @@ module.exports = {
         city: {
           blue: "#3a7bbf",
           darkBlue: "#222222",
-        },
+        }
       },
 
       // colors: {
