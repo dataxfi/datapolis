@@ -19,6 +19,7 @@ import { toFixed5 } from "../utils/equate";
 import UnlockTokenModal from "./UnlockTokenModal";
 import { getAllowance, TokenInfo } from "../utils/tokenUtils";
 import useBgToggler from "../hooks/useBgToggler";
+import Footer from "./Footer";
 const text = {
   T_SWAP: "TradeX",
   T_SWAP_FROM: "You are selling",
@@ -118,7 +119,7 @@ const Swap = () => {
     classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
     disabled: true,
   });
-  const [percLoading, setPercLoading] = useState(false)
+  const [percLoading, setPercLoading] = useState(false);
 
   const [maxExchange, setMaxExchange] = useState<IMaxExchange>(INITIAL_MAX_EXCHANGE);
   const [txsForTPair, setTxsForTPair] = useState<BigNumber>(new BigNumber(2));
@@ -126,7 +127,7 @@ const Swap = () => {
   //hooks
   usePTxManager(lastTxId);
   useTxModalToggler(txReceipt, setTxReceipt, setToken1, setToken2);
-  useBgToggler()
+  useBgToggler();
   let controller = new AbortController();
   useEffect(() => {
     if (txReceipt) return;
@@ -610,8 +611,8 @@ const Swap = () => {
   }
 
   function getButtonProperties() {
-    const enabled = "bg-gray-700 hover:bg-opacity-60 text-background-800"
-    const disabled = "bg-trade-darkBlue bg-opacity-75 text-gray-400 cursor-not-allowed"
+    const enabled = "bg-gray-700 hover:bg-opacity-60 text-background-800";
+    const disabled = "bg-trade-darkBlue bg-opacity-75 text-gray-400 cursor-not-allowed";
     const { t1BN, t2BN } = getTokenVal(token1, token2);
     if (!accountId) {
       setBtnProps({
@@ -711,8 +712,8 @@ const Swap = () => {
   }
 
   async function onPercToken1(val: string) {
-    setPercLoading(true)
-    if(val === "") val = "0"
+    setPercLoading(true);
+    if (val === "") val = "0";
     let bnVal = new BigNumber(val);
     let exchangeLimit;
 
@@ -732,7 +733,7 @@ const Swap = () => {
       updateValueFromPercentage(true, val);
     }
     // setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
-    setPercLoading(false)
+    setPercLoading(false);
   }
 
   async function dbUpdateToken2(value: string) {
@@ -760,9 +761,9 @@ const Swap = () => {
   }
 
   return (
-    <div className="w-full h-full absolute top-18 ">
-      <div id="swapModal" className="flex my-3 w-full pb-24 h-full items-center justify-center ">
-        <div className="w-107 lg:mx-auto sm:mx-4 mx-3  bg-black bg-opacity-95 rounded-lg p-4 hm-box">
+    <div className="w-full h-full absolute top-0">
+      <div id="swapModal" className="flex mt-6 w-full h-full items-center justify-center">
+        <div className="w-107 lg:mx-auto sm:mx-4 mx-3 bg-black bg-opacity-95 rounded-lg p-4 hm-box">
           <div className="flex justify-between relative">
             <p className="text-xl">{text.T_SWAP}</p>
             <div className="grid grid-flow-col gap-2 items-center">
@@ -897,7 +898,7 @@ const Swap = () => {
           </div>
         </div>
       </div>
-
+      <Footer />
       <UnlockTokenModal
         token1={token1}
         token2={token2}

@@ -20,6 +20,7 @@ import BigNumber from "bignumber.js";
 import WrappedInput from "./WrappedInput";
 import UnlockTokenModal from "./UnlockTokenModal";
 import useBgToggler from "../hooks/useBgToggler";
+import Footer from "./Footer";
 
 interface IMaxUnstake {
   OCEAN: BigNumber;
@@ -370,18 +371,11 @@ const RemoveAmount = () => {
 
   return noWallet ? (
     <UserMessageModal message="Connect your wallet to continue." pulse={false} container={true} timeout={null} />
-  ) : noStakedPools ? (
-    <UserMessageModal
-      message="You have no stake in any pools, check out StakeX to buy stake!"
-      pulse={false}
-      container={true}
-      timeout={null}
-    />
   ) : currentStakePool ? (
-    <>
-      <div id="removeStakeModal" className="flex w-full items-center mb-20 pt-16">
+    <div className="absolute top-0 w-full h-full">
+      <div id="removeStakeModal" className="flex w-full h-full items-center pt-16">
         <div className="w-107 mx-auto p-4">
-          <div className="max-w-2xl mx-auto bg-black opacity-90 w-full rounded-lg p-4 hm-box">
+          <div className="mx-auto bg-black opacity-90 w-full rounded-lg p-4 hm-box">
             <div className="flex flex-row pb-2 justify-between">
               <div className="flex flex-row">
                 <img
@@ -396,7 +390,6 @@ const RemoveAmount = () => {
                   alt=""
                   width="40px"
                 />
-
                 {currentStakePool ? (
                   <p className="text-type-100 text-sm md:text-lg">
                     {currentStakePool?.token1.symbol}/{currentStakePool?.token2.symbol}
@@ -405,15 +398,6 @@ const RemoveAmount = () => {
                   <PulseLoader color="white" size="4px" margin="5px" />
                 )}
               </div>
-              {bgLoading.includes(bgLoadingStates.singlePoolData) ? (
-                <UserMessageModal
-                  message="Loading your liquidity position."
-                  pulse={true}
-                  container={false}
-                  timeout={null}
-                  id="loading-lp"
-                />
-              ) : null}
             </div>
             <div className="md:grid md:grid-cols-5 bg-trade-darkBlue p-4 rounded">
               <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center">
@@ -533,7 +517,7 @@ const RemoveAmount = () => {
           </div>
         </div>
       </div>
-
+      <Footer />
       <UnlockTokenModal
         token1={{
           value: sharesToRemove,
@@ -580,7 +564,7 @@ const RemoveAmount = () => {
           timeout={{ showState: setUserMessage, time: 5000 }}
         />
       ) : null}
-    </>
+    </div>
   ) : null;
 };
 

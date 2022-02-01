@@ -23,6 +23,7 @@ import WrappedInput from "./WrappedInput";
 import UnlockTokenModal from "./UnlockTokenModal";
 import { IToken } from "./Swap";
 import useBgToggler from "../hooks/useBgToggler";
+import Footer from "./Footer";
 const text = {
   T_STAKE: "StakeX",
   T_SELECT_TOKEN: "Select token",
@@ -447,9 +448,9 @@ const Stake = () => {
   }
 
   return (
-    <div className="w-full h-full absolute top-18">
+    <div className="w-full h-full absolute top-0">
       <div className="flex flex-col h-full w-full items-center justify-center">
-        <div className="mb-36">
+        <div>
           <div className="w-107 bg-black bg-opacity-90 rounded-lg p-4 hm-box">
             <div className="flex justify-between">
               <p className="text-xl">{text.T_STAKE}</p>
@@ -469,7 +470,7 @@ const Stake = () => {
               setToken={(val: any) => {
                 updateToken(val);
               }}
-            /> 
+            />
             <div className="px-4 relative mt-6 mb-8">
               <div className="rounded-full border-black border-4 absolute -top-8 bg-trade-darkBlue w-12 h-12 flex items-center justify-center swap-center">
                 {loading ? (
@@ -605,7 +606,7 @@ const Stake = () => {
           </div>
         </div>
       </div>
-
+      <Footer />
       <UnlockTokenModal
         token1={{ ...oceanToken, value: oceanValToStake }}
         token2={{

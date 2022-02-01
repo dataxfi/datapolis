@@ -54,7 +54,7 @@ function App() {
             : "relative"
         }`}
       >
-        <div className={`min-h-full relative bg-black bg-opacity-40 overflow-hidden`}>
+        <div className={`min-h-full relative overflow-hidden w-full`}>
           {unsupportedNet ? (
             <UnsupportedNetwork />
           ) : (
@@ -76,7 +76,6 @@ function App() {
           {cookiesAllowed === null ? <CookiesModal /> : null}
           <NotificationArea />
           <TxHistoryModal />
-          <Footer />
         </div>
       </div>
     </div>

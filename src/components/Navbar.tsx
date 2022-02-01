@@ -22,20 +22,20 @@ const Navbar = () => {
     { name: text.T_STAKE, link: "/stakeX" },
   ];
 
-  const { buttonText, config, chainId, accountId, setShowTxHistoryModal, handleConnect, location } = useContext(GlobalContext);
+  const { buttonText, config, chainId, accountId, setShowTxHistoryModal, handleConnect, location } =
+    useContext(GlobalContext);
 
   function truncateId() {
-    return (buttonText.substring(0, 5) +
-      "..." +
-      buttonText.substring(buttonText.length - 4, buttonText.length))
+    return buttonText.substring(0, 5) + "..." + buttonText.substring(buttonText.length - 4, buttonText.length);
   }
 
   function getNetName() {
     if (config) {
       let network = config.getNetwork(String(chainId));
       if (network !== "unknown") {
-        network = network.charAt(0).toUpperCase() + network.slice(1)
-        return network};
+        network = network.charAt(0).toUpperCase() + network.slice(1);
+        return network;
+      }
       return "⚠ Unknown";
     }
     return "⚠ Unknown";
@@ -43,11 +43,10 @@ const Navbar = () => {
 
   function handleModalOrConnect() {
     accountId ? setShowTxHistoryModal(true) : handleConnect();
-    
   }
 
   return (
-    <nav className={`${location === "/" ? "hidden" : ""} absolute top-0 w-full`}>
+    <nav className="z-10 absolute top-0 w-full">
       {/* Separating the UI logic because figuring out code reuse here will take more time. 
             i.e. It's not a simple cascade of columns to rows. There is a toggle and the connect to wallet 
             button is at the bottom */}
@@ -56,16 +55,16 @@ const Navbar = () => {
         text={text}
         wallet={walletText}
         truncateId={truncateId}
-        network = {getNetName()}
-        handleModalOrConnect = {handleModalOrConnect}
+        network={getNetName()}
+        handleModalOrConnect={handleModalOrConnect}
       />
       <DesktopNavbar
         links={links}
         text={text}
         wallet={walletText}
         truncateId={truncateId}
-        network= {getNetName()}
-        handleModalOrConnect = {handleModalOrConnect}
+        network={getNetName()}
+        handleModalOrConnect={handleModalOrConnect}
       />
     </nav>
   );

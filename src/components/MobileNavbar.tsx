@@ -41,7 +41,7 @@ const MobileNavbar = ({
   }, [accountId]);
 
   return (
-    <header id="mobileNavbar" className="flex flex-col rounded-b-xl bg-black opacity-25" >
+    <header id="mobileNavbar" className="flex flex-col" >
       <div className="flex lg:hidden justify-between items-center pt-2 border-gray-800 pr-4">
         <div className="flex flex-row justify-start">
           <Logo className="logo" style={{ height: "40px" }} />

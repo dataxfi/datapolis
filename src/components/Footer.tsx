@@ -18,7 +18,7 @@ export default function Footer() {
   }, [web3]);
 
   return (
-    <footer className={`absolute bottom-0 pb-2 w-full justify-center mt-5 ${location === "/" ? "hidden" : ""}`}>
+    <footer className={`${location === "/stakeX/list"? "" : "absolute bottom-0"}  pb-2 w-full mt-5`}>
       <div className="flex flex-col text-center">
         <ul className="inline-flex text-2xl justify-center">
           <li className="list-inline-item mr-2">

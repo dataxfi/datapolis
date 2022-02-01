@@ -109,8 +109,8 @@ html:empty {
 }
 
 .lpGrad{
-  background: rgb(13,35,58);
-  background: linear-gradient(180deg, rgba(13,35,58,1) 0%, rgba(13,35,58,0) 100%);
+  background: rgb(19,57,91);
+background: linear-gradient(180deg, rgba(19,57,91,1) 0%, rgba(19,57,91,0) 100%);
 }
 
 .hm-box {
