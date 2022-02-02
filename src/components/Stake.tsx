@@ -10,7 +10,7 @@ import TransactionDoneModal from "./TransactionDoneModal";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import getTokenList, { getAllowance, TokenInfo } from "../utils/tokenUtils";
 import UserMessageModal, { userMessage } from "./UserMessageModal";
-import { toFixed5, toFixed18 } from "../utils/equate";
+import { toFixed5 } from "../utils/equate";
 import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
 import { getLocalPoolData, updateSingleStakePool } from "../utils/stakedPoolsUtils";
 import usePTxManager from "../hooks/usePTxManager";
@@ -36,7 +36,7 @@ interface IPoolLiquidity {
 
 const INITIAL_BUTTON_STATE = {
   text: "Connect wallet",
-  classes: "bg-gray-800 text-gray-400",
+  classes: "",
   disabled: false,
 };
 
@@ -238,8 +238,6 @@ const Stake = () => {
   }, [loadingStake]);
 
   useEffect(() => {
-    const enabled = "bg-gray-700 hover:bg-opacity-60 text-background-800";
-    const disabled = "bg-trade-darkBlue bg-opacity-75 text-gray-400 cursor-not-allowed";
     if (!accountId) {
       setBtnProps(INITIAL_BUTTON_STATE);
     } else if (!token) {
@@ -247,46 +245,41 @@ const Stake = () => {
         ...INITIAL_BUTTON_STATE,
         text: "Select a Token",
         disabled: true,
-        classes: disabled,
       });
     } else if (!oceanValToStake || oceanValToStake.eq(0)) {
       setBtnProps({
         ...INITIAL_BUTTON_STATE,
         text: "Enter OCEAN Amount",
         disabled: true,
-        classes: disabled,
       });
     } else if (balance?.eq(0) || (balance && oceanValToStake.gt(balance))) {
       setBtnProps({
         ...INITIAL_BUTTON_STATE,
         text: "Not Enough OCEAN Balance",
         disabled: true,
-        classes: disabled,
       });
     } else if (loadingStake) {
       setBtnProps({
         ...INITIAL_BUTTON_STATE,
         text: "Processing Transaction...",
         disabled: true,
-        classes: disabled,
       });
     } else if (oceanValToStake.isLessThan(0.01)) {
       setBtnProps({
         ...INITIAL_BUTTON_STATE,
         text: "Minimum Stake is .01 OCEAN",
         disabled: true,
-        classes: disabled,
       });
     } else if (oceanToken.allowance?.lt(oceanValToStake)) {
       setBtnProps({
-        disabled: false,
-        classes: enabled,
+        ...btnProps,
         text: "Unlock OCEAN",
+        disabled: false,
       });
     } else {
       setBtnProps({
+        ...btnProps,
         disabled: false,
-        classes: enabled,
         text: "Stake",
       });
     }
@@ -451,9 +444,8 @@ const Stake = () => {
     <div className="w-full h-full absolute top-0">
       <div className="flex flex-col h-full w-full items-center justify-center">
         <div>
-          <div className="w-107 bg-black bg-opacity-90 rounded-lg p-4 hm-box">
+          <div className="w-107 bg-black bg-opacity-90 rounded-lg p-3 hm-box">
             <div className="flex justify-between">
-              <p className="text-xl">{text.T_STAKE}</p>
               {userMessage && userMessage.type === "error" ? (
                 <UserMessageModal
                   message={userMessage.message}
@@ -471,8 +463,8 @@ const Stake = () => {
                 updateToken(val);
               }}
             />
-            <div className="px-4 relative mt-6 mb-8">
-              <div className="rounded-full border-black border-4 absolute -top-8 bg-trade-darkBlue w-12 h-12 flex items-center justify-center swap-center">
+            <div className="px-4 relative mt-6 mb-10">
+              <div className="rounded-full border-black border-4 absolute -top-7 bg-trade-darkBlue w-12 h-12 flex items-center justify-center swap-center">
                 {loading ? (
                   <MoonLoader size={25} color={"white"} />
                 ) : (
@@ -480,7 +472,7 @@ const Stake = () => {
                 )}
               </div>
             </div>
-            <div className=" bg-trade-darkBlue p-2 rounded-lg">
+            <div className="modalSelectBg p-2 rounded-lg">
               <div className="md:grid md:grid-cols-5">
                 <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center">
                   <img
@@ -495,8 +487,8 @@ const Stake = () => {
                     </span>
                   </div>
                 </div>
-                <div className="col-span-3 mt-3 md:mt-0">
-                  <div className="flex justify-between items-end">
+                <div className="col-span-3 mt-3 md:mt-0 bg-black bg-opacity-70 rounded-lg p-1">
+                  <div className="flex justify-between items-center">
                     {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
                     <DebounceInput
                       id="stakeAmtInput"
@@ -506,7 +498,7 @@ const Stake = () => {
                       onWheel={(event: any) => event.currentTarget.blur()}
                       onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
                       type="number"
-                      className={`w-full rounded-lg bg-trade-darkBlue text-2xl px-2 outline-none focus:placeholder-type-200 placeholder-type-400 ${
+                      className={`w-full rounded-lg mr-1 bg-black bg-opacity-0 text-2xl px-2 outline-none focus:placeholder-type-200 placeholder-type-400 ${
                         token ? "text-white" : "text-gray-500"
                       }`}
                       placeholder="0.0"
@@ -585,8 +577,7 @@ const Stake = () => {
               onClick={() => {
                 if (btnProps.text === "Connect wallet") {
                   handleConnect();
-                }
-                {
+                } else {
                   if (oceanToken.allowance?.lt(oceanValToStake)) {
                     setShowUnlockTokenModal(true);
                   } else {
@@ -595,7 +586,7 @@ const Stake = () => {
                   }
                 }
               }}
-              classes={"p-2 rounded-lg w-full mt-4 " + btnProps.classes}
+              classes="p-2 rounded-lg w-full mt-4 txButton"
               disabled={btnProps.disabled}
             />
           </div>

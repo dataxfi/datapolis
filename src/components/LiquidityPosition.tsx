@@ -31,9 +31,11 @@ const LiquidityPosition = () => {
     setCurrentStakePool,
   } = useContext(GlobalContext);
   const [noStakedPools, setNoStakedPools] = useState<boolean>(false);
-  const [userMessage, setUserMessage] = useState<string | userMessage | null>(null);
+  const [userMessage, setUserMessage] = useState<string | userMessage | null>(
+    "Dont see your tokens? Import a pool by name with the import button below."
+  );
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [messageId, setMessageId] = useState<string | null>(null);
+  const [messageId, setMessageId] = useState<string | null>("importMessage");
 
   useBgToggler();
 
@@ -145,77 +147,75 @@ const LiquidityPosition = () => {
   }
 
   return (
-      <div className="absolute w-full h-full overflow-scroll hm-hide-scrollbar mt-18">
-          <div className="flex flex-col m-auto ">
-            <div id="lpModal" className="bg-black bg-opacity-90 w-107 p-2 rounded-lg px-3 m-auto">
-              <div className="flex flex-row w-full m-auto">
-                <div className="w-full flex py-2 rounded-lg justify-between">
-                  <h2 className="text-2xl">Your staked pools</h2>
-                  {(bgLoading.includes(bgLoadingStates.allStakedPools) ||
-                    bgLoading.includes(bgLoadingStates.singlePoolData)) &&
-                  accountId ? (
-                    <div id="loadingStakeMessage" className="text-xs lg:text-base text-center px-3 flex">
-                      Loading most recent information{" "}
-                      <div className="pt-1 flex">
-                        <PulseLoader color="white" size="4px" margin="3px" />
-                      </div>
-                    </div>
-                  ) : null}
+    <div className="absolute w-full h-full top-0 bottom-0">
+      <div id="lpModal" className="flex flex-col m-auto h-3/4 my-28">
+        <div className="bg-black bg-opacity-90 w-107 p-2 rounded-lg px-3 m-auto max-h-full">
+          <div className="flex flex-row w-full m-auto ">
+            <div className="w-full flex pb-1 rounded-lg justify-between">
+              <h2 className="text-2xl">Your staked pools</h2>
+              {(bgLoading.includes(bgLoadingStates.allStakedPools) ||
+                bgLoading.includes(bgLoadingStates.singlePoolData)) &&
+              accountId ? (
+                <div id="loadingStakeMessage" className="text-xs lg:text-base text-center px-3 flex">
+                  Loading most recent information{" "}
+                  <div className="pt-1 flex">
+                    <PulseLoader color="white" size="4px" margin="3px" />
+                  </div>
                 </div>
-              </div>
+              ) : null}
+            </div>
+          </div>
 
-              {userMessage ? (
-                <div className="flex flex-row justify-center items-center h-60 bg-trade-darkBlue bg-opacity-40 rounded-lg">
-                  <UserMessageModal
-                    id={messageId}
-                    message={userMessage}
-                    pulse={false}
-                    container={false}
-                    timeout={null}
-                    className="bg-opacity-60"
-                  />
+          {userMessage ? (
+            <div className="flex flex-row justify-center items-center h-60 bg-trade-darkBlue bg-opacity-40 rounded-lg">
+              <UserMessageModal
+                id={messageId}
+                message={userMessage}
+                pulse={false}
+                container={false}
+                timeout={null}
+                className="bg-opacity-60"
+              />
+            </div>
+          ) : (
+              <ul
+                className={`${
+                  bgLoading ? " md:mt-1" : "md:mt-5"
+                } pr-3 pl-3 max-h-full overflow-scroll hm-hide-scrollbar`}
+              >
+                {allStakedPools?.map((pool: PoolData, index: number) => (
+                  <LiquidityPositionItem pool={pool} index={index} />
+                ))}
+              </ul>
+          )}
+          {showModal ? (
+            <TokenModal
+              onClick={(e: any) => {
+                importData(e.pool);
+              }}
+              close={() => setShowModal(false)}
+              otherToken="OCEAN"
+            />
+          ) : (
+            <></>
+          )}
+          <div className="flex flex-row w-full m-auto">
+            <div className="max-w-2xl w-full py-2 bg-black">
+              <div className="w-full flex justify-center">
+                <div className="w-full pr-1">
+                  <button
+                    id="importStakeBtn"
+                    title="Import your stake information."
+                    disabled={accountId ? false : true}
+                    onClick={() => {
+                      setShowModal(true);
+                    }}
+                    className={`p-2 w-full txButton rounded-lg ${accountId ? "" : "cursor-not-allowed"}`}
+                  >
+                    Import
+                  </button>
                 </div>
-              ) : (
-                <div>
-                  <ul className={`${bgLoading ? " md:mt-1" : "md:mt-5"} pr-3 pl-3 pt-5 `}>
-                    {allStakedPools?.map((pool: PoolData, index: number) => (
-                      <LiquidityPositionItem pool={pool} index={index} />
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {showModal ? (
-                <TokenModal
-                  onClick={(e: any) => {
-                    importData(e.pool);
-                  }}
-                  close={() => setShowModal(false)}
-                  otherToken="OCEAN"
-                />
-              ) : (
-                <></>
-              )}
-              <div className="flex flex-row w-full m-auto">
-                <div className="max-w-2xl w-full py-2 bg-black">
-                  <div className="w-full flex justify-center">
-                    <div className="w-full pr-1">
-                      <button
-                        id="importStakeBtn"
-                        title="Import your stake information."
-                        disabled={accountId ? false : true}
-                        onClick={() => {
-                          setShowModal(true);
-                        }}
-                        className={`p-3 w-full rounded ${
-                          accountId
-                            ? "bg-gray-700 hover:bg-opacity-60 text-background-800"
-                            : "bg-trade-darkBlue bg-opacity-75 text-gray-400 cursor-not-allowed"
-                        }`}
-                      >
-                        Import
-                      </button>
-                    </div>
-                    {/* <div className="w-1/2 pl-1">
+                {/* <div className="w-1/2 pl-1">
                   <button
                   id="scanStakeBtn"
                     title="Scan for your stake information."
@@ -230,16 +230,12 @@ const LiquidityPosition = () => {
                     Scan
                   </button>
                 </div> */}
-                  </div>
-                </div>
               </div>
             </div>
-        </div>
-        <div className="mb-18">
-
-        <Footer />
+          </div>
         </div>
       </div>
+    </div>
   );
 };
 

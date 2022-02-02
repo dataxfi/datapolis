@@ -29,7 +29,12 @@ module.exports = {
       xs: "50px",
     },
     extend: {
+      border:{
+        6: "6px"
+      },
       spacing: {
+        "1px": "1px",
+        "2px": "2px",
         ".5": ".125rem",
         18: "4.5rem",
         19: "4.75rem",

@@ -42,7 +42,7 @@ function App() {
     document.getElementById("loader")?.remove();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  
+
   return (
     <div className="w-full h-full relative">
       <div
@@ -60,20 +60,17 @@ function App() {
           ) : (
             <Router>
               <Navbar />
-              {showDisclaimer ? (
-                <DisclaimerModal />
-              ) : (
-                <Routes>
-                  <Route path="/" element={<LandingPage />} />
-                  <Route path="/tradeX" element={<Swap />} />
-                  <Route path="/stakeX" element={<Stake />} />
-                  <Route path="/stakeX/remove" element={<RemoveAmount />} />
-                  <Route path="/stakeX/list" element={<LiquidityPosition />} />
-                </Routes>
-              )}
+              <Routes>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/tradeX" element={<Swap />} />
+                <Route path="/stakeX" element={<Stake />} />
+                <Route path="/stakeX/remove" element={<RemoveAmount />} />
+                <Route path="/stakeX/list" element={<LiquidityPosition />} />
+              </Routes>
             </Router>
           )}
           {cookiesAllowed === null ? <CookiesModal /> : null}
+          {showDisclaimer ? <DisclaimerModal /> : null}
           <NotificationArea />
           <TxHistoryModal />
         </div>

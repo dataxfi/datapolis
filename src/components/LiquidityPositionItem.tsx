@@ -29,7 +29,7 @@ function LiquidityPositionItem({ pool, index }: { pool: PoolData; index: number 
       <div className="max-w-2xl mx-auto z-0">
         <div
           onClick={() => setVisible(!visible)}
-          className={`flex justify-between p-4  ${
+          className={`flex justify-between p-2  ${
             visible ? "rounded-t-lg" : "rounded-lg mb-2"
           } bg-trade-darkBlue bg-opacity-75 select-none `}
           role="button"
@@ -55,8 +55,8 @@ function LiquidityPositionItem({ pool, index }: { pool: PoolData; index: number 
           </div>
         </div>
         {visible ? (
-          <div id={`${token1.symbol}-lp-info`} className={`p-4 bg-trade-darkBlue bg-opacity-75 rounded-b-lg mb-2`}>
-            <div className="p-4 bg-gray-800 rounded-lg">
+          <div id={`${token1.symbol}-lp-info`} className={`p-2 bg-trade-darkBlue bg-opacity-75 rounded-b-lg mb-2`}>
+            <div className="py-2 px-4 bg-gray-800 rounded-lg">
               <div className="grid grid-cols-2 justify-between">
                 <div>
                   <p id="totalSharesTitle" className="text-type-300 text-sm">
@@ -112,31 +112,30 @@ function LiquidityPositionItem({ pool, index }: { pool: PoolData; index: number 
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-2 mt-4">
+            <div className="flex mt-2">
               <Link
                 key="stakeX"
                 to={`/stakeX?pool=${address}`}
-                className="bg-primary-600 transition-colors hover:bg-primary-500 text-type-100 rounded-lg px-4 py-3 text-center"
+                className="modalButton rounded p-2px w-1/2 text-center mr-1"
                 onClick={setTokenAndPool}
               >
-                Add
+                <div className="bg-black w-full h-full rounded p-2px">Add</div>
               </Link>
               <Link
                 id="lp-remove-link"
                 key="removeStake"
                 to={`/stakeX/remove?pool=${address}`}
-                className={`${
+                className={`ml-1 ${
                   Number(shares) === 0
-                    ? "bg-primary-800 text-gray-500 border border-gray-500 pointer-events-none"
-                    : "bg-primary-600 text-white hover:bg-primary-500"
-                }  transition-colors rounded-lg px-4 py-3 text-center`}
+                    ? "modalButton cursor-not-allowed rounded p-2px w-1/2 text-center"
+                    : "modalButton rounded p-2px w-1/2 text-center"
+                } `}
                 onClick={() => {
                   console.log("Exact user shares", shares);
-
                   if (Number(shares) > 0) setTokenAndPool();
                 }}
               >
-                Remove
+                <div className="bg-black w-full h-full rounded p-2px">Remove</div>
               </Link>
             </div>
           </div>

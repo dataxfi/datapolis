@@ -39,7 +39,7 @@ function CookiesModal() {
 
   return (
     <div id="cookiesModal"
-      className={`z-30 md:w-80 lg:w-96 absolute bottom-0 flex flex-col bg-primary-700 p-5 justify-center m-4 rounded-md filter hm-box transition-all ${
+      className={`z-30 md:w-80 lg:w-96 absolute bottom-0 flex flex-col bg-black bg-opacity-90 p-5 justify-center m-4 rounded-md filter hm-box transition-all ${
         show ? "opacity-100" : "opacity-0"
       }`}
     >
@@ -54,14 +54,14 @@ function CookiesModal() {
 
       <button
         onClick={confirmOrDeny}
-        className="p-2 w-full xs:text-xs sm:text-sm rounded-sm bg-primary-600 hover:bg-primary-500"
+        className="txButton rounded-lg text-center mb-2 p-2"
         id="confirmCookies"
       >
         Confirm
       </button>
       <button
         onClick={confirmOrDeny}
-        className="p-2 mt-2 xs:text-xs sm:text-sm rounded-sm w-full bg-primary-600 hover:bg-primary-500"
+        className="txButton rounded-lg text-center p-2"
         id="denyCookies"
       >
         Deny

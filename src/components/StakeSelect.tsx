@@ -25,7 +25,7 @@ const StakeSelect = ({ value, setToken }: { value: Record<any, any> | null; setT
   
   return (
     <div>
-      <div className="mt-2 bg-trade-darkBlue p-2 rounded-lg">
+      <div className="mt-2 modalSelectBg p-2 rounded-lg">
         <div className="md:grid md:grid-cols-5">
           <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center">
             {value ? (

@@ -39,14 +39,14 @@ export default function LandingPage() {
         <ul className="inline-flex">
           <a
             href="https://docs.datax.fi"
-            className="flex items-center py-2 px-3 border rounded bg-black bg-opacity-50 hover:border-black hover:bg-yellow hover:text-black transition-color duration-200"
+            className="homeButton flex items-center py-2 ml-2 px-3"
           >
             <FaBook className="mr-2" />
             <p>Learn More</p>
           </a>
         <Link
           to="/tradeX"
-          className="flex items-center py-2 ml-2 px-3 border rounded bg-black bg-opacity-50 hover:border-black hover:bg-yellow hover:text-black transition-color duration-200"
+          className="homeButton flex items-center py-2 ml-2 px-3"
         >
           <p>Enter X-Nation</p>
           <FaAngleDoubleRight className="ml-2" />

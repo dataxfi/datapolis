@@ -116,7 +116,6 @@ const Swap = () => {
   const [lastTxId, setLastTxId] = useState<any>(null);
   const [btnProps, setBtnProps] = useState<IBtnProps>({
     text: "Select Tokens",
-    classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
     disabled: true,
   });
   const [percLoading, setPercLoading] = useState(false);
@@ -611,13 +610,10 @@ const Swap = () => {
   }
 
   function getButtonProperties() {
-    const enabled = "bg-gray-700 hover:bg-opacity-60 text-background-800";
-    const disabled = "bg-trade-darkBlue bg-opacity-75 text-gray-400 cursor-not-allowed";
     const { t1BN, t2BN } = getTokenVal(token1, token2);
     if (!accountId) {
       setBtnProps({
         text: "Connect Wallet",
-        classes: enabled,
         disabled: false,
       });
     }
@@ -625,7 +621,6 @@ const Swap = () => {
     if (accountId && !(token1.info && token2.info)) {
       setBtnProps({
         text: "Select Tokens",
-        classes: disabled,
         disabled: true,
       });
     }
@@ -633,7 +628,6 @@ const Swap = () => {
     if ((accountId && token1.info && token2.info && t1BN.eq(0)) || !t2BN.eq(0)) {
       setBtnProps({
         text: "Enter Token Amount",
-        classes: disabled,
         disabled: true,
       });
     }
@@ -642,7 +636,6 @@ const Swap = () => {
       if (token1.balance.eq(0)) {
         setBtnProps({
           text: `Not Enough ${token1.info.symbol}`,
-          classes: disabled,
           disabled: true,
         });
       } else if (
@@ -651,31 +644,26 @@ const Swap = () => {
       ) {
         setBtnProps({
           text: `Minimum trade is .01 OCEAN`,
-          classes: disabled,
           disabled: true,
         });
       } else if (t1BN.lt(0.001)) {
         setBtnProps({
           text: `Minimum trade is .001 ${token1.info.symbol}`,
-          classes: disabled,
           disabled: true,
         });
       } else if (t2BN.lt(0.001)) {
         setBtnProps({
           text: `Minimum trade is .001 ${token2.info.symbol}`,
-          classes: disabled,
           disabled: true,
         });
       } else if (token1.allowance?.lt(t1BN)) {
         setBtnProps({
           text: `Unlock ${token1.info.symbol}`,
-          classes: enabled,
           disabled: false,
         });
       } else if (token1.balance.dp(5).gte(token1.value) && !token1.balance.eq(0)) {
         setBtnProps({
           text: "Swap",
-          classes: enabled,
           disabled: false,
         });
       }
@@ -763,7 +751,7 @@ const Swap = () => {
   return (
     <div className="w-full h-full absolute top-0">
       <div id="swapModal" className="flex mt-6 w-full h-full items-center justify-center">
-        <div className="w-107 lg:mx-auto sm:mx-4 mx-3 bg-black bg-opacity-95 rounded-lg p-4 hm-box">
+        <div className="w-107 lg:mx-auto sm:mx-4 mx-3 bg-black bg-opacity-80 rounded-lg p-3 hm-box">
           <div className="flex justify-between relative">
             <p className="text-xl">{text.T_SWAP}</p>
             <div className="grid grid-flow-col gap-2 items-center">
@@ -829,7 +817,7 @@ const Swap = () => {
             loading={token1.loading}
             updateNum={dbUpdateToken1}
           />
-          <div className="px-4 relative mt-6 mb-8">
+          <div className="px-4 relative mt-6 mb-10">
             <div
               id="swapTokensBtn"
               onClick={() => {
@@ -839,7 +827,7 @@ const Swap = () => {
               }}
               role="button"
               tabIndex={0}
-              className="rounded-full border-black bg-opacity-100 border-4 absolute -top-8 bg-trade-darkBlue hover:bg-gray-600 transition-colors duration-200 w-12 h-12 flex swap-center items-center justify-center"
+              className="rounded-full border-black bg-opacity-100 border-4 absolute -top-7 bg-trade-darkBlue hover:bg-gray-600 transition-colors duration-200 w-12 h-12 flex swap-center items-center justify-center"
             >
               {token2.loading || token1.loading || bgLoading.includes(bgLoadingStates.calcTrade) || percLoading ? (
                 <MoonLoader size={25} color={"white"} />
@@ -892,7 +880,7 @@ const Swap = () => {
                     break;
                 }
               }}
-              classes={"p-2 rounded-lg w-full  transition-color duration-200 " + btnProps.classes}
+              classes={"p-2 rounded-lg w-full txButton"}
               disabled={btnProps.disabled}
             />
           </div>

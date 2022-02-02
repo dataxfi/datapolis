@@ -16,7 +16,7 @@ const ConfirmModal = ({
   } else
     return (
       <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 md:max-w-sm w-full z-30 ">
-        <div className="bg-primary-900 p-4 rounded-lg border padding mx-3 shadow hm-box">
+        <div className="bg-black bg-opacity-90 p-4 rounded-lg border padding mx-3 shadow hm-box">
           <div className="flex justify-end">
             <BsX
               onClick={() => {

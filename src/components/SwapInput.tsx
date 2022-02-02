@@ -59,7 +59,7 @@ const SwapInput = ({
 
   return (
     <div id={`${pos}-swapInput`} className="mt-4 rounded-xl">
-      <div className="md:grid md:grid-cols-5 bg-trade-darkBlue rounded-xl bg-opacity-95 p-1">
+      <div className="md:grid md:grid-cols-5 bg-city-blue bg-opacity-30 rounded-xl p-1">
         <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center p-1">
           {value ? (
             <img src={value.logoURI} className="w-10 h-10 rounded-md" alt="" />
@@ -96,7 +96,7 @@ const SwapInput = ({
         </div>
         <div className="col-span-3 mt-3 md:mt-0 ">
           <div className="h-full w-full rounded-lg bg-opacity-100 text-3xl p-1 flex items-center">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center bg-black bg-opacity-70 p-1 rounded-lg">
               <DebounceInput
                 id={`token${pos}-input`}
                 key={`token${pos}-input`}

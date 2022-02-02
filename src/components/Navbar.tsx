@@ -46,7 +46,7 @@ const Navbar = () => {
   }
 
   return (
-    <nav className="z-10 absolute top-0 w-full">
+    <nav className="z-20 absolute top-0 w-full"> 
       {/* Separating the UI logic because figuring out code reuse here will take more time. 
             i.e. It's not a simple cascade of columns to rows. There is a toggle and the connect to wallet 
             button is at the bottom */}

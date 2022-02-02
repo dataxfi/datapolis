@@ -58,7 +58,7 @@ const ConfirmSwapModal = ({
           show ? "block" : "hidden"
         }`}
       >
-        <div className="py-8 px-4 md:px-8 bg-primary-900 border rounded-lg hm-box mx-3 md:mx-auto">
+        <div className="py-8 px-4 md:px-8 bg-black bg-opacity-95 border rounded-lg hm-box mx-3 md:mx-auto">
           <div className="flex justify-between items-center">
             <p className="text-type-300 text-xl">Confirm swap</p>
             <BsX id="closeConfrimSwapModalbtn" onClick={() => close()} role="button" size={28} />
@@ -101,7 +101,7 @@ const ConfirmSwapModal = ({
                 confirm();
               }}
               text="Confirm swap"
-              classes="px-4 py-2 text-lg text-type-100 w-full border rounded-lg"
+              classes="px-4 py-2 text-lg w-full homeButton"
             />
           </div>
         </div>

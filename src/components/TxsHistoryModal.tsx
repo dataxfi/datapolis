@@ -158,7 +158,7 @@ function TxHistoryModal() {
   if (!showTxHistoryModal) return null;
   return (
     <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 sm:max-w-md w-full z-20 shadow">
-      <div className="bg-primary-900 border rounded-lg p-4 hm-box mx-3">
+      <div className="bg-black bg-opacity-95 border rounded-lg p-4 hm-box mx-3">
         <div className="flex justify-between mb-2">
           <h3>Recent Transactions</h3>
           <BsX
