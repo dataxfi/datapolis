@@ -105,26 +105,26 @@ const MobileNavbar = ({
               }  pr-1 py-1 rounded-lg`}
             >
               {" "}
-              <p className="text-xs self-center rounded-l-lg  mr-2 ">
+              <p className="text-xs self-center rounded-l-lg">
                 {accountId ? `${network}` : null}
               </p>
               <Button
                 id={`${accountId ? "m-view-txs-btn" : "m-wallet-button"}`}
                 text={`${accountId ? `${truncateId()}` : "Connect wallet"}`}
                 onClick={() => handleModalOrConnect()}
-                classes={`hm-btn text-xs  ${
+                classes={`hm-btn text-xs ml-2 ${
                   accountId ? "px-1" : ""
                 }py-1 bg-black`}
               />
             </div>
           </div>
 
-          <MdClose
+          {/* <MdClose
             onClick={() => setWalletBtnVis(false)}
             color="#ccc"
             size="28"
             className="mt-1"
-          />
+          /> */}
         </div>
       </div>
     </header>

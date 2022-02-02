@@ -19,10 +19,10 @@ export default function Footer() {
   }, [web3]);
 
   return (
-    <footer className="absolute bottom-0 pb-2 w-full mt-5">
+    <footer className="absolute bottom-0 pb-2 w-full mt-5 hidden lg:block">
       <div className="flex flex-col text-center">
         <ul className="inline-flex text-2xl justify-center">
-          <SocialLinkIcons />
+          <SocialLinkIcons effect="color" margin="2" />
           <li className="list-inline-item ml-2 self-center">
             <a title="DataX Docs" href="https://docs.datax.fi" target="_blank" rel="noreferrer">
               <FaBook size="26px" />
