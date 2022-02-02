@@ -147,10 +147,10 @@ const LiquidityPosition = () => {
   }
 
   return (
-    <div className="absolute w-full h-full top-0 bottom-0">
-      <div id="lpModal" className="flex flex-col m-auto h-3/4 my-28">
-        <div className="bg-black bg-opacity-90 w-107 p-2 rounded-lg px-3 m-auto max-h-full">
-          <div className="flex flex-row w-full m-auto ">
+    <div className="absolute w-full h-full top-0 bottom-0 py-28">
+      <div className="flex flex-col justify-center h-full">
+        <div className="bg-black bg-opacity-90 w-107 p-2 max-h-full rounded-lg px-3 m-auto flex flex-col justify-center">
+          <div className="flex flex-row w-full m-auto">
             <div className="w-full flex pb-1 rounded-lg justify-between">
               <h2 className="text-2xl">Your staked pools</h2>
               {(bgLoading.includes(bgLoadingStates.allStakedPools) ||
@@ -178,15 +178,11 @@ const LiquidityPosition = () => {
               />
             </div>
           ) : (
-              <ul
-                className={`${
-                  bgLoading ? " md:mt-1" : "md:mt-5"
-                } pr-3 pl-3 max-h-full overflow-scroll hm-hide-scrollbar`}
-              >
-                {allStakedPools?.map((pool: PoolData, index: number) => (
-                  <LiquidityPositionItem pool={pool} index={index} />
-                ))}
-              </ul>
+            <ul className={`${bgLoading ? " md:mt-1" : "md:mt-5"} pr-3 pl-3 overflow-scroll hm-hide-scrollbar`}>
+              {allStakedPools?.map((pool: PoolData, index: number) => (
+                <LiquidityPositionItem pool={pool} index={index} />
+              ))}
+            </ul>
           )}
           {showModal ? (
             <TokenModal
@@ -199,23 +195,23 @@ const LiquidityPosition = () => {
           ) : (
             <></>
           )}
-          <div className="flex flex-row w-full m-auto">
-            <div className="max-w-2xl w-full py-2 bg-black">
-              <div className="w-full flex justify-center">
-                <div className="w-full pr-1">
-                  <button
-                    id="importStakeBtn"
-                    title="Import your stake information."
-                    disabled={accountId ? false : true}
-                    onClick={() => {
-                      setShowModal(true);
-                    }}
-                    className={`p-2 w-full txButton rounded-lg ${accountId ? "" : "cursor-not-allowed"}`}
-                  >
-                    Import
-                  </button>
-                </div>
-                {/* <div className="w-1/2 pl-1">
+          {/* <div className="flex flex-row w-full m-auto"> */}
+          {/* <div className="max-w-2xl w-full py-2 bg-black"> */}
+          <div className="w-full flex justify-center">
+            <div className="w-full pr-1">
+              <button
+                id="importStakeBtn"
+                title="Import your stake information."
+                disabled={accountId ? false : true}
+                onClick={() => {
+                  setShowModal(true);
+                }}
+                className={`p-2 w-full mt-2 txButton rounded-lg ${accountId ? "" : "cursor-not-allowed"}`}
+              >
+                Import
+              </button>
+            </div>
+            {/* <div className="w-1/2 pl-1">
                   <button
                   id="scanStakeBtn"
                     title="Scan for your stake information."
@@ -230,11 +226,11 @@ const LiquidityPosition = () => {
                     Scan
                   </button>
                 </div> */}
-              </div>
-            </div>
           </div>
         </div>
       </div>
+      {/* </div> */}
+      {/* </div> */}
     </div>
   );
 };

@@ -508,7 +508,7 @@ const RemoveAmount = () => {
           </div>
         </div>
       </div>
-      <Footer />
+      
       <UnlockTokenModal
         token1={{
           value: sharesToRemove,

@@ -886,7 +886,6 @@ const Swap = () => {
           </div>
         </div>
       </div>
-      <Footer />
       <UnlockTokenModal
         token1={token1}
         token2={token2}

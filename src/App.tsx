@@ -59,7 +59,7 @@ function App() {
             <UnsupportedNetwork />
           ) : (
             <Router>
-              <Navbar />
+              {location !== "/" ? <Navbar /> : null}
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/tradeX" element={<Swap />} />
@@ -73,6 +73,7 @@ function App() {
           {showDisclaimer ? <DisclaimerModal /> : null}
           <NotificationArea />
           <TxHistoryModal />
+          {location !== "/" ? <Footer /> : null}
         </div>
       </div>
     </div>

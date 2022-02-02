@@ -597,7 +597,6 @@ const Stake = () => {
           </div>
         </div>
       </div>
-      <Footer />
       <UnlockTokenModal
         token1={{ ...oceanToken, value: oceanValToStake }}
         token2={{

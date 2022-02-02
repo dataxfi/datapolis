@@ -22,7 +22,7 @@ const Navbar = () => {
     { name: text.T_STAKE, link: "/stakeX" },
   ];
 
-  const { buttonText, config, chainId, accountId, setShowTxHistoryModal, handleConnect, location } =
+  const { buttonText, config, chainId, accountId, setShowTxHistoryModal, handleConnect } =
     useContext(GlobalContext);
 
   function truncateId() {

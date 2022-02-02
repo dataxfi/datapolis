@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { faTwitter, faDiscord, faMediumM, faGithub } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FaBook } from "react-icons/fa";
+import SocialLinkIcons from "./SocialLinkIcons";
 
 export default function LandingPage() {
   return (
@@ -20,37 +21,17 @@ export default function LandingPage() {
           <span className="font-grit underline">Programmable Money</span>{" "}
         </p>
         <ul className="text-5xl py-4 inline-flex">
-          <li key="landing-twitter" title="Twitter">
-            <FontAwesomeIcon icon={faTwitter} className="mr-6 transform transition hover:scale-125" />
-          </li>
-          <li key="landing-discord" title="Discord">
-            {" "}
-            <FontAwesomeIcon icon={faDiscord} className="mr-6 transform transition hover:scale-125" />
-          </li>
-          <li key="landing-medium" title="Medium">
-            {" "}
-            <FontAwesomeIcon icon={faMediumM} className="mr-6 transform transition hover:scale-125" />
-          </li>
-          <li key="landing-github" title="GitHub">
-            {" "}
-            <FontAwesomeIcon icon={faGithub} className=" transition transform hover:scale-125" />
-          </li>
+          <SocialLinkIcons />
         </ul>
         <ul className="inline-flex">
-          <a
-            href="https://docs.datax.fi"
-            className="homeButton flex items-center py-2 ml-2 px-3"
-          >
+          <a href="https://docs.datax.fi" className="homeButton flex items-center py-2 ml-2 px-3">
             <FaBook className="mr-2" />
             <p>Learn More</p>
           </a>
-        <Link
-          to="/tradeX"
-          className="homeButton flex items-center py-2 ml-2 px-3"
-        >
-          <p>Enter X-Nation</p>
-          <FaAngleDoubleRight className="ml-2" />
-        </Link>
+          <Link to="/tradeX" className="homeButton flex items-center py-2 ml-2 px-3">
+            <p>Enter X-Nation</p>
+            <FaAngleDoubleRight className="ml-2" />
+          </Link>
         </ul>
       </div>
     </div>

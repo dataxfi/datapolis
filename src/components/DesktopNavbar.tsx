@@ -21,7 +21,7 @@ const DesktopNavbar = ({
   network: string;
   handleModalOrConnect: Function;
 }) => {
-  const { accountId, buttonText } = useContext(GlobalContext);
+  const { accountId, buttonText, location } = useContext(GlobalContext);
 
   return (
     <header
@@ -34,6 +34,7 @@ const DesktopNavbar = ({
           {links.map((link, idx) => {
             return (
               <Link id={`${link.name}-link`} key={idx} to={link.link} className="hm-link hidden md:block product">
+                {/* <div className={`w-1 h-3.5 bg-blue-500 rounded-full ${location.toLowerCase().includes(link.name.toLowerCase())? "" : "hidden"}`}/> */}
                 {link.name}
               </Link>
             );
