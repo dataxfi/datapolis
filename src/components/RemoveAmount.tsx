@@ -359,178 +359,185 @@ const RemoveAmount = () => {
       setSharesToRemove(new BigNumber(0));
     }
   };
-
-  return noWallet ? (
-    <UserMessageModal message="Connect your wallet to continue." pulse={false} container={true} timeout={null} />
-  ) : currentStakePool ? (
+  return (
     <div className="absolute top-0 w-full h-full">
-      <div className="flex w-full h-full items-center pt-16">
-        <div id="removeStakeModal" className="w-107 mx-auto">
-          <div className="mx-auto bg-black opacity-90 w-full rounded-lg p-3 hm-box">
-            <div className="flex flex-row pb-2 justify-between">
-              <div className="flex flex-row">
-                <img
-                  src="https://gateway.pinata.cloud/ipfs/QmPQ13zfryc9ERuJVj7pvjCfnqJ45Km4LE5oPcFvS1SMDg/datatoken.png"
-                  className="rounded-lg mr-2"
-                  alt=""
-                  width="40px"
-                />
-                <img
-                  src="https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY"
-                  className="rounded-lg mr-2"
-                  alt=""
-                  width="40px"
-                />
-                {currentStakePool ? (
-                  <p className="text-type-100 text-sm md:text-lg">
-                    {currentStakePool?.token1.symbol}/{currentStakePool?.token2.symbol}
-                  </p>
-                ) : (
-                  <PulseLoader color="white" size="4px" margin="5px" />
-                )}
-              </div>
-            </div>
-            <div className="md:grid md:grid-cols-5 modalSelectBg p-2 rounded">
-              <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center">
-                <p className="text-type-100">Amount to unstake</p>
-              </div>
-              <div className="col-span-3 flex justify-between mt-3 md:mt-0 bg-black bg-opacity-70 rounded-lg p-1">
-                <div className="flex w-full items-center">
-                  {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
-                  <span className={`text-2xl ${sharesToRemove ? "text-primary-400" : null}`}>
-                    <DebounceInput
-                      id="unstakeAmtInput"
-                      step="1"
-                      debounceTimeout={500}
-                      onChange={(e) => updateNum(e.target.value)}
-                      onWheel={(event: any) => event.currentTarget.blur()}
-                      onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
-                      type="number"
-                      className="h-full w-24 rounded-lg bg-black bg-opacity-0 text-2xl px-1 outline-none focus:placeholder-type-200 placeholder-type-400 text-right"
-                      placeholder="0.00"
-                      value={!sharesPercToRemove ? "" : sharesPercToRemove?.dp(2).toString()}
-                      disabled={inputDisabled}
-                      element={WrappedInput}
-                      max={maxUnstake?.userPerc.dp(5).toString()}
-                      data-test-max-perc={maxUnstake?.userPerc.dp(5).toString()}
-                    />
-                    %
-                  </span>
+      {noWallet ? (
+        <UserMessageModal message="Connect your wallet to continue." pulse={false} container={true} timeout={null} />
+      ) : currentStakePool ? (
+        <div className="flex w-full h-full items-center pt-16 px-2">
+          <div id="removeStakeModal" className="w-107 mx-auto">
+            <div className="mx-auto bg-black opacity-90 w-full rounded-lg p-3 hm-box">
+              <div className="flex flex-row pb-2 justify-between">
+                <div className="flex flex-row">
+                  <img
+                    src="https://gateway.pinata.cloud/ipfs/QmPQ13zfryc9ERuJVj7pvjCfnqJ45Km4LE5oPcFvS1SMDg/datatoken.png"
+                    className="rounded-lg mr-2"
+                    alt=""
+                    width="40px"
+                  />
+                  <img
+                    src="https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY"
+                    className="rounded-lg mr-2"
+                    alt=""
+                    width="40px"
+                  />
+                  {currentStakePool ? (
+                    <p className="text-type-100 text-sm md:text-lg">
+                      {currentStakePool?.token1.symbol}/{currentStakePool?.token2.symbol}
+                    </p>
+                  ) : (
+                    <PulseLoader color="white" size="4px" margin="5px" />
+                  )}
                 </div>
-                <div>
-                  <p id="sharesDisplay" className="text-sm text-type-400 whitespace-nowrap text-right">
-                    {Number(currentStakePool.shares) === 0
-                      ? "Shares: 0"
-                      : Number(currentStakePool.shares) > 0.001
-                      ? `Shares: ${toFixed5(currentStakePool.shares)}`
-                      : "Shares: < 0.001"}
-                  </p>
-                  <div className="text-sm text-type-300 grid grid-flow-col justify-end gap-2">
-                    <Button
-                      id="maxUnstakeBtn"
-                      onClick={() => {
-                        maxUnstakeHandler();
-                      }}
-                      disabled={Number(currentStakePool.shares) === 0}
-                      text="Max Unstake"
-                      classes={`px-2 lg:w-24 py-0 border border-type-300 rounded-full text-xs ${
-                        inputDisabled || Number(currentStakePool.shares) === 0
-                          ? "text-gray-700"
-                          : "hover:bg-primary-600"
-                      }`}
-                    />
+              </div>
+              <div className="md:grid md:grid-cols-5 modalSelectBg p-2 rounded">
+                <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center">
+                  <p className="text-type-100">Amount to unstake</p>
+                </div>
+                <div className="col-span-3 flex justify-between mt-3 md:mt-0 bg-black bg-opacity-70 rounded-lg p-1">
+                  <div className="flex w-full items-center">
+                    {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
+                    <span className={`text-2xl ${sharesToRemove ? "text-primary-400" : null}`}>
+                      <DebounceInput
+                        id="unstakeAmtInput"
+                        step="1"
+                        debounceTimeout={500}
+                        onChange={(e) => updateNum(e.target.value)}
+                        onWheel={(event: any) => event.currentTarget.blur()}
+                        onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
+                        type="number"
+                        className="h-full w-24 rounded-lg bg-black bg-opacity-0 text-2xl px-1 outline-none focus:placeholder-type-200 placeholder-type-400 text-right"
+                        placeholder="0.00"
+                        value={!sharesPercToRemove ? "" : sharesPercToRemove?.dp(2).toString()}
+                        disabled={inputDisabled}
+                        element={WrappedInput}
+                        max={maxUnstake?.userPerc.dp(5).toString()}
+                        data-test-max-perc={maxUnstake?.userPerc.dp(5).toString()}
+                      />
+                      %
+                    </span>
                   </div>
-                </div>
-              </div>
-            </div>
-            <div className="px-4 relative mt-6 mb-8">
-              <div className="rounded-full border-black border-4 absolute -top-7 bg-trade-darkBlue w-10 h-10 flex items-center justify-center swap-center">
-                {bgLoading.includes(bgLoadingStates.singlePoolData) ||
-                bgLoading.includes(bgLoadingStates.maxUnstake) ||
-                bgLoading.includes(bgLoadingStates.calcTrade) ? (
-                  <MoonLoader size={25} color={"white"} />
-                ) : (
-                  <BsArrowDown size="30" className="text-gray-300 m-0 p-0" />
-                )}
-              </div>
-            </div>
-            <div className="modalSelectBg p-2 rounded ">
-              <div className="md:grid md:grid-cols-5 p-2">
-                <div className="col-span-2">
-                  <p className="text-type-100">You will receive</p>
-                </div>
-                <div className="col-span-3 grid grid-cols-2 gap-4">
-                  <div className="bg-trade-darkBlue grid grid-flow-col gap-2 p-2 rounded-lg">
-                    <div>
-                      <img
-                        src="https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY"
-                        className="w-12 rounded-lg"
-                        alt=""
+                  <div>
+                    <p id="sharesDisplay" className="text-sm text-type-400 whitespace-nowrap text-right">
+                      {Number(currentStakePool.shares) === 0
+                        ? "Shares: 0"
+                        : Number(currentStakePool.shares) > 0.001
+                        ? `Shares: ${toFixed5(currentStakePool.shares)}`
+                        : "Shares: < 0.001"}
+                    </p>
+                    <div className="text-sm text-type-300 grid grid-flow-col justify-end gap-2">
+                      <Button
+                        id="maxUnstakeBtn"
+                        onClick={() => {
+                          maxUnstakeHandler();
+                        }}
+                        disabled={Number(currentStakePool.shares) === 0}
+                        text="Max Unstake"
+                        classes={`px-2 lg:w-24 py-0 border border-type-300 rounded-full text-xs ${
+                          inputDisabled || Number(currentStakePool.shares) === 0
+                            ? "text-gray-700"
+                            : "hover:bg-primary-600"
+                        }`}
                       />
                     </div>
-                    <div>
-                      <p
-                        data-test-max-ocean={maxUnstake?.OCEAN.dp(5).toString()}
-                        id="oceanToReceive"
-                        title={oceanToReceive.toString()}
-                        className="text-type-100 w-20 overflow-hidden overflow-ellipsis whitespace-nowrap"
-                      >
-                        {oceanToReceive.lt(new BigNumber(0.00001)) ? 0 : oceanToReceive.toString() || 0}
-                      </p>
-                      <p className="text-xs text-type-100">{currentStakePool?.token2.symbol}</p>
-                    </div>
                   </div>
                 </div>
               </div>
+              <div className="px-4 relative mt-6 mb-8">
+                <div className="rounded-full border-black border-4 absolute -top-7 bg-trade-darkBlue w-10 h-10 flex items-center justify-center swap-center">
+                  {bgLoading.includes(bgLoadingStates.singlePoolData) ||
+                  bgLoading.includes(bgLoadingStates.maxUnstake) ||
+                  bgLoading.includes(bgLoadingStates.calcTrade) ? (
+                    <MoonLoader size={25} color={"white"} />
+                  ) : (
+                    <BsArrowDown size="30px" className="text-gray-300 m-0 p-0" />
+                  )}
+                </div>
+              </div>
+              <div className="flex modalSelectBg p-2 rounded items-center justify-between lg:justify-around">
+                <div className="w-max h-full mr-4 flex">
+                  <p className="text-type-100">You will receive</p>
+                </div>
+                <div className="bg-trade-darkBlue grid grid-flow-col gap-2 p-2 rounded-lg">
+                  <div>
+                    <img
+                      src="https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY"
+                      className="w-12 rounded-lg"
+                      alt=""
+                    />
+                  </div>
+                  <div>
+                    <p
+                      data-test-max-ocean={maxUnstake?.OCEAN.dp(5).toString()}
+                      id="oceanToReceive"
+                      title={oceanToReceive.toString()}
+                      className="text-type-100 w-20 overflow-hidden overflow-ellipsis whitespace-nowrap"
+                    >
+                      {oceanToReceive.lt(new BigNumber(0.00001)) ? 0 : oceanToReceive.toString() || 0}
+                    </p>
+                    <p className="text-xs text-type-100">{currentStakePool?.token2.symbol}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex mt-4">
+                {/* <div className="bg-gradient"></div> */}
+                <Button
+                  id="executeUnstake"
+                  text={btnText}
+                  onClick={() => {
+                    if (allowance.lt(oceanToReceive)) {
+                      setShowUnlockTokenModal(true);
+                    } else {
+                      setShowConfirmModal(true);
+                      handleUnstake();
+                    }
+                  }}
+                  classes={`px-4 py-2 rounded-lg w-full txButton`}
+                  disabled={btnDisabled}
+                />
+              </div>
             </div>
-            <div className="flex mt-4">
-              {/* <div className="bg-gradient"></div> */}
-              <Button
-                id="executeUnstake"
-                text={btnText}
-                onClick={() => {
-                  if (allowance.lt(oceanToReceive)) {
-                    setShowUnlockTokenModal(true);
-                  } else {
-                    setShowConfirmModal(true);
-                    handleUnstake();
-                  }
-                }}
-                classes={`px-4 py-2 rounded-lg w-full txButton`}
-                disabled={btnDisabled}
-              />
+            <div className="pt-3 pl-3">
+              <Link
+                id="remove-lp-link"
+                to="/stakeX/list"
+                className="text-gray-300 hover:text-gray-100 transition-colors"
+              >
+                {"<"} Back to liquidity position
+              </Link>
             </div>
-          </div>
-          <div className="pt-3 pl-3">
-            <Link id="remove-lp-link" to="/stakeX/list" className="text-gray-300 hover:text-gray-100 transition-colors">
-              {"<"} Back to liquidity position
-            </Link>
           </div>
         </div>
-      </div>
-      
-      <UnlockTokenModal
-        token1={{
-          value: sharesToRemove,
-          percentage: sharesPercToRemove,
-          loading: false,
-          info: { ...currentStakePool.token1, pool: currentStakePool.address },
-          balance: currentStakePool.shares,
-        }}
-        token2={{
-          value: new BigNumber(0),
-          percentage: new BigNumber(0),
-          loading: false,
-          info: currentStakePool.token1,
-          balance: new BigNumber(0),
-        }}
-        setToken={setAllowance}
-        nextFunction={() => {
-          setShowConfirmModal(true);
-          handleUnstake();
-        }}
-        remove={true}
-      />
+      ) : (
+        <></>
+      )}
+
+      {currentStakePool ? (
+        <UnlockTokenModal
+          token1={{
+            value: sharesToRemove,
+            percentage: sharesPercToRemove,
+            loading: false,
+            info: { ...currentStakePool.token1, pool: currentStakePool.address },
+            balance: currentStakePool.shares,
+          }}
+          token2={{
+            value: new BigNumber(0),
+            percentage: new BigNumber(0),
+            loading: false,
+            info: currentStakePool.token1,
+            balance: new BigNumber(0),
+          }}
+          setToken={setAllowance}
+          nextFunction={() => {
+            setShowConfirmModal(true);
+            handleUnstake();
+          }}
+          remove={true}
+        />
+      ) : (
+        <></>
+      )}
 
       <ConfirmModal
         show={showConfirmModal}
@@ -556,7 +563,6 @@ const RemoveAmount = () => {
         />
       ) : null}
     </div>
-  ) : null;
+  );
 };
-
 export default RemoveAmount;

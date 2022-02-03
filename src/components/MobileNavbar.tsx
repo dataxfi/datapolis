@@ -43,7 +43,7 @@ const MobileNavbar = ({
   return (
     <header id="mobileNavbar" className="flex flex-col" >
       <div className="flex lg:hidden justify-between items-center pt-2 border-gray-800 pr-4">
-        <div className="flex flex-row justify-start">
+        <div className="flex flex-row justify-start ml-4">
           <Logo className="logo" style={{ height: "40px" }} />
         </div>
         <div className="flex">
@@ -72,7 +72,7 @@ const MobileNavbar = ({
         </div>
       </div>
       <div
-        className={`w-full bg-primary-700 z-10  mb-5 absolute top-0 transform${
+        className={`w-full bg-black bg-opacity-75 z-10  mb-5 absolute top-0 transform${
           menuVisible ? " translate-y-18" : " -translate-y-19"
         } transition duration-1000 border-t border-b lg:-translate-y-19`}
       >
@@ -84,7 +84,7 @@ const MobileNavbar = ({
               className="hm-link product"
               key={`link${idx}`}
             >
-              <div key={idx} className="py-1.5 px-8 hover:bg-primary-600">
+              <div key={idx} className="py-1.5 px-8 hover:bg-opacity-100">
                 {link.name}
               </div>
             </Link>

@@ -5,7 +5,7 @@ import SocialLinkIcons from "./SocialLinkIcons";
 
 export default function LandingPage() {
   return (
-    <div className="w-full h-full absolute bg-dataXcity bg-cover bg-bottom">
+    <div className="w-full h-full absolute bg-dataXcity bg-cover bg-right mobileBgPosition lg:bg-bottom">
       <div className="w-full h-full flex flex-col items-center justify-center px-8 lg:px-56 text-center">
         <div className="text-4xl lg:text-6xl xl:text-8xl font-montserrat font-extrabold text-shadow-bold">
           <h1>

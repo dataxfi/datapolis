@@ -80,7 +80,7 @@ const UserMessageModal = ({
         </div>
       ) : null}
       <p
-        className={` max-w-sm ${type === "error" ? "mb-4" : null} ${
+        className={` max-w-sm ${type === "error" ? "mb-4" : ""} ${
           pulse ? "animate-pulse" : ""
         } opacity-${messageOpacity} transition-opacity duration-500`}
       >
@@ -102,7 +102,7 @@ const UserMessageModal = ({
   const floatMessageEl = (
     <div
       id={id}
-      className={`max-w-xs fixed md:top-8 md:right-8 w-full mx-auto bg-trade-darkBlue rounded-lg p-4 transition-opacity ease-in-out opacity-${messageOpacity} duration-500 ${className? className: ""}`}
+      className={`max-w-xs fixed md:top-8 md:right-8 w-full mx-auto bg-black bg-opacity-80 rounded-lg p-4 transition-opacity ease-in-out opacity-${messageOpacity} duration-500 ${className? className: ""}`}
     >
       <div className="flex justify-between items-start">
         <div className="grid grid-flow-col gap-4 items-center justify-center">
@@ -134,8 +134,8 @@ const UserMessageModal = ({
   return type === "alert" ? (
     <>{floatMessageEl}</>
   ) : container ? (
-    <div className="w-full h-4/5 flex flex-row justify-center p-4 pt-24">
-      <div className={`h-1/3 text-center bg-gray-900 px-20 py-20 rounded-lg self-center `}>{stdMessageEl}</div>
+    <div className="w-full h-4/5 flex flex-row justify-center">
+      <div className={`text-center bg-black bg-opacity-80 p-20 rounded-lg self-center`}>{stdMessageEl}</div>
     </div>
   ) : (
     stdMessageEl

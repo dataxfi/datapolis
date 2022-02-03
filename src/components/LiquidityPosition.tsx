@@ -10,7 +10,7 @@ import {
   updateSingleStakePool,
 } from "../utils/stakedPoolsUtils";
 import TokenModal from "./TokenModal";
-import { PulseLoader } from "react-spinners";
+import { MoonLoader, PulseLoader } from "react-spinners";
 import useBgToggler from "../hooks/useBgToggler";
 import Footer from "./Footer";
 
@@ -147,27 +147,22 @@ const LiquidityPosition = () => {
   }
 
   return (
-    <div className="absolute w-full h-full top-0 bottom-0 py-28">
+    <div className="absolute w-full h-full top-0 bottom-0  py-16 lg:py-28 px-2">
       <div className="flex flex-col justify-center h-full">
-        <div className="bg-black bg-opacity-90 w-107 p-2 max-h-full rounded-lg px-3 m-auto flex flex-col justify-center">
+        <div className="bg-black bg-opacity-90 w-full lg:w-107 p-2 max-h-full rounded-lg px-3 m-auto flex flex-col justify-center">
           <div className="flex flex-row w-full m-auto">
             <div className="w-full flex pb-1 rounded-lg justify-between">
               <h2 className="text-2xl">Your staked pools</h2>
               {(bgLoading.includes(bgLoadingStates.allStakedPools) ||
                 bgLoading.includes(bgLoadingStates.singlePoolData)) &&
               accountId ? (
-                <div id="loadingStakeMessage" className="text-xs lg:text-base text-center px-3 flex">
-                  Loading most recent information{" "}
-                  <div className="pt-1 flex">
-                    <PulseLoader color="white" size="4px" margin="3px" />
-                  </div>
-                </div>
+                    <MoonLoader color="white" size="25px" />
               ) : null}
             </div>
           </div>
 
           {userMessage ? (
-            <div className="flex flex-row justify-center items-center h-60 bg-trade-darkBlue bg-opacity-40 rounded-lg">
+            <div className="flex flex-row justify-center items-center p-4 lg:p-2 h-60 bg-trade-darkBlue bg-opacity-40 rounded-lg">
               <UserMessageModal
                 id={messageId}
                 message={userMessage}

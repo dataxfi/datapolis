@@ -50,7 +50,7 @@ function App() {
           location === "/tradeX"
             ? "absolute bg-dataXtrade bg-cover bg-top"
             : location !== "/"
-            ? "absolute bg-dataXstake bg-cover bg-bottom"
+            ? "absolute bg-dataXstake bg-cover bg-left lg:bg-bottom"
             : "relative"
         }`}
       >

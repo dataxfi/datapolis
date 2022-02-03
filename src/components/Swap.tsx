@@ -751,9 +751,9 @@ const Swap = () => {
   return (
     <div className="w-full h-full absolute top-0">
       <div id="swapModal" className="flex mt-6 w-full h-full items-center justify-center">
-        <div className="w-107 lg:mx-auto sm:mx-4 mx-3 bg-black bg-opacity-80 rounded-lg p-3 hm-box">
+        <div className="lg:w-107 lg:mx-auto sm:mx-4 mx-3 bg-black bg-opacity-80 rounded-lg p-3 hm-box">
           <div className="flex justify-between relative">
-            <p className="text-xl">{text.T_SWAP}</p>
+            {/* <p className="text-xl">{text.T_SWAP}</p> */}
             <div className="grid grid-flow-col gap-2 items-center">
               <div
                 id="tradeSettingsBtn"
@@ -765,13 +765,13 @@ const Swap = () => {
               </div>
             </div>
             {showSettings ? (
-              <div id="settingsModal" className="absolute top-10 right-0 max-w-sm">
+              <div id="settingsModal" className="absolute top-0 left-0 max-w-sm">
                 <OutsideClickHandler
                   onOutsideClick={() => {
                     setShowSettings(false);
                   }}
                 >
-                  <div className="bg-black rounded-lg border bg-opacity-90 border-primary-500 p-4 w-full">
+                  <div className="bg-black rounded-lg border bg-opacity-90 border-primary-500 p-2 w-full">
                     <p className="text-type-100">Transaction settings</p>
                     <div className="mt-2">
                       <p className="text-type-300 text-sm">Slippage tolerance</p>

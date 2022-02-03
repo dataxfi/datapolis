@@ -442,9 +442,9 @@ const Stake = () => {
 
   return (
     <div className="w-full h-full absolute top-0">
-      <div className="flex flex-col h-full w-full items-center justify-center">
+      <div className="flex h-full w-full items-center justify-center">
         <div>
-          <div className="w-107 bg-black bg-opacity-90 rounded-lg p-3 hm-box">
+          <div className="lg:w-107 lg:mx-auto sm:mx-4 mx-3 bg-black bg-opacity-90 rounded-lg p-3 hm-box">
             <div className="flex justify-between">
               {userMessage && userMessage.type === "error" ? (
                 <UserMessageModal
@@ -590,7 +590,7 @@ const Stake = () => {
               disabled={btnProps.disabled}
             />
           </div>
-          <div className="pt-3 pl-3">
+          <div className="pt-3 pl-6 lg:pl-3">
             <Link id="lpLink" to="/stakeX/list" className="text-gray-300 hover:text-gray-100 transition-colors">
               View your stake positions {">"}
             </Link>

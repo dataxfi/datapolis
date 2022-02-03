@@ -202,7 +202,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
     try {
       const provider = await web3Modal?.connect();
       setProvider(provider);
-      // // This is required to get the token list
       const web3 = new Web3(provider);
       console.log("Web3");
       console.log(web3);

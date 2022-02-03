@@ -195,3 +195,7 @@ html:empty {
   background-color: black;
   opacity: .5;
 }
+
+.mobileBgPosition{
+  background-position: bottom left 5% ;
+}
