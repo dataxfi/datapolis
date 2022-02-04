@@ -1,9 +1,9 @@
-import YellowXLoader from '../assets/YellowXLoader.gif'
+import DataXFold from '../assets/DataX-X-Fold.gif'
 
 function Loader ({size}:{size:number}){
     return (
         <div>
-            <img src={YellowXLoader} alt="dataX loading animation" width={`${size}px`} />
+            <img src={DataXFold} alt="dataX loading animation" width={`${size}px`} />
         </div>
     )
 }
