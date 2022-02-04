@@ -1,5 +1,5 @@
 import Navbar from "./components/Navbar";
-import { BrowserRouter as Router, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Swap from "./components/Swap";
 import Stake from "./components/Stake";
 import LiquidityPosition from "./components/LiquidityPosition";

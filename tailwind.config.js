@@ -56,7 +56,7 @@ module.exports = {
       //   'background': colors.black
       //  }
       backgroundImage: {
-        dataXgif: 'url("./assets/YellowXLoader.gif")',
+        dataXgif: 'url("./assets/DataX-X-Fold.gif")',
         dataXcity: 'url("./assets/DataX-City.jpeg")',
         dataXtrade: 'url("./assets/TradeX.jpeg")',
         dataXstake: 'url("./assets/StakeX.jpeg")',

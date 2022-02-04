@@ -22,8 +22,8 @@ body,
 html,
 #loader {
   @apply text-type-100 bg-no-repeat md:h-full m-0 bg-fixed;
-  background: rgb(128, 140, 171);
-  background: radial-gradient(circle, rgba(128, 140, 171, 1) 0%, rgba(62, 72, 103, 1) 54%, rgba(11, 16, 46, 1) 100%);
+  background: rgb(9,30,121);
+background: radial-gradient(circle, rgba(9,30,121,1) 0%, rgba(2,0,36,1) 100%);
 }
 html,
 body,
