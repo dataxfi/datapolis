@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap");
-
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,800;0,900;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,800;0,900;1,800;1,900&family=Special+Elite&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -17,27 +18,45 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-
-body, html, #loader {
-@apply text-type-100 bg-no-repeat md:h-full m-0 bg-fixed;
-background: rgb(128,140,171);
-background: radial-gradient(circle, rgba(128,140,171,1) 0%, rgba(62,72,103,1) 54%, rgba(11,16,46,1) 100%);
+body,
+html,
+#loader {
+  @apply text-type-100 bg-no-repeat md:h-full m-0 bg-fixed;
+  background: rgb(9,30,121);
+background: radial-gradient(circle, rgba(9,30,121,1) 0%, rgba(2,0,36,1) 100%);
 }
-
-#root{
+html,
+body,
+#root {
+  @apply h-full;
+}
+/* #root{
   @apply h-screen md:h-full 
+} */
+
+#bg-stake {
+  @apply absolute bg-dataXstake bg-cover bg-bottom;
 }
 
-#root:empty, html:empty{
- @apply hidden
+#bg-trade {
+  @apply absolute bg-dataXtrade bg-cover bg-bottom;
 }
 
-#loader{
-  @apply flex flex-row h-full w-full justify-center  items-center bg-center bg-no-repeat bg-fixed bg-dataXgif sm:bg-sm md:bg-md
+#bg-home {
+  @apply absolute bg-dataXcity bg-cover bg-bottom;
 }
 
-#loadText{
-  @apply animate-pulse
+#root:empty,
+html:empty {
+  @apply hidden;
+}
+
+#loader {
+  @apply flex flex-row h-full w-full justify-center  items-center bg-center bg-no-repeat bg-fixed bg-dataXgif sm:bg-sm md:bg-md;
+}
+
+#loadText {
+  @apply animate-pulse;
 }
 /* Links */
 .hm-link {
@@ -54,7 +73,7 @@ background: radial-gradient(circle, rgba(128,140,171,1) 0%, rgba(62,72,103,1) 54
 }
 
 .hm-btn.hm-btn-light {
-  @apply bg-primary-800 text-type-200 hover:bg-primary-700;
+  @apply bg-black bg-opacity-75 text-type-200 hover:bg-primary-800 hover:bg-opacity-75 transition-all duration-200;
 }
 
 .hm-loading {
@@ -89,9 +108,13 @@ background: radial-gradient(circle, rgba(128,140,171,1) 0%, rgba(62,72,103,1) 54
   }
 }
 
+.lpGrad {
+  background: rgb(19, 57, 91);
+  background: linear-gradient(180deg, rgba(19, 57, 91, 1) 0%, rgba(19, 57, 91, 0) 100%);
+}
+
 .hm-box {
-  box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px,
-    rgba(0, 0, 0, 0.22) 0px 15px 12px;
+  box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -105,6 +128,74 @@ background: radial-gradient(circle, rgba(128,140,171,1) 0%, rgba(62,72,103,1) 54
   scrollbar-width: none; /* Firefox */
 }
 
+::-webkit-scrollbar-track {
+  display: none;
+}
+
 .swap-center {
   left: 45%;
+}
+
+.text-shadow-bold {
+  text-shadow: 3px 3px 4px black;
+}
+
+.text-shadow-light {
+  text-shadow: 2px 2px 4px black;
+}
+
+.modalSelectBg {
+  @apply bg-city-blue bg-opacity-30;
+}
+
+.homeButton {
+  @apply border rounded bg-black bg-opacity-50 hover:border-black hover:bg-yellow hover:text-black transition-colors duration-200;
+}
+
+.modalButton {
+  background-image: rgb(10, 69, 110);
+  background-image: linear-gradient(90deg, rgba(10, 69, 110, 1) 0%, rgba(26, 38, 70, 1) 100%);
+}
+
+.modalButton:hover {
+  background: rgb(49, 59, 101);
+  background: linear-gradient(90deg, rgba(49, 59, 101, 1) 0%, rgba(58, 123, 191, 1) 100%);
+}
+
+.txButton {
+  position: relative;
+  background-image: rgb(10, 69, 110);
+  background-image: linear-gradient(90deg, rgba(10, 69, 110, 1) 0%, rgba(26, 38, 70, 1) 100%);
+  z-index: 1;
+}
+
+.txButton::before {
+  border-radius: .5rem;
+  position: absolute;
+  content: "";
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-image: rgb(49, 59, 101);
+  background-image: linear-gradient(90deg, rgba(49, 59, 101, 1) 0%, rgba(58, 123, 191, 1) 100%);
+  z-index: -1;
+  transition: opacity 0.1s linear;
+  opacity: 0;
+}
+.txButton:hover::before {
+  opacity: 1;
+}
+
+.txButton:disabled::before{
+  opacity: 0
+}
+
+.txButton:disabled{
+  background-color: black;
+  opacity: .5;
+}
+
+.mobileBgPosition{
+  background-position: bottom left 5% ;
 }

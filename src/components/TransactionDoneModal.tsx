@@ -12,7 +12,7 @@ const TransactionDoneModal = ({
   if (!show) return null
   return (
     <div id="transactionDoneModal" className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 sm:max-w-sm w-full z-20 shadow">
-      <div className="bg-primary-900 border rounded-lg pb-8 p-4 hm-box mx-3">
+      <div className="bg-black bg-opacity-90 border rounded-lg pb-8 p-4 hm-box mx-3">
         <div className="flex justify-end">
           <BsX
           id="transactionDoneModalCloseBtn"

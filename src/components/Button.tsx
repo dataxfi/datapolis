@@ -1,5 +1,5 @@
 interface IBtnProps {
-    classes: string,
+    classes?: string,
     text: string,
     onClick?: React.MouseEventHandler<HTMLButtonElement>,
     disabled?: boolean,

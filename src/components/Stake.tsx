@@ -10,7 +10,7 @@ import TransactionDoneModal from "./TransactionDoneModal";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import getTokenList, { getAllowance, TokenInfo } from "../utils/tokenUtils";
 import UserMessageModal, { userMessage } from "./UserMessageModal";
-import { toFixed5, toFixed18 } from "../utils/equate";
+import { toFixed5 } from "../utils/equate";
 import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
 import { getLocalPoolData, updateSingleStakePool } from "../utils/stakedPoolsUtils";
 import usePTxManager from "../hooks/usePTxManager";
@@ -22,6 +22,8 @@ import { DebounceInput } from "react-debounce-input";
 import WrappedInput from "./WrappedInput";
 import UnlockTokenModal from "./UnlockTokenModal";
 import { IToken } from "./Swap";
+import useBgToggler from "../hooks/useBgToggler";
+import Footer from "./Footer";
 const text = {
   T_STAKE: "StakeX",
   T_SELECT_TOKEN: "Select token",
@@ -34,7 +36,7 @@ interface IPoolLiquidity {
 
 const INITIAL_BUTTON_STATE = {
   text: "Connect wallet",
-  classes: "bg-gray-800 text-gray-400",
+  classes: "",
   disabled: false,
 };
 
@@ -107,6 +109,7 @@ const Stake = () => {
   usePTxManager(lastTxId);
   useTxModalToggler(txReceipt, setTxReceipt);
   useCurrentPool(poolAddress, setPoolAddress);
+  useBgToggler();
 
   async function getMaxStakeAmt() {
     if (token)
@@ -242,46 +245,41 @@ const Stake = () => {
         ...INITIAL_BUTTON_STATE,
         text: "Select a Token",
         disabled: true,
-        classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
       });
     } else if (!oceanValToStake || oceanValToStake.eq(0)) {
       setBtnProps({
         ...INITIAL_BUTTON_STATE,
         text: "Enter OCEAN Amount",
         disabled: true,
-        classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
       });
     } else if (balance?.eq(0) || (balance && oceanValToStake.gt(balance))) {
       setBtnProps({
         ...INITIAL_BUTTON_STATE,
         text: "Not Enough OCEAN Balance",
         disabled: true,
-        classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
       });
     } else if (loadingStake) {
       setBtnProps({
         ...INITIAL_BUTTON_STATE,
         text: "Processing Transaction...",
         disabled: true,
-        classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
       });
     } else if (oceanValToStake.isLessThan(0.01)) {
       setBtnProps({
         ...INITIAL_BUTTON_STATE,
         text: "Minimum Stake is .01 OCEAN",
         disabled: true,
-        classes: "bg-gray-800 text-gray-400 cursor-not-allowed",
       });
     } else if (oceanToken.allowance?.lt(oceanValToStake)) {
       setBtnProps({
-        disabled: false,
-        classes: "bg-primary-100 bg-opacity-20 hover:bg-opacity-40 text-background-800",
+        ...btnProps,
         text: "Unlock OCEAN",
+        disabled: false,
       });
     } else {
       setBtnProps({
+        ...btnProps,
         disabled: false,
-        classes: "bg-primary-100 bg-opacity-20 hover:bg-opacity-40 text-background-800",
         text: "Stake",
       });
     }
@@ -443,12 +441,11 @@ const Stake = () => {
   }
 
   return (
-    <>
-      <div id="stakeModal" className="flex flex-col my-3 w-full items-center justify-center lg:h-3/4 px-4">
+    <div className="w-full h-full absolute top-0">
+      <div className="flex h-full w-full items-center justify-center">
         <div>
-          <div className="max-w-2xl lg:mx-auto bg-primary-900 w-full rounded-lg p-4 phm-box ">
+          <div className="lg:w-107 lg:mx-auto sm:mx-4 mx-3 bg-black bg-opacity-90 rounded-lg p-3 hm-box">
             <div className="flex justify-between">
-              <p className="text-xl">{text.T_STAKE}</p>
               {userMessage && userMessage.type === "error" ? (
                 <UserMessageModal
                   message={userMessage.message}
@@ -466,8 +463,8 @@ const Stake = () => {
                 updateToken(val);
               }}
             />
-            <div className="px-4 relative my-12">
-              <div className="rounded-full border-primary-900 border-4 absolute -top-14 bg-primary-800 w-16 h-16 flex items-center justify-center swap-center">
+            <div className="px-4 relative mt-6 mb-10">
+              <div className="rounded-full border-black border-4 absolute -top-7 bg-trade-darkBlue w-12 h-12 flex items-center justify-center swap-center">
                 {loading ? (
                   <MoonLoader size={25} color={"white"} />
                 ) : (
@@ -475,12 +472,12 @@ const Stake = () => {
                 )}
               </div>
             </div>
-            <div className="mt-4 bg-primary-800 p-4 rounded-lg">
+            <div className="modalSelectBg p-2 rounded-lg">
               <div className="md:grid md:grid-cols-5">
                 <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center">
                   <img
                     src="https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY"
-                    className="w-14 h-14 rounded-md"
+                    className="w-10 h-10 rounded-md"
                     alt=""
                   />
                   <div>
@@ -490,53 +487,51 @@ const Stake = () => {
                     </span>
                   </div>
                 </div>
-                <div className="col-span-3 mt-3 md:mt-0">
-                  <div className="h-full w-full rounded-lg bg-primary-900 text-3xl p-2">
-                    <div className="flex justify-between items-center">
-                      {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
-                      <DebounceInput
-                        id="stakeAmtInput"
-                        debounceTimeout={500}
-                        value={oceanValToStake?.toString() || ""}
-                        onChange={(e) => updateNum(e.target.value)}
-                        onWheel={(event: any) => event.currentTarget.blur()}
-                        onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
-                        type="number"
-                        className={`h-full w-full rounded-lg bg-primary-900 text-3xl px-2 outline-none focus:placeholder-type-200 placeholder-type-400 ${
-                          token ? "text-white" : "text-gray-500"
-                        }`}
-                        placeholder="0.0"
-                        disabled={!token}
-                        element={WrappedInput}
-                      />
-                      <div>
-                        <p id="oceanBalance" className="text-sm text-type-400 whitespace-nowrap text-right">
-                          Balance: {balance ? balance.toFixed(3) : "-"}
-                        </p>
+                <div className="col-span-3 mt-3 md:mt-0 bg-black bg-opacity-70 rounded-lg p-1">
+                  <div className="flex justify-between items-center">
+                    {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
+                    <DebounceInput
+                      id="stakeAmtInput"
+                      debounceTimeout={500}
+                      value={oceanValToStake?.toString() || ""}
+                      onChange={(e) => updateNum(e.target.value)}
+                      onWheel={(event: any) => event.currentTarget.blur()}
+                      onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
+                      type="number"
+                      className={`w-full rounded-lg mr-1 bg-black bg-opacity-0 text-2xl px-2 outline-none focus:placeholder-type-200 placeholder-type-400 ${
+                        token ? "text-white" : "text-gray-500"
+                      }`}
+                      placeholder="0.0"
+                      disabled={!token}
+                      element={WrappedInput}
+                    />
+                    <div>
+                      <p id="oceanBalance" className="text-sm text-type-400 whitespace-nowrap text-right mb-1">
+                        Balance: {balance ? balance.toFixed(3) : "-"}
+                      </p>
 
-                        <div className="text-sm text-type-300 grid grid-flow-col justify-end gap-2">
-                          <Button
-                            onClick={() => {
-                              setMaxStake();
-                            }}
-                            id="maxStake"
-                            text="Max Stake"
-                            classes={`px-2 py-0 lg:w-20 border rounded-full text-xs ${
-                              balance?.isNaN() || balance?.eq(0) || !accountId || !token
-                                ? "text-gray-600 border-gray-600"
-                                : "border-type-300 hover:bg-primary-600"
-                            }`}
-                            disabled={balance && accountId ? false : true}
-                          />
-                        </div>
+                      <div className="text-sm text-type-300 grid grid-flow-col justify-end gap-2">
+                        <Button
+                          onClick={() => {
+                            setMaxStake();
+                          }}
+                          id="maxStake"
+                          text="Max Stake"
+                          classes={`px-2 py-0 lg:w-20 border rounded-full text-xs ${
+                            balance?.isNaN() || balance?.eq(0) || !accountId || !token
+                              ? "text-gray-600 border-gray-600"
+                              : "border-type-300 hover:bg-primary-600"
+                          }`}
+                          disabled={balance && accountId ? false : true}
+                        />
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 border border-type-600 mt-4 rounded-lg p-2 justify-center">
-              <div className="my-1">
+            <div className="flex border border-type-600 mt-4 rounded-lg p-2 w-full">
+              <div className="my-1 mr-4">
                 <p className="text-type-300 text-xs">Swap Rate</p>
                 {token && oceanToDt && dtToOcean && !loadingRate ? (
                   <div id="swapRate">
@@ -551,7 +546,7 @@ const Stake = () => {
                   <div> - </div>
                 )}
               </div>
-              <div className="my-1">
+              <div className="my-1 mr-4">
                 <p className="text-type-300 text-xs">Pool liquidity</p>
                 {token && poolLiquidity && !loadingRate ? (
                   <div id="poolLiquidity">
@@ -582,8 +577,7 @@ const Stake = () => {
               onClick={() => {
                 if (btnProps.text === "Connect wallet") {
                   handleConnect();
-                }
-                {
+                } else {
                   if (oceanToken.allowance?.lt(oceanValToStake)) {
                     setShowUnlockTokenModal(true);
                   } else {
@@ -592,20 +586,19 @@ const Stake = () => {
                   }
                 }
               }}
-              classes={"px-4 py-4 rounded-lg w-full mt-4 " + btnProps.classes}
+              classes="p-2 rounded-lg w-full mt-4 txButton"
               disabled={btnProps.disabled}
             />
           </div>
-          <div className="pt-3 pl-3">
+          <div className="pt-3 pl-6 lg:pl-3">
             <Link id="lpLink" to="/stakeX/list" className="text-gray-300 hover:text-gray-100 transition-colors">
               View your stake positions {">"}
             </Link>
           </div>
         </div>
       </div>
-
       <UnlockTokenModal
-        token1={{...oceanToken, value: oceanValToStake}}
+        token1={{ ...oceanToken, value: oceanValToStake }}
         token2={{
           value: "0",
           info: token,
@@ -624,13 +617,7 @@ const Stake = () => {
       <ConfirmModal
         show={showConfirmModal}
         close={() => setShowConfirmModal(false)}
-        txs={
-          token
-            ? [
-                `Stake ${oceanValToStake?.decimalPlaces(5).toString()} OCEAN in ${token.symbol} pool`,
-              ]
-            : []
-        }
+        txs={token ? [`Stake ${oceanValToStake?.decimalPlaces(5).toString()} OCEAN in ${token.symbol} pool`] : []}
       />
       <TransactionDoneModal show={showTxDone} txHash={recentTxHash} close={() => setShowTxDone(false)} />
 
@@ -643,7 +630,7 @@ const Stake = () => {
         />
       ) : null}
       {/* <PositionBox />  */}
-    </>
+    </div>
   );
 };
 

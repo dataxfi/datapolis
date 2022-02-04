@@ -109,6 +109,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
   const [showUnlockTokenModal, setShowUnlockTokenModal] = useState<boolean>(false)
 
+  const [location,setLocation] = useState<string>("/")
   // remove all pending signatures to instantiate disclaimer flow upon user reconnection
   useEffect(() => {
     for (let i = 0; i < localStorage.length; i++) {
@@ -203,7 +204,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
     try {
       const provider = await web3Modal?.connect();
       setProvider(provider);
-      // // This is required to get the token list
       const web3 = new Web3(provider);
       console.log("Web3");
       console.log(web3);
@@ -382,7 +382,9 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         notifications,
         setNotifications,
         showUnlockTokenModal, 
-        setShowUnlockTokenModal
+        setShowUnlockTokenModal, 
+        location, 
+        setLocation
       }}
     >
       {children}

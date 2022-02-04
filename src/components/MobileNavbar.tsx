@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { MdMenu, MdClose } from "react-icons/md";
 import { useState, useEffect, useContext } from "react";
-import { ReactComponent as Logo } from "../assets/logo-test.svg";
+import { ReactComponent as Logo } from "../assets/datax-logo.svg";
 import { GlobalContext } from "../context/GlobalState";
 import Button from "./Button";
 import PendingTxsIndicator from "./PendingTxsIndicator";
@@ -41,9 +41,9 @@ const MobileNavbar = ({
   }, [accountId]);
 
   return (
-    <header id="mobileNavbar" className="flex flex-col">
+    <header id="mobileNavbar" className="flex flex-col" >
       <div className="flex lg:hidden justify-between items-center pt-2 border-gray-800 pr-4">
-        <div className="flex flex-row justify-start">
+        <div className="flex flex-row justify-start ml-4">
           <Logo className="logo" style={{ height: "40px" }} />
         </div>
         <div className="flex">
@@ -72,7 +72,7 @@ const MobileNavbar = ({
         </div>
       </div>
       <div
-        className={`w-full bg-primary-700 z-10  mb-5 absolute top-0 transform${
+        className={`w-full bg-black bg-opacity-75 z-10  mb-5 absolute top-0 transform${
           menuVisible ? " translate-y-18" : " -translate-y-19"
         } transition duration-1000 border-t border-b lg:-translate-y-19`}
       >
@@ -84,7 +84,7 @@ const MobileNavbar = ({
               className="hm-link product"
               key={`link${idx}`}
             >
-              <div key={idx} className="py-1.5 px-8 hover:bg-primary-600">
+              <div key={idx} className="py-1.5 px-8 hover:bg-opacity-100">
                 {link.name}
               </div>
             </Link>
@@ -105,26 +105,26 @@ const MobileNavbar = ({
               }  pr-1 py-1 rounded-lg`}
             >
               {" "}
-              <p className="text-xs self-center rounded-l-lg  mr-2 ">
+              <p className="text-xs self-center rounded-l-lg">
                 {accountId ? `${network}` : null}
               </p>
               <Button
                 id={`${accountId ? "m-view-txs-btn" : "m-wallet-button"}`}
                 text={`${accountId ? `${truncateId()}` : "Connect wallet"}`}
                 onClick={() => handleModalOrConnect()}
-                classes={`hm-btn text-xs  ${
+                classes={`hm-btn text-xs ml-2 ${
                   accountId ? "px-1" : ""
                 }py-1 bg-black`}
               />
             </div>
           </div>
 
-          <MdClose
+          {/* <MdClose
             onClick={() => setWalletBtnVis(false)}
             color="#ccc"
             size="28"
             className="mt-1"
-          />
+          /> */}
         </div>
       </div>
     </header>

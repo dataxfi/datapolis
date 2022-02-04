@@ -3,7 +3,7 @@ const colors = require("tailwindcss/colors");
 
 module.exports = {
   purge: ["./src/**/*.{js,jsx,ts,tsx}", "./public/index.html"],
-  darkMode: false, // or 'media' or 'class'
+  darkMode: false, // or 'media' or 'class',
   theme: {
     screens: {
       xs: "280px",
@@ -16,21 +16,37 @@ module.exports = {
     fontFamily: {
       sans: ["DM Sans", "Helvetica", "Arial", "sans-serif"],
       pollerOne: ['"Poller One"', "cursive"],
+      montserrat: ["'Montserrat'", "sans-serif"], 
+      grit: ["'Special Elite'", "Montserrat", "sans-serif"]
     },
     backgroundSize: {
+      auto: "auto",
+      cover: "cover",
+      contain: "contain",
       lg: "300px",
       md: "150px",
       sm: "100px",
       xs: "50px",
     },
     extend: {
+      border:{
+        6: "6px"
+      },
       spacing: {
+        "1px": "1px",
+        "2px": "2px",
         ".5": ".125rem",
         18: "4.5rem",
         19: "4.75rem",
         98: "25rem",
         100: "26rem",
         102: "27rem",
+        103: "28rem",
+        104: "29rem",
+        105: "30rem",
+        107: "32rem", 
+        109: "34rem", 
+        111: "36rem,"
       },
       //  colors: {
       //   'primary': colors.trueGray,
@@ -40,10 +56,13 @@ module.exports = {
       //   'background': colors.black
       //  }
       backgroundImage: {
-        dataXgif: 'url("./assets/YellowXLoader.gif")',
+        dataXgif: 'url("./assets/DataX-X-Fold.gif")',
+        dataXcity: 'url("./assets/DataX-City.jpeg")',
+        dataXtrade: 'url("./assets/TradeX.jpeg")',
+        dataXstake: 'url("./assets/StakeX.jpeg")',
       },
       colors: {
-        primary: colors.coolGray,
+        primary: colors.trueGray,
         secondary: colors.indigo,
         tertiary: colors.sky,
         type: colors.warmGray,
@@ -51,6 +70,18 @@ module.exports = {
         yellow: {
           DEFAULT: "#f3c429",
         },
+        stake: {
+          blue: "#0a456e",
+          darkBlue: "#1a2646",
+        },
+        trade: {
+          blue: "#313b65",
+          darkBlue: "#0C161F",
+        },
+        city: {
+          blue: "#3a7bbf",
+          darkBlue: "#222222",
+        }
       },
 
       // colors: {

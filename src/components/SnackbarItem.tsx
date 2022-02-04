@@ -59,7 +59,7 @@ const SnackbarItem = ({
   if (!txDetails) return null;
   return (
     <div
-      className={`max-w-xs w-full mx-auto bg-primary-800 rounded-lg p-4 transition-opacity ease-in-out opacity-${opacity} duration-500`}
+      className={`max-w-xs w-full mx-auto bg-black bg-opacity-90 rounded-lg p-4 transition-opacity ease-in-out opacity-${opacity} duration-500`}
     >
       <div className="flex justify-between items-start">
         <div className="grid grid-flow-col gap-4 items-center">
