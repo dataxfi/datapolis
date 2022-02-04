@@ -500,7 +500,7 @@ const RemoveAmount = () => {
             <div className="pt-3 pl-3">
               <Link
                 id="remove-lp-link"
-                to="/stakeX/list"
+                to="/stake/list"
                 className="text-gray-300 hover:text-gray-100 transition-colors"
               >
                 {"<"} Back to liquidity position

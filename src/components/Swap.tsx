@@ -21,7 +21,7 @@ import { getAllowance, TokenInfo } from "../utils/tokenUtils";
 import useBgToggler from "../hooks/useBgToggler";
 import Footer from "./Footer";
 const text = {
-  T_SWAP: "TradeX",
+  T_SWAP: "Trade",
   T_SWAP_FROM: "You are selling",
   T_SWAP_TO: "You are buying",
 };
@@ -550,7 +550,7 @@ const Swap = () => {
         throw new Error("Didn't receive a receipt.");
       }
     } catch (error: any) {
-      console.log("TradeX Caught an Error for Transaction:", txDateId);
+      console.log("DataX Caught an Error for Transaction:", txDateId);
 
       setShowConfirmModal(false);
       const allNotifications = notifications;
@@ -827,7 +827,7 @@ const Swap = () => {
           />
 
           {token1.info && token2.info && postExchange.isNaN && postExchange.gt(0) ? (
-            <div className="my-4 p-2 bg-trade-darkBlue flex justify-between text-type-400 text-sm rounded-lg">
+            <div className="my-4 p-2 modalSelectBg flex justify-between text-type-400 text-sm rounded-lg">
               <p>Exchange rate</p>
               <p>
                 1 {token1.info.symbol} = {postExchange.dp(5).toString()} {`${" "}${token2.info.symbol}`}

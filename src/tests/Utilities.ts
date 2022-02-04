@@ -669,6 +669,12 @@ export async function navToLpFromUnstake(page: puppeteer.Page) {
   await page.waitForSelector("#lpModal");
 }
 
+export async function navToTradeXFromLanding(page: puppeteer.Page) {
+  const enterDapp = await page.waitForSelector("#enterDappLink");
+  await enterDapp?.click();
+  await page.waitForSelector("#swapModal");
+}
+
 export async function acceptCookies(page: puppeteer.Page) {
   await page.waitForSelector("#cookiesModal");
   await page.waitForSelector("#confirmCookies");
@@ -750,11 +756,17 @@ export async function setupUnstake(page: puppeteer.Page, unstakeAmt: string, ini
 export async function approve(page: puppeteer.Page, selectAll: boolean = false, version?: string): Promise<void> {
   await page.bringToFront();
   await page.reload();
-
-  if (selectAll) {
-    const checkbox = await page.waitForSelector(".permissions-connect-choose-account__select-all > input");
-    if (checkbox) await checkbox.click({ clickCount: 2 });
+  
+  try {
+    if (selectAll) {
+      const checkbox = await page.waitForSelector(".permissions-connect-choose-account__select-all > input", {timeout: 3000});
+      if (checkbox) await checkbox.click({ clickCount: 2 });
+    }
+  } catch (error) {
+    console.log("Couldnt select all, maybe there is only one available.");
   }
+
+
   const button = await page.waitForSelector("button.button.btn-primary", { timeout: 3000 });
   if (button) await button.click();
 

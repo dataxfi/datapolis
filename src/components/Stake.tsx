@@ -163,7 +163,7 @@ const Stake = () => {
 
   useEffect(() => {
     if (txReceipt) {
-      console.log("A succesful txReceipt has been set in StakeX\n", txReceipt);
+      console.log("A succesful txReceipt has been set in Stake\n", txReceipt);
       if (showConfirmModal) {
         setShowConfirmModal(false);
         setShowTxDone(true);
@@ -287,7 +287,7 @@ const Stake = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId, ocean, chainId, token, oceanValToStake, balance, loadingStake, oceanToken]);
 
-  async function stakeX() {
+  async function executeStake() {
     let txDateId;
     if (!token) return;
     try {
@@ -444,7 +444,7 @@ const Stake = () => {
     <div className="w-full h-full absolute top-0">
       <div className="flex h-full w-full items-center justify-center">
         <div>
-          <div className="lg:w-107 lg:mx-auto sm:mx-4 mx-3 bg-black bg-opacity-90 rounded-lg p-3 hm-box">
+          <div id="stakeModal" className="lg:w-107 lg:mx-auto sm:mx-4 mx-3 bg-black bg-opacity-90 rounded-lg p-3 hm-box">
             <div className="flex justify-between">
               {userMessage && userMessage.type === "error" ? (
                 <UserMessageModal
@@ -582,7 +582,7 @@ const Stake = () => {
                     setShowUnlockTokenModal(true);
                   } else {
                     setShowConfirmModal(true);
-                    stakeX();
+                    executeStake();
                   }
                 }
               }}
@@ -591,7 +591,7 @@ const Stake = () => {
             />
           </div>
           <div className="pt-3 pl-6 lg:pl-3">
-            <Link id="lpLink" to="/stakeX/list" className="text-gray-300 hover:text-gray-100 transition-colors">
+            <Link id="lpLink" to="/stake/list" className="text-gray-300 hover:text-gray-100 transition-colors">
               View your stake positions {">"}
             </Link>
           </div>
@@ -610,7 +610,7 @@ const Stake = () => {
         setToken={setOceanToken}
         nextFunction={() => {
           setShowConfirmModal(true);
-          stakeX();
+          executeStake();
         }}
       />
 

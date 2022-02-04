@@ -157,8 +157,8 @@ const SwapInput = ({
                       }}
                       className={`text-xs ${
                         checksPass()
-                          ? "text-type-200 placeholder-gray-500 bg-primary-700 "
-                          : "text-type-600 border-type-600 bg-primary-700"
+                          ? "modalSelectBg bg-opacity-25"
+                          : "bg-primary-500 bg-opacity-25 text-primary-600"
                       }   py-1 rounded px-1 w-12 outline-none`}
                       placeholder="%"
                       disabled={checksPass() ? false : true}

@@ -22,8 +22,10 @@ body,
 html,
 #loader {
   @apply text-type-100 bg-no-repeat md:h-full m-0 bg-fixed;
-  background: rgb(9,30,121);
-background: radial-gradient(circle, rgba(9,30,121,1) 0%, rgba(2,0,36,1) 100%);
+  background: rgb(46,115,185);
+  background: linear-gradient(0deg, rgba(46,115,185,1) 0%, rgba(31,75,121,1) 41%, rgba(18,38,61,1) 100%);
+  /* background: rgb(9,30,121);
+background: radial-gradient(circle, rgba(9,30,121,1) 0%, rgba(2,0,36,1) 100%); */
 }
 html,
 body,
@@ -170,7 +172,7 @@ html:empty {
 }
 
 .txButton::before {
-  border-radius: .5rem;
+  border-radius: 0.5rem;
   position: absolute;
   content: "";
   top: 0;
@@ -187,15 +189,15 @@ html:empty {
   opacity: 1;
 }
 
-.txButton:disabled::before{
-  opacity: 0
+.txButton:disabled::before {
+  opacity: 0;
 }
 
-.txButton:disabled{
+.txButton:disabled {
   background-color: black;
-  opacity: .5;
+  opacity: 0.5;
 }
 
-.mobileBgPosition{
-  background-position: bottom left 5% ;
+.mobileBgPosition {
+  background-position: bottom left 5%;
 }

@@ -22,11 +22,11 @@ export default function LandingPage() {
           <SocialLinkIcons effect="grow" margin="6"/>
         </ul>
         <ul className="inline-flex">
-          <a href="https://docs.datax.fi" className="homeButton flex items-center py-2 ml-2 px-3">
+          <a href="https://docs.datax.fi" id="learnMoreLink" className="homeButton flex items-center py-2 ml-2 px-3">
             <FaBook className="mr-2" />
             <p>Learn More</p>
           </a>
-          <Link to="/tradeX" className="homeButton flex items-center py-2 ml-2 px-3">
+          <Link to="/trade" id="enterDappLink" className="homeButton flex items-center py-2 ml-2 px-3">
             <p>Enter X-Nation</p>
             <FaAngleDoubleRight className="ml-2" />
           </Link>

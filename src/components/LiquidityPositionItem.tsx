@@ -115,8 +115,8 @@ function LiquidityPositionItem({ pool, index }: { pool: PoolData; index: number 
             <div className="flex mt-2">
               <Link
               id="lp-add-link"
-                key="stakeX"
-                to={`/stakeX?pool=${address}`}
+                key="stake"
+                to={`/stake?pool=${address}`}
                 className="modalButton rounded p-2px w-1/2 text-center mr-1"
                 onClick={setTokenAndPool}
               >
@@ -125,7 +125,7 @@ function LiquidityPositionItem({ pool, index }: { pool: PoolData; index: number 
               <Link
                 id="lp-remove-link"
                 key="removeStake"
-                to={`/stakeX/remove?pool=${address}`}
+                to={`/stake/remove?pool=${address}`}
                 className={`ml-1 ${
                   Number(shares) === 0
                     ? "modalButton cursor-not-allowed rounded p-2px w-1/2 text-center"

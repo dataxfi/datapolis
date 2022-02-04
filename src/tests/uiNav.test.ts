@@ -12,6 +12,7 @@ import {
   navToStakeWPool,
   navToLpFromUnstake,
   acceptCookies,
+  navToTradeXFromLanding,
 } from "./Utilities";
 
 describe("User Interface Works as Expected", () => {
@@ -28,9 +29,10 @@ describe("User Interface Works as Expected", () => {
       browser = tools?.browser;
       metamask = tools?.metamask;
     }
+    await acceptCookies(page)
+    await navToTradeXFromLanding(page)
     await setupDataX(page, metamask, "rinkeby", false);
     await page.bringToFront()
-    await acceptCookies(page)
   });
 
   afterAll(async () => {

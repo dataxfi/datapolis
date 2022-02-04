@@ -6,8 +6,8 @@ import { GlobalContext } from "../context/GlobalState";
 // import Emitter from '../emitter'
 
 const text = {
-  T_SWAP: "TradeX",
-  T_STAKE: "StakeX",
+  T_SWAP: "Trade",
+  T_STAKE: "Stake",
   T_CONNECT_WALLET: "Connect to a wallet",
 };
 
@@ -18,8 +18,8 @@ const Navbar = () => {
   // const [accounts, setAccounts] = useState([])
 
   const links = [
-    { name: text.T_SWAP, link: "/tradeX" },
-    { name: text.T_STAKE, link: "/stakeX" },
+    { name: text.T_SWAP, link: "/trade" },
+    { name: text.T_STAKE, link: "/stake" },
   ];
 
   const { buttonText, config, chainId, accountId, setShowTxHistoryModal, handleConnect } =

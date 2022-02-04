@@ -47,7 +47,7 @@ function App() {
     <div className="w-full h-full relative">
       <div
         className={`w-full h-full ${
-          location === "/tradeX"
+          location === "/trade"
             ? "absolute bg-dataXtrade bg-cover bg-top"
             : location !== "/"
             ? "absolute bg-dataXstake bg-cover bg-left lg:bg-bottom"
@@ -62,10 +62,10 @@ function App() {
               {location !== "/" ? <Navbar /> : null}
               <Routes>
                 <Route path="/" element={<LandingPage />} />
-                <Route path="/tradeX" element={<Swap />} />
-                <Route path="/stakeX" element={<Stake />} />
-                <Route path="/stakeX/remove" element={<RemoveAmount />} />
-                <Route path="/stakeX/list" element={<LiquidityPosition />} />
+                <Route path="/trade" element={<Swap />} />
+                <Route path="/stake" element={<Stake />} />
+                <Route path="/stake/remove" element={<RemoveAmount />} />
+                <Route path="/stake/list" element={<LiquidityPosition />} />
               </Routes>
             </Router>
           )}

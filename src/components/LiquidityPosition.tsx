@@ -86,7 +86,7 @@ const LiquidityPosition = () => {
       setLoading(false);
     } else if (noStakedPools) {
       setMessageId("noStakedPools");
-      setUserMessage("You have no stake in any pools, check out StakeX to buy stake!");
+      setUserMessage("You have no stake in any pools.");
     } else if (accountId && !allStakedPools) {
       setMessageId("importMessage");
       setUserMessage("Dont see your tokens? Import a pool by name with the import button below.");
@@ -149,7 +149,7 @@ const LiquidityPosition = () => {
   return (
     <div className="absolute w-full h-full top-0 bottom-0  py-16 lg:py-28 px-2">
       <div className="flex flex-col justify-center h-full">
-        <div className="bg-black bg-opacity-90 w-full lg:w-107 p-2 max-h-full rounded-lg px-3 m-auto flex flex-col justify-center">
+        <div id="lpModal" className="bg-black bg-opacity-90 w-full lg:w-107 p-2 max-h-full rounded-lg px-3 m-auto flex flex-col justify-center">
           <div className="flex flex-row w-full m-auto">
             <div className="w-full flex pb-1 rounded-lg justify-between">
               <h2 className="text-2xl">Your staked pools</h2>

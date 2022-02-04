@@ -17,6 +17,7 @@ import {
   typeAmount,
   getExecuteButtonText,
   getSelectedTokens,
+  navToTradeXFromLanding,
 } from "./Utilities";
 import BigNumber from "bignumber.js";
 describe("User Interface Works as Expected", () => {
@@ -42,9 +43,10 @@ describe("User Interface Works as Expected", () => {
       browser = tools?.browser;
       metamask = tools?.metamask;
     }
+    await acceptCookies(page);
+    await navToTradeXFromLanding(page)
     await setupDataX(page, metamask, "rinkeby", false);
     await page.bringToFront();
-    await acceptCookies(page);
     acc1MMBalT1 = new BigNumber(await getBalanceInMM(metamask, "OCEAN"));
     acc1MMBalT2 = new BigNumber(await getBalanceInMM(metamask, "SAGKRI-94"));
     await page.bringToFront();
@@ -135,6 +137,7 @@ describe("User Interface Works as Expected", () => {
     await selectToken(page, "OCEAN", 1);
     await typeAmount(page, ".009", 1, "OCEAN", "SAGKRI-94", false);
     await page.waitForSelector("#executeTradeBtn[disabled]");
+    await page.waitForFunction('document.querySelector("#executeTradeBtn").innerText.includes("Minimum")')
     const text = await getExecuteButtonText(page, "trade");
     expect(text).toContain("Minimum trade is");
   });

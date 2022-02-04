@@ -48,6 +48,7 @@ export async function setupDappBrowser(acct2: boolean = false) {
     });
 
     if (acct2 && process.env.REACT_APP_T_ACCT2_PK && process.env.REACT_APP_T_ACCT_PASS) {
+      console.log("Importing Account Two")
       await metamask.importPK(process.env.REACT_APP_T_ACCT2_PK);
       await metamask.switchAccount(1)
     }
