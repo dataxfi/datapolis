@@ -83,7 +83,7 @@ const ConfirmSwapModal = ({
             <ConfirmSwapListItem name="Minimum received" value={minReceived.dp(5).toString()} />
             {/* <ConfirmSwapListItem name="Price impact" value="-0.62%" valueClass="text-green-500" /> */}
             <ConfirmSwapListItem name="Swap fee" value={swapFee.dp(5).toString() + " " + token1.info.symbol} />
-            <ConfirmSwapListItem name="TradeX fee" value="0" />
+            <ConfirmSwapListItem name="DataX fee" value="0" />
             {/* <ConfirmSwapListItem name="DataX fee" value="0.000000006 ETH" /> */}
             <ConfirmSwapListItem name="Slippage tolerance" value={slippage + "%"} />
           </div>

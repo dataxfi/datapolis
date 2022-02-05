@@ -12,7 +12,7 @@ import {
   setUpStake,
 } from "../../Utilities";
 
-describe("Execute Standard Trades on StakeX", () => {
+describe("Execute Standard Trades on Stake", () => {
   jest.setTimeout(300000);
   let page: puppeteer.Page;
   let browser: puppeteer.Browser;

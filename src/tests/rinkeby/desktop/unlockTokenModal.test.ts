@@ -13,7 +13,7 @@ import {
   setUpSwap,
 } from "../../Utilities";
 
-describe("Execute Standard Trades on TradeX", () => {
+describe("Execute Standard Trades on Trade", () => {
   jest.setTimeout(300000);
   let page: puppeteer.Page;
   let browser: puppeteer.Browser;
@@ -35,7 +35,7 @@ describe("Execute Standard Trades on TradeX", () => {
   });
 
   it("Should unlock tokens permenantly", ()=>{})
-  it("Same token pair should be unlocked in StakeX", ()=>{})
+  it("Same token pair should be unlocked in Stake", ()=>{})
   it("Should unlock tokens once", ()=>{})
   it("Same token pair should be unlocked in unstake", ()=>{})
 

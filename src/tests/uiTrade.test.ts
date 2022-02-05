@@ -20,7 +20,7 @@ import {
   navToTradeXFromLanding,
 } from "./Utilities";
 import BigNumber from "bignumber.js";
-describe("User Interface Works as Expected", () => {
+describe("Trade Platform User Interface Works as Expected", () => {
   jest.setTimeout(300000);
   let page: puppeteer.Page;
   let browser: puppeteer.Browser;
@@ -61,7 +61,7 @@ describe("User Interface Works as Expected", () => {
     expect(acc1MMBalT1.toNumber()).toBeGreaterThan(0);
   });
 
-  //TradeX
+  //Trade
 
   it("Balance is same in dapp and MM", async () => {
     acc1DapBalT1 = new BigNumber(await getBalanceInDapp(page, 1));
@@ -158,7 +158,7 @@ describe("User Interface Works as Expected", () => {
     acc2DapBalT1 = new BigNumber(newT1Bal);
   });
 
-  // it("Swap rate in tradex and stakex are the same", async () => {});
+  // it("Swap rate in tradex and Stake are the same", async () => {});
   // it("Trade button is: disabled when input = 0, enabled when input is > 0, disabled when input > balance", () => {});
   // it("Trade button says select token when before token is selected", async () => {});
   // it("Trade button says enter ocean amount when token is selected", async () => {});

@@ -3,7 +3,7 @@ import "regenerator-runtime/runtime";
 import { closeBrowser, setupPuppBrowser } from "../../Setup";
 import { acceptCookies } from "../../Utilities";
 
-describe("Execute Standard Trades on StakeX", () => {
+describe("Execute Standard Trades on Stake", () => {
   jest.setTimeout(300000);
   let page: puppeteer.Page;
   let browser: puppeteer.Browser;

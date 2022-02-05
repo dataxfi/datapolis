@@ -13,7 +13,7 @@ import {
   setUpSwap,
 } from "../../Utilities";
 
-describe("Execute Standard Trades on TradeX", () => {
+describe("Execute Standard Trades on Trade", () => {
   jest.setTimeout(300000);
   let page: puppeteer.Page;
   let browser: puppeteer.Browser;

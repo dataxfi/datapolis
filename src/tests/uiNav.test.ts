@@ -15,7 +15,7 @@ import {
   navToTradeXFromLanding,
 } from "./Utilities";
 
-describe("User Interface Works as Expected", () => {
+describe("DataX Navigation User Interface Works as Expected", () => {
   jest.setTimeout(300000);
   let page: puppeteer.Page;
   let browser: puppeteer.Browser;
@@ -46,16 +46,16 @@ describe("User Interface Works as Expected", () => {
   });
 
   //General Navigation
-  it("Can navigate to StakeX", async () => {
+  it("Can navigate to Stake", async () => {
     await navToStake(page);
     expect(await page.waitForSelector("#stakeModal")).toBeDefined();
   });
-  it("Can navigate to TradeX from StakeX", async () => {
+  it("Can navigate to Trade from Stake", async () => {
     await navToStake(page);
     await navToTrade(page);
     expect(await page.waitForSelector("#swapModal")).toBeDefined();
   });
-  it("Can navigate to LP from StakeX", async () => {
+  it("Can navigate to LP from Stake", async () => {
     await navToLp(page);
     expect(await page.waitForSelector("#lpModal")).toBeDefined();
   });

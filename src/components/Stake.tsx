@@ -25,7 +25,7 @@ import { IToken } from "./Swap";
 import useBgToggler from "../hooks/useBgToggler";
 import Footer from "./Footer";
 const text = {
-  T_STAKE: "StakeX",
+  T_STAKE: "Stake",
   T_SELECT_TOKEN: "Select token",
 };
 
@@ -219,7 +219,7 @@ const Stake = () => {
             message: "Couldn't preload token",
             link: null,
           });
-          navigate("/stakeX");
+          navigate("/stake");
         } else {
           updateToken(currentToken);
           setUserMessage(false);
@@ -522,7 +522,7 @@ const Stake = () => {
                               ? "text-gray-600 border-gray-600"
                               : "border-type-300 hover:bg-primary-600"
                           }`}
-                          disabled={balance && accountId ? false : true}
+                          disabled={balance && accountId && token ? false : true}
                         />
                       </div>
                     </div>

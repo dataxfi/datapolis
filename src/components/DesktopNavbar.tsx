@@ -8,8 +8,6 @@ import PendingTxsIndicator from "./PendingTxsIndicator";
 
 const DesktopNavbar = ({
   links,
-  text,
-  wallet,
   truncateId,
   network,
   handleModalOrConnect,

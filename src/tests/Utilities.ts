@@ -417,6 +417,12 @@ export async function incrementUntilValid(
   return;
 }
 
+/**
+ * Sets an input field to be an empty string. 
+ * @param page 
+ * @param elID Element id with # included.
+ */
+
 export async function clearInput(page: puppeteer.Page, elID: string) {
   await page.waitForSelector(elID);
   await page.evaluate(`() => document.getElementById("${elID}").value = ""`);
@@ -455,7 +461,7 @@ export async function checkBalance(
  * @param id - id in dapp to check against (dont include #)
  */
 
-async function assertTo3(page: puppeteer.Page, truth: string | number, id: string, pos: number, updating: boolean) {
+async function assertTo3(page: puppeteer.Page, truth: string | number, id: string, pos: balancePos, updating: boolean) {
   await page.bringToFront();
   id = `#${id}`;
   await page.waitForSelector(id);
@@ -506,6 +512,8 @@ export function getAfterColon(value: string) {
   if (match) return match[1].replace(commas, "");
 }
 
+type balancePos = 1 | 2 | "stake";
+
 /**
  * Return balance for token entered from dapp
  * @param metamask
@@ -513,10 +521,16 @@ export function getAfterColon(value: string) {
  * @return balance as a string
  */
 
-export async function getBalanceInDapp(page: puppeteer.Page, pos: number): Promise<number> {
+export async function getBalanceInDapp(page: puppeteer.Page, pos: balancePos): Promise<number> {
   await page.bringToFront();
-  await page.waitForSelector(`#token${pos}-balance`);
-  let balance = await page.evaluate(`document.querySelector("#token${pos}-balance").innerText`);
+  let balance;
+  if (Number(pos)) {
+    await page.waitForSelector(`#token${pos}-balance`);
+    balance = await page.evaluate(`document.querySelector("#token${pos}-balance").innerText`);
+  } else {
+    await page.waitForSelector(`#oceanBalance`);
+    balance = await page.evaluate(`document.querySelector("#oceanBalance").innerText`);
+  }
   const match = balance.match(afterColon);
   const number = match[1].replace(commas, "");
   balance = Number(number);
@@ -525,26 +539,34 @@ export async function getBalanceInDapp(page: puppeteer.Page, pos: number): Promi
 
 type ITxType = "trade" | "stake" | "unstake";
 
+/**
+ * Gets the execute button text for assertions.
+ * @param page
+ * @param txType
+ * @param text - Will wait for the button text to contain this text if supplied.
+ * @returns
+ */
+
 export async function getExecuteButtonText(page: puppeteer.Page, txType: ITxType, text?: string) {
   switch (txType) {
     case "stake":
       await page.waitForSelector("#executeStake");
       if (text)
-        await page.waitForFunction(`document.querySelector("#executeStake").innerText === "${text}"`, {
+        await page.waitForFunction(`document.querySelector("#executeStake").innerText.includes("${text}")`, {
           timeout: 1250,
         });
       return await page.evaluate('document.querySelector("#executeStake").innerText');
     case "unstake":
       await page.waitForSelector("#executeUnstake");
       if (text)
-        await page.waitForFunction(`document.querySelector("#executeUnstake").innerText === "${text}"`, {
+        await page.waitForFunction(`document.querySelector("#executeUnstake").innerText.includes("${text}")`, {
           timeout: 1250,
         });
       return await page.evaluate('document.querySelector("#executeUnstake").innerText');
     default:
       await page.waitForSelector("#executeTradeBtn");
       if (text)
-        await page.waitForFunction(`document.querySelector("#executeTradeBtn").innerText === "${text}"`, {
+        await page.waitForFunction(`document.querySelector("#executeTradeBtn").innerText.includes("${text}")`, {
           timeout: 1250,
         });
       return await page.evaluate('document.querySelector("#executeTradeBtn").innerText');
@@ -614,8 +636,8 @@ export async function confirmSwapModal(page: puppeteer.Page, metamask: dappeteer
 
 export async function navToStake(page: puppeteer.Page) {
   await page.bringToFront();
-  await page.waitForSelector("#StakeX-link");
-  await page.click("#StakeX-link");
+  await page.waitForSelector("#Stake-link");
+  await page.click("#Stake-link");
 }
 
 export async function navToLp(page: puppeteer.Page) {
@@ -627,8 +649,8 @@ export async function navToLp(page: puppeteer.Page) {
 
 export async function navToTrade(page: puppeteer.Page) {
   await page.bringToFront();
-  await page.waitForSelector("#TradeX-link");
-  await page.click("#TradeX-link");
+  await page.waitForSelector("#Trade-link");
+  await page.click("#Trade-link");
 }
 
 export async function grabOrImportPool(page: puppeteer.Page, pool: string, select: boolean) {
@@ -756,16 +778,17 @@ export async function setupUnstake(page: puppeteer.Page, unstakeAmt: string, ini
 export async function approve(page: puppeteer.Page, selectAll: boolean = false, version?: string): Promise<void> {
   await page.bringToFront();
   await page.reload();
-  
+
   try {
     if (selectAll) {
-      const checkbox = await page.waitForSelector(".permissions-connect-choose-account__select-all > input", {timeout: 3000});
+      const checkbox = await page.waitForSelector(".permissions-connect-choose-account__select-all > input", {
+        timeout: 3000,
+      });
       if (checkbox) await checkbox.click({ clickCount: 2 });
     }
   } catch (error) {
     console.log("Couldnt select all, maybe there is only one available.");
   }
-
 
   const button = await page.waitForSelector("button.button.btn-primary", { timeout: 3000 });
   if (button) await button.click();
@@ -780,6 +803,13 @@ export async function getShares(page: puppeteer.Page) {
   return getAfterColon(sharesInnerText);
 }
 
+/**
+ * Waits for shares in unstake page to not equal the shares value passed.
+ * @param page
+ * @param initialShares old shares value
+ * @returns
+ */
+
 export async function awaitUpdateShares(page: puppeteer.Page, initialShares: BigNumber) {
   console.log(initialShares);
   await page.waitForFunction(
@@ -787,6 +817,15 @@ export async function awaitUpdateShares(page: puppeteer.Page, initialShares: Big
   );
   return (await getShares(page)) || "";
 }
+
+/**
+ * Switches metamask accounts.
+ *
+ * @param metamask
+ * @param page
+ * @param acct The index of the account to be selected, not 0 indexed. (1 will select the first account in the list, and so on.)
+ * @param signDisclaimer Will sign the disclaimer in metamask if true is supplied.
+ */
 
 export async function switchAccounts(
   metamask: dappeteer.Dappeteer,
@@ -803,36 +842,53 @@ export async function switchAccounts(
   }
 }
 
-export async function setUpStake(page: puppeteer.Page, stakeToken: string, stakeAmount: string) {
-  //open token modal
+/**
+ * Selects a stake pool by token symbol supplied.
+ * @param page
+ * @param stakeToken token symbol, case sensitive
+ */
+
+export async function selectStakeToken(page: puppeteer.Page, stakeToken: string) {
+  //selectToken
   await page.waitForSelector("#stakeSelectBtn");
   await page.click("#stakeSelectBtn");
-
-  //selectToken
   await page.waitForSelector(`#${stakeToken}-btn`);
   await page.click(`#${stakeToken}-btn`);
   await page.waitForSelector("#stakeToken");
-  await page.waitForFunction("document.querySelector('#stakeToken').innerText === 'SAGKRI-94'");
+  await page.waitForFunction(`document.querySelector('#stakeToken').innerText === "${stakeToken}"`);
   await page.waitForSelector("#swapRate");
   await page.waitForSelector("#poolLiquidity");
   await page.waitForSelector("#yourLiquidity");
+}
 
-  //input amount
-  if (stakeAmount === "max") {
+/**
+ * Inputs value to stake.
+ *
+ * @param page
+ * @param stakeAmt A number in string format or 'max'
+ * @returns The input amount after max calculation.
+ */
+
+export async function inputStakeAmt(page: puppeteer.Page, stakeAmt: string): Promise<string> {
+  const origionalAmount = await page.evaluate('document.querySelector("#stakeAmtInput").value');
+
+  if (stakeAmt === "max") {
     await page.waitForSelector("#maxStake");
     await page.click("#maxStake");
     await page.waitForSelector("#stakeAmtInput");
     await page.waitForFunction('Number(document.querySelector("#stakeAmtInput").value) > 0');
   } else {
     await page.waitForSelector("#stakeAmtInput");
-    await page.type("#stakeAmtInput", stakeAmount, { delay: 150 });
+    await page.type("#stakeAmtInput", stakeAmt, { delay: 150 });
+    await page.waitForFunction(`Number(document.querySelector("#stakeAmtInput").value) !== Number(${origionalAmount})`);
   }
+  return await page.evaluate('document.querySelector("#stakeAmtInput").value');
+}
 
-  //wait for calculation and button
-  // await page.waitForSelector("#executeStake");
-  // await page.waitForFunction("document.querySelector('#executeStake').innerText === 'Stake'");
-  // await page.waitForTimeout(500);
-  // await page.click("#executeStake");
+export async function setUpStake(page: puppeteer.Page, stakeToken: string, stakeAmt: string) {
+  //open token modal
+  await selectStakeToken(page, stakeToken);
+  await inputStakeAmt(page, stakeAmt);
 }
 
 export async function confirmAndCloseTxDoneModal(page: puppeteer.Page, timeout: number = 120000) {
