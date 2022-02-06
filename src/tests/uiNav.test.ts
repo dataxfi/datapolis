@@ -3,7 +3,7 @@ import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
 import { setupDappBrowser, setupDataX, closeBrowser, quickConnectWallet } from "./Setup";
 import {
-  getShares,
+  getSharesFromUnstake,
   navToLp,
   navToRemoveStake,
   navToStake,

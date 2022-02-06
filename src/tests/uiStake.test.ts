@@ -118,6 +118,11 @@ describe("Stake Platform UI works as expected.", () => {
 
   it("Balance should limit input when less than max stake", async () => {
     await switchAccounts(metamask, page, 2, true);
+    const mmBalance = await getBalanceInMM(metamask, "OCEAN");
+    const dappBalance = await getBalanceInDapp(page, "stake")
+    const input = await inputStakeAmt(page, "max");
+    expect(Number(input)).toBeCloseTo(Number(mmBalance))
+    expect(Number(dappBalance)).toBeCloseTo(Number(mmBalance))
   });
 
   // it("All buttons change color on hover", async () => {});

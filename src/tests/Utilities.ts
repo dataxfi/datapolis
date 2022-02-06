@@ -418,8 +418,8 @@ export async function incrementUntilValid(
 }
 
 /**
- * Sets an input field to be an empty string. 
- * @param page 
+ * Sets an input field to be an empty string.
+ * @param page
  * @param elID Element id with # included.
  */
 
@@ -669,7 +669,7 @@ export async function grabOrImportPool(page: puppeteer.Page, pool: string, selec
 
 export async function navToRemoveStake(page: puppeteer.Page, pool: string) {
   await navToLp(page);
-  grabOrImportPool(page, pool, true);
+  await grabOrImportPool(page, pool, true);
   await page.waitForSelector("#yourShares");
   const shares = new BigNumber(await page.evaluate('document.querySelector("#yourShares").innerText'));
   await page.waitForSelector("#lp-remove-link");
@@ -715,27 +715,7 @@ export async function setupUnstake(page: puppeteer.Page, unstakeAmt: string, ini
   //wait 6s max for loading lp to dissapear
   await page.waitForFunction('document.querySelector("#loading-lp") === null', { timeout: 6000 });
 
-  //select input and receive amt to have max data attributes
-  await page.waitForSelector("[data-test-max-perc]");
-  await page.waitForSelector("[data-test-max-ocean]");
-
-  await page.waitForFunction(
-    'Number(document.querySelector("[data-test-max-ocean]").getAttribute("data-test-max-ocean")) > 0',
-    { timeout: 5000 }
-  );
-  await page.waitForFunction(
-    'Number(document.querySelector("[data-test-max-perc]").getAttribute("data-test-max-perc")) > 0',
-    { timeout: 5000 }
-  );
-
-  const maxOcean = new BigNumber(
-    await page.evaluate('document.querySelector("[data-test-max-ocean]").getAttribute("data-test-max-ocean")')
-  );
-  const maxPerc = new BigNumber(
-    await page.evaluate('document.querySelector("[data-test-max-perc]").getAttribute("data-test-max-perc")')
-  );
-
-  const sharesString = await getShares(page);
+  const sharesString = await getSharesFromUnstake(page);
   console.log(sharesString);
 
   let shares;
@@ -749,31 +729,37 @@ export async function setupUnstake(page: puppeteer.Page, unstakeAmt: string, ini
     expect(initialShares.toNumber()).toBeCloseTo(shares.toNumber());
   }
 
+  await inputUnstakeAmt(page, unstakeAmt, sharesString)
+}
+
+export async function inputUnstakeAmt(page: puppeteer.Page, unstakeAmt: string, shares:string) {
+  //expect input and receive amt to have max data attributes
+  await page.waitForSelector("[data-test-max-perc]");
+  await page.waitForSelector("[data-test-max-ocean]");
+
+  let receive: string, input: string;
+
   if (unstakeAmt === "max") {
     await page.waitForSelector("#maxUnstakeBtn");
     await page.click("#maxUnstakeBtn");
     await page.waitForSelector("#unstakeAmtInput");
     await page.waitForFunction('Number(document.querySelector("#unstakeAmtInput").value) > 0');
+    input = await page.evaluate('document.querySelector("#unstakeAmtInput").value');
     await page.waitForSelector("#oceanToReceive");
     await page.waitForFunction('Number(document.querySelector("#oceanToReceive").innerText) > 0');
+    receive = await page.evaluate('document.querySelector("#oceanToReceive").value');
   } else {
     await page.waitForSelector("#unstakeAmtInput");
     await page.type("#unstakeAmtInput", unstakeAmt, { delay: 150 });
     await page.waitForSelector("#oceanToReceive");
-    if (maxOcean.gt(0)) await page.waitForFunction('Number(document.querySelector("#oceanToReceive").innerText) > 0');
-    const oceanReceived = new BigNumber(
-      await page.evaluate('Number(document.querySelector("#oceanToReceive").innerText)')
-    );
-    expect(oceanReceived.dp(5).lte(maxOcean)).toBeTruthy();
-    const input = new BigNumber(await page.evaluate('document.querySelector("#unstakeAmtInput").value'));
-    expect(input.lte(maxPerc)).toBeTruthy();
-    if (maxPerc.gt(Number(unstakeAmt))) expect(input.eq(Number(unstakeAmt)));
+    if (Number(shares) > 0 )await page.waitForFunction('Number(document.querySelector("#oceanToReceive").innerText) > 0');
+    receive = await page.evaluate('Number(document.querySelector("#oceanToReceive").innerText)');
+    input = await page.evaluate('document.querySelector("#unstakeAmtInput").value');
   }
 
-  // await page.waitForFunction('document.querySelector("#executeUnstake").innerText === "Approve and Withdrawal"');
-  // await page.waitForTimeout(500);
-  // await page.click("#executeUnstake");
+  return {receive, input}
 }
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function approve(page: puppeteer.Page, selectAll: boolean = false, version?: string): Promise<void> {
   await page.bringToFront();
@@ -797,7 +783,7 @@ export async function approve(page: puppeteer.Page, selectAll: boolean = false, 
   if (connectButton) await connectButton.click();
 }
 
-export async function getShares(page: puppeteer.Page) {
+export async function getSharesFromUnstake(page: puppeteer.Page) {
   await page.waitForSelector("#sharesDisplay");
   const sharesInnerText = await page.evaluate('document.querySelector("#sharesDisplay").innerText');
   return getAfterColon(sharesInnerText);
@@ -815,7 +801,7 @@ export async function awaitUpdateShares(page: puppeteer.Page, initialShares: Big
   await page.waitForFunction(
     `!document.querySelector("#sharesDisplay").innerText.includes("${initialShares.dp(5).toString()}")`
   );
-  return (await getShares(page)) || "";
+  return (await getSharesFromUnstake(page)) || "";
 }
 
 /**

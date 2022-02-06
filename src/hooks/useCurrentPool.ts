@@ -73,8 +73,6 @@ export default function useCurrentPool(
     }
 
     if (
-      !currentStakePool &&
-      !allStakedPools &&
       poolAddress &&
       ocean &&
       accountId
