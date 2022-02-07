@@ -78,11 +78,11 @@ const TokenModal = ({
   return (
     <div
       id="tokenModal"
-      className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 w-full sm:max-w-sm"
+      className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 w-full sm:max-w-xs"
     >
-      <div className="p-4 bg-background border-primary-500 border rounded-lg hm-box mx-3">
+      <div className="p-2 bg-background border-primary-500 border rounded-lg hm-box mx-3">
         <div className="flex justify-between items-center">
-          <p className="mb-0 text-type-100 text-2xl">{text.T_SELECT_TOKEN}</p>
+          <p className="mb-0 text-type-100 text-2xl pl-2">{text.T_SELECT_TOKEN}</p>
           <MdClose
             id="closeTokenModalBtn"
             role="button"

@@ -16,7 +16,7 @@ export default function NotificationArea() {
 
   if (!currentNot) return null;
   return (
-    <div className={`max-w-xs fixed md:top-14 md:right-8 w-full`}>
+    <div className={`max-w-xs fixed md:top-16 md:right-8 w-full`}>
       {currentNot.type === "tx" ? (
         <SnackbarItem tx={currentNot.newTx} setCurrentNot={setCurrentNot} />
       ) : (

@@ -101,7 +101,7 @@ const ConfirmSwapModal = ({
                 confirm();
               }}
               text="Confirm swap"
-              classes="px-4 py-2 text-lg w-full homeButton"
+              classes="px-4 py-2 text-lg w-full txButton rounded-lg"
             />
           </div>
         </div>

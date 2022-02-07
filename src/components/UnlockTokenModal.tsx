@@ -86,7 +86,7 @@ export default function UnlockTokenModal({
       id="transactionDoneModal"
       className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 sm:max-w-sm w-full z-20 shadow"
     >
-      <div className="bg-primary-900 border items-center flex flex-col rounded-lg pb-8 pt-2 px-4 hm-box mx-3">
+      <div className="bg-black border items-center flex flex-col rounded-lg pb-8 pt-2 px-4 hm-box mx-3">
         <div className="flex w-full  justify-end">
           <MdClose
             id="closeTokenModalBtn"
@@ -119,10 +119,7 @@ export default function UnlockTokenModal({
           onClick={() => {
             unlockTokens("perm");
           }}
-          className={`w-full p-2 rounded mb-2 bg-opacity-20  ${approving === "approving"
-              ? "bg-primary-600 text-primary-400"
-              : "hover:bg-opacity-40 bg-primary-100 hover:bg-primary-300 text-background-800"
-            }`}
+          className='w-full p-2 rounded-lg mb-2 bg-opacity-20 txButton'
           disabled={approving === "approving" ? true : false}
         >
           Unlock Permanently
@@ -133,10 +130,7 @@ export default function UnlockTokenModal({
             unlockTokens("once");
           }}
           disabled={approving === "approving" ? true : false}
-          className={`w-full p-2 rounded mb-2 bg-opacity-20  ${approving === "approving"
-              ? "bg-primary-600 text-primary-400"
-              : "hover:bg-opacity-40 bg-primary-100 hover:bg-primary-300 text-background-800"
-            }`}
+          className='w-full p-2 rounded-lg mb-2 bg-opacity-20 txButton' 
         >
           Unlock this time only
         </button>
