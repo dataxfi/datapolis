@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
-import { setupDappBrowser, setupDataX, closeBrowser, quickConnectWallet } from "./Setup";
+import { setupDappBrowser, setupDataX, closeBrowser, quickConnectWallet } from "../Setup";
 import {
   navToStake,
   getBalanceInMM,
@@ -13,7 +13,7 @@ import {
   clearInput,
   navToTradeXFromLanding,
   switchAccounts,
-} from "./Utilities";
+} from "../Utilities";
 import BigNumber from "bignumber.js";
 describe("Stake Platform UI works as expected.", () => {
   jest.setTimeout(300000);

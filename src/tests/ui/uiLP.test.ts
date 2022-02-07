@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
-import { setupDappBrowser, setupDataX, closeBrowser, quickConnectWallet, testAcctId } from "../../Setup";
+import { setupDappBrowser, setupDataX, closeBrowser, quickConnectWallet, testAcctId } from "../Setup";
 import {
   approveTransactions,
   confirmAndCloseTxDoneModal,
@@ -11,14 +11,13 @@ import {
   reloadOrContinue,
   setUpStake,
   useLocalStorage,
-} from "../../Utilities";
+} from "../Utilities";
 
 describe("Execute Standard Trades on Stake", () => {
   jest.setTimeout(300000);
   let page: puppeteer.Page;
   let browser: puppeteer.Browser;
   let metamask: dappeteer.Dappeteer;
-  let lastTestPassed: boolean = true;
 
   beforeAll(async () => {
     const tools = await setupDappBrowser();

@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
-import { setupDappBrowser, setupDataX, closeBrowser, quickConnectWallet } from "./Setup";
+import { setupDappBrowser, setupDataX, closeBrowser, quickConnectWallet } from "../Setup";
 import {
   getSharesFromUnstake,
   navToLp,
@@ -13,14 +13,13 @@ import {
   navToLpFromUnstake,
   acceptCookies,
   navToTradeXFromLanding,
-} from "./Utilities";
+} from "../Utilities";
 
 describe("DataX Navigation User Interface Works as Expected", () => {
   jest.setTimeout(300000);
   let page: puppeteer.Page;
   let browser: puppeteer.Browser;
   let metamask: dappeteer.Dappeteer;
-  let lastTestPassed: boolean = true;
 
   beforeAll(async () => {
     const tools = await setupDappBrowser();
