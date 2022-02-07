@@ -1,8 +1,11 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
-import { setupDappBrowser, setupDataX, closeBrowser, quickConnectWallet } from "../Setup";
 import {
+  setupDappBrowser,
+  setupDataX,
+  closeBrowser,
+  quickConnectWallet,
   getSharesFromUnstake,
   navToLp,
   navToRemoveStake,
@@ -13,7 +16,7 @@ import {
   navToLpFromUnstake,
   acceptCookies,
   navToTradeXFromLanding,
-} from "../Utilities";
+} from "../utils";
 
 describe("DataX Navigation User Interface Works as Expected", () => {
   jest.setTimeout(300000);
@@ -28,10 +31,10 @@ describe("DataX Navigation User Interface Works as Expected", () => {
       browser = tools?.browser;
       metamask = tools?.metamask;
     }
-    await acceptCookies(page)
-    await navToTradeXFromLanding(page)
+    await acceptCookies(page);
+    await navToTradeXFromLanding(page);
     await setupDataX(page, metamask, "rinkeby", false);
-    await page.bringToFront()
+    await page.bringToFront();
   });
 
   afterAll(async () => {
@@ -40,7 +43,7 @@ describe("DataX Navigation User Interface Works as Expected", () => {
 
   it("Should have OCEAN balance > 0 to run these tests", async () => {
     const balance = await getBalanceInMM(metamask, "OCEAN");
-    await page.waitForFunction('document.querySelector("#loading-lp") === null')
+    await page.waitForFunction('document.querySelector("#loading-lp") === null');
     expect(Number(balance)).toBeGreaterThan(0);
   });
 
@@ -64,7 +67,7 @@ describe("DataX Navigation User Interface Works as Expected", () => {
   });
   it("Can reload on Unstake", async () => {
     await page.reload();
-    await quickConnectWallet(page)
+    await quickConnectWallet(page);
     expect(await page.waitForSelector("#removeStakeModal")).toBeDefined();
     // const shares = await getShares(page);
     // expect(Number(shares)).toBeGreaterThan(0);
@@ -82,7 +85,7 @@ describe("DataX Navigation User Interface Works as Expected", () => {
   });
   it("Can reload on Stake with token selected", async () => {
     await page.reload();
-    await quickConnectWallet(page)
+    await quickConnectWallet(page);
     await page.waitForSelector("#stakeToken");
     const text = await page.evaluate('document.querySelector("#stakeToken").innerText');
     expect(text).toBe("SAGKRI-94");

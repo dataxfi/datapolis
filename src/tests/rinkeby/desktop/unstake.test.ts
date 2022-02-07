@@ -1,8 +1,10 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
-import { setupDappBrowser, setupDataX, closeBrowser} from "../../Setup";
 import {
+  setupDappBrowser,
+  setupDataX,
+  closeBrowser,
   approveTransactions,
   confirmAndCloseTxDoneModal,
   confirmInputClearedAfterUnstake,
@@ -11,7 +13,7 @@ import {
   setupUnstake,
   executeTransaction,
   awaitUpdateShares,
-} from "../../Utilities";
+} from "../../utils";
 import BigNumber from "bignumber.js";
 describe("Execute Standard Trades on Stake", () => {
   jest.setTimeout(300000);
@@ -38,12 +40,12 @@ describe("Execute Standard Trades on Stake", () => {
 
   async function stdUnstakeFlow(amt: string) {
     try {
-      await page.waitForTimeout(250)
+      await page.waitForTimeout(250);
       await setupUnstake(page, amt, initialShares);
       await executeTransaction(page, metamask, "unstake");
       await approveTransactions(metamask, page, 1);
       await confirmAndCloseTxDoneModal(page);
-      initialShares = new BigNumber(await awaitUpdateShares(page, initialShares))
+      initialShares = new BigNumber(await awaitUpdateShares(page, initialShares));
       await confirmInputClearedAfterUnstake(page);
       lastTestPassed = true;
     } catch (error) {

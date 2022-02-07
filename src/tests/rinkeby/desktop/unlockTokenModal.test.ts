@@ -1,8 +1,10 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
-import { setupDappBrowser, setupDataX, closeBrowser } from "../../Setup";
 import {
+  setupDappBrowser,
+  setupDataX,
+  closeBrowser,
   approveTransactions,
   checkBalance,
   confirmAndCloseTxDoneModal,
@@ -11,7 +13,7 @@ import {
   executeTransaction,
   reloadOrContinue,
   setUpSwap,
-} from "../../Utilities";
+} from "../../utils";
 
 describe("Execute Standard Trades on Trade", () => {
   jest.setTimeout(300000);
@@ -34,10 +36,8 @@ describe("Execute Standard Trades on Trade", () => {
     await closeBrowser(browser);
   });
 
-  it("Should unlock tokens permenantly", ()=>{})
-  it("Same token pair should be unlocked in Stake", ()=>{})
-  it("Should unlock tokens once", ()=>{})
-  it("Same token pair should be unlocked in unstake", ()=>{})
-
+  it("Should unlock tokens permenantly", () => {});
+  it("Same token pair should be unlocked in Stake", () => {});
+  it("Should unlock tokens once", () => {});
+  it("Same token pair should be unlocked in unstake", () => {});
 });
-

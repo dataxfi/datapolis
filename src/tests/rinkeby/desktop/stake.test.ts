@@ -1,8 +1,10 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
-import { setupDappBrowser, setupDataX, closeBrowser } from "../../Setup";
 import {
+  setupDappBrowser,
+  setupDataX,
+  closeBrowser,
   approveTransactions,
   confirmAndCloseTxDoneModal,
   confirmInputClearedAfterStake,
@@ -10,7 +12,7 @@ import {
   navToStake,
   reloadOrContinue,
   setUpStake,
-} from "../../Utilities";
+} from "../../utils";
 
 describe("Execute Standard Trades on Stake", () => {
   jest.setTimeout(300000);

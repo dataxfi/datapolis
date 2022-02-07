@@ -1,8 +1,10 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
-import { setupDappBrowser, setupDataX, closeBrowser } from "../../Setup";
 import {
+  setupDappBrowser,
+  setupDataX,
+  closeBrowser,
   approveTransactions,
   checkBalance,
   confirmAndCloseTxDoneModal,
@@ -11,7 +13,7 @@ import {
   executeTransaction,
   reloadOrContinue,
   setUpSwap,
-} from "../../Utilities";
+} from "../../utils";
 
 describe("Execute Standard Trades on Trade", () => {
   jest.setTimeout(300000);
@@ -34,7 +36,7 @@ describe("Execute Standard Trades on Trade", () => {
     await closeBrowser(browser);
   });
 
-  async function stdTradeFlow(t1Symbol:string, t2Symbol:string, amt:string, pos:number){
+  async function stdTradeFlow(t1Symbol: string, t2Symbol: string, amt: string, pos: number) {
     try {
       await setUpSwap(page, metamask, t1Symbol, t2Symbol, amt, pos);
       await checkBalance(page, metamask, false, t2Symbol, t1Symbol);
@@ -44,7 +46,7 @@ describe("Execute Standard Trades on Trade", () => {
       await confirmTokensClearedAfterTrade(page);
       await setUpSwap(page, metamask, t1Symbol, t2Symbol, "0", pos);
       await checkBalance(page, metamask, true, t2Symbol, t1Symbol);
-      lastTestPassed = true
+      lastTestPassed = true;
     } catch (error) {
       lastTestPassed = false;
       throw error;
@@ -52,37 +54,37 @@ describe("Execute Standard Trades on Trade", () => {
   }
 
   it("10 OCEAN -> SAGKRI-94", async () => {
-    await stdTradeFlow("OCEAN", "SAGKRI-94", "10", 1)
+    await stdTradeFlow("OCEAN", "SAGKRI-94", "10", 1);
   });
 
   it(".1 OCEAN -> SAGKRI-94", async () => {
     await reloadOrContinue(lastTestPassed, page);
-    await stdTradeFlow("OCEAN", "SAGKRI-94", ".1", 1)
+    await stdTradeFlow("OCEAN", "SAGKRI-94", ".1", 1);
   });
 
   it("MAX OCEAN -> SAGKRI-94", async () => {
     await reloadOrContinue(lastTestPassed, page);
-    await stdTradeFlow("OCEAN", "SAGKRI-94", "max", 1)
+    await stdTradeFlow("OCEAN", "SAGKRI-94", "max", 1);
   });
 
   it("1 SAGKRI-94 -> OCEAN", async () => {
     await reloadOrContinue(false, page);
-    await stdTradeFlow("SAGKRI-94", "OCEAN", "1", 1)
+    await stdTradeFlow("SAGKRI-94", "OCEAN", "1", 1);
   });
 
   it("1 SAGKRI-94 -> DAZORC-13", async () => {
     await reloadOrContinue(lastTestPassed, page);
-    await stdTradeFlow("SAGKRI-94", "DAZORC-13", "1", 1)
+    await stdTradeFlow("SAGKRI-94", "DAZORC-13", "1", 1);
   });
 
   it("MAX DAZORC-13 -> SAGKRI-94", async () => {
     await reloadOrContinue(lastTestPassed, page);
-    await stdTradeFlow("DAZORC-13", "SAGKRI-94", "max", 1)
+    await stdTradeFlow("DAZORC-13", "SAGKRI-94", "max", 1);
   });
 
   it("MAX SAGKRI-94 -> OCEAN", async () => {
-      await reloadOrContinue(lastTestPassed, page);
-      await stdTradeFlow("SAGKRI-94", "OCEAN", "max", 1);
+    await reloadOrContinue(lastTestPassed, page);
+    await stdTradeFlow("SAGKRI-94", "OCEAN", "max", 1);
   });
 
   // it("Trade All but .1 DT to OCEAN", async () => {

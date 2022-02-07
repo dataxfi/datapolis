@@ -1,8 +1,11 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
-import { setupDappBrowser, setupDataX, closeBrowser, quickConnectWallet } from "../Setup";
 import {
+  setupDappBrowser,
+  setupDataX,
+  closeBrowser,
+  quickConnectWallet,
   getBalanceInMM,
   navToTradeXFromLanding,
   acceptCookies,
@@ -13,7 +16,7 @@ import {
   clearInput,
   switchAccounts,
   useXPath,
-} from "../Utilities";
+} from "../utils";
 import BigNumber from "bignumber.js";
 describe("User Interface Works as Expected", () => {
   jest.setTimeout(300000);

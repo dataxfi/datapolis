@@ -1,8 +1,10 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
-import { setupDappBrowser, setupDataX, closeBrowser, quickConnectWallet } from "../Setup";
 import {
+  setupDappBrowser,
+  setupDataX,
+  closeBrowser,
   getBalanceInMM,
   acceptCookies,
   switchAccounts,
@@ -18,7 +20,7 @@ import {
   getExecuteButtonText,
   getSelectedTokens,
   navToTradeXFromLanding,
-} from "../Utilities";
+} from "../utils";
 import BigNumber from "bignumber.js";
 describe("Trade Platform User Interface Works as Expected", () => {
   jest.setTimeout(300000);
@@ -43,7 +45,7 @@ describe("Trade Platform User Interface Works as Expected", () => {
       metamask = tools?.metamask;
     }
     await acceptCookies(page);
-    await navToTradeXFromLanding(page)
+    await navToTradeXFromLanding(page);
     await setupDataX(page, metamask, "rinkeby", false);
     await page.bringToFront();
     acc1MMBalT1 = new BigNumber(await getBalanceInMM(metamask, "OCEAN"));
@@ -78,11 +80,11 @@ describe("Trade Platform User Interface Works as Expected", () => {
     expect(t2Input.toNumber()).toBeCloseTo(t2Max.toNumber());
   });
 
-  it("Should clear token modal and show disclaimer when switching to an unsigned account", async () =>{
+  it("Should clear token modal and show disclaimer when switching to an unsigned account", async () => {
     await switchAccounts(metamask, page, 2, true);
-    expect(await page.waitForSelector("#selectToken1")).toBeDefined()
-    expect(await page.waitForSelector("#selectToken2")).toBeDefined()
-  })
+    expect(await page.waitForSelector("#selectToken1")).toBeDefined();
+    expect(await page.waitForSelector("#selectToken2")).toBeDefined();
+  });
 
   it("Balance should update when switching accounts", async () => {
     await switchAccounts(metamask, page, 1, false);
@@ -136,7 +138,7 @@ describe("Trade Platform User Interface Works as Expected", () => {
     await selectToken(page, "OCEAN", 1);
     await typeAmount(page, ".009", 1, "OCEAN", "SAGKRI-94", false);
     await page.waitForSelector("#executeTradeBtn[disabled]");
-    await page.waitForFunction('document.querySelector("#executeTradeBtn").innerText.includes("Minimum")')
+    await page.waitForFunction('document.querySelector("#executeTradeBtn").innerText.includes("Minimum")');
     const text = await getExecuteButtonText(page, "trade");
     expect(text).toContain("Minimum trade is");
   });
