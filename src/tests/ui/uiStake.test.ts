@@ -99,13 +99,15 @@ describe("Stake Platform UI works as expected.", () => {
 
   it("Stake button is enabled when input is > 0", async () => {
     await inputStakeAmt(page, "1");
-    expect(await page.waitForSelector("#executeStake[disabled]", { timeout: 1500 })).toBeFalsy();
-    const text = await getExecuteButtonText(page, "stake");
-    expect(text === "Stake" || text === "Unlock").toBeTruthy();
+    const text = await getExecuteButtonText(page, "stake", "Stake");
+    await page.waitForTimeout(1000)
+    await page.waitForFunction('document.querySelector("#executeStake[disabled]") === null', { timeout: 1500 });
+    expect(text === "Stake").toBeTruthy();
   });
 
   it("Check transactions for less than .01 ocean are not allowed", async () => {
     await clearInput(page, "#stakeAmtInput");
+    await page.waitForTimeout(1000)
     await inputStakeAmt(page, ".001");
     await page.waitForSelector("#executeStake[disabled]");
     const btnText = await getExecuteButtonText(page, "stake", "Minimum");
@@ -121,6 +123,7 @@ describe("Stake Platform UI works as expected.", () => {
     await switchAccounts(metamask, page, 2, true);
     const mmBalance = await getBalanceInMM(metamask, "OCEAN");
     const dappBalance = await getBalanceInDapp(page, "stake");
+    await selectStakeToken(page, "SAGKRI-94")
     const input = await inputStakeAmt(page, "max");
     expect(Number(input)).toBeCloseTo(Number(mmBalance));
     expect(Number(dappBalance)).toBeCloseTo(Number(mmBalance));

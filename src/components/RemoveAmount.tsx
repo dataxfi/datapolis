@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { BsArrowDown } from "react-icons/bs";
-import { useLocation } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { GlobalContext, bgLoadingStates, removeBgLoadingState } from "../context/GlobalState";
 import getTokenList, { getAllowance } from "../utils/tokenUtils";
@@ -127,9 +127,6 @@ const RemoveAmount = () => {
   }, [ocean, currentStakePool]);
 
   useEffect(() => {
-    console.log("Currently loading in background:", bgLoading);
-    console.log(currentStakePool);
-
     setInputDisabled(false);
     if (currentStakePool && Number(currentStakePool.shares) === 0) {
       setBtnDisabled(true);
@@ -172,9 +169,12 @@ const RemoveAmount = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId, chainId, sharesToRemove]);
 
+  const navigate = useNavigate();
+  const [initialRender, setInitialRender] = useState(true);
   useEffect(() => {
-    console.log(sharesPercToRemove);
-  }, [sharesPercToRemove]);
+    if (!initialRender) navigate("/stake/list");
+    setInitialRender(false);
+  }, [accountId]);
 
   const updateNum = async (val: string) => {
     let max: IMaxUnstake | void;

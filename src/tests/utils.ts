@@ -92,13 +92,22 @@ export async function setupDataX(
   } catch (error) {
     console.log("Coudnt connect to site.");
   }
-  await page.bringToFront();
-  await quickConnectWallet(page);
-  await metamask.page.bringToFront();
-  await approveTransactions(metamask, page, 1);
+  async function signDisclaimer(){
+    await page.bringToFront();
+    await quickConnectWallet(page);
+    await metamask.page.bringToFront();
+    await approveTransactions(metamask, page, 1);
+  }
+  await signDisclaimer()
 
   //Check wallet address in is the button
-  const walletBtn = await page.waitForSelector("#d-view-txs-btn");
+  let walletBtn
+  try {
+  walletBtn = await page.waitForSelector("#d-view-txs-btn", {timeout:1500});
+  } catch (error) {
+  await signDisclaimer()
+  walletBtn = await page.waitForSelector("#d-view-txs-btn", {timeout:1500});
+  }
 
   await new Promise((res, rej) => setTimeout(res, 500));
   const btnText = await page.evaluate((el) => el.textContent, walletBtn);
@@ -511,7 +520,7 @@ export async function incrementUntilValid(
     await page.click(`#token${inputPos}-input`);
     await page.waitForTimeout(500);
     await page.type(`#token${inputPos}-input`, amountBN.dp(5).toString());
-    incrementUntilValid(page, amountBN.dp(5).toString(), t1Symbol, t2Symbol, inputPos);
+    await incrementUntilValid(page, amountBN.dp(5).toString(), t1Symbol, t2Symbol, inputPos);
   }
   return;
 }
@@ -523,8 +532,11 @@ export async function incrementUntilValid(
  */
 
 export async function clearInput(page: puppeteer.Page, elID: string) {
-  await page.waitForSelector(elID);
-  await page.evaluate(`() => document.getElementById("${elID}").value = ""`);
+  const input = await page.waitForSelector(elID);
+  await input?.click({clickCount:3})
+  await page.keyboard.press("Backspace")
+  // await page.evaluate(`() => document.querySelector("${elID}").value = ""`);
+  // await page.waitForFunction(`() => document.querySelector("${elID}").value === ""`);
 }
 
 /**
@@ -751,14 +763,18 @@ export async function navToTrade(page: puppeteer.Page) {
   await page.waitForSelector("#Trade-link");
   await page.click("#Trade-link");
 }
+export async function closeConfirmSwapModal(page:puppeteer.Page){
+const button = await page.waitForSelector("#closeConfrimSwapModalbtn")
+await button?.click()
+}
 
-export async function grabOrImportPool(page: puppeteer.Page, pool: string, select: boolean) {
+export async function selectOrImportPool(page: puppeteer.Page, pool: string, select: boolean) {
   try {
-    await page.waitForSelector(`#${pool}-lp-item`, { timeout: 3000 });
+    await page.waitForSelector(`#${pool}-lp-item`, { timeout: 1500 });
   } catch (error) {
     try {
       await importStakeInfo(page, pool);
-      await page.waitForSelector(`#${pool}-lp-item`, { timeout: 10000 });
+      await page.waitForSelector(`#${pool}-lp-item`, { timeout: 1500 });
     } catch (error) {
       throw error;
     }
@@ -766,19 +782,23 @@ export async function grabOrImportPool(page: puppeteer.Page, pool: string, selec
   await page.click(`#${pool}-lp-item`);
 }
 
-export async function navToRemoveStake(page: puppeteer.Page, pool: string) {
-  await navToLp(page);
-  await grabOrImportPool(page, pool, true);
+export async function selectRemoveStakeButton(page: puppeteer.Page){
   await page.waitForSelector("#yourShares");
   const shares = new BigNumber(await page.evaluate('document.querySelector("#yourShares").innerText'));
   await page.waitForSelector("#lp-remove-link");
   await page.click("#lp-remove-link");
   await page.waitForSelector("#removeStakeModal");
-  return shares;
+  return shares
+}
+
+export async function navToRemoveStake(page: puppeteer.Page, pool: string) {
+  await navToLp(page);
+  await selectOrImportPool(page, pool, true);
+  return await selectRemoveStakeButton(page);
 }
 
 export async function navToStakeWPool(page: puppeteer.Page, pool: string) {
-  grabOrImportPool(page, pool, true);
+  selectOrImportPool(page, pool, true);
   await page.waitForSelector("#lp-add-link");
   await page.click("#lp-add-link");
   await page.waitForSelector("#stakeModal");

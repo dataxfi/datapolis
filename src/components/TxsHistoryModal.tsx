@@ -147,9 +147,9 @@ function TxHistoryModal() {
     
     switch (txType) {
       case "stake":
-        return `Stake ${token1.symbol}/${token2.symbol}`;
+        return `Stake ${token1.symbol}/OCEAN`;
       case "unstake":
-        return `Unstake ${token1.symbol}/${token2.symbol}`;
+        return `Unstake ${token1.symbol}/OCEAN`;
       default:
         return `${token1.symbol} to ${token2.symbol}`;
     }

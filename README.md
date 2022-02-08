@@ -49,7 +49,7 @@ If you feel another test would be beneficial to add to the protocol, bring it up
 
 ### Automated Local Testing
 
-> **These tests use a REAL MM account whose credentials are shared between multiple people, if you log into this account on your browser ensure you log out and do not send actual assets to this account.**
+> **These tests use a REAL MM account whose credentials are shared between multiple people, if you log into this account outside of chromium ensure you log out and do not send actual assets to this account.**
 
 1. Follow steps 1 and 2 from the Run Locally section in this readme.
 2. Review the scripts in the package JSON and the following statements.
@@ -65,7 +65,17 @@ Reach out to development-internal to request these credentials if you need them.
 
 ### **UI test suite VS. Rinkeby test suite**
 
+A few things to keep in mind regarding both suites:
+
 > Both tests suites are currently only on the rinkeby network, but the UI tests suite does not execute transactions.
+
+> There are two rare but reoccuring unsolved issues with the test suites: 
+   - Error: Node is detached from the document. 
+     - This rarely happens but will make the suite fail from time to time, rerun the tests. 
+   - Disclaimer isn't being signed.
+     - This occurs about 25% of the time, where the MM popup is closed after the disclaimer is sent, effectively rejecting the signature transaction. Rerun the tests. 
+     - A solution for this is expected to be implemented in the future. 
+
 
 #### UI:
 

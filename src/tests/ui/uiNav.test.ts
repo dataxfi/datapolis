@@ -41,12 +41,6 @@ describe("DataX Navigation User Interface Works as Expected", () => {
     await closeBrowser(browser);
   });
 
-  it("Should have OCEAN balance > 0 to run these tests", async () => {
-    const balance = await getBalanceInMM(metamask, "OCEAN");
-    await page.waitForFunction('document.querySelector("#loading-lp") === null');
-    expect(Number(balance)).toBeGreaterThan(0);
-  });
-
   //General Navigation
   it("Can navigate to Stake", async () => {
     await navToStake(page);

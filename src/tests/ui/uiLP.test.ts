@@ -9,6 +9,8 @@ import {
   testAcctId,
   importStakeInfo,
   navToLp,
+  navToTradeXFromLanding,
+  acceptCookies,
 } from "../utils";
 
 describe("Execute Standard Trades on Stake", () => {
@@ -24,6 +26,8 @@ describe("Execute Standard Trades on Stake", () => {
       browser = tools?.browser;
       metamask = tools?.metamask;
     }
+    await navToTradeXFromLanding(page)
+    await acceptCookies(page)
     await setupDataX(page, metamask, "rinkeby", false);
     await page.evaluate((testAcctId) => {
       window.localStorage.removeItem(`allStakedPools@4@${testAcctId}`);
@@ -39,9 +43,9 @@ describe("Execute Standard Trades on Stake", () => {
     await page.waitForSelector("#importMessage");
   });
 
-  it("Should not show loading if no staked pools.", async () => {
-    await page.waitForFunction('document.querySelector("#loadingStakeMessage") === null', { timeout: 5000 });
-  });
+  // it("Should not show loading if no staked pools.", async () => {
+  //   await page.waitForFunction('document.querySelector("#lpLoading") === null', { timeout: 5000 });
+  // });
 
   it("Shoud disable buttons if wallet isn't connected.", async () => {
     await page.reload();
@@ -61,9 +65,9 @@ describe("Execute Standard Trades on Stake", () => {
 
   it("Should be able to import pool with import button. (SAGKRI-94)", async () => {
     await importStakeInfo(page, "SAGKRI-94");
-    await page.waitForSelector("#loadingStakeMessage");
+    // await page.waitForSelector("#loadingStakeMessage");
     await page.waitForSelector("#SAGKRI-94-lp-item");
-    await page.waitForFunction('document.querySelector("#loadingStakeMessage") === null', { timeout: 5000 });
+    // await page.waitForFunction('document.querySelector("#lpLoading") === null', { timeout: 5000 });
   });
 
   it("Should be able to open and view stake info. (SAGKRI-94)", async () => {
@@ -90,7 +94,7 @@ describe("Execute Standard Trades on Stake", () => {
     await page.reload();
     await quickConnectWallet(page);
     await page.waitForSelector("#SAGKRI-94-lp-item");
-    await page.waitForSelector("#loadingStakeMessage");
+    // await page.waitForSelector("#loadingStakeMessage");
     const local = await page.evaluate(
       (testAcctId) => window.localStorage.getItem(`allStakedPools@4@${testAcctId.toLowerCase()}`),
       testAcctId

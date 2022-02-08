@@ -13,6 +13,7 @@ import TokenModal from "./TokenModal";
 import { MoonLoader, PulseLoader } from "react-spinners";
 import useBgToggler from "../hooks/useBgToggler";
 import Footer from "./Footer";
+import useCurrentPool from "../hooks/useCurrentPool";
 
 const LiquidityPosition = () => {
   const {

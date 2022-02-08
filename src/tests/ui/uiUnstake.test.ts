@@ -16,6 +16,8 @@ import {
   clearInput,
   switchAccounts,
   useXPath,
+  selectRemoveStakeButton,
+  selectOrImportPool,
 } from "../utils";
 import BigNumber from "bignumber.js";
 describe("User Interface Works as Expected", () => {
@@ -34,10 +36,10 @@ describe("User Interface Works as Expected", () => {
     }
     await page.setViewport({ width: 1039, height: 913 });
     await navToTradeXFromLanding(page);
-    initialShares = await navToRemoveStake(page, "SAGKRI-94");
+    await acceptCookies(page)
     await setupDataX(page, metamask, "rinkeby", false);
+    initialShares = await navToRemoveStake(page, "SAGKRI-94");
     await page.bringToFront();
-    await acceptCookies(page);
   });
 
   afterAll(async () => {
@@ -46,13 +48,13 @@ describe("User Interface Works as Expected", () => {
 
   it("Should have OCEAN balance > 0 to run these tests", async () => {
     const balance = await getBalanceInMM(metamask, "OCEAN");
-    await page.waitForFunction('document.querySelector("#loading-lp") === null');
     expect(Number(balance)).toBeGreaterThan(0);
   });
 
   it("Stake button is disabled when input = 0", async () => {
+    await page.bringToFront()
     const btnText = await getExecuteButtonText(page, "unstake", "Enter");
-    expect(btnText).toBe("Enter Amount To Remove");
+    expect(btnText).toBe("Enter Amount to Remove");
     expect(await page.waitForSelector("#executeUnstake[disabled]", { timeout: 1500 })).toBeTruthy();
   });
 
@@ -61,7 +63,7 @@ describe("User Interface Works as Expected", () => {
     const { input, receive } = await inputUnstakeAmt(page, "1", shares || "");
     expect(Number(input)).toBeGreaterThan(0);
     expect(Number(receive)).toBeGreaterThan(0);
-    expect(await page.waitForSelector("#executeUnstake[disabled]", { timeout: 1500 })).toBeFalsy();
+    await page.waitForFunction("document.querySelector('#executeUnstake[disabled]') === null", { timeout: 1500 })
     const btnText = await getExecuteButtonText(page, "unstake", "Withdrawal");
     expect(btnText).toBe("Withdrawal");
   });
@@ -70,7 +72,7 @@ describe("User Interface Works as Expected", () => {
   it("Transactions for less than .01 ocean are not allowed", async () => {
     await clearInput(page, "#unstakeAmtInput");
     const shares = await getSharesFromUnstake(page);
-    const { input, receive } = await inputUnstakeAmt(page, "1", shares || "");
+    const { input, receive } = await inputUnstakeAmt(page, ".0001", shares || "");
     expect(Number(input)).toEqual(0.0001);
     expect(Number(receive)).toBeLessThan(0.01);
     const btnText = await getExecuteButtonText(page, "unstake", "Minimum");
@@ -88,11 +90,20 @@ describe("User Interface Works as Expected", () => {
     expect(btnText).toBe("Withdrawal");
   });
 
+  it("Navigates to lp when account changes", async ()=>{
+    await switchAccounts(metamask, page, 2, true);
+    await page.bringToFront()
+    await page.waitForSelector("lpModal")
+  })
+
   it("Shows connect wallet modal when there is no wallet connected", async () => {
+    await selectOrImportPool(page, "SAGKRI-94", true)
+    await selectRemoveStakeButton(page)
     await page.reload();
-    const element = await useXPath(page, "div", "Connect your wallet to continue.", false);
+    const element = await useXPath(page, "p", "Connect your wallet to continue.", false);
     expect(element).toBeTruthy();
   });
+
   it("Shares updates when connecting wallet", async () => {
     await quickConnectWallet(page);
     const shares = await getSharesFromUnstake(page);
@@ -100,8 +111,6 @@ describe("User Interface Works as Expected", () => {
   });
 
   it("Shares should limit input when less than max stake", async () => {
-    await switchAccounts(metamask, page, 2, true);
-    await page.bringToFront();
     const shares = await getSharesFromUnstake(page);
     if (Number(shares) === 0) {
       expect(await page.waitForSelector("#maxUnstakeBtn[disabled]", { timeout: 1500 })).toBeTruthy();
@@ -114,4 +123,5 @@ describe("User Interface Works as Expected", () => {
       expect(btnText).toBe("Withdrawal");
     }
   });
+
 });

@@ -15,7 +15,7 @@ export default function LandingPage() {
           </h1>
         </div>
         <p className="text-xl  xl:text-3xl text-shadow-light mt-4 xl:mt-12">
-          DataX turns <span className="text-yellow">Data</span> data into{" "}
+          DataX turns <span className="text-yellow">Data</span> into{" "}
           <span className="font-grit underline">Programmable Money</span>{" "}
         </p>
         <ul className="text-5xl py-4 inline-flex mt-4">
