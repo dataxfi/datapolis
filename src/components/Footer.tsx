@@ -23,7 +23,7 @@ export default function Footer() {
       <div className="flex flex-col text-center">
         <ul className="inline-flex text-2xl justify-center">
           <SocialLinkIcons effect="color" margin="2" />
-          <li className="list-inline-item ml-2 self-center">
+          <li className="list-inline-item ml-2 self-center hover:text-primary-300">
             <a title="DataX Docs" href="https://docs.datax.fi" target="_blank" rel="noreferrer">
               <FaBook size="26px" />
             </a>
@@ -31,7 +31,7 @@ export default function Footer() {
         </ul>
         <div className="flex flex-row justify-between px-3">
           <p className="w-auto lg:w-1/3 lg:flex hidden text-xs">{getCommitInfo()} </p>
-          <p className="w-full lg:w-1/3">Copyright © DataX 2021</p>
+          <p className="w-full lg:w-1/3">Powered by DataX | Copyright © DataX 2021</p>
           <div className="lg:flex items-center justify-end hidden text-green-400 w-auto lg:w-1/3 text-xs">
             <p className="pr-2">{blockNo > 0 ? blockNo : ""}</p>
             {/* className="animate-ping" */}

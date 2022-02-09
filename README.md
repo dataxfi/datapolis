@@ -120,6 +120,9 @@ Close Future Implementation:
 - Utility functions for moving assets to test particular suites (sell all DT, sell all OCEAN, unstake all pools, etc.)
 - A UX test suite focusing on speed and conveinience.
 
+## Contributing to test suites
+> Refer to the Test-API.md file located in the tests directory to quickly view the functions available to quickly write new tests with minimal boilerplate. 
+
 Test priority (High value features)
 
 | Boilerplate | Making Trade | Staking | Unstaking | LP |

@@ -17,7 +17,9 @@ module.exports = {
       sans: ["DM Sans", "Helvetica", "Arial", "sans-serif"],
       pollerOne: ['"Poller One"', "cursive"],
       montserrat: ["'Montserrat'", "sans-serif"], 
-      grit: ["'Special Elite'", "Montserrat", "sans-serif"]
+      yantramanav: ["'Yantramanav'", "sans"],
+      grit: ["'Special Elite'", "Montserrat", "sans-serif"], 
+      spectral: ["'Spectral SC'", "Times New Roman", "Times", "serif"]
     },
     backgroundSize: {
       auto: "auto",
@@ -48,13 +50,6 @@ module.exports = {
         109: "34rem", 
         111: "36rem,"
       },
-      //  colors: {
-      //   'primary': colors.trueGray,
-      //   'secondary': colors.blue,
-      //   'tertiary': colors.coolGray,
-      //   'type': colors.warmGray,
-      //   'background': colors.black
-      //  }
       backgroundImage: {
         dataXgif: 'url("./assets/DataX-X-Fold.gif")',
         dataXcity: 'url("./assets/DataX-City.jpeg")',
@@ -62,7 +57,7 @@ module.exports = {
         dataXstake: 'url("./assets/StakeX.jpeg")',
       },
       colors: {
-        primary: colors.trueGray,
+        primary: colors.coolGray,
         secondary: colors.indigo,
         tertiary: colors.sky,
         type: colors.warmGray,
@@ -83,48 +78,6 @@ module.exports = {
           darkBlue: "#222222",
         }
       },
-
-      // colors: {
-      //   'primary': colors.emerald,
-      //   'secondary': colors.blue,
-      //   'tertiary': colors.coolGray,
-      //   'type': colors.warmGray,
-      //   'background': colors.black
-      //  }
-
-      // colors: {
-      //   'primary': colors.fuchsia,
-      //   'secondary': colors.green,
-      //   'tertiary': colors.coolGray,
-      //   'type': colors.warmGray,
-      //   'background': colors.black
-      //  }
-
-      //  colors: {
-      //   'primary': colors.fuchsia,
-      //   'secondary': colors.green,
-      //   'tertiary': colors.coolGray,
-      //   'type': colors.warmGray,
-      //   'background': colors.purple[900]
-      //  }
-
-      //  colors: {
-      //   'primary': colors.fuchsia,
-      //   'secondary': colors.green,
-      //   'tertiary': colors.coolGray,
-      //   'type': {
-      //     50: colors.warmGray[900],
-      //     100: colors.warmGray[900],
-      //     200: colors.warmGray[800],
-      //     300: colors.warmGray[700],
-      //     400: colors.warmGray[600],
-      //     600: colors.warmGray[400],
-      //     700: colors.warmGray[300],
-      //     800: colors.warmGray[200],
-      //     900: colors.warmGray[100],
-      //   },
-      //   'background': colors.purple[100]
-      //  }
     },
   },
   variants: {

@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTwitter, faDiscord, faMediumM, faGithub } from "@fortawesome/free-brands-svg-icons";
 export default function SocialLinkIcons({effect, margin}:{effect: "grow" | "color", margin: string}) {
 
-  const style = `list-inline-item transition-all transform duration 200 hover:${effect === "grow" ?"scale-125" : "text-primary-500"}`
+  const style = `list-inline-item transition-all transform duration 200 hover:${effect === "grow" ?"scale-125" : "text-primary-300"}`
 
   return (
     <>
