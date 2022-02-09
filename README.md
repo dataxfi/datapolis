@@ -1,15 +1,3 @@
-<style>
-   h1>span, h2 {
-      color:#f3c429
-   }
-   h3{
-      color:#19b7eb
-   }
-   h4{
-      color:#1447e1
-   }
-</style>
-
  <h1> 🌇 <span style={{color:#f3c429}}>Datapolis</span> Decentralized Application 🏛️ </h1>
 
 ### A defi exchange platform built using datax.js and web3.
@@ -121,7 +109,7 @@ Close Future Implementation:
 - A UX test suite focusing on speed and conveinience.
 
 ## Contributing to test suites
-> Refer to the Test-API.md file located in the tests directory to quickly view the functions available to quickly write new tests with minimal boilerplate. 
+> Refer to the Test-API.md file located in the tests directory to view the functions available and quickly write new tests with minimal boilerplate. 
 
 Test priority (High value features)
 
