@@ -128,7 +128,7 @@ function LiquidityPositionItem({ pool, index }: { pool: PoolData; index: number 
                 to={`/stake/remove?pool=${address}`}
                 className={`ml-1 ${
                   Number(shares) === 0
-                    ? "modalButton cursor-not-allowed rounded p-2px w-1/2 text-center"
+                    ? "modalButton cursor-not-allowed pointer-events-none rounded p-2px w-1/2 text-center text-gray-500"
                     : "modalButton rounded p-2px w-1/2 text-center"
                 } `}
                 onClick={() => {

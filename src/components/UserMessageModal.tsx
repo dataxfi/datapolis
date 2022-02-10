@@ -102,7 +102,7 @@ const UserMessageModal = ({
   const floatMessageEl = (
     <div
       id={id}
-      className={`max-w-xs fixed md:top-8 md:right-8 w-full mx-auto bg-black bg-opacity-80 rounded-lg p-4 transition-opacity ease-in-out opacity-${messageOpacity} duration-500 ${className? className: ""}`}
+      className={`max-w-xs fixed md:top-16 md:right-8 w-full mx-auto bg-black bg-opacity-80 rounded-lg p-4 transition-opacity ease-in-out opacity-${messageOpacity} duration-500 ${className? className: ""}`}
     >
       <div className="flex justify-between items-start">
         <div className="grid grid-flow-col gap-4 items-center justify-center">

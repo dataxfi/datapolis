@@ -196,6 +196,7 @@ html:empty {
 }
 
 .txButton:disabled {
+  cursor: not-allowed;
   background-color: black;
   opacity: 0.5;
 }

@@ -70,11 +70,11 @@ const SnackbarItem = ({
               {tx.txType === "stake"
                 ? `Stake ${new BigNumber(tx.stakeAmt).dp(5).toString()} OCEAN in ${
                     tokenInfo.token1.symbol
-                  }/${tokenInfo.token2.symbol} pool`
+                  }/OCEAN pool`
                 : tx.txType === "unstake"
                 ? `Unstake ${new BigNumber(tx.stakeAmt).dp(5).toString()} OCEAN from ${
                     tokenInfo.token1.symbol
-                  }/${tokenInfo.token2.symbol} pool`
+                  }/OCEAN pool`
                 : `Trade ${new BigNumber(tokenInfo.token1.value).dp(5).toString()} ${tokenInfo.token1.symbol} for ${new BigNumber(tokenInfo.token2.value).dp(5).toString()} ${tokenInfo.token2.symbol}`}
             </p>
             <p className="text-type-300 text-sm">

@@ -468,6 +468,8 @@ const Swap = () => {
       } else if (isOCEAN(token2.info.address, ocean)) {
         if (exactToken === 1) {
           console.log("exact dt to ocean");
+          console.log(accountId, token1.info.pool, token2.value.toString(), token1.value.toString());
+
           // prettier-ignore
           txDateId = addTxHistory({chainId,setTxHistory,txHistory,accountId: String(accountId),token1,token2,txType: "DT to Ocean",slippage: decSlippage,status: "pending",});
           setLastTxId(txDateId);

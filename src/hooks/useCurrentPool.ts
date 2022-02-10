@@ -2,11 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { GlobalContext } from "../context/GlobalState";
 import { bgLoadingStates, removeBgLoadingState } from "../context/GlobalState";
-import {
-  updateSingleStakePool,
-  getLocalPoolData,
-  setPoolDataFromLocal,
-} from "../utils/stakedPoolsUtils";
+import { updateSingleStakePool, getLocalPoolData, setPoolDataFromLocal } from "../utils/stakedPoolsUtils";
 
 export default function useCurrentPool(
   poolAddress: string,
@@ -14,7 +10,6 @@ export default function useCurrentPool(
   txReceipt?: any,
   setTxReceipt?: Function
 ) {
-
   const {
     allStakedPools,
     setCurrentStakePool,
@@ -35,25 +30,15 @@ export default function useCurrentPool(
   }, [location]);
 
   useEffect(() => {
-    if (
-      !currentStakePool &&
-      poolAddress &&
-      !bgLoading.includes(bgLoadingStates.singlePoolData)
-    ) {
+    if (!currentStakePool && poolAddress && !bgLoading.includes(bgLoadingStates.singlePoolData)) {
       setBgLoading([...bgLoading, bgLoadingStates.singlePoolData]);
       if (allStakedPools) {
-        const currentPool = allStakedPools.find(
-          (pool: { address: string }) => pool.address === poolAddress
-        );
+        const currentPool = allStakedPools.find((pool: { address: string }) => pool.address === poolAddress);
         setCurrentStakePool(currentPool);
         console.log(currentPool);
       }
     }
-    setBgLoading(
-      removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData)
-    );
-
-    
+    setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData));
   }, [allStakedPools, poolAddress]);
 
   useEffect(() => {
@@ -70,29 +55,21 @@ export default function useCurrentPool(
           bgLoading,
         });
       }
+      // !currentStakePool && !allStakedPools
+      if (poolAddress && ocean) {
+        setBgLoading([...bgLoading, bgLoadingStates.singlePoolData]);
+        updateSingleStakePool({
+          ocean,
+          accountId,
+          localData: JSON.parse(localStoragePoolData || ""),
+          poolAddress: poolAddress || "",
+          setAllStakedPools,
+        }).then(() => {
+          setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData));
+        });
+      }
     }
-
-    if (
-      !currentStakePool &&
-      !allStakedPools &&
-      poolAddress &&
-      ocean &&
-      accountId
-    ) {
-      setBgLoading([...bgLoading, bgLoadingStates.singlePoolData]);
-      updateSingleStakePool({
-        ocean,
-        accountId,
-        localData: JSON.parse(localStoragePoolData || ""),
-        poolAddress: poolAddress || "",
-        setAllStakedPools,
-      }).then(() => {
-        setBgLoading(
-          removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData)
-        );
-      });
-    }
-  }, [chainId, accountId]);
+  }, [chainId, accountId, ocean]);
 
   useEffect(() => {
     if (txReceipt && !bgLoading.includes(bgLoadingStates.singlePoolData)) {
@@ -103,13 +80,12 @@ export default function useCurrentPool(
         localData: allStakedPools,
         poolAddress: currentStakePool.address,
         setAllStakedPools,
-      }).then((info) => {        
+      }).then((info) => {
+        console.log("Updates liquidity position", info);
         setCurrentStakePool(info);
       });
-      if(setTxReceipt) setTxReceipt(null)
-      setBgLoading(
-        removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData)
-      );
+      if (setTxReceipt) setTxReceipt(null);
+      setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData));
     }
   }, [txReceipt, setTxReceipt]);
 }

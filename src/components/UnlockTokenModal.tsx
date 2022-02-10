@@ -5,7 +5,7 @@ import { MdClose } from "react-icons/md";
 import BigNumber from "bignumber.js";
 import { getTokenVal, isOCEAN, IToken } from "./Swap";
 import errorMessages from "../utils/errorMessages";
-
+import { getAllowance } from "../utils/tokenUtils";
 export type approvalStates = "approved" | "approving" | "pending";
 
 export default function UnlockTokenModal({
@@ -25,16 +25,42 @@ export default function UnlockTokenModal({
     useContext(GlobalContext);
   const [approving, setApproving] = useState<approvalStates>("pending");
   const [t1BN, setT1BN] = useState<BigNumber>(new BigNumber(0));
+  const [pool, setPool] = useState<string | null>(null);
+  const [address, setAddress] = useState<string | null>(null);
   useEffect(() => {
     const { t1BN } = getTokenVal(token1, token1);
     setT1BN(t1BN);
   }, [token1]);
 
+  // Set up the interval.
+  useEffect(() => {
+    let delay: number | null = 1500;
+    let id: NodeJS.Timeout;
+    if (accountId && ocean && pool && address) {
+      id = setInterval(
+        () =>
+          getAllowance(address, accountId, pool, ocean).then((res) => {
+            console.log("Response from allowance call", res);
+            const allowance = new BigNumber(res);
+            if (allowance.gte(t1BN)) {
+              setShowUnlockTokenModal(false);
+              nextFunction();
+              setPool(null);
+              setAddress(null);
+              delay = null;
+            }
+          }),
+        delay
+      );
+    }
+    return () => clearInterval(id);
+  }, [address, accountId, pool, ocean]);
+
   async function unlockTokens(amount: "perm" | "once") {
     // currently being passed tx amount in both scenarios
     if (ocean) {
-      let pool;
-      let address;
+      let pool: string;
+      let address: string;
 
       if (remove) {
         pool = token1.info.pool;
@@ -50,6 +76,9 @@ export default function UnlockTokenModal({
         address = token1.info.address;
       }
 
+      setPool(pool);
+      setAddress(address);
+
       try {
         const { t1BN } = getTokenVal(token1);
         setApproving("approving");
@@ -61,8 +90,6 @@ export default function UnlockTokenModal({
           remove ? setToken(t1BN.plus(0.001)) : setToken({ ...token1, allowance: t1BN.plus(0.001) });
         }
         setApproving("approved");
-        setShowUnlockTokenModal(false);
-        nextFunction();
       } catch (error) {
         console.error(error);
         setApproving("pending");
@@ -106,12 +133,11 @@ export default function UnlockTokenModal({
             <BiLockAlt size="72px" className="text-green-400 animate-bounce" />
           </div>
         ) : (
-          <BiLockOpenAlt size="72px" className="text-green-400" />
+          <BiLockOpenAlt size="72px" className="text-green-400 animate-bounce" />
         )}
         <h3 className="text-sm lg:text-2xl pb-5">Unlock {token1.info.symbol}</h3>
         <p className="text-sm lg:text-base text-center pb-5">
-          DataX need your permission to spend {t1BN.dp(5).toString()} {remove ? "shares" : token1.info.symbol}
-          .
+          DataX needs your permission to spend {t1BN.dp(5).toString()} {remove ? "shares" : token1.info.symbol}.
         </p>
 
         <button
@@ -119,8 +145,8 @@ export default function UnlockTokenModal({
           onClick={() => {
             unlockTokens("perm");
           }}
-          className='w-full p-2 rounded-lg mb-2 bg-opacity-20 txButton'
-          disabled={approving === "approving" ? true : false}
+          className="w-full p-2 rounded-lg mb-2 bg-opacity-20 txButton"
+          disabled={approving === "approving" || pool || address ? true : false}
         >
           Unlock Permanently
         </button>
@@ -129,8 +155,8 @@ export default function UnlockTokenModal({
           onClick={() => {
             unlockTokens("once");
           }}
-          disabled={approving === "approving" ? true : false}
-          className='w-full p-2 rounded-lg mb-2 bg-opacity-20 txButton' 
+          disabled={approving === "approving" || pool || address ? true : false}
+          className="w-full p-2 rounded-lg mb-2 bg-opacity-20 txButton"
         >
           Unlock this time only
         </button>

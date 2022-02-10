@@ -20783,6 +20783,11 @@ use@^3.1.0:
   resolved "https://registry.yarnpkg.com/use/-/use-3.1.1.tgz#d50c8cac79a19fbc20f2911f56eb973f4e10070f"
   integrity sha512-cwESVXlO3url9YWlFW/TA9cshCEhtu7IKJ/p5soJ/gGpj7vbvFrAY/eIioQ6Dw23KjZhYgiIo8HOs1nQ2vr/oQ==
 
+usehooks-ts@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/usehooks-ts/-/usehooks-ts-2.3.0.tgz#20ff6eafb07d0a2bfdc46a714e1089736d568425"
+  integrity sha512-74mokORM7PGv1FznVnA/kA5KYQdksG5FglQnfx1nSZJxyTpMtpTPnrc5rcDON1kaNaJiws0jYZ1wepb6gSZuCw==
+
 utf-8-validate@5.0.7:
   version "5.0.7"
   resolved "https://registry.yarnpkg.com/utf-8-validate/-/utf-8-validate-5.0.7.tgz#c15a19a6af1f7ad9ec7ddc425747ca28c3644922"

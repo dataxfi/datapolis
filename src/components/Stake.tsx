@@ -145,7 +145,8 @@ const Stake = () => {
         .catch(console.error);
 
       if (token.pool)
-        getAllowance(token.address, accountId, token.pool, ocean).then((res) => {
+        getAllowance(ocean.config.default.oceanTokenAddress, accountId, token.pool, ocean).then((res) => {
+          console.log(res)
           setOceanToken({
             ...oceanToken,
             info: {
@@ -304,9 +305,11 @@ const Stake = () => {
         stakeAmt: oceanValToStake?.toFixed(5),
       });
       setLastTxId(txDateId);
+      console.log(accountId, token.pool, oceanValToStake?.toString());
       const txReceipt = await ocean.stakeOcean(accountId, token.pool, oceanValToStake?.toString());
 
       if (txReceipt) {
+        setToken(null)
         setOceanValToStake(new BigNumber(0));
         setTxReceipt(txReceipt);
         addTxHistory({
@@ -323,14 +326,16 @@ const Stake = () => {
           stakeAmt: oceanValToStake?.toFixed(5),
           txReceipt,
         });
-        if (token.pool)
+        if (token.pool){
+          const json = JSON.parse(getLocalPoolData(accountId, chainId) || "[]")
           updateSingleStakePool({
             ocean,
             accountId,
-            localData: JSON.parse(getLocalPoolData(accountId, chainId) || "") || [],
+            localData: json,
             poolAddress: token.pool,
             setAllStakedPools,
           });
+        }
 
         setRecentTxHash(ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash);
         setLoadingStake(false);
@@ -340,6 +345,7 @@ const Stake = () => {
         throw new Error("Didn't receive a receipt.");
       }
     } catch (error: any) {
+      console.error(error)
       const allNotifications = notifications;
       allNotifications.push({
         type: "alert",

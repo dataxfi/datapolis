@@ -10,10 +10,8 @@ import {
   updateSingleStakePool,
 } from "../utils/stakedPoolsUtils";
 import TokenModal from "./TokenModal";
-import { MoonLoader, PulseLoader } from "react-spinners";
+import { MoonLoader } from "react-spinners";
 import useBgToggler from "../hooks/useBgToggler";
-import Footer from "./Footer";
-import useCurrentPool from "../hooks/useCurrentPool";
 
 const LiquidityPosition = () => {
   const {
@@ -47,7 +45,7 @@ const LiquidityPosition = () => {
 
   useEffect(() => {
     try {
-      if (accountId && !allStakedPools) {
+      if (accountId) {
         let localData: any = getLocalPoolData(accountId, chainId);
         if (localData && localData != null) {
           setBgLoading([...bgLoading, bgLoadingStates.allStakedPools]);
@@ -66,7 +64,10 @@ const LiquidityPosition = () => {
             localData,
             setAllStakedPools,
           }).then(() => {
-            setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.allStakedPools));
+            setBgLoading([
+              ...removeBgLoadingState(bgLoading, bgLoadingStates.allStakedPools),
+              ...removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData),
+            ]);
             setLoading(false);
             setNoStakedPools(false);
             setUserMessage(null);
@@ -77,7 +78,7 @@ const LiquidityPosition = () => {
       console.error(error);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountId, ocean, allStakedPools]);
+  }, [accountId, ocean]);
 
   useEffect(() => {
     console.log("Currently loading in the background", bgLoading);
@@ -150,14 +151,17 @@ const LiquidityPosition = () => {
   return (
     <div className="absolute w-full h-full top-0 bottom-0  py-16 lg:py-28 px-2">
       <div className="flex flex-col justify-center h-full">
-        <div id="lpModal" className="bg-black bg-opacity-90 w-full lg:w-107 p-2 max-h-full rounded-lg px-3 m-auto flex flex-col justify-center">
+        <div
+          id="lpModal"
+          className="bg-black bg-opacity-90 w-full lg:w-107 p-2 max-h-full rounded-lg px-3 m-auto flex flex-col justify-center"
+        >
           <div className="flex flex-row w-full m-auto">
             <div className="w-full flex pb-1 rounded-lg justify-between">
               <h2 className="text-2xl">Your staked pools</h2>
               {(bgLoading.includes(bgLoadingStates.allStakedPools) ||
                 bgLoading.includes(bgLoadingStates.singlePoolData)) &&
               accountId ? (
-                    <MoonLoader color="white" size="25px" />
+                <MoonLoader color="white" size="25px" />
               ) : null}
             </div>
           </div>

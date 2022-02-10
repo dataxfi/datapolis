@@ -172,8 +172,10 @@ const RemoveAmount = () => {
   const navigate = useNavigate();
   const [initialRender, setInitialRender] = useState(true);
   useEffect(() => {
-    if (!initialRender) navigate("/stake/list");
-    setInitialRender(false);
+    console.log(currentStakePool);
+    
+    // if (!initialRender) navigate("/stake/list");
+    // setInitialRender(false);
   }, [accountId]);
 
   const updateNum = async (val: string) => {
@@ -431,12 +433,16 @@ const RemoveAmount = () => {
                         onClick={() => {
                           maxUnstakeHandler();
                         }}
-                        disabled={Number(currentStakePool.shares) === 0}
+                        disabled={Number(currentStakePool.shares) === 0 || bgLoading.includes(bgLoadingStates.singlePoolData) ||
+                          bgLoading.includes(bgLoadingStates.maxUnstake) ||
+                          bgLoading.includes(bgLoadingStates.calcTrade)}
                         text="Max Unstake"
-                        classes={`px-2 lg:w-24 py-0 border border-type-300 rounded-full text-xs ${
-                          inputDisabled || Number(currentStakePool.shares) === 0
-                            ? "text-gray-700"
-                            : "hover:bg-primary-600"
+                        classes={`px-2 lg:w-24 py-0 border  rounded-full text-xs ${
+                          inputDisabled || Number(currentStakePool.shares) === 0 || bgLoading.includes(bgLoadingStates.singlePoolData) ||
+                          bgLoading.includes(bgLoadingStates.maxUnstake) ||
+                          bgLoading.includes(bgLoadingStates.calcTrade)
+                            ? "text-gray-700 border-gray-700"
+                            : "hover:bg-primary-600 border-type-300"
                         }`}
                       />
                     </div>

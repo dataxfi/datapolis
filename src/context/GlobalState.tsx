@@ -107,9 +107,9 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
   const [notifications, setNotifications] = useState([]);
 
-  const [showUnlockTokenModal, setShowUnlockTokenModal] = useState<boolean>(false)
+  const [showUnlockTokenModal, setShowUnlockTokenModal] = useState<boolean>(false);
 
-  const [location,setLocation] = useState<string>("/")
+  const [location, setLocation] = useState<string>("/");
   // remove all pending signatures to instantiate disclaimer flow upon user reconnection
   useEffect(() => {
     for (let i = 0; i < localStorage.length; i++) {
@@ -153,7 +153,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   }, [web3, chainId]);
 
   /**
-   *
+  *
    * Handles wallet side disclaimer signature.
    *
    * @param account
@@ -161,12 +161,18 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
    * @returns
    * signature hash from wallet
    */
-  async function handleSignature(account: string, web3: Web3) {
+  async function handleSignature() {    
+    if(!web3) return 
+    let accounts = await web3.eth.getAccounts();
+    const account = accounts[0].toLowerCase()
+
     try {
       localStorage.setItem(account, "pending");
       let signature = await web3.eth.personal.sign(Disclaimer(), account || "", "", () => {
         setShowDisclaimer(false);
       });
+      console.log(signature);
+      
       localStorage.setItem(account, signature);
       setDisclaimerSigned({ ...disclaimerSigned, wallet: true });
       return signature;
@@ -188,11 +194,10 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
    * current localSignature value
    */
 
-  async function handleDisclaimer(account: string, web3: Web3, localSignature: string | null): Promise<any> {
+  async function handleDisclaimer(account: string, localSignature: string | null): Promise<any> {
     account = account.toLowerCase();
     if (!localSignature || localSignature === "pending") {
       setShowDisclaimer(true);
-      handleSignature(account, web3);
     }
     return localSignature;
   }
@@ -227,10 +232,9 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         console.log(config);
         const watcher = new Watcher(web3, String(_chainId));
         setWatcher(watcher);
-
         isSupportedChain(config, String(_chainId), accounts[0] ? accounts[0] : "");
       } else {
-        handleDisclaimer(accounts[0], web3, localSignature);
+        await handleDisclaimer(accounts[0], localSignature);
       }
       setListeners(provider, web3);
     } catch (error) {
@@ -381,10 +385,10 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setStakeFetchTimeout,
         notifications,
         setNotifications,
-        showUnlockTokenModal, 
-        setShowUnlockTokenModal, 
-        location, 
-        setLocation
+        showUnlockTokenModal,
+        setShowUnlockTokenModal,
+        location,
+        setLocation,
       }}
     >
       {children}
