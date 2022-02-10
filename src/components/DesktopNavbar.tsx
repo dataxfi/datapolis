@@ -5,6 +5,7 @@ import { ReactComponent as Logo } from "../assets/datax-logo.svg";
 import Button from "./Button";
 import { GlobalContext } from "../context/GlobalState";
 import PendingTxsIndicator from "./PendingTxsIndicator";
+import useWatchLocation from "../hooks/useWatchLocation";
 
 const DesktopNavbar = ({
   links,
@@ -19,16 +20,18 @@ const DesktopNavbar = ({
   network: string;
   handleModalOrConnect: Function;
 }) => {
-  const { accountId, buttonText, location } = useContext(GlobalContext);
+  const { accountId, buttonText } = useContext(GlobalContext);
 
+  useWatchLocation()
+  
   return (
     <header
       id="desktopNavBar"
-      className="lg:flex flex-col bg-black bg-opacity-25 justify-between items-center px-4 py-4 border-gray-800 hidden"
+      className="lg:flex flex-col bg-black bg-opacity-25 justify-between items-center p-2 border-gray-800 hidden"
     >
       <div className="flex justify-between w-full pl-4 pr-2">
         <div className="grid grid-flow-col gap-8 items-center  ">
-          <div className="w-1/3 lg:w-auto font-spectral text-3xl">
+          <Link to={"/"} className="w-1/3 lg:w-auto font-spectral text-3xl" >
             Datapolis
             <div className="px-2">
               <div className="w-full h-2px bg-yellow">
@@ -38,7 +41,7 @@ const DesktopNavbar = ({
             <div className="w-full flex justify-end font-spectral text-xs pr-2">
               <p>Beta</p>
             </div>
-          </div>
+          </Link>
           {links.map((link, idx) => {
             return (
               <Link id={`${link.name}-link`} key={idx} to={link.link} className="hm-link hidden md:block product">

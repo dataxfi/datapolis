@@ -18,7 +18,7 @@ import BigNumber from "bignumber.js";
 import { toFixed5 } from "../utils/equate";
 import UnlockTokenModal from "./UnlockTokenModal";
 import { getAllowance, TokenInfo } from "../utils/tokenUtils";
-import useBgToggler from "../hooks/useBgToggler";
+import useWatchLocation from "../hooks/useWatchLocation";
 import Footer from "./Footer";
 const text = {
   T_SWAP: "Trade",
@@ -126,7 +126,7 @@ const Swap = () => {
   //hooks
   usePTxManager(lastTxId);
   useTxModalToggler(txReceipt, setTxReceipt, setToken1, setToken2);
-  useBgToggler();
+  useWatchLocation();
   let controller = new AbortController();
   useEffect(() => {
     if (txReceipt) return;

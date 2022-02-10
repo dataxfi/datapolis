@@ -19,7 +19,7 @@ import useCurrentPool from "../hooks/useCurrentPool";
 import BigNumber from "bignumber.js";
 import WrappedInput from "./WrappedInput";
 import UnlockTokenModal from "./UnlockTokenModal";
-import useBgToggler from "../hooks/useBgToggler";
+import useWatchLocation from "../hooks/useWatchLocation";
 import Footer from "./Footer";
 
 interface IMaxUnstake {
@@ -103,7 +103,7 @@ const RemoveAmount = () => {
   usePTxManager(lastTxId);
   useTxModalToggler(txReceipt, setTxReceipt);
   useCurrentPool(poolAddress, setPoolAddress, txReceipt, setTxReceipt);
-  useBgToggler();
+  useWatchLocation();
 
   useEffect(() => {
     if (ocean && currentStakePool) {

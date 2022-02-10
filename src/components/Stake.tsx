@@ -22,7 +22,7 @@ import { DebounceInput } from "react-debounce-input";
 import WrappedInput from "./WrappedInput";
 import UnlockTokenModal from "./UnlockTokenModal";
 import { IToken } from "./Swap";
-import useBgToggler from "../hooks/useBgToggler";
+import useWatchLocation from "../hooks/useWatchLocation";
 import Footer from "./Footer";
 const text = {
   T_STAKE: "Stake",
@@ -109,7 +109,7 @@ const Stake = () => {
   usePTxManager(lastTxId);
   useTxModalToggler(txReceipt, setTxReceipt);
   useCurrentPool(poolAddress, setPoolAddress);
-  useBgToggler();
+  useWatchLocation();
 
   async function getMaxStakeAmt() {
     if (token)

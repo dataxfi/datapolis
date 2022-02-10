@@ -7,7 +7,7 @@ export default function LandingPage() {
   return (
     <div className="w-full h-full absolute bg-dataXcity bg-cover bg-right mobileBgPosition lg:bg-bottom">
       <nav className="h-16 bg-black bg-opacity-10 flex justify-between items-center px-4 font-yantramanav">
-        <div className="w-1/3 lg:w-auto font-spectral text-3xl">
+        <div className="lg:w-auto font-spectral text-3xl">
           Datapolis
           <div className="px-2">
             <div className="w-full h-2px bg-yellow">
@@ -19,12 +19,8 @@ export default function LandingPage() {
           </div>
         </div>
         <div className="lg:mr-6 flex justify-end lg:w-auto items-center">
-          <a href="https://docs.datax.fi" className="mx-2 hover:text-yellow">
-            About Datapolis
-          </a>
-          <div className="w-2px h-9 bg-yellow rounded-full" />
-          <a href="" className="mx-2 hover:text-yellow">
-            Developers
+          <a href="https://datax.fi" target="_blank" className="mx-2 hover:text-yellow">
+            About DataX
           </a>
         </div>
       </nav>

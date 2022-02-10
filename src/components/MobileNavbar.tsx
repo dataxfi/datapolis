@@ -42,9 +42,9 @@ const MobileNavbar = ({
 
   return (
     <header id="mobileNavbar" className="flex flex-col">
-      <div className="flex lg:hidden justify-between items-center pt-2 border-gray-800 pr-4">
+      <div className="flex lg:hidden bg-black bg-opacity-75 justify-between items-center py-2 border-gray-800 pr-4">
         <div className="flex flex-row justify-start ml-4">
-          <div className="w-1/3 lg:w-auto font-spectral text-3xl">
+          <Link to={"/"} className="lg:w-auto font-spectral text-3xl">
             Datapolis
             <div className="px-2">
               <div className="w-full h-2px bg-yellow">
@@ -54,7 +54,7 @@ const MobileNavbar = ({
             <div className="w-full flex justify-end font-spectral text-xs pr-2">
               <p>Beta</p>
             </div>
-          </div>{" "}
+          </Link>
         </div>
         <div className="flex">
           <PendingTxsIndicator />

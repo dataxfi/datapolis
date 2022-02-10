@@ -11,7 +11,7 @@ import {
 } from "../utils/stakedPoolsUtils";
 import TokenModal from "./TokenModal";
 import { MoonLoader } from "react-spinners";
-import useBgToggler from "../hooks/useBgToggler";
+import useWatchLocation from "../hooks/useWatchLocation";
 
 const LiquidityPosition = () => {
   const {
@@ -36,7 +36,7 @@ const LiquidityPosition = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [messageId, setMessageId] = useState<string | null>("importMessage");
 
-  useBgToggler();
+  useWatchLocation();
 
   useEffect(() => {
     setAllStakedPools(null);
