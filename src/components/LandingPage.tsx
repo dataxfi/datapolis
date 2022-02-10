@@ -24,12 +24,12 @@ export default function LandingPage() {
           </a>
         </div>
       </nav>
-      <div className="w-full h-full flex flex-col items-center justify-center px-8 lg:px-56 text-center">
+      <div className="w-full h-full flex flex-col items-center justify-center px-8 lg:px-56 pb-36 text-center">
         <div className="text-4xl lg:text-6xl xl:text-8xl font-yantramanav font-semibold text-shadow-bold">
           <h1>
-            <span className="mr-4">WELCOME TO THE NEW</span>
+            <span className="mr-4">Welcome to the New</span>
             <span className="text-yellow mr-4">DATA</span>
-            ECONOMY
+            Economy
           </h1>
         </div>
         <p className="text-xl  xl:text-3xl text-shadow-light mt-4 xl:mt-12 font-yantramanav">
