@@ -36,7 +36,7 @@ export default function LandingPage() {
           Datapolis is the world's first <span className="text-yellow">Data Nation</span>{" "}
         </p>
         <ul className="text-5xl py-4 inline-flex mt-4">
-          <SocialLinkIcons effect="grow" margin="6" />
+          <SocialLinkIcons effect="grow" />
         </ul>
         <ul className="inline-flex">
           <a href="https://docs.datax.fi" id="learnMoreLink" className="homeButton flex items-center py-2 ml-2 px-3">
