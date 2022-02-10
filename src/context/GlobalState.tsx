@@ -62,8 +62,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [cookiesAllowed, setCookiesAllowed] = useState<boolean | null>(null);
   const [showDisclaimer, setShowDisclaimer] = useState<boolean>(false);
   const [disclaimerSigned, setDisclaimerSigned] = useState<{
-    client: boolean | null;
-    wallet: boolean | null;
+    client: boolean | null | "denied";
+    wallet: boolean | null | "denied";
   }>({
     client: null,
     wallet: null,
@@ -122,7 +122,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   // recall handle connect if the provider is set but there is no account id
   // essential for disclaimer flow
   useEffect(() => {
-    if (provider && !accountId) {
+    if (provider && !accountId && disclaimerSigned.wallet !== "denied" && disclaimerSigned.client !=="denied") {
       handleConnect();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -181,6 +181,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       localStorage.removeItem(account);
       deniedSignatureGA();
     }
+    return false
   }
 
   /**

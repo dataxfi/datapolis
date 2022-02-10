@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { GlobalContext } from "../context/GlobalState";
 
 export const Disclaimer = (): string => {
@@ -24,17 +24,33 @@ function DisclaimerModal() {
     useContext(GlobalContext);
   const [showReminder, setShowReminder] = useState(false);
 
+  useEffect(() => {
+    setShowReminder(false);
+  }, []);
+
   async function approvedDisclaimer() {
-    if (!disclaimerSigned.client) {
+    if (!disclaimerSigned.client || disclaimerSigned.client === "denied") {
       setDisclaimerSigned({ ...disclaimerSigned, client: true });
-      await handleSignature(accountId, web3)
+      await handleSignature().then((res: any) => {
+        console.log(res);
+        
+        if (!res) {
+          setShowReminder(false);
+          setDisclaimerSigned({ client: "denied", wallet: "denied" });
+          setShowDisclaimer(false)
+        }
+      });
     } else {
+      console.log(53646);
+      
       setShowReminder(true);
     }
   }
 
   function deniedDisclaimer() {
     setShowDisclaimer(false);
+    setShowReminder(false);
+    setDisclaimerSigned({ client: "denied", wallet: false });
   }
 
   return (
@@ -42,13 +58,11 @@ function DisclaimerModal() {
       <div className="h-102 md:h-full max-w-2xl m-auto bg-black bg-opacity-80 w-full rounded-lg p-4 hm-box flex flex-col xs:p-1 sm:p-4 md:px-10 py-4">
         <h2 className="md:text-2xl text-xl self-center mb-2">Disclaimer</h2>
         <div className="h-3/5 lg:h-full overflow-scroll md:overflow-auto w-full p-2 bg-primary-900 rounded">
-          <p className="whitespace-pre-wrap p-2 text-xs md:text-sm">
-            {Disclaimer()}
-          </p>
+          <p className="whitespace-pre-wrap p-2 text-xs md:text-sm">{Disclaimer()}</p>
         </div>
         <p className="text-primary-400 my-3 text-xs md:text-sm">
-          Please sign this disclaimer to connect to your wallet. Your wallet
-          will ask for your signature regarding the same disclaimer.
+          Please sign this disclaimer to connect to your wallet. Your wallet will ask for your signature regarding the
+          same disclaimer.
         </p>
         <div className="flex flex-row w-full">
           <button

@@ -50,9 +50,9 @@
     "test-uiCookies": "react-scripts test --preset @chainsafe/dappeteer src/tests/ui/uiCookies.test.ts",
     "test-uiDisclaimer": "react-scripts test --preset @chainsafe/dappeteer src/tests/ui/uiDisclaimer.test.ts",
     "test-rinkeby-txs": "yarn run test-rinkeby-tradex && yarn run test-rinkeby-stakex && yarn run test-rinkeby-unstake",
-    "test-rinkeby-tradex": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/desktop/tradeX.test.ts",
-    "test-rinkeby-stakex": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/desktop/stakeX.test.ts",
-    "test-rinkeby-unstake": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/desktop/stakeX.test.ts",
+    "test-rinkeby-trade": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/desktop/trade.test.ts",
+    "test-rinkeby-stake": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/desktop/stake.test.ts",
+    "test-rinkeby-unstake": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/desktop/unstake.test.ts",
     "test-rinkeby-unlock": "react-scripts test --preset @chainsafe/dappeteer src/tests/rinkeby/desktop/unlockTokenModal.test.ts",
     "coverage": "yarn test-rinkeby -- --coverage"
   },
