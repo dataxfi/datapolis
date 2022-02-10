@@ -6,13 +6,16 @@ import SocialLinkIcons from "./SocialLinkIcons";
 export default function LandingPage() {
   return (
     <div className="w-full h-full absolute bg-dataXcity bg-cover bg-right mobileBgPosition lg:bg-bottom">
-      <nav className="h-16 bg-black bg-opacity-30 flex justify-between items-center px-4 font-yantramanav">
+      <nav className="h-16 bg-black bg-opacity-10 flex justify-between items-center px-4 font-yantramanav">
         <div className="w-1/3 lg:w-auto font-spectral text-3xl">
           Datapolis
           <div className="px-2">
             <div className="w-full h-2px bg-yellow">
               <div className="w-1/4 h-2px" style={{ backgroundColor: "#e77f24" }} />
             </div>
+          </div>
+          <div className="w-full flex justify-end font-spectral text-xs pr-2">
+            <p>Beta</p>
           </div>
         </div>
         <div className="lg:mr-6 flex justify-end lg:w-auto items-center">
@@ -34,7 +37,7 @@ export default function LandingPage() {
           </h1>
         </div>
         <p className="text-xl  xl:text-3xl text-shadow-light mt-4 xl:mt-12 font-yantramanav">
-          Datapolis is the world first <span className="text-yellow">Data</span> union.{" "}
+          Datapolis is the world's first <span className="text-yellow">Data Nation</span>{" "}
         </p>
         <ul className="text-5xl py-4 inline-flex mt-4">
           <SocialLinkIcons effect="grow" margin="6" />

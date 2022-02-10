@@ -24,11 +24,21 @@ const DesktopNavbar = ({
   return (
     <header
       id="desktopNavBar"
-      className="lg:flex flex-col justify-between items-center px-4 pt-4 border-gray-800 hidden"
+      className="lg:flex flex-col bg-black bg-opacity-25 justify-between items-center px-4 py-4 border-gray-800 hidden"
     >
       <div className="flex justify-between w-full pl-4 pr-2">
         <div className="grid grid-flow-col gap-8 items-center  ">
-          <Logo className="logo" style={{ height: "40px" }} />
+          <div className="w-1/3 lg:w-auto font-spectral text-3xl">
+            Datapolis
+            <div className="px-2">
+              <div className="w-full h-2px bg-yellow">
+                <div className="w-1/4 h-2px" style={{ backgroundColor: "#e77f24" }} />
+              </div>
+            </div>
+            <div className="w-full flex justify-end font-spectral text-xs pr-2">
+              <p>Beta</p>
+            </div>
+          </div>
           {links.map((link, idx) => {
             return (
               <Link id={`${link.name}-link`} key={idx} to={link.link} className="hm-link hidden md:block product">

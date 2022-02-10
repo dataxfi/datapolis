@@ -28,6 +28,26 @@ export async function setupPuppBrowser() {
   }
 }
 
+ //Sign disclaimer in metatmask
+ export async function signDisclaimerRecursive(metamask:dappeteer.Dappeteer, page:puppeteer.Page){
+  try {
+    await metamask.sign();
+  } catch (error) {
+    await page.bringToFront();
+    if (
+      ! await page.waitForSelector("#disclaimer-modal", {
+        visible: true,
+        timeout: 3000,
+      })
+    ) {
+      await quickConnectWallet(page)
+      await page.waitForSelector("#sign-disclaimer-btn");
+      await page.click("#sign-disclaimer-btn");
+      await signDisclaimerRecursive(metamask, page)
+    }
+  }
+}
+
 export async function setupDappBrowser(acct2: boolean = false) {
   let page: puppeteer.Page;
   let browser: puppeteer.Browser;
@@ -92,20 +112,15 @@ export async function setupDataX(
   } catch (error) {
     console.log("Coudnt connect to site.");
   }
-  async function signDisclaimer(){
-    await page.bringToFront();
-    await quickConnectWallet(page);
-    await metamask.page.bringToFront();
-    await approveTransactions(metamask, page, 1);
-  }
-  await signDisclaimer()
+
+  await signDisclaimerRecursive(metamask, page)
 
   //Check wallet address in is the button
   let walletBtn
   try {
   walletBtn = await page.waitForSelector("#d-view-txs-btn", {timeout:1500});
   } catch (error) {
-  await signDisclaimer()
+  await signDisclaimerRecursive(metamask, page)
   walletBtn = await page.waitForSelector("#d-view-txs-btn", {timeout:1500});
   }
 

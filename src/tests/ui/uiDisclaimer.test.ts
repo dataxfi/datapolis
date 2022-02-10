@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
-import { closeBrowser, navToTradeXFromLanding, setupDappBrowser } from "../utils";
+import { closeBrowser, navToTradeXFromLanding, quickConnectWallet, setupDappBrowser, signDisclaimerRecursive } from "../utils";
 
 describe("Setup web3 and connect to wallet", () => {
   jest.setTimeout(300000);
@@ -16,7 +16,7 @@ describe("Setup web3 and connect to wallet", () => {
       browser = tools?.browser;
       metamask = tools?.metamask;
     }
-    await navToTradeXFromLanding(page)
+    await navToTradeXFromLanding(page);
   });
 
   afterAll(async () => {
@@ -28,9 +28,7 @@ describe("Setup web3 and connect to wallet", () => {
     await page.setViewport({ width: 1039, height: 913 });
     await page.waitForSelector("#d-wallet-button");
     await page.click("#d-wallet-button");
-    await page.waitForSelector(
-      ".sc-hKwDye.iWCqoQ.web3modal-provider-container"
-    );
+    await page.waitForSelector(".sc-hKwDye.iWCqoQ.web3modal-provider-container");
     await page.click(".sc-hKwDye.iWCqoQ.web3modal-provider-container");
     //Confirm Connection in MetaMaks
     await metamask.confirmTransaction();
@@ -47,9 +45,9 @@ describe("Setup web3 and connect to wallet", () => {
     await page.waitForSelector("#sign-disclaimer-btn");
     await page.click("#sign-disclaimer-btn");
 
-    //Sign disclaimer in metatmask
-    await metamask.sign();
-    page.bringToFront();
+   
+    await signDisclaimerRecursive(metamask, page)
+    await page.bringToFront();
 
     //Check wallet address in is the button
     const walletBtn = await page.waitForSelector("#d-view-txs-btn");

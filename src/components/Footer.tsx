@@ -5,6 +5,7 @@ import { FaBook, FaDotCircle } from "react-icons/fa";
 import { getCommitInfo } from "../utils/gitInfo";
 import { GlobalContext } from "../context/GlobalState";
 import SocialLinkIcons from "./SocialLinkIcons";
+// import {}
 
 export default function Footer() {
   const { web3 } = useContext(GlobalContext);
@@ -31,7 +32,7 @@ export default function Footer() {
         </ul>
         <div className="flex flex-row justify-between px-3">
           <p className="w-auto lg:w-1/3 lg:flex hidden text-xs">{getCommitInfo()} </p>
-          <p className="w-full lg:w-1/3">Powered by DataX | Copyright © DataX 2021</p>
+          <p className="w-full lg:w-1/3">Powered by DataX | Copyright © DataX 2022</p>
           <div className="lg:flex items-center justify-end hidden text-green-400 w-auto lg:w-1/3 text-xs">
             <p className="pr-2">{blockNo > 0 ? blockNo : ""}</p>
             {/* className="animate-ping" */}

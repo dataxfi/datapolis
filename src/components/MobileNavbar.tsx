@@ -41,31 +41,31 @@ const MobileNavbar = ({
   }, [accountId]);
 
   return (
-    <header id="mobileNavbar" className="flex flex-col" >
+    <header id="mobileNavbar" className="flex flex-col">
       <div className="flex lg:hidden justify-between items-center pt-2 border-gray-800 pr-4">
         <div className="flex flex-row justify-start ml-4">
-          <Logo className="logo" style={{ height: "40px" }} />
+          <div className="w-1/3 lg:w-auto font-spectral text-3xl">
+            Datapolis
+            <div className="px-2">
+              <div className="w-full h-2px bg-yellow">
+                <div className="w-1/4 h-2px" style={{ backgroundColor: "#e77f24" }} />
+              </div>
+            </div>
+            <div className="w-full flex justify-end font-spectral text-xs pr-2">
+              <p>Beta</p>
+            </div>
+          </div>{" "}
         </div>
         <div className="flex">
           <PendingTxsIndicator />
           <div className="pl-5">
             {menuVisible ? (
               <button>
-                <MdClose
-                  onClick={() => toggleMenu(false)}
-                  color="#ccc"
-                  size="28"
-                  className="z-20"
-                />
+                <MdClose onClick={() => toggleMenu(false)} color="#ccc" size="28" className="z-20" />
               </button>
             ) : (
               <button>
-                <MdMenu
-                  onClick={() => toggleMenu(true)}
-                  className="z-20"
-                  color="#ccc"
-                  size="28"
-                />{" "}
+                <MdMenu onClick={() => toggleMenu(true)} className="z-20" color="#ccc" size="28" />{" "}
               </button>
             )}
           </div>
@@ -78,12 +78,7 @@ const MobileNavbar = ({
       >
         {links.map((link, idx) => {
           return (
-            <Link
-              onClick={() => toggleMenu(false)}
-              to={link.link}
-              className="hm-link product"
-              key={`link${idx}`}
-            >
+            <Link onClick={() => toggleMenu(false)} to={link.link} className="hm-link product" key={`link${idx}`}>
               <div key={idx} className="py-1.5 px-8 hover:bg-opacity-100">
                 {link.name}
               </div>
@@ -99,22 +94,14 @@ const MobileNavbar = ({
       >
         <div className="flex flex-row w-full justify-between px-3">
           <div className="flex flex-row justify-center align-middle  w-full ">
-            <div
-              className={`flex flex-row bg-primary-900 ${
-                accountId ? "pl-2" : ""
-              }  pr-1 py-1 rounded-lg`}
-            >
+            <div className={`flex flex-row bg-primary-900 ${accountId ? "pl-2" : ""}  pr-1 py-1 rounded-lg`}>
               {" "}
-              <p className="text-xs self-center rounded-l-lg">
-                {accountId ? `${network}` : null}
-              </p>
+              <p className="text-xs self-center rounded-l-lg">{accountId ? `${network}` : null}</p>
               <Button
                 id={`${accountId ? "m-view-txs-btn" : "m-wallet-button"}`}
                 text={`${accountId ? `${truncateId()}` : "Connect wallet"}`}
                 onClick={() => handleModalOrConnect()}
-                classes={`hm-btn text-xs ml-2 ${
-                  accountId ? "px-1" : ""
-                }py-1 bg-black`}
+                classes={`hm-btn text-xs ml-2 ${accountId ? "px-1" : ""}py-1 bg-black`}
               />
             </div>
           </div>

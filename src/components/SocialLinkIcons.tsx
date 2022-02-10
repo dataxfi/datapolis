@@ -8,7 +8,7 @@ export default function SocialLinkIcons({effect, margin}:{effect: "grow" | "colo
     <>
       {" "}
       <li className={`${style} mr-${margin}`}>
-        <a href="https://twitter.com/dataX_fi" target="_blank" rel="noreferrer">
+        <a href="https://twitter.com/dataxfi" target="_blank" rel="noreferrer">
           <FontAwesomeIcon icon={faTwitter} />
         </a>
       </li>
