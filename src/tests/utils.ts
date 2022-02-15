@@ -28,23 +28,24 @@ export async function setupPuppBrowser() {
   }
 }
 
- //Sign disclaimer in metatmask
- export async function signDisclaimerRecursive(metamask:dappeteer.Dappeteer, page:puppeteer.Page){
+/**
+ * This function will recursively try to sign the disclaimer, considering the current issue with the popup being closed automatically.
+ * @param metamask
+ * @param page
+ */
+
+export async function forceSignDisclaimer(metamask: dappeteer.Dappeteer, page: puppeteer.Page) {
+  await page.bringToFront();
   try {
+    //Check wallet address in is the button
+    await quickConnectWallet(page);
+    await page.waitForSelector("#sign-disclaimer-btn");
+    await page.click("#sign-disclaimer-btn");
     await metamask.sign();
+    await page.bringToFront()
+    await page.waitForSelector("#d-view-txs-btn", {timeout:3000});
   } catch (error) {
-    await page.bringToFront();
-    if (
-      ! await page.waitForSelector("#disclaimer-modal", {
-        visible: true,
-        timeout: 3000,
-      })
-    ) {
-      await quickConnectWallet(page)
-      await page.waitForSelector("#sign-disclaimer-btn");
-      await page.click("#sign-disclaimer-btn");
-      await signDisclaimerRecursive(metamask, page)
-    }
+    await forceSignDisclaimer(metamask, page);
   }
 }
 
@@ -58,7 +59,7 @@ export async function setupDappBrowser(acct2: boolean = false) {
       metamaskVersion: "v10.8.1",
       headless: false,
       timeout: 5000,
-      ignoreDefaultArgs:["--disable-popup-blocking", "--disable-extensions"]
+      ignoreDefaultArgs: ["--disable-popup-blocking", "--disable-extensions"],
     });
     console.log(
       `Setting up metamask with creds: \n Password: ${process.env.REACT_APP_T_ACCT_PASS} \n Seed: ${process.env.REACT_APP_T_ACCT_SEED}`
@@ -70,9 +71,9 @@ export async function setupDappBrowser(acct2: boolean = false) {
     });
 
     if (acct2 && process.env.REACT_APP_T_ACCT2_PK && process.env.REACT_APP_T_ACCT_PASS) {
-      console.log("Importing Account Two")
+      console.log("Importing Account Two");
       await metamask.importPK(process.env.REACT_APP_T_ACCT2_PK);
-      await metamask.switchAccount(1)
+      await metamask.switchAccount(1);
     }
 
     await metamask.switchNetwork("rinkeby");
@@ -104,6 +105,7 @@ export async function setupDataX(
   await quickConnectWallet(page);
   await page.waitForSelector(".sc-hKwDye.iWCqoQ.web3modal-provider-container");
   await page.click(".sc-hKwDye.iWCqoQ.web3modal-provider-container");
+
   
   try {
     // Confirm Connection in MetaMaks
@@ -112,20 +114,10 @@ export async function setupDataX(
   } catch (error) {
     console.log("Coudnt connect to site.");
   }
-
-  await signDisclaimerRecursive(metamask, page)
-
-  //Check wallet address in is the button
-  let walletBtn
-  try {
-  walletBtn = await page.waitForSelector("#d-view-txs-btn", {timeout:1500});
-  } catch (error) {
-  await signDisclaimerRecursive(metamask, page)
-  walletBtn = await page.waitForSelector("#d-view-txs-btn", {timeout:1500});
-  }
-
-  await new Promise((res, rej) => setTimeout(res, 500));
-  const btnText = await page.evaluate((el) => el.textContent, walletBtn);
+  
+  await forceSignDisclaimer(metamask, page)
+  await page.bringToFront()
+  const btnText = await page.evaluate("document.querySelector('#d-view-txs-btn').innerText");
   expect(btnText).toBe("0x867...DfAd");
 }
 
@@ -548,8 +540,8 @@ export async function incrementUntilValid(
 
 export async function clearInput(page: puppeteer.Page, elID: string) {
   const input = await page.waitForSelector(elID);
-  await input?.click({clickCount:3})
-  await page.keyboard.press("Backspace")
+  await input?.click({ clickCount: 3 });
+  await page.keyboard.press("Backspace");
   // await page.evaluate(`() => document.querySelector("${elID}").value = ""`);
   // await page.waitForFunction(`() => document.querySelector("${elID}").value === ""`);
 }
@@ -778,9 +770,9 @@ export async function navToTrade(page: puppeteer.Page) {
   await page.waitForSelector("#Trade-link");
   await page.click("#Trade-link");
 }
-export async function closeConfirmSwapModal(page:puppeteer.Page){
-const button = await page.waitForSelector("#closeConfrimSwapModalbtn")
-await button?.click()
+export async function closeConfirmSwapModal(page: puppeteer.Page) {
+  const button = await page.waitForSelector("#closeConfrimSwapModalbtn");
+  await button?.click();
 }
 
 export async function selectOrImportPool(page: puppeteer.Page, pool: string, select: boolean) {
@@ -797,13 +789,13 @@ export async function selectOrImportPool(page: puppeteer.Page, pool: string, sel
   await page.click(`#${pool}-lp-item`);
 }
 
-export async function selectRemoveStakeButton(page: puppeteer.Page){
+export async function selectRemoveStakeButton(page: puppeteer.Page) {
   await page.waitForSelector("#yourShares");
   const shares = new BigNumber(await page.evaluate('document.querySelector("#yourShares").innerText'));
   await page.waitForSelector("#lp-remove-link");
   await page.click("#lp-remove-link");
   await page.waitForSelector("#removeStakeModal");
-  return shares
+  return shares;
 }
 
 export async function navToRemoveStake(page: puppeteer.Page, pool: string) {
@@ -863,10 +855,10 @@ export async function setupUnstake(page: puppeteer.Page, unstakeAmt: string, ini
     expect(initialShares.toNumber()).toBeCloseTo(shares.toNumber());
   }
 
-  await inputUnstakeAmt(page, unstakeAmt, sharesString)
+  await inputUnstakeAmt(page, unstakeAmt, sharesString);
 }
 
-export async function inputUnstakeAmt(page: puppeteer.Page, unstakeAmt: string, shares:string) {
+export async function inputUnstakeAmt(page: puppeteer.Page, unstakeAmt: string, shares: string) {
   //expect input and receive amt to have max data attributes
   await page.waitForSelector("[data-test-max-perc]");
   await page.waitForSelector("[data-test-max-ocean]");
@@ -886,12 +878,13 @@ export async function inputUnstakeAmt(page: puppeteer.Page, unstakeAmt: string, 
     await page.waitForSelector("#unstakeAmtInput");
     await page.type("#unstakeAmtInput", unstakeAmt, { delay: 150 });
     await page.waitForSelector("#oceanToReceive");
-    if (Number(shares) > 0 )await page.waitForFunction('Number(document.querySelector("#oceanToReceive").innerText) > 0');
+    if (Number(shares) > 0)
+      await page.waitForFunction('Number(document.querySelector("#oceanToReceive").innerText) > 0');
     receive = await page.evaluate('Number(document.querySelector("#oceanToReceive").innerText)');
     input = await page.evaluate('document.querySelector("#unstakeAmtInput").value');
   }
 
-  return {receive, input}
+  return { receive, input };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
