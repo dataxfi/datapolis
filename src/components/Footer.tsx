@@ -4,6 +4,7 @@ import { getCommitInfo } from "../utils/gitInfo";
 import { GlobalContext } from "../context/GlobalState";
 import SocialLinkIcons from "./SocialLinkIcons";
 import { ReactComponent as DataXLogo } from "../assets/datax-logo.svg";
+import BGToggle from "./BGToggle";
 
 export default function Footer() {
   const { web3 } = useContext(GlobalContext);
@@ -45,6 +46,7 @@ export default function Footer() {
             <p className="pr-2">{blockNo > 0 ? blockNo : ""}</p>
             {/* className="animate-ping" */}
             <FaDotCircle size="12px" />
+            <BGToggle/>
           </div>
         </div>
       </div>

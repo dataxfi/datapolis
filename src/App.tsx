@@ -20,7 +20,7 @@ BigNumber.config({ DECIMAL_PLACES: 18, ROUNDING_MODE: BigNumber.ROUND_DOWN, EXPO
 
 //import "./stars.css"
 function App() {
-  const { unsupportedNet, showDisclaimer, cookiesAllowed, location } = useContext(GlobalContext);
+  const { unsupportedNet, showDisclaimer, cookiesAllowed, location, bgOff } = useContext(GlobalContext);
 
   document.getElementById("loader");
 
@@ -47,11 +47,12 @@ function App() {
     <div className="w-full h-full relative">
       <div
         className={`w-full h-full ${
+          bgOff ? "" :
           location === "/trade"
             ? "absolute bg-dataXtrade bg-cover bg-top"
             : location !== "/"
             ? "absolute bg-dataXstake bg-cover bg-left lg:bg-bottom"
-            : "relative"
+            : ""
         }`}
       >
         <div className={`min-h-full relative overflow-hidden w-full`}>
