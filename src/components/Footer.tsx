@@ -3,8 +3,8 @@ import { FaBook, FaDotCircle } from "react-icons/fa";
 import { getCommitInfo } from "../utils/gitInfo";
 import { GlobalContext } from "../context/GlobalState";
 import SocialLinkIcons from "./SocialLinkIcons";
-import { ReactComponent as DataXLogo } from "../assets/datax-logo.svg";
 import BGToggle from "./BGToggle";
+import BuiltWDataX from "./BuiltWDataX";
 
 export default function Footer() {
   const { web3 } = useContext(GlobalContext);
@@ -32,21 +32,16 @@ export default function Footer() {
         <div className="flex flex-row justify-between px-3">
           <div className="flex w-1/3 justify-between items-center">
             <p className="w-auto lg:flex hidden text-xs">{getCommitInfo()} </p>
-
           </div>
           <div className="flex w-1/3 justify-center">
-          <div className="flex">
-            <p className="pr-2">Built with</p>
-            <a target="_blank" href="https://datax.fi"><DataXLogo className="h-6"/></a>
-            
-            </div>
+            <BuiltWDataX />
             <p> | Copyright © DataX 2022</p>
           </div>
           <div className="lg:flex lg:w-1/3 items-center justify-end hidden text-green-400 w-auto text-xs grow">
             <p className="pr-2">{blockNo > 0 ? blockNo : ""}</p>
             {/* className="animate-ping" */}
             <FaDotCircle size="12px" />
-            <BGToggle/>
+            <BGToggle />
           </div>
         </div>
       </div>
