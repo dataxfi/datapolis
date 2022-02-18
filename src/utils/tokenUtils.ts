@@ -33,23 +33,8 @@ export default async function getTokenList({
       process.env.REACT_APP_PINATA_KEY || ""
     );
 
-    const {
-      REACT_APP_CLIENT_EMAIL = "",
-      REACT_APP_PRIVATE_KEY = "",
-      REACT_APP_TOKEN_URI = "",
-      REACT_APP_SCOPE = "",
-      REACT_APP_PRIVATE_KEY_ID = "",
-    } = process.env;
-
-    return tokenList
-      .fetchPreparedTokenList(
-        chainId ? chainId : 4,
-        REACT_APP_CLIENT_EMAIL,
-        REACT_APP_PRIVATE_KEY,
-        REACT_APP_TOKEN_URI,
-        REACT_APP_SCOPE,
-        REACT_APP_PRIVATE_KEY_ID
-      )
+    tokenList
+      .fetchPreparedTokenList(chainId ? chainId : 4)
       .then((res) => {
         setTokenResponse(res);
         console.log("Token Response:", res);
