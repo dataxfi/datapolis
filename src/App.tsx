@@ -12,7 +12,7 @@ import { GlobalContext } from "./context/GlobalState";
 import DisclaimerModal from "./components/DisclaimerModal";
 import TxHistoryModal from "./components/TxsHistoryModal";
 import Footer from "./components/Footer";
-import NotificationArea from "./components/NotificationArea";
+import SnackbarArea from "./components/SnackbarArea";
 import usePTxInitializer from "./hooks/usePTxInitializer";
 import BigNumber from "bignumber.js";
 import LandingPage from "./components/LandingPage";
@@ -74,7 +74,7 @@ function App() {
           )}
           {cookiesAllowed === null ? <CookiesModal /> : null}
           {showDisclaimer ? <DisclaimerModal /> : null}
-          <NotificationArea />
+          <SnackbarArea />
           <TxHistoryModal />
           {location !== "/" ? <Footer /> : null}
         </div>

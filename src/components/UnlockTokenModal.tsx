@@ -133,14 +133,14 @@ export default function UnlockTokenModal({
         </div>
         {approving === "pending" ? (
           <div className="pb-5">
-            <BiLockAlt size="72px" className="text-green-400" />{" "}
+            <BiLockAlt size="72px" className="text-city-blue" />{" "}
           </div>
         ) : approving === "approving" ? (
           <div className="pb-5">
-            <BiLockAlt size="72px" className="text-green-400 animate-bounce" />
+            <BiLockAlt size="72px" className="text-city-blue animate-bounce" />
           </div>
         ) : (
-          <BiLockOpenAlt size="72px" className="text-green-400 animate-bounce" />
+          <BiLockOpenAlt size="72px" className="text-city-blue animate-bounce" />
         )}
         <h3 className="text-sm lg:text-2xl pb-5">Unlock {token1.info.symbol}</h3>
         <p className="text-sm lg:text-base text-center pb-5">

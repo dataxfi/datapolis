@@ -37,7 +37,7 @@ export default function Footer() {
             <BuiltWDataX />
             <p> | Copyright © DataX 2022</p>
           </div>
-          <div className="lg:flex lg:w-1/3 items-center justify-end hidden text-green-400 w-auto text-xs grow">
+          <div className="lg:flex lg:w-1/3 items-center justify-end hidden text-city-blue w-auto text-xs grow">
             <p className="pr-2">{blockNo > 0 ? blockNo : ""}</p>
             {/* className="animate-ping" */}
             <FaDotCircle size="12px" />
