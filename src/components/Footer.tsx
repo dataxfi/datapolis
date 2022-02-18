@@ -29,15 +29,17 @@ export default function Footer() {
             </a>
           </li>
         </ul>
-        <div className="flex flex-row justify-between px-3">
-          <div className="flex w-1/3 justify-between items-center">
+        <div className="grid grid-cols-2 w-full px-2">
+          <div className="flex items-center">
             <p className="w-auto lg:flex hidden text-xs">{getCommitInfo()} </p>
           </div>
-          <div className="flex w-1/3 justify-center">
-            <BuiltWDataX />
-            <p> | Copyright © DataX 2022</p>
+          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2">
+            <div className="flex justify-center overflow-visible">
+              <BuiltWDataX />
+              <p> | Copyright © DataX 2022</p>
+            </div>
           </div>
-          <div className="lg:flex lg:w-1/3 items-center justify-end hidden text-city-blue w-auto text-xs grow">
+          <div className="flex text-blue-300 text-xs justify-end items-center">
             <p className="pr-2">{blockNo > 0 ? blockNo : ""}</p>
             {/* className="animate-ping" */}
             <FaDotCircle size="12px" />
