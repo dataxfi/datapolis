@@ -1,58 +1,40 @@
 import { MdClose } from "react-icons/md";
 import TokenItem from "./TokenItem";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
 import Loader from "./Loader";
 import ReactList from "react-list";
 import { GlobalContext } from "../context/GlobalState";
-import getTokenList, { formatTokenList } from "../utils/tokenUtils";
+import useTokenList, { formatTokenList } from "../hooks/useTokenList";
 
 const text = {
   T_SELECT_TOKEN: "Select a token",
 };
 
-const TokenModal = ({
-  close,
-  onClick,
-  otherToken,
-}: {
-  close: Function;
-  onClick: Function;
-  otherToken: string;
-}) => {
-  const {
-    chainId,
-    currentTokens,
-    setCurrentTokens,
-    tokenResponse,
-    web3,
-    setTokenResponse,
-    accountId,
-  } = useContext(GlobalContext);
+const TokenModal = ({ close, onClick, otherToken }: { close: Function; onClick: Function; otherToken: string }) => {
+  const { currentTokens, setCurrentTokens, tokenResponse, location, chainId } = useContext(GlobalContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
+  useTokenList(otherToken, setLoading);
+
+  const intialChain = useRef(chainId);
+  useEffect(() => {
+    if (chainId !== intialChain.current) close();
+  }, [chainId]);
+
   useEffect(() => {
     if (!tokenResponse) {
-      getTokenList({
-        chainId,
-        web3,
-        setTokenResponse,
-        accountId,
-        setCurrentTokens,
-        otherToken,
-      });
-    }
-
-    setLoading(true);
-    setError(false);
-    if (tokenResponse && tokenResponse.tokens) {
-      const formattedList = formatTokenList(tokenResponse, otherToken);
-      setCurrentTokens(formattedList);
-      setLoading(false);
+      setLoading(true);
       setError(false);
-    } else if (tokenResponse === null) {
-      setError(true);
-      setLoading(false);
+      if (tokenResponse && tokenResponse.tokens) {
+        const formattedList = formatTokenList(tokenResponse, otherToken, location);
+        setCurrentTokens(formattedList);
+        setLoading(false);
+        setError(false);
+      } else if (tokenResponse === null) {
+        setError(true);
+        setLoading(false);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokenResponse]);
@@ -71,7 +53,7 @@ const TokenModal = ({
         )
       );
     } else {
-      setCurrentTokens(formatTokenList(tokenResponse, otherToken));
+      setCurrentTokens(formatTokenList(tokenResponse, otherToken, location));
     }
   };
 
@@ -110,16 +92,8 @@ const TokenModal = ({
             There was an error loading the tokens
           </div>
         ) : (
-          <div
-            className="mt-4 hm-hide-scrollbar overflow-y-scroll"
-            style={{ maxHeight: "60vh" }}
-            id="tokenList"
-          >
-            <ReactList
-              itemRenderer={tokenRenderer}
-              length={currentTokens ? currentTokens.length : 0}
-              type="simple"
-            />
+          <div className="mt-4 hm-hide-scrollbar overflow-y-scroll" style={{ maxHeight: "60vh" }} id="tokenList">
+            <ReactList itemRenderer={tokenRenderer} length={currentTokens ? currentTokens.length : 0} type="simple" />
           </div>
         )}
       </div>

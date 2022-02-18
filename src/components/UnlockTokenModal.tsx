@@ -5,7 +5,7 @@ import { MdClose } from "react-icons/md";
 import BigNumber from "bignumber.js";
 import { getTokenVal, isOCEAN, IToken } from "./Swap";
 import errorMessages from "../utils/errorMessages";
-import { getAllowance } from "../utils/tokenUtils";
+import { getAllowance } from "../hooks/useTokenList";
 export type approvalStates = "approved" | "approving" | "pending";
 
 export default function UnlockTokenModal({

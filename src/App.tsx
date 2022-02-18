@@ -30,6 +30,7 @@ function App() {
 
   usePTxInitializer();
   useEffect(() => {
+    console.log(process.env.NODE_ENV);
     if (cookiesAllowed) {
       initializeGA();
     }
@@ -47,8 +48,9 @@ function App() {
     <div className="w-full h-full relative">
       <div
         className={`w-full h-full ${
-          bgOff ? "" :
-          location === "/trade"
+          bgOff
+            ? ""
+            : location === "/trade"
             ? "absolute bg-dataXtrade bg-cover bg-top"
             : location !== "/"
             ? "absolute bg-dataXstake bg-cover bg-left lg:bg-bottom"
