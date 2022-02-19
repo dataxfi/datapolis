@@ -38,12 +38,17 @@ export async function forceSignDisclaimer(metamask: dappeteer.Dappeteer, page: p
   await page.bringToFront();
   try {
     //Check wallet address in is the button
+    console.log("starting over");
+
     await quickConnectWallet(page);
+    try {
+      if (await page.waitForSelector("#d-view-txs-btn", { timeout: 1500 })) return;
+    } catch (error) {}
     await page.waitForSelector("#sign-disclaimer-btn");
     await page.click("#sign-disclaimer-btn");
     await metamask.sign();
-    await page.bringToFront()
-    await page.waitForSelector("#d-view-txs-btn", {timeout:3000});
+    await page.bringToFront();
+    await page.waitForSelector("#d-view-txs-btn", { timeout: 3000 });
   } catch (error) {
     await forceSignDisclaimer(metamask, page);
   }
@@ -106,7 +111,6 @@ export async function setupDataX(
   await page.waitForSelector(".sc-hKwDye.iWCqoQ.web3modal-provider-container");
   await page.click(".sc-hKwDye.iWCqoQ.web3modal-provider-container");
 
-  
   try {
     // Confirm Connection in MetaMaks
     await approve(metamask.page, true);
@@ -114,9 +118,9 @@ export async function setupDataX(
   } catch (error) {
     console.log("Coudnt connect to site.");
   }
-  
-  await forceSignDisclaimer(metamask, page)
-  await page.bringToFront()
+
+  await forceSignDisclaimer(metamask, page);
+  await page.bringToFront();
   const btnText = await page.evaluate("document.querySelector('#d-view-txs-btn').innerText");
   expect(btnText).toBe("0x867...DfAd");
 }
@@ -777,11 +781,11 @@ export async function closeConfirmSwapModal(page: puppeteer.Page) {
 
 export async function selectOrImportPool(page: puppeteer.Page, pool: string, select: boolean) {
   try {
-    await page.waitForSelector(`#${pool}-lp-item`, { timeout: 1500 });
+    await page.waitForSelector(`#${pool}-lp-item`, { timeout: 5000 });
   } catch (error) {
     try {
       await importStakeInfo(page, pool);
-      await page.waitForSelector(`#${pool}-lp-item`, { timeout: 1500 });
+      await page.waitForSelector(`#${pool}-lp-item`, { timeout: 5000 });
     } catch (error) {
       throw error;
     }
