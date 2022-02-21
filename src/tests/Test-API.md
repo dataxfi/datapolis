@@ -1,19 +1,5 @@
 # Testing functions
 
-## types
-
-interface IMaxEval {
-t1Max: BigNumber;
-t2Max: BigNumber;
-t1Input: BigNumber;
-t2Input: BigNumber;
-limit: "max" | "bal";
-}
-
-type balancePos = 1 | 2 | "stake";
-
-type ITxType = "trade" | "stake" | "unstake";
-
 ## variables
 
 testAcctId:

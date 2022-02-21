@@ -2,16 +2,10 @@ import { useContext, useEffect } from "react";
 import { GlobalContext } from "../context/GlobalState";
 import { Ocean, TokenList } from "@dataxfi/datax.js";
 // import { TokenList as TList } from "@uniswap/token-lists";
+import { TokenInfo } from "../utils/types";
 
-export interface TokenInfo {
-  address: string;
-  chainId: string | number;
-  decimals: string | number;
-  logoURI: string;
-  name: string;
-  symbol: string;
-  pool: string;
-}
+
+
 
 export default function useTokenList(otherToken: string, setLoading?: Function) {
   const { location, chainId, web3, setTokenResponse, tokenResponse, setCurrentTokens, accountId } =
@@ -33,7 +27,7 @@ export default function useTokenList(otherToken: string, setLoading?: Function) 
           setTokenResponse(res);
           console.log("Token Response:", res);
           //@ts-ignore
-          const formattedList = formatTokenList(res, otherToken, location);
+          const formattedList = formatTokenArray(res, otherToken, location);
           if (setCurrentTokens) setCurrentTokens(formattedList);
         })
         .catch((err) => {
@@ -47,7 +41,7 @@ export default function useTokenList(otherToken: string, setLoading?: Function) 
   }, [location, otherToken]);
 }
 
-export function formatTokenList(
+export function formatTokenArray(
   tokenResponse: { tokens: TokenInfo[] },
   otherToken: any,
   location: string

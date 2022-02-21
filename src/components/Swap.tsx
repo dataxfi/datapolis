@@ -3,7 +3,7 @@ import { IoSwapVertical } from "react-icons/io5";
 import { MdTune } from "react-icons/md";
 import { useState, useContext, useEffect } from "react";
 import { bgLoadingStates, GlobalContext, removeBgLoadingState } from "../context/GlobalState";
-import Button, { IBtnProps } from "./Button";
+import Button from "./Button";
 import OutsideClickHandler from "react-outside-click-handler";
 import ConfirmSwapModal from "./ConfirmSwapModal";
 import ConfirmModal from "./ConfirmModal";
@@ -19,26 +19,15 @@ import { toFixed5 } from "../utils/equate";
 import UnlockTokenModal from "./UnlockTokenModal";
 import { getAllowance } from "../hooks/useTokenList";
 import useWatchLocation from "../hooks/useWatchLocation";
-import Footer from "./Footer";
+import { IToken, IMaxExchange, ITokenTypes, IBtnProps } from "../utils/types";
+
 const text = {
   T_SWAP: "Trade",
   T_SWAP_FROM: "You are selling",
   T_SWAP_TO: "You are buying",
 };
 
-// interface BtnProps {
-//   text: string
-//   classes: string
-//   disabled: boolean
-// }
-export interface IToken {
-  balance: BigNumber;
-  value: BigNumber | string;
-  info: any; //TokenInfo ;
-  loading: boolean;
-  percentage: BigNumber;
-  allowance?: BigNumber;
-}
+
 
 export const INITIAL_TOKEN_STATE: IToken = {
   info: null,
@@ -48,12 +37,7 @@ export const INITIAL_TOKEN_STATE: IToken = {
   loading: false,
 };
 
-interface IMaxExchange {
-  maxBuy: BigNumber;
-  maxSell: BigNumber;
-  maxPercent: BigNumber;
-  postExchange: BigNumber;
-}
+
 
 const INITIAL_MAX_EXCHANGE: IMaxExchange = {
   maxBuy: new BigNumber(0),
@@ -62,12 +46,6 @@ const INITIAL_MAX_EXCHANGE: IMaxExchange = {
   postExchange: new BigNumber(0),
 };
 
-interface ITokenTypes {
-  t1Val: string;
-  t2Val: string;
-  t1BN: BigNumber;
-  t2BN: BigNumber;
-}
 
 export function isOCEAN(tokenAddress: string, ocean: any) {
   return tokenAddress.toLowerCase() === ocean.config.default.oceanTokenAddress.toLowerCase();

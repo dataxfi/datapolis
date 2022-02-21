@@ -4,7 +4,7 @@ import "regenerator-runtime/runtime";
 import { toFixed3 } from "../utils/equate";
 import BigNumber from "bignumber.js";
 BigNumber.config({ DECIMAL_PLACES: 18, ROUNDING_MODE: BigNumber.ROUND_DOWN, EXPONENTIAL_AT: 18 });
-
+import { IMaxEval, BalancePos, ITxType, LocalStorageMethods } from "../utils/types";
 export const testAcctId = "0x867A6D38D30C4731c85bF567444F8CF22885DfAd";
 
 export async function closeBrowser(browser: puppeteer.Browser) {
@@ -470,13 +470,7 @@ export async function getPercInDapp(page: puppeteer.Page) {
   return new BigNumber(await page.evaluate('document.querySelector("#token1-perc-input").value'));
 }
 
-interface IMaxEval {
-  t1Max: BigNumber;
-  t2Max: BigNumber;
-  t1Input: BigNumber;
-  t2Input: BigNumber;
-  limit: "max" | "bal";
-}
+
 
 export async function evaluateMax(page: puppeteer.Page, t1Bal: BigNumber): Promise<IMaxEval> {
   //get max values for each token
@@ -583,7 +577,7 @@ export async function checkBalance(
  * @param id - id in dapp to check against (dont include #)
  */
 
-async function assertTo3(page: puppeteer.Page, truth: string | number, id: string, pos: balancePos, updating: boolean) {
+async function assertTo3(page: puppeteer.Page, truth: string | number, id: string, pos: BalancePos, updating: boolean) {
   await page.bringToFront();
   id = `#${id}`;
   await page.waitForSelector(id);
@@ -634,7 +628,6 @@ export function getAfterColon(value: string) {
   if (match) return match[1].replace(commas, "");
 }
 
-type balancePos = 1 | 2 | "stake";
 
 /**
  * Return balance for token entered from dapp
@@ -643,7 +636,7 @@ type balancePos = 1 | 2 | "stake";
  * @return balance as a string
  */
 
-export async function getBalanceInDapp(page: puppeteer.Page, pos: balancePos): Promise<number> {
+export async function getBalanceInDapp(page: puppeteer.Page, pos: BalancePos): Promise<number> {
   await page.bringToFront();
   let balance;
   if (Number(pos)) {
@@ -659,7 +652,6 @@ export async function getBalanceInDapp(page: puppeteer.Page, pos: balancePos): P
   return balance;
 }
 
-type ITxType = "trade" | "stake" | "unstake";
 
 /**
  * Gets the execute button text for assertions.
@@ -1045,10 +1037,9 @@ export async function reloadOrContinue(lastTestPassed: Boolean, page: puppeteer.
 }
 
 //get method not fully functional
-export type methods = "get" | "set" | "clear" | "remove" | "key" | "length";
 export async function useLocalStorage(
   page: puppeteer.Page,
-  method: methods,
+  method: LocalStorageMethods,
   data?: { key?: string; value?: string; index?: number }
 ) {
   console.log(data);

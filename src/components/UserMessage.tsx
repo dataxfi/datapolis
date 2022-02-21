@@ -1,11 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { BsXCircle, BsX } from "react-icons/bs";
 import { GlobalContext } from "../context/GlobalState";
-export interface IUserMessage {
-  message: any;
-  link: string | { href: string; desc: string } | null;
-  type: string;
-}
+import { IUserMessage } from "../utils/types";
 
 const UserMessage = ({
   id,

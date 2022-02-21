@@ -1,11 +1,4 @@
-interface IBtnProps {
-    classes?: string,
-    text: string,
-    onClick?: React.MouseEventHandler<HTMLButtonElement>,
-    disabled?: boolean,
-    id?: string
-}
-
+import { IBtnProps } from "../utils/types";
 const Button = ({classes, text, onClick, disabled, id}: IBtnProps) => {
     return (
         <button id={id} onClick={onClick} disabled={disabled} className={classes  + (disabled ? ' cursor-not-allowed hover:opacity-100':'')}>
@@ -15,4 +8,3 @@ const Button = ({classes, text, onClick, disabled, id}: IBtnProps) => {
 }
 
 export default Button;
-export type {IBtnProps};

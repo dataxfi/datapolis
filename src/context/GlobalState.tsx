@@ -14,7 +14,7 @@ import {
   connectedWalletViaGA,
 } from "./Analytics";
 import { TxHistory } from "../utils/txHistoryUtils";
-import { PoolData } from "../utils/stakedPoolsUtils";
+import { PoolData } from "../utils/types";
 
 const initialState: any = {};
 const CONNECT_TEXT = "Connect Wallet";
@@ -35,8 +35,6 @@ export const bgLoadingStates = {
   maxExchange: "maxExchange",
   calcTrade: "calcTrade",
 };
-// Global state needs to inhereit types before this can be implemented :/
-// export type bgLoading = "stake" | "tokens" | "pool" | "history" | "tx" | "txPending" | "maxUnstake" | "balance" | "maxExchange" | "calcTrade"
 
 export function removeBgLoadingState(bgLoading: string[], state: string): string[] {
   const newBgLoading = bgLoading.filter((s: string) => s !== state);

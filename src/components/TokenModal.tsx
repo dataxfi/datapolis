@@ -4,7 +4,7 @@ import { useEffect, useState, useContext, useRef } from "react";
 import Loader from "./Loader";
 import ReactList from "react-list";
 import { GlobalContext } from "../context/GlobalState";
-import useTokenList, { formatTokenList } from "../hooks/useTokenList";
+import useTokenList, { formatTokenArray } from "../hooks/useTokenList";
 
 const text = {
   T_SELECT_TOKEN: "Select a token",
@@ -27,7 +27,7 @@ const TokenModal = ({ close, onClick, otherToken }: { close: Function; onClick: 
       setLoading(true);
       setError(false);
       if (tokenResponse && tokenResponse.tokens) {
-        const formattedList = formatTokenList(tokenResponse, otherToken, location);
+        const formattedList = formatTokenArray(tokenResponse, otherToken, location);
         setCurrentTokens(formattedList);
         setLoading(false);
         setError(false);
@@ -53,7 +53,7 @@ const TokenModal = ({ close, onClick, otherToken }: { close: Function; onClick: 
         )
       );
     } else {
-      setCurrentTokens(formatTokenList(tokenResponse, otherToken, location));
+      setCurrentTokens(formatTokenArray(tokenResponse, otherToken, location));
     }
   };
 

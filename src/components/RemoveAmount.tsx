@@ -5,7 +5,7 @@ import { GlobalContext, bgLoadingStates, removeBgLoadingState } from "../context
 import Button from "./Button";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
-import UserMessage, { IUserMessage } from "./UserMessage";
+import UserMessage from "./UserMessage";
 import { toFixed18, toFixed5 } from "../utils/equate";
 import { MoonLoader, PulseLoader } from "react-spinners";
 import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
@@ -19,12 +19,8 @@ import WrappedInput from "./WrappedInput";
 import UnlockTokenModal from "./UnlockTokenModal";
 import useWatchLocation from "../hooks/useWatchLocation";
 import useTokenList, { getAllowance } from "../hooks/useTokenList";
+import { IMaxUnstake, IUserMessage } from "../utils/types";
 
-interface IMaxUnstake {
-  OCEAN: BigNumber;
-  shares: BigNumber;
-  userPerc: BigNumber;
-}
 
 const RemoveAmount = () => {
   const {

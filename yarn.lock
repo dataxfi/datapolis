@@ -1188,10 +1188,9 @@
   resolved "https://registry.yarnpkg.com/@csstools/normalize.css/-/normalize.css-10.1.0.tgz#f0950bba18819512d42f7197e56c518aa491cf18"
   integrity sha512-ij4wRiunFfaJxjB0BdrYHIH8FxBJpOwNPhhAcunlmPdXudL1WQV1qoP9un6JsEBAgQH+7UXyyjh0g7jTxXK6tg==
 
-"@dataxfi/datax.js@^0.1.32":
-  version "0.1.32"
-  resolved "https://registry.yarnpkg.com/@dataxfi/datax.js/-/datax.js-0.1.32.tgz#27f2dc96ca3df428b05c2204dd8f9f05b9979752"
-  integrity sha512-wfA2ARBMreriP/CCXHENELqH283d5OJ16lk4ri5J1CGrsNdcvSS0Eukf2IJEo5KGLlmvTSydg8IzdoXw20E8GA==
+"@dataxfi/datax.js@file:../datax.js/dataxfi-datax.js-0.1.34.tgz":
+  version "0.1.34"
+  resolved "file:../datax.js/dataxfi-datax.js-0.1.34.tgz#9853f30b57d549e4234de001b1894c097eea51a2"
   dependencies:
     "@oceanprotocol/contracts" "^0.6.5"
     "@uniswap/token-lists" "^1.0.0-beta.25"
@@ -1202,7 +1201,6 @@
     decimal.js "^10.3.1"
     dotenv "^10.0.0"
     ganache-core "^2.13.2"
-    njwt "^1.1.0"
     typescript "^4.3.5"
     web3 "^1.4.0"
     web3-core "^1.4.0"
@@ -3438,11 +3436,6 @@
   version "12.20.42"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-12.20.42.tgz#2f021733232c2130c26f9eabbdd3bfd881774733"
   integrity sha512-aI3/oo5DzyiI5R/xAhxxRzfZlWlsbbqdgxfTPkqu/Zt+23GXiJvMCyPJT4+xKSXOnLqoL8jJYMLTwvK2M3a5hw==
-
-"@types/node@^15.0.1":
-  version "15.14.9"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-15.14.9.tgz#bc43c990c3c9be7281868bbc7b8fdd6e2b57adfa"
-  integrity sha512-qjd88DrCxupx/kJD5yQgZdcYKZKSIGBVDIBE1/LTGcNm3d2Np/jxojkdePDdfnBHJc5W7vSMpbJ1aB7p/Py69A==
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.1"
@@ -8416,13 +8409,6 @@ ecc-jsbn@~0.1.1:
   dependencies:
     jsbn "~0.1.0"
     safer-buffer "^2.1.0"
-
-ecdsa-sig-formatter@^1.0.5:
-  version "1.0.11"
-  resolved "https://registry.yarnpkg.com/ecdsa-sig-formatter/-/ecdsa-sig-formatter-1.0.11.tgz#ae0f0fa2d85045ef14a817daa3ce9acd0489e5bf"
-  integrity sha512-nagl3RYrbNv6kQkeJIpt6NJZy8twLB/2vtz6yN9Z4vRKHN4/QZJIEbqohALSgwKdnksuY3k5Addp5lg8sVoVcQ==
-  dependencies:
-    safe-buffer "^5.0.1"
 
 ecurve@^1.0.6:
   version "1.0.6"
@@ -14893,15 +14879,6 @@ nice-try@^1.0.4:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/nice-try/-/nice-try-1.0.5.tgz#a3378a7696ce7d223e88fc9b764bd7ef1089e366"
   integrity sha512-1nh45deeb5olNY7eX82BkPO7SSxR5SSYJiPTrTdFUVYwAl8CKMA5N9PjTYkHiRjisVcxcQ1HXdLhx2qxxJzLNQ==
-
-njwt@^1.1.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/njwt/-/njwt-1.2.0.tgz#1badf085fba3fd00abb70ed6c8f00246c6f46fa4"
-  integrity sha512-i+cdqwxo7EUimJCHPSAEpQEWrz4ilsVefL+FRhWrjMqq8HHiQ8dwi9GUWUfj3Vt6XMY2PXSjMn9JeVB3/Jp6pg==
-  dependencies:
-    "@types/node" "^15.0.1"
-    ecdsa-sig-formatter "^1.0.5"
-    uuid "^8.3.2"
 
 no-case@^2.2.0, no-case@^2.3.2:
   version "2.3.2"

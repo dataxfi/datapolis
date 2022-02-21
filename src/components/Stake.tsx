@@ -3,12 +3,12 @@ import StakeSelect from "./StakeSelect";
 // import PositionBox from "./PositionBox"
 import { useState, useContext, useEffect } from "react";
 import { bgLoadingStates, GlobalContext, removeBgLoadingState } from "../context/GlobalState";
-import { MoonLoader, PulseLoader } from "react-spinners";
-import Button, { IBtnProps } from "./Button";
+import { MoonLoader } from "react-spinners";
+import Button from "./Button";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import UserMessage, { IUserMessage } from "./UserMessage";
+import { Link, useLocation } from "react-router-dom";
+import UserMessage from "./UserMessage";
 import { toFixed5 } from "../utils/equate";
 import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
 import { getLocalPoolData, updateSingleStakePool } from "../utils/stakedPoolsUtils";
@@ -20,18 +20,14 @@ import BigNumber from "bignumber.js";
 import { DebounceInput } from "react-debounce-input";
 import WrappedInput from "./WrappedInput";
 import UnlockTokenModal from "./UnlockTokenModal";
-import { IToken } from "./Swap";
+import { IToken, IUserMessage } from "../utils/types";
 import useWatchLocation from "../hooks/useWatchLocation";
-import useTokenList, { getAllowance, TokenInfo } from "../hooks/useTokenList";
+import { getAllowance } from "../hooks/useTokenList";
+import { IPoolLiquidity, TokenInfo, IBtnProps } from "../utils/types";
 const text = {
   T_STAKE: "Stake",
   T_SELECT_TOKEN: "Select token",
 };
-
-interface IPoolLiquidity {
-  dtAmount: BigNumber;
-  oceanAmount: BigNumber;
-}
 
 const INITIAL_BUTTON_STATE = {
   text: "Connect wallet",
@@ -47,9 +43,6 @@ const Stake = () => {
     handleConnect,
     currentTokens,
     currentStakeToken,
-    web3,
-    setTokenResponse,
-    setCurrentTokens,
     txHistory,
     setTxHistory,
     showConfirmModal,
@@ -61,7 +54,6 @@ const Stake = () => {
     setNotifications,
     bgLoading,
     setBgLoading,
-    showUnlockTokanModal,
     setShowUnlockTokenModal,
     loading, 
     setLoading
@@ -70,9 +62,6 @@ const Stake = () => {
   const [dtToOcean, setDtToOcean] = useState<any>(null);
   const [oceanToDt, setOceanToDt] = useState<any>(null);
   const [loadingRate, setLoadingRate] = useState(false);
-  //value in input field (to 5 decimal)
-  // const [oceanValInput, setOceanValInput] = useState<string | null>(null);
-  //value stored from input (to 18 decimal)
   const [oceanValToStake, setOceanValToStake] = useState<BigNumber>(new BigNumber(0));
   const [txReceipt, setTxReceipt] = useState<any | null>(null);
   const [balance, setBalance] = useState<BigNumber>(new BigNumber(0));
@@ -81,6 +70,7 @@ const Stake = () => {
   const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
   const [userMessage, setUserMessage] = useState<IUserMessage | false>(false);
   const [poolAddress, setPoolAddress] = useState<string>("");
+
   //very last transaction
   const [lastTxId, setLastTxId] = useState<any>(null);
   const [oceanToken, setOceanToken] = useState<IToken>({
@@ -103,7 +93,6 @@ const Stake = () => {
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
 
   const location = useLocation();
-  const navigate = useNavigate();
 
   //hooks
   usePTxManager(lastTxId);

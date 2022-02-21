@@ -1,32 +1,9 @@
 import { percOf } from "./equate";
-import { TokenDetails } from "@dataxfi/datax.js/dist/Ocean";
 import { Ocean } from "@dataxfi/datax.js";
 import { removeBgLoadingState, bgLoadingStates } from "../context/GlobalState";
 import Web3 from "web3";
+import { PoolData } from "./types";
 
-interface ITokenDetails extends TokenDetails{
-  tokenAddress:string
-}
-
-export interface PoolData {
-  //user wallet ID (hash)
-  accountId: string;
-  //pool address
-  address: string;
-  //tokens in pool
-  token1: ITokenDetails;
-  token2: ITokenDetails;
-  //the amount of shares you own
-  shares: string;
-  //total dt in pool
-  dtAmount?: string;
-  //total ocean in pool
-  oceanAmount?: string;
-  //total shares in pool
-  totalPoolShares?: string;
-  //you share percentage in pool
-  yourPoolSharePerc?: string;
-}
 
 /**
  *

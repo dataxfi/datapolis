@@ -3,11 +3,10 @@ import { GlobalContext } from "../context/GlobalState";
 import { BiLockAlt, BiLockOpenAlt } from "react-icons/bi";
 import { MdClose } from "react-icons/md";
 import BigNumber from "bignumber.js";
-import { getTokenVal, isOCEAN, IToken } from "./Swap";
+import { getTokenVal, isOCEAN } from "./Swap";
 import errorMessages from "../utils/errorMessages";
 import { getAllowance } from "../hooks/useTokenList";
-export type approvalStates = "approved" | "approving" | "pending";
-
+import { IToken, ApprovalStates } from "../utils/types";
 export default function UnlockTokenModal({
   token1,
   token2,
@@ -23,7 +22,7 @@ export default function UnlockTokenModal({
 }) {
   const { accountId, config, ocean, showUnlockTokenModal, setShowUnlockTokenModal, notifications, setNotifications } =
     useContext(GlobalContext);
-  const [approving, setApproving] = useState<approvalStates>("pending");
+  const [approving, setApproving] = useState<ApprovalStates>("pending");
   const [t1BN, setT1BN] = useState<BigNumber>(new BigNumber(0));
   const [pool, setPool] = useState<string | null>(null);
   const [address, setAddress] = useState<string | null>(null);
