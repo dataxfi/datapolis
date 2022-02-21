@@ -1,12 +1,11 @@
 import { useContext, useEffect, useState } from "react";
 import { BsArrowDown } from "react-icons/bs";
-import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { GlobalContext, bgLoadingStates, removeBgLoadingState } from "../context/GlobalState";
 import Button from "./Button";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
-import UserMessageModal, { userMessage } from "./UserMessageModal";
+import UserMessage, { IUserMessage } from "./UserMessage";
 import { toFixed18, toFixed5 } from "../utils/equate";
 import { MoonLoader, PulseLoader } from "react-spinners";
 import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
@@ -19,7 +18,6 @@ import BigNumber from "bignumber.js";
 import WrappedInput from "./WrappedInput";
 import UnlockTokenModal from "./UnlockTokenModal";
 import useWatchLocation from "../hooks/useWatchLocation";
-import Footer from "./Footer";
 import useTokenList, { getAllowance } from "../hooks/useTokenList";
 
 interface IMaxUnstake {
@@ -50,13 +48,12 @@ const RemoveAmount = () => {
   } = useContext(GlobalContext);
   const [noWallet, setNoWallet] = useState<boolean>(false);
   const [recentTxHash, setRecentTxHash] = useState("");
-  const [noStakedPools, setNoStakedPools] = useState<boolean>(false);
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
   const [btnText, setBtnText] = useState("Enter Amount to Remove");
   const [inputDisabled, setInputDisabled] = useState(false);
   const [poolAddress, setPoolAddress] = useState<string>("");
   const [pendingUnstakeTx, setPendingUnstakeTx] = useState<number | string>();
-  const [userMessage, setUserMessage] = useState<userMessage | null>();
+  const [userMessage, setUserMessage] = useState<IUserMessage | null>();
   const [txReceipt, setTxReceipt] = useState<any | null>(null);
   //very last transaction
   const [lastTxId, setLastTxId] = useState<any>(null);
@@ -102,8 +99,9 @@ const RemoveAmount = () => {
   //hooks
   usePTxManager(lastTxId);
   useTxModalToggler(txReceipt, setTxReceipt);
-  useCurrentPool(poolAddress, setPoolAddress, txReceipt, setTxReceipt);
+  useCurrentPool({poolAddress, setPoolAddress, txReceipt, setTxReceipt});
   useWatchLocation();
+  useTokenList("OCEAN");
 
   useEffect(() => {
     if (ocean && currentStakePool) {
@@ -156,7 +154,6 @@ const RemoveAmount = () => {
     accountId ? setNoWallet(false) : setNoWallet(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId, chainId, sharesToRemove]);
-
 
   const updateNum = async (val: string) => {
     let max: IMaxUnstake | void;
@@ -344,7 +341,7 @@ const RemoveAmount = () => {
   return (
     <div className="absolute top-0 w-full h-full">
       {noWallet ? (
-        <UserMessageModal message="Connect your wallet to continue." pulse={false} container={true} timeout={null} />
+        <UserMessage message="Connect your wallet to continue." pulse={false} container={true} timeout={null} />
       ) : currentStakePool ? (
         <div className="flex w-full h-full items-center pt-16 px-2">
           <div id="removeStakeModal" className="w-107 mx-auto">
@@ -546,7 +543,7 @@ const RemoveAmount = () => {
       <TransactionDoneModal show={showTxDone} txHash={recentTxHash} close={() => setShowTxDone(false)} />
 
       {userMessage ? (
-        <UserMessageModal
+        <UserMessage
           message={userMessage}
           pulse={false}
           container={false}

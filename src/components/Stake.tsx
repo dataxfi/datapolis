@@ -8,7 +8,7 @@ import Button, { IBtnProps } from "./Button";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import UserMessageModal, { userMessage } from "./UserMessageModal";
+import UserMessage, { IUserMessage } from "./UserMessage";
 import { toFixed5 } from "../utils/equate";
 import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
 import { getLocalPoolData, updateSingleStakePool } from "../utils/stakedPoolsUtils";
@@ -22,7 +22,6 @@ import WrappedInput from "./WrappedInput";
 import UnlockTokenModal from "./UnlockTokenModal";
 import { IToken } from "./Swap";
 import useWatchLocation from "../hooks/useWatchLocation";
-import Footer from "./Footer";
 import useTokenList, { getAllowance, TokenInfo } from "../hooks/useTokenList";
 const text = {
   T_STAKE: "Stake",
@@ -64,6 +63,8 @@ const Stake = () => {
     setBgLoading,
     showUnlockTokanModal,
     setShowUnlockTokenModal,
+    loading, 
+    setLoading
   } = useContext(GlobalContext);
   const [token, setToken] = useState<TokenInfo | null>(null);
   const [dtToOcean, setDtToOcean] = useState<any>(null);
@@ -75,11 +76,10 @@ const Stake = () => {
   const [oceanValToStake, setOceanValToStake] = useState<BigNumber>(new BigNumber(0));
   const [txReceipt, setTxReceipt] = useState<any | null>(null);
   const [balance, setBalance] = useState<BigNumber>(new BigNumber(0));
-  const [loading, setLoading] = useState(false);
   const [loadingStake, setLoadingStake] = useState(false);
   const [recentTxHash, setRecentTxHash] = useState("");
   const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
-  const [userMessage, setUserMessage] = useState<userMessage | false>(false);
+  const [userMessage, setUserMessage] = useState<IUserMessage | false>(false);
   const [poolAddress, setPoolAddress] = useState<string>("");
   //very last transaction
   const [lastTxId, setLastTxId] = useState<any>(null);
@@ -108,9 +108,8 @@ const Stake = () => {
   //hooks
   usePTxManager(lastTxId);
   useTxModalToggler(txReceipt, setTxReceipt);
-  useCurrentPool(poolAddress, setPoolAddress);
+  useCurrentPool({poolAddress, setPoolAddress, setToken});
   useWatchLocation();
-  // useTokenList("OCEAN", ()=>{})
 
   async function getMaxStakeAmt() {
     if (token)
@@ -147,7 +146,7 @@ const Stake = () => {
 
       if (token.pool)
         getAllowance(ocean.config.default.oceanTokenAddress, accountId, token.pool, ocean).then((res) => {
-          console.log(res)
+          console.log(res);
           setOceanToken({
             ...oceanToken,
             info: {
@@ -187,35 +186,14 @@ const Stake = () => {
     const queryParams = new URLSearchParams(location.search);
     const poolAddress = queryParams.get("pool");
 
-    if (poolAddress && accountId) {
-      setUserMessage({
-        type: "message",
-        message: (
-          <p>
-            Loading your token <PulseLoader color="gray" size="4px" margin="3px" />
-          </p>
-        ),
-        link: null,
-      });
-    }
-
     if (accountId && currentTokens) {
       if (currentStakeToken) {
         updateToken(currentStakeToken);
         setUserMessage(false);
       } else if (poolAddress && currentTokens.length > 0) {
         const currentToken = currentTokens.find((token: { pool: string }) => token.pool === poolAddress);
-        if (!currentToken) {
-          setUserMessage({
-            type: "error",
-            message: "Couldn't preload token",
-            link: null,
-          });
-          navigate("/stake");
-        } else {
-          updateToken(currentToken);
-          setUserMessage(false);
-        }
+        updateToken(currentToken);
+        setUserMessage(false);
       }
     }
 
@@ -300,7 +278,7 @@ const Stake = () => {
       const txReceipt = await ocean.stakeOcean(accountId, token.pool, oceanValToStake?.toString());
 
       if (txReceipt) {
-        setToken(null)
+        setToken(null);
         setOceanValToStake(new BigNumber(0));
         setTxReceipt(txReceipt);
         addTxHistory({
@@ -317,8 +295,8 @@ const Stake = () => {
           stakeAmt: oceanValToStake?.toFixed(5),
           txReceipt,
         });
-        if (token.pool){
-          const json = JSON.parse(getLocalPoolData(accountId, chainId) || "[]")
+        if (token.pool) {
+          const json = JSON.parse(getLocalPoolData(accountId, chainId) || "[]");
           updateSingleStakePool({
             ocean,
             accountId,
@@ -336,7 +314,7 @@ const Stake = () => {
         throw new Error("Didn't receive a receipt.");
       }
     } catch (error: any) {
-      console.error(error)
+      console.error(error);
       const allNotifications = notifications;
       allNotifications.push({
         type: "alert",
@@ -441,21 +419,24 @@ const Stake = () => {
     <div className="w-full h-full absolute top-0">
       <div className="flex h-full w-full items-center justify-center">
         <div>
-          <div id="stakeModal" className="lg:w-107 lg:mx-auto sm:mx-4 mx-3 bg-black bg-opacity-90 rounded-lg p-3 hm-box">
+          <div
+            id="stakeModal"
+            className="lg:w-107 lg:mx-auto sm:mx-4 mx-3 bg-black bg-opacity-90 rounded-lg p-3 hm-box"
+          >
             <div className="flex justify-between">
               {userMessage && userMessage.type === "error" ? (
-                <UserMessageModal
+                <UserMessage
                   message={userMessage.message}
                   pulse={true}
                   container={false}
                   timeout={{ showState: setUserMessage, time: 5000 }}
                 />
               ) : userMessage && userMessage.type === "message" ? (
-                <UserMessageModal message={userMessage.message} pulse={true} container={false} timeout={null} />
+                <UserMessage message={userMessage.message} pulse={true} container={false} timeout={null} />
               ) : null}
             </div>
             <StakeSelect
-              value={token}
+              token={token}
               setToken={(val: any) => {
                 updateToken(val);
               }}
@@ -619,7 +600,7 @@ const Stake = () => {
       <TransactionDoneModal show={showTxDone} txHash={recentTxHash} close={() => setShowTxDone(false)} />
 
       {userMessage && userMessage.type === "alert" ? (
-        <UserMessageModal
+        <UserMessage
           message={userMessage}
           pulse={false}
           container={false}

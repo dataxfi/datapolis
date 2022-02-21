@@ -1,13 +1,13 @@
 import { useContext, useEffect, useState } from "react";
 import { BsXCircle, BsX } from "react-icons/bs";
 import { GlobalContext } from "../context/GlobalState";
-export interface userMessage {
+export interface IUserMessage {
   message: any;
   link: string | { href: string; desc: string } | null;
   type: string;
 }
 
-const UserMessageModal = ({
+const UserMessage = ({
   id,
   message,
   pulse = false,
@@ -16,7 +16,7 @@ const UserMessageModal = ({
   className=""
 }: {
   id?: string | null;
-  message: string | userMessage;
+  message: string | IUserMessage;
   pulse: boolean;
   container: boolean;
   timeout: null | { showState: Function; time: number };
@@ -27,7 +27,7 @@ const UserMessageModal = ({
   let type: any;
   let href;
   let desc;
-  if (!id) id = "userMessageModal";
+  if (!id) id = "UserMessage";
   if (typeof message !== "string") {
     userMessage = message.message;
     link = message.link;
@@ -142,4 +142,4 @@ const UserMessageModal = ({
   );
 };
 
-export default UserMessageModal;
+export default UserMessage;

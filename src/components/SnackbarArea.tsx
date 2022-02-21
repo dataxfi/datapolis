@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { GlobalContext } from "../context/GlobalState";
 import SnackbarItem from "./SnackbarItem";
-import UserMessageModal from "./UserMessageModal";
+import UserMessage from "./UserMessage";
 
 export default function SnackbarArea() {
   const { notifications } = useContext(GlobalContext);
@@ -20,7 +20,7 @@ export default function SnackbarArea() {
       {currentNot.type === "tx" ? (
         <SnackbarItem tx={currentNot.newTx} setCurrentNot={setCurrentNot} />
       ) : (
-        <UserMessageModal
+        <UserMessage
           message={currentNot.alert}
           pulse={false}
           timeout={{ time: 5000, showState: setCurrentNot }}

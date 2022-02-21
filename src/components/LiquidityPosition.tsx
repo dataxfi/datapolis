@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { bgLoadingStates, GlobalContext, removeBgLoadingState } from "../context/GlobalState";
 import LiquidityPositionItem from "./LiquidityPositionItem";
-import UserMessageModal, { userMessage } from "./UserMessageModal";
+import UserMessage, { IUserMessage } from "./UserMessage";
 import {
   setPoolDataFromOcean,
   getLocalPoolData,
@@ -12,6 +12,7 @@ import {
 import TokenModal from "./TokenModal";
 import { MoonLoader } from "react-spinners";
 import useWatchLocation from "../hooks/useWatchLocation";
+import useTokenList from "../hooks/useTokenList";
 
 const LiquidityPosition = () => {
   const {
@@ -30,13 +31,14 @@ const LiquidityPosition = () => {
     setCurrentStakePool,
   } = useContext(GlobalContext);
   const [noStakedPools, setNoStakedPools] = useState<boolean>(false);
-  const [userMessage, setUserMessage] = useState<string | userMessage | null>(
+  const [userMessage, setUserMessage] = useState<string | IUserMessage | null>(
     "Dont see your tokens? Import a pool by name with the import button below."
   );
   const [showModal, setShowModal] = useState<boolean>(false);
   const [messageId, setMessageId] = useState<string | null>("importMessage");
 
   useWatchLocation();
+  useTokenList("OCEAN");
 
   useEffect(() => {
     setAllStakedPools(null);
@@ -168,7 +170,7 @@ const LiquidityPosition = () => {
 
           {userMessage ? (
             <div className="flex flex-row justify-center items-center p-4 lg:p-2 h-60 bg-trade-darkBlue bg-opacity-40 rounded-lg">
-              <UserMessageModal
+              <UserMessage
                 id={messageId}
                 message={userMessage}
                 pulse={false}

@@ -13,14 +13,13 @@ export interface TokenInfo {
   pool: string;
 }
 
-export default function useTokenList(otherToken: string, setLoading: Function) {
+export default function useTokenList(otherToken: string, setLoading?: Function) {
   const { location, chainId, web3, setTokenResponse, tokenResponse, setCurrentTokens, accountId } =
     useContext(GlobalContext);
 
-
   useEffect(() => {
     if (accountId) {
-      setLoading(true);
+      if (setLoading) setLoading(true);
       const tokenList = new TokenList(
         web3,
         "4",
@@ -42,7 +41,7 @@ export default function useTokenList(otherToken: string, setLoading: Function) {
           setTokenResponse(null);
         })
         .finally(() => {
-          setLoading(false);
+          if (setLoading) setLoading(false);
         });
     }
   }, [location, otherToken]);
