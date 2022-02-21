@@ -19,15 +19,13 @@ import { toFixed5 } from "../utils/equate";
 import UnlockTokenModal from "./UnlockTokenModal";
 import { getAllowance } from "../hooks/useTokenList";
 import useWatchLocation from "../hooks/useWatchLocation";
-import { IToken, IMaxExchange, ITokenTypes, IBtnProps } from "../utils/types";
+import { IToken, IMaxExchange, ITokenValues, IBtnProps, ITokenInfo } from "../utils/types";
 
 const text = {
   T_SWAP: "Trade",
   T_SWAP_FROM: "You are selling",
   T_SWAP_TO: "You are buying",
 };
-
-
 
 export const INITIAL_TOKEN_STATE: IToken = {
   info: null,
@@ -37,15 +35,12 @@ export const INITIAL_TOKEN_STATE: IToken = {
   loading: false,
 };
 
-
-
 const INITIAL_MAX_EXCHANGE: IMaxExchange = {
   maxBuy: new BigNumber(0),
   maxSell: new BigNumber(0),
   maxPercent: new BigNumber(0),
   postExchange: new BigNumber(0),
 };
-
 
 export function isOCEAN(tokenAddress: string, ocean: any) {
   return tokenAddress.toLowerCase() === ocean.config.default.oceanTokenAddress.toLowerCase();
@@ -57,7 +52,7 @@ export function getTokenVal(token1: IToken, token2?: IToken) {
   typeof token1.value === "string" ? (t1Val = token1.value) : (t1Val = token1.value.dp(5).toString());
   if (!token2) return { t1Val, t2Val: "", t1BN: new BigNumber(t1Val), t2BN: new BigNumber(0) };
   typeof token2.value === "string" ? (t2Val = token1.value) : (t2Val = token2.value.dp(5).toString());
-  return { t1Val, t2Val, t1BN: new BigNumber(t1Val), t2BN: new BigNumber(t2Val) } as ITokenTypes;
+  return { t1Val, t2Val, t1BN: new BigNumber(t1Val), t2BN: new BigNumber(t2Val) } as ITokenValues;
 }
 
 const Swap = () => {
@@ -99,7 +94,7 @@ const Swap = () => {
   const [percLoading, setPercLoading] = useState(false);
 
   const [maxExchange, setMaxExchange] = useState<IMaxExchange>(INITIAL_MAX_EXCHANGE);
-  const [clearingTokens, setClearingTokens] = useState<boolean>(false)
+  const [clearingTokens, setClearingTokens] = useState<boolean>(false);
   const [swap, setSwap] = useState<boolean>(false);
   //hooks
   usePTxManager(lastTxId);
@@ -108,25 +103,26 @@ const Swap = () => {
   let controller = new AbortController();
   useEffect(() => {
     if (txReceipt) return;
-    
+
     if (token1.info && token2.info && accountId && !clearingTokens) {
       updateBalance(token1.info.address)
         .then((balance) => {
-          if (isOCEAN(token1.info.address, ocean)) {
+          if (token1.info && token2.info && isOCEAN(token1.info.address, ocean)) {
             getAllowance(token1.info.address, accountId, token2.info.pool, ocean).then((res) => {
               setToken1({ ...token1, allowance: new BigNumber(res), balance });
               console.log("Allowance:", res);
             });
-          } else if (isOCEAN(token2.info.address, ocean)) {
+          } else if (token1.info && token2.info && isOCEAN(token2.info.address, ocean)) {
             getAllowance(token1.info.address, accountId, token1.info.pool, ocean).then((res) => {
               setToken1({ ...token1, allowance: new BigNumber(res), balance });
               console.log("Allowance:", res);
             });
           } else {
-            getAllowance(token1.info.address, accountId, config.default.routerAddress, ocean).then((res) => {
-              setToken1({ ...token1, allowance: new BigNumber(res), balance });
-              console.log("Allowance:", res);
-            });
+            if (token1.info)
+              getAllowance(token1.info.address, accountId, config.default.routerAddress, ocean).then((res) => {
+                setToken1({ ...token1, allowance: new BigNumber(res), balance });
+                console.log("Allowance:", res);
+              });
           }
 
           return balance;
@@ -198,7 +194,12 @@ const Swap = () => {
       let maxSell: BigNumber;
       let maxPercent: BigNumber;
       try {
-        if (!isOCEAN(token1.info.address, ocean) && !isOCEAN(token2.info.address, ocean)) {
+        if (
+          token1.info &&
+          token2.info &&
+          !isOCEAN(token1.info.address, ocean) &&
+          !isOCEAN(token2.info.address, ocean)
+        ) {
           // try {
           // } catch (error) {}
           maxSell = new BigNumber(await ocean.getMaxExchange(token1.info.pool)).dp(0);
@@ -233,14 +234,14 @@ const Swap = () => {
             // limited by sell token
             maxBuy = DtReceivedForMaxSell;
           }
-        } else if (isOCEAN(token2.info.address, ocean)) {
+        } else if (token1.info && token2.info && isOCEAN(token2.info.address, ocean)) {
           // DT to OCEAN
           // Max sell is the max amount of DT that can be traded
           maxSell = new BigNumber(await ocean.getMaxExchange(token1.info.pool));
           // console.log("Exact max sell:", maxSell.toString());
           // Max buy is the amount of OCEAN bought from max sell
           maxBuy = new BigNumber(await calculateExchange(true, maxSell));
-        } else {
+        } else if (token1.info && token2.info) {
           // OCEAN to DT
           // Max buy is the max amount of DT that can be traded
           maxBuy = new BigNumber(await ocean.getMaxExchange(token2.info.pool));
@@ -253,6 +254,10 @@ const Swap = () => {
           //Max sell is the amount of OCEAN sold for maxBuy
           maxSell = await calculateExchange(false, maxBuy);
           // console.log("Max Sell:", maxSell.toString());
+        } else {
+          maxPercent = new BigNumber(100);
+          maxBuy = new BigNumber(18e10);
+          maxSell = new BigNumber(18e10);
         }
 
         //Max percent is the percent of the max sell out of token 1 balance
@@ -311,8 +316,8 @@ const Swap = () => {
     return new BigNumber(await ocean.getBalance(address, accountId));
   }
 
-  const setToken = async (info: Record<any, any>, pos: number) => {
-    setClearingTokens(true)
+  const setToken = async (info: ITokenInfo, pos: number) => {
+    setClearingTokens(true);
     const balance = await updateBalance(info.address);
     if (pos === 1) {
       setToken1({ ...token1, info, balance, value: new BigNumber(0), percentage: new BigNumber(0) });
@@ -323,18 +328,18 @@ const Swap = () => {
       setToken2({ ...token2, info, balance, value: new BigNumber(0) });
       //if (updateOther) updateOtherTokenValue(false, "0");
     }
-    setClearingTokens(false)
+    setClearingTokens(false);
   };
 
   async function swapTokens() {
-    setClearingTokens(true)
+    setClearingTokens(true);
     setSwap(true);
     setToken1({ ...token2, value: new BigNumber(0), percentage: new BigNumber(0) });
     setToken2({ ...token1, value: new BigNumber(0) });
     setExactToken(1);
     await new Promise((resolve) => setTimeout(resolve, 250));
     setSwap(false);
-    setClearingTokens(false)
+    setClearingTokens(false);
   }
 
   // fromToken needs to be removed from this function (its always true)
@@ -383,7 +388,7 @@ const Swap = () => {
         return new BigNumber(0);
       }
       // OCEAN to DT where amount is either from sell or buy input
-      if (isOCEAN(token1.info.address, ocean)) {
+      if (token1.info && token2.info && isOCEAN(token1.info.address, ocean)) {
         if (from) {
           return new BigNumber(await ocean.getDtReceived(token2.info.pool, amount.dp(18).toString()));
         } else {
@@ -392,7 +397,7 @@ const Swap = () => {
       }
 
       // DT to OCEAN where amount is either from sell or buy input
-      if (isOCEAN(token2.info.address, ocean)) {
+      if (token1.info && token2.info && isOCEAN(token2.info.address, ocean)) {
         if (from) {
           return new BigNumber(await ocean.getOceanReceived(token1.info.pool, amount.dp(18).toString()));
         } else {
@@ -401,11 +406,11 @@ const Swap = () => {
       }
 
       // DT to DT where amount is either from sell or buy input
-      if (from) {
+      if (from && token1.info && token2.info) {
         return new BigNumber(
           await ocean.getDtReceivedForExactDt(amount.dp(18).toString(), token1.info.pool, token2.info.pool)
         );
-      } else {
+      } else if (token1.info && token2.info) {
         return new BigNumber(
           await ocean.getDtNeededForExactDt(amount.dp(18).toString(), token1.info.pool, token2.info.pool)
         );
@@ -414,16 +419,17 @@ const Swap = () => {
       console.error(error);
       return new BigNumber(0);
     }
+    return new BigNumber(0);
   }
 
   async function makeTheSwap() {
     let txReceipt = null;
     let txType;
-    let txDateId = null;
+    let txDateId;
     let decSlippage = slippage.div(100).dp(5).toString();
     const { t1Val, t2Val } = getTokenVal(token1, token2);
     try {
-      if (isOCEAN(token1.info.address, ocean)) {
+      if (token1.info && token2.info && isOCEAN(token1.info.address, ocean)) {
         if (exactToken === 1) {
           console.log("exact ocean to dt");
           console.log(accountId, token2.info.pool.toString(), token2.value.toString(), token1.value.toString());
@@ -443,7 +449,7 @@ const Swap = () => {
 
           txReceipt = await ocean.swapExactOceanToDt(accountId, token2.info.pool, t2Val, t1Val, decSlippage);
         }
-      } else if (isOCEAN(token2.info.address, ocean)) {
+      } else if (token1.info && token2.info && isOCEAN(token2.info.address, ocean)) {
         if (exactToken === 1) {
           console.log("exact dt to ocean");
           console.log(accountId, token1.info.pool, token2.value.toString(), token1.value.toString());
@@ -465,7 +471,7 @@ const Swap = () => {
           txType = "DT to Ocean";
           txReceipt = await ocean.swapExactDtToOcean(accountId, token1.info.pool, t2Val, t1Val, decSlippage);
         }
-      } else {
+      } else if (token1.info && token2.info) {
         if (exactToken === 1) {
           console.log("exact dt to dt");
           // prettier-ignore
@@ -641,9 +647,10 @@ const Swap = () => {
         setToken1({ ...token1, value: maxSell, percentage: maxPercent });
         setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
       } else {
-        const percentage = token1.balance.lt(.00001) && bnVal.gt(0)
-          ? new BigNumber(100)
-          : new BigNumber(bnVal.div(token1.balance).multipliedBy(100));
+        const percentage =
+          token1.balance.lt(0.00001) && bnVal.gt(0)
+            ? new BigNumber(100)
+            : new BigNumber(bnVal.div(token1.balance).multipliedBy(100));
         setToken1({
           ...token1,
           value: bnVal,
@@ -826,7 +833,7 @@ const Swap = () => {
                   case "Connect Wallet":
                     handleConnect();
                     break;
-                  case `Unlock ${token1.info.symbol}`:
+                  case `Unlock ${token1.info ? token1.info.symbol : ""}`:
                     setShowUnlockTokenModal(true);
                     break;
                   default:

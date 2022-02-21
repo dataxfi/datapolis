@@ -11,7 +11,7 @@ const text = {
 };
 
 const TokenModal = ({ close, onClick, otherToken }: { close: Function; onClick: Function; otherToken: string }) => {
-  const { currentTokens, setCurrentTokens, tokenResponse, location, chainId } = useContext(GlobalContext);
+  const { tokenModalArray, setTokenModalArray, tokenResponse, location, chainId } = useContext(GlobalContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
@@ -28,7 +28,7 @@ const TokenModal = ({ close, onClick, otherToken }: { close: Function; onClick: 
       setError(false);
       if (tokenResponse && tokenResponse.tokens) {
         const formattedList = formatTokenArray(tokenResponse, otherToken, location);
-        setCurrentTokens(formattedList);
+        setTokenModalArray(formattedList);
         setLoading(false);
         setError(false);
       } else if (tokenResponse === null) {
@@ -40,20 +40,20 @@ const TokenModal = ({ close, onClick, otherToken }: { close: Function; onClick: 
   }, [tokenResponse]);
 
   const tokenRenderer = (idx: number, key: string | number) => {
-    return <TokenItem onClick={onClick} key={key} token={currentTokens[idx]} />;
+    return <TokenItem onClick={onClick} key={key} token={tokenModalArray[idx]} />;
   };
 
   const searchToken = (val: string) => {
     if (val) {
-      setCurrentTokens(
-        currentTokens.filter(
+      setTokenModalArray(
+        tokenModalArray.filter(
           (t: any) =>
             t.name.toLowerCase().indexOf(val.toLowerCase()) >= 0 ||
             t.symbol.toLowerCase().indexOf(val.toLowerCase()) >= 0
         )
       );
     } else {
-      setCurrentTokens(formatTokenArray(tokenResponse, otherToken, location));
+      setTokenModalArray(formatTokenArray(tokenResponse, otherToken, location));
     }
   };
 
@@ -93,7 +93,7 @@ const TokenModal = ({ close, onClick, otherToken }: { close: Function; onClick: 
           </div>
         ) : (
           <div className="mt-4 hm-hide-scrollbar overflow-y-scroll" style={{ maxHeight: "60vh" }} id="tokenList">
-            <ReactList itemRenderer={tokenRenderer} length={currentTokens ? currentTokens.length : 0} type="simple" />
+            <ReactList itemRenderer={tokenRenderer} length={tokenModalArray ? tokenModalArray.length : 0} type="simple" />
           </div>
         )}
       </div>

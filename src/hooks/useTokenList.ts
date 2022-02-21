@@ -2,13 +2,13 @@ import { useContext, useEffect } from "react";
 import { GlobalContext } from "../context/GlobalState";
 import { Ocean, TokenList } from "@dataxfi/datax.js";
 // import { TokenList as TList } from "@uniswap/token-lists";
-import { TokenInfo } from "../utils/types";
+import { ITokenInfo } from "../utils/types";
 
 
 
 
 export default function useTokenList(otherToken: string, setLoading?: Function) {
-  const { location, chainId, web3, setTokenResponse, tokenResponse, setCurrentTokens, accountId } =
+  const { location, chainId, web3, setTokenResponse, tokenResponse, setTokenModalArray, accountId } =
     useContext(GlobalContext);
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export default function useTokenList(otherToken: string, setLoading?: Function) 
           console.log("Token Response:", res);
           //@ts-ignore
           const formattedList = formatTokenArray(res, otherToken, location);
-          if (setCurrentTokens) setCurrentTokens(formattedList);
+          if (setTokenModalArray) setTokenModalArray(formattedList);
         })
         .catch((err) => {
           console.error("An error occurred while fetching the token list.", err);
@@ -42,11 +42,11 @@ export default function useTokenList(otherToken: string, setLoading?: Function) 
 }
 
 export function formatTokenArray(
-  tokenResponse: { tokens: TokenInfo[] },
+  tokenResponse: { tokens: ITokenInfo[] },
   otherToken: any,
   location: string
-): TokenInfo[] {
-  let tokenList: TokenInfo[] = tokenResponse.tokens;
+): ITokenInfo[] {
+  let tokenList: ITokenInfo[] = tokenResponse.tokens;
   if (location === "/trade") {
     tokenList = tokenResponse.tokens.filter((t) => t.symbol !== otherToken);
   } else {
@@ -56,7 +56,7 @@ export function formatTokenArray(
   }
   if (tokenList.length > 0) {
     //@ts-ignore
-    const oceanToken: TokenInfo = tokenList.pop();
+    const oceanToken: ITokenInfo = tokenList.pop();
     tokenList.splice(0, 0, oceanToken);
   }
   return tokenList;

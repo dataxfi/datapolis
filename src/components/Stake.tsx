@@ -23,7 +23,7 @@ import UnlockTokenModal from "./UnlockTokenModal";
 import { IToken, IUserMessage } from "../utils/types";
 import useWatchLocation from "../hooks/useWatchLocation";
 import { getAllowance } from "../hooks/useTokenList";
-import { IPoolLiquidity, TokenInfo, IBtnProps } from "../utils/types";
+import { IPoolLiquidity, ITokenInfo, IBtnProps } from "../utils/types";
 const text = {
   T_STAKE: "Stake",
   T_SELECT_TOKEN: "Select token",
@@ -41,7 +41,7 @@ const Stake = () => {
     accountId,
     chainId,
     handleConnect,
-    currentTokens,
+    tokenModalArray,
     currentStakeToken,
     txHistory,
     setTxHistory,
@@ -55,10 +55,10 @@ const Stake = () => {
     bgLoading,
     setBgLoading,
     setShowUnlockTokenModal,
-    loading, 
-    setLoading
+    loading,
+    setLoading,
   } = useContext(GlobalContext);
-  const [token, setToken] = useState<TokenInfo | null>(null);
+  const [token, setToken] = useState<ITokenInfo | null>(null);
   const [dtToOcean, setDtToOcean] = useState<any>(null);
   const [oceanToDt, setOceanToDt] = useState<any>(null);
   const [loadingRate, setLoadingRate] = useState(false);
@@ -84,6 +84,9 @@ const Stake = () => {
       decimals: 18,
       logoURI: "https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY",
       tags: ["oceantoken"],
+      chainId: "",
+      address: "",
+      pool: "",
     },
   });
   //const [perc, setPerc] = useState("");
@@ -97,7 +100,7 @@ const Stake = () => {
   //hooks
   usePTxManager(lastTxId);
   useTxModalToggler(txReceipt, setTxReceipt);
-  useCurrentPool({poolAddress, setPoolAddress, setToken});
+  useCurrentPool({ poolAddress, setPoolAddress, setToken });
   useWatchLocation();
 
   async function getMaxStakeAmt() {
@@ -136,20 +139,21 @@ const Stake = () => {
       if (token.pool)
         getAllowance(ocean.config.default.oceanTokenAddress, accountId, token.pool, ocean).then((res) => {
           console.log(res);
-          setOceanToken({
-            ...oceanToken,
-            info: {
-              ...oceanToken.info,
-              chainId: chainId,
-              address: ocean.config.default.oceanTokenAddress,
-            },
-            allowance: new BigNumber(res),
-          });
+          if (oceanToken.info)
+            setOceanToken({
+              ...oceanToken,
+              info: {
+                ...oceanToken.info,
+                chainId: chainId,
+                address: ocean.config.default.oceanTokenAddress,
+              },
+              allowance: new BigNumber(res),
+            });
         });
     }
     // setOceanValInput(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ocean, token, currentTokens]);
+  }, [ocean, token, tokenModalArray]);
 
   useEffect(() => {
     if (txReceipt) {
@@ -175,19 +179,19 @@ const Stake = () => {
     const queryParams = new URLSearchParams(location.search);
     const poolAddress = queryParams.get("pool");
 
-    if (accountId && currentTokens) {
+    if (accountId && tokenModalArray) {
       if (currentStakeToken) {
         updateToken(currentStakeToken);
         setUserMessage(false);
-      } else if (poolAddress && currentTokens.length > 0) {
-        const currentToken = currentTokens.find((token: { pool: string }) => token.pool === poolAddress);
+      } else if (poolAddress && tokenModalArray.length > 0) {
+        const currentToken = tokenModalArray.find((token: { pool: string }) => token.pool === poolAddress);
         updateToken(currentToken);
         setUserMessage(false);
       }
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentTokens, accountId]);
+  }, [tokenModalArray, accountId]);
 
   useEffect(() => {
     if (!loadingStake) {

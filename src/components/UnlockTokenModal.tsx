@@ -59,28 +59,25 @@ export default function UnlockTokenModal({
   async function unlockTokens(amount: "perm" | "once") {
     // currently being passed tx amount in both scenarios
     if (ocean) {
-      let pool: string;
-      let address: string;
+      let pool: string = "";
+      let address: string = "";
 
-      if (remove) {
+      if (remove && token1.info) {
         pool = token1.info.pool;
-        address = token1.info.tokenAddress;
-      } else if (isOCEAN(token1.info.address, ocean)) {
+        address = token1.info.address;
+      } else if (token1.info && token2.info && isOCEAN(token1.info.address, ocean)) {
         pool = token2.info.pool;
         address = token1.info.address;
-      } else if (isOCEAN(token2.info.address, ocean)) {
+      } else if (token1.info && token2.info && isOCEAN(token2.info.address, ocean)) {
         pool = token1.info.pool;
         address = token1.info.address;
-      } else {
+      } else if (token1.info) {
         pool = config.default.routerAddress;
         address = token1.info.address;
       }
 
-
-
       try {
         const { t1BN } = getTokenVal(token1);
-        console.log("Setting approving");
 
         setApproving("approving");
         if (amount === "perm") {
@@ -90,15 +87,12 @@ export default function UnlockTokenModal({
           await ocean.approve(address, pool, t1BN.plus(0.001).toString(), accountId);
           remove ? setToken(t1BN.plus(0.001)) : setToken({ ...token1, allowance: t1BN.plus(0.001) });
         }
-        console.log("Setting approved");
         setApproving("approved");
         setPool(pool);
         setAddress(address);
       } catch (error) {
         console.error(error);
         setApproving("pending");
-        console.log("Setting pending");
-
         const allNotifications = notifications;
         allNotifications.push({
           type: "alert",

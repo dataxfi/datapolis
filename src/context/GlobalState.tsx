@@ -13,8 +13,7 @@ import {
   deniedSignatureGA,
   connectedWalletViaGA,
 } from "./Analytics";
-import { TxHistory } from "../utils/txHistoryUtils";
-import { PoolData } from "../utils/types";
+import { IPoolData, IToken, ITxHistory } from "../utils/types";
 
 const initialState: any = {};
 const CONNECT_TEXT = "Connect Wallet";
@@ -82,26 +81,32 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
   const [showTxHistoryModal, setShowTxHistoryModal] = useState<boolean>(false);
   //all transaction history
-  const [txHistory, setTxHistory] = useState<TxHistory | null>(null);
+  const [txHistory, setTxHistory] = useState<ITxHistory | null>(null);
 
   // (user)confirmModal and txDone state for specific transactions
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showTxDone, setShowTxDone] = useState(false);
 
   //all stake pool information for the current user
-  const [allStakedPools, setAllStakedPools] = useState<PoolData[] | null>(null);
+  const [allStakedPools, setAllStakedPools] = useState<IPoolData[] | null>(null);
   //Pool information associated with pool
-  const [currentStakePool, setCurrentStakePool] = useState<PoolData>();
+  const [currentStakePool, setCurrentStakePool] = useState<IPoolData>();
   //Stake pool sync timeout
   const [stakeFetchTimeout, setStakeFetchTimeout] = useState<boolean>(false);
 
   //dToken information associated with pool
   const [currentStakeToken, setCurrentStakeToken] = useState<{}>();
-  //currentTokens to be rendered in token modal
-  const [currentTokens, setCurrentTokens] = useState<[] | null>(null);
+  //tokenModalArray to be rendered in token modal
+  const [tokenModalArray, setTokenModalArray] = useState<[] | null>(null);
+  //current token pair to be traded, staked, etc
+  const [token1, setToken1] = useState<IToken | null>()
+  const [token2, setToken2] = useState<IToken | null>()
+
   //response from token fetch operation
   const [tokenResponse, setTokenResponse] = useState<{} | null | undefined>();
+
   const [buttonText, setButtonText] = useState<string | undefined>(CONNECT_TEXT);
+
 
   const [notifications, setNotifications] = useState([]);
 
@@ -311,7 +316,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
     // Subscribe to chainId change
     provider.on("chainChanged", async (chainId: any) => {
-      setCurrentTokens(null);
+      setTokenModalArray(null);
       setTokenResponse(undefined);
       setTxHistory(null);
       setPendingTxs([]);
@@ -362,8 +367,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setLoading,
         allStakedPools,
         setAllStakedPools,
-        currentTokens,
-        setCurrentTokens,
+        tokenModalArray,
+        setTokenModalArray,
         tokenResponse,
         setTokenResponse,
         currentStakeToken,

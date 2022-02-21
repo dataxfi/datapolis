@@ -1,35 +1,8 @@
-import { TokenInfo } from "../hooks/useTokenList";
 import { TransactionReceipt } from "web3-core";
 import Web3 from "web3";
 import Watcher from "@dataxfi/datax.js/dist/Watcher";
+import { ITxHistory, ITxSelection } from "./types";
 
-export interface TxTokenDetails {
-  balance: string;
-  info: TokenInfo;
-  percentage: string;
-  value: string;
-}
-
-export interface TxObject {
-  accountId: string;
-  token1: TxTokenDetails | TokenInfo;
-  token2: TxTokenDetails | TokenInfo;
-  txHash: string | null;
-  status: string;
-  txType: string;
-  slippage?: string;
-  stakeAmt?: string;
-  txReceipt?: TransactionReceipt;
-}
-
-export interface TxHistory {
-  [txDateId: string]: TxObject;
-}
-
-export interface TxSelection extends TxObject {
-  txDateId: string | number;
-  txLink: string;
-}
 
 export function addTxHistory({
   chainId,
@@ -48,7 +21,7 @@ export function addTxHistory({
 }: {
   chainId: string | number;
   setTxHistory: Function;
-  txHistory: TxHistory;
+  txHistory: ITxHistory;
   accountId: string;
   token1?: any;
   token2?: any;
@@ -82,7 +55,7 @@ export function addTxHistory({
       txReceipt,
     };
 
-    const newTxHistory: TxHistory = {
+    const newTxHistory: ITxHistory = {
       ...localTxHistory,
       ...txHistory,
       [txDateId]: newTx,
@@ -159,7 +132,7 @@ export function deleteRecentTxs({
 }: {
   txDateId?: string | number | null;
   setTxHistory: Function;
-  txHistory: TxHistory;
+  txHistory: ITxHistory;
   accountId: string;
   chainId: string | number;
 }) {
@@ -182,7 +155,7 @@ export function setLocalTxHistory({
   accountId,
   chainId,
 }: {
-  txHistory: string | TxHistory;
+  txHistory: string | ITxHistory;
   accountId: string;
   chainId: string | number;
 }) {
@@ -203,7 +176,7 @@ export function getTxById({
   accountId,
 }: {
   txDateId: string | number;
-  txHistory: TxHistory;
+  txHistory: ITxHistory;
   chainId: string;
   accountId: string;
 }) {
@@ -248,12 +221,12 @@ export async function watchTx({
   setTxHistory,
   txHistory,
 }: {
-  tx: TxSelection;
+  tx: ITxSelection;
   watcher: Watcher;
   web3: Web3;
   chainId: string | number;
   setTxHistory: Function;
-  txHistory: TxHistory;
+  txHistory: ITxHistory;
 }) {
   const {
     accountId,

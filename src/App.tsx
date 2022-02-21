@@ -10,7 +10,7 @@ import { initializeGA } from "./context/Analytics";
 import UnsupportedNetwork from "./components/UnsupportedNetwork";
 import { GlobalContext } from "./context/GlobalState";
 import DisclaimerModal from "./components/DisclaimerModal";
-import TxHistoryModal from "./components/TxsHistoryModal";
+import TxHistoryModal from "./components/TxHistoryModal";
 import Footer from "./components/Footer";
 import SnackbarArea from "./components/SnackbarArea";
 import usePTxInitializer from "./hooks/usePTxInitializer";

@@ -3,13 +3,13 @@ import { BsBoxArrowUpRight, BsX } from "react-icons/bs";
 import { PulseLoader } from "react-spinners";
 import { GlobalContext } from "../context/GlobalState";
 import {
-  TxSelection,
   getLocalTxHistory,
-  TxHistory,
   getTxUrl,
   watchTx,
   conformTx,
 } from "../utils/txHistoryUtils";
+
+import {ITxSelection, ITxHistory} from "../utils/types"
 
 function TxHistoryModal() {
   const {
@@ -30,8 +30,8 @@ function TxHistoryModal() {
   } = useContext(GlobalContext);
 
   const [page, setPage] = useState([0, 5]);
-  const [txSelection, setTxSelection] = useState<TxSelection[]>([]);
-  const [txsByDate, setTxsByDate] = useState<TxSelection[]>([]);
+  const [txSelection, setTxSelection] = useState<ITxSelection[]>([]);
+  const [txsByDate, setTxsByDate] = useState<ITxSelection[]>([]);
   const [noTxHistory, setNoTxHistory] = useState<boolean>(false);
 
   useEffect(() => {
@@ -94,7 +94,7 @@ function TxHistoryModal() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [txHistory, pendingTxs, chainId, accountId, page, ocean]);
 
-  function parseHistory(history: TxHistory) {
+  function parseHistory(history: ITxHistory) {
     if (!history) return;
     const txsByDate = [];
     for (let [txDateId, tx] of Object.entries(history)) {

@@ -1,19 +1,18 @@
 import { useContext, useEffect, useState } from "react";
 import { bgLoadingStates, GlobalContext, removeBgLoadingState } from "../context/GlobalState";
 import LiquidityPositionItem from "./LiquidityPositionItem";
-import UserMessage, { IUserMessage } from "./UserMessage";
+import UserMessage from "./UserMessage";
 import {
   setPoolDataFromOcean,
   getLocalPoolData,
   updateUserStakePerPool,
-  PoolData,
   updateSingleStakePool,
 } from "../utils/stakedPoolsUtils";
 import TokenModal from "./TokenModal";
 import { MoonLoader } from "react-spinners";
 import useWatchLocation from "../hooks/useWatchLocation";
 import useTokenList from "../hooks/useTokenList";
-
+import { IUserMessage, IPoolData } from "../utils/types";
 const LiquidityPosition = () => {
   const {
     accountId,
@@ -181,7 +180,7 @@ const LiquidityPosition = () => {
             </div>
           ) : (
             <ul className={`${bgLoading ? " md:mt-1" : "md:mt-5"} pr-3 pl-3 overflow-scroll hm-hide-scrollbar`}>
-              {allStakedPools?.map((pool: PoolData, index: number) => (
+              {allStakedPools?.map((pool: IPoolData, index: number) => (
                 <LiquidityPositionItem pool={pool} index={index} />
               ))}
             </ul>

@@ -1,20 +1,20 @@
 import { useContext, useState } from "react";
 import { GlobalContext } from "../context/GlobalState";
-import { PoolData } from "../utils/stakedPoolsUtils";
+import { IPoolData } from "../utils/types";
 import { BsChevronDown, BsChevronUp } from "react-icons/bs";
 import { Link } from "react-router-dom";
 import { toFixed5 } from "../utils/equate";
-function LiquidityPositionItem({ pool, index }: { pool: PoolData; index: number }) {
+function LiquidityPositionItem({ pool, index }: { pool: IPoolData; index: number }) {
   const { address, token1, token2, shares, dtAmount, oceanAmount, yourPoolSharePerc, totalPoolShares } = pool;
 
   const [visible, setVisible] = useState<boolean>(false);
-  const { setCurrentStakeToken, setCurrentStakePool, currentTokens, setLoading } = useContext(GlobalContext);
+  const { setCurrentStakeToken, setCurrentStakePool, tokenModalArray, setLoading } = useContext(GlobalContext);
   function setTokenAndPool() {
     setCurrentStakePool(pool);
 
     try {
-      if (currentTokens) {
-        const currentToken = currentTokens.find((token: { pool: string }) => token.pool === address);
+      if (tokenModalArray) {
+        const currentToken = tokenModalArray.find((token: { pool: string }) => token.pool === address);
         setCurrentStakeToken(currentToken);
       }
     } catch (error) {

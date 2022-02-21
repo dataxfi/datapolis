@@ -1,5 +1,6 @@
 import BigNumber from "bignumber.js";
 import { TokenDetails } from "@dataxfi/datax.js/dist/Ocean";
+import { TransactionReceipt } from "web3-core";
 
 export type ApprovalStates = "approved" | "approving" | "pending";
 
@@ -25,7 +26,7 @@ export interface IPoolLiquidity {
 export interface IToken {
   balance: BigNumber;
   value: BigNumber | string;
-  info: any; //TokenInfo ;
+  info: ITokenInfo | null ;
   loading: boolean;
   percentage: BigNumber;
   allowance?: BigNumber;
@@ -38,7 +39,7 @@ export interface IMaxExchange {
   postExchange: BigNumber;
 }
 
-export interface ITokenTypes {
+export interface ITokenValues {
   t1Val: string;
   t2Val: string;
   t1BN: BigNumber;
@@ -51,7 +52,7 @@ export interface IUserMessage {
   type: string;
 }
 
-export interface TokenInfo {
+export interface ITokenInfo {
   address: string;
   chainId: string | number;
   decimals: string | number;
@@ -59,6 +60,7 @@ export interface TokenInfo {
   name: string;
   symbol: string;
   pool: string;
+  tags?: string[]
 }
 
 export interface ITokenList {
@@ -72,7 +74,7 @@ export interface ITokenList {
     };
   };
   timestamp: string;
-  tokens: TokenInfo[];
+  tokens: ITokenInfo[];
   version: {
     major: number;
     minor: number;
@@ -92,7 +94,7 @@ export interface ITokenDetails extends TokenDetails {
   tokenAddress: string;
 }
 
-export interface PoolData {
+export interface IPoolData {
   //user wallet ID (hash)
   accountId: string;
   //pool address
@@ -115,3 +117,32 @@ export interface PoolData {
 export type BalancePos = 1 | 2 | "stake";
 export type ITxType = "trade" | "stake" | "unstake";
 export type LocalStorageMethods = "get" | "set" | "clear" | "remove" | "key" | "length";
+
+
+export interface ITxTokenDetails {
+  balance: string;
+  info: ITokenInfo;
+  percentage: string;
+  value: string;
+}
+
+export interface ITxObject {
+  accountId: string;
+  token1: ITxTokenDetails | ITokenInfo;
+  token2: ITxTokenDetails | ITokenInfo;
+  txHash: string | null;
+  status: string;
+  txType: string;
+  slippage?: string;
+  stakeAmt?: string;
+  txReceipt?: TransactionReceipt;
+}
+
+export interface ITxHistory {
+  [txDateId: string]: ITxObject;
+}
+
+export interface ITxSelection extends ITxObject {
+  txDateId: string | number;
+  txLink: string;
+}
