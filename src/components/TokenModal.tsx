@@ -26,25 +26,29 @@ const TokenModal = ({ close, onClick, otherToken }: { close: Function; onClick: 
     if (!tokenResponse) {
       setLoading(true);
       setError(false);
-      if (tokenResponse && tokenResponse.tokens) {
-        const formattedList = formatTokenArray(tokenResponse, otherToken, location);
-        setTokenModalArray(formattedList);
-        setLoading(false);
-        setError(false);
-      } else if (tokenResponse === null) {
-        setError(true);
-        setLoading(false);
-      }
+      // if (tokenResponse === undefined) {
+      //   const formattedList = formatTokenArray(tokenResponse, otherToken, location);
+      //   setTokenModalArray(formattedList);
+      //   setLoading(false);
+      //   setError(false);
+      // } else if (tokenResponse === null) {
+      //   setError(true);
+      //   setLoading(false);
+      // }
+    } else {
+      setError(true);
+      setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokenResponse]);
 
   const tokenRenderer = (idx: number, key: string | number) => {
+    //@ts-ignore
     return <TokenItem onClick={onClick} key={key} token={tokenModalArray[idx]} />;
   };
 
   const searchToken = (val: string) => {
-    if (val) {
+    if (val && setTokenModalArray && tokenModalArray) {
       setTokenModalArray(
         tokenModalArray.filter(
           (t: any) =>
@@ -52,10 +56,15 @@ const TokenModal = ({ close, onClick, otherToken }: { close: Function; onClick: 
             t.symbol.toLowerCase().indexOf(val.toLowerCase()) >= 0
         )
       );
-    } else {
+    } else if (setTokenModalArray && tokenResponse && location) {
       setTokenModalArray(formatTokenArray(tokenResponse, otherToken, location));
     }
   };
+  const loader = (
+    <div id="tokenLoadingAni" className="flex justify-center my-4">
+      <Loader size={40} />
+    </div>
+  );
 
   return (
     <div
@@ -84,17 +93,21 @@ const TokenModal = ({ close, onClick, otherToken }: { close: Function; onClick: 
           />
         </div>
         {loading ? (
-          <div id="tokenLoadingAni" className="flex justify-center my-4">
-            <Loader size={40} />
-          </div>
+          loader
         ) : error ? (
           <div id="tokenLoadError" className="text-white text-center my-4">
             There was an error loading the tokens
           </div>
-        ) : (
+        ) : tokenModalArray ? (
           <div className="mt-4 hm-hide-scrollbar overflow-y-scroll" style={{ maxHeight: "60vh" }} id="tokenList">
-            <ReactList itemRenderer={tokenRenderer} length={tokenModalArray ? tokenModalArray.length : 0} type="simple" />
+            <ReactList
+              itemRenderer={tokenRenderer}
+              length={tokenModalArray ? tokenModalArray.length : 0}
+              type="simple"
+            />
           </div>
+        ) : (
+          loader
         )}
       </div>
     </div>

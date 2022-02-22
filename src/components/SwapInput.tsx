@@ -7,7 +7,7 @@ import { bgLoadingStates, GlobalContext } from "../context/GlobalState";
 import Button from "./Button";
 import BigNumber from "bignumber.js";
 import WrappedInput from "./WrappedInput";
-import {ReactComponent as XLogo} from "../assets/datax-x-logo.svg"
+import { ReactComponent as XLogo } from "../assets/datax-x-logo.svg";
 
 const SwapInput = ({
   title,
@@ -48,7 +48,7 @@ const SwapInput = ({
     if (accountId) {
       setShowModal(true);
     } else {
-      handleConnect();
+      if (handleConnect) handleConnect();
     }
   }
 
@@ -69,7 +69,7 @@ const SwapInput = ({
             <img src={value.logoURI} className="w-10 h-10 rounded-md" alt="" />
           ) : (
             <div className="w-10 h-10 rounded-md bg-background flex justify-center items-center text-3xl">
-              <XLogo style={{height: "30px"}} />
+              <XLogo style={{ height: "30px" }} />
             </div>
           )}
           <div
@@ -156,9 +156,7 @@ const SwapInput = ({
                         if (checksPass()) onPerc(e.target.value);
                       }}
                       className={`text-xs ${
-                        checksPass()
-                          ? "modalSelectBg bg-opacity-25"
-                          : "bg-primary-500 bg-opacity-25 text-primary-600"
+                        checksPass() ? "modalSelectBg bg-opacity-25" : "bg-primary-500 bg-opacity-25 text-primary-600"
                       }   py-1 rounded px-1 w-12 outline-none`}
                       placeholder="%"
                       disabled={checksPass() ? false : true}

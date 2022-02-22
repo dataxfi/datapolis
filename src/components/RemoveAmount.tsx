@@ -21,7 +21,6 @@ import useWatchLocation from "../hooks/useWatchLocation";
 import useTokenList, { getAllowance } from "../hooks/useTokenList";
 import { IMaxUnstake, IUserMessage } from "../utils/types";
 
-
 const RemoveAmount = () => {
   const {
     chainId,
@@ -69,10 +68,11 @@ const RemoveAmount = () => {
   });
 
   async function getMaxUnstake(): Promise<IMaxUnstake | void> {
-    setBgLoading([...bgLoading, bgLoadingStates.maxUnstake]);
+    if (setBgLoading && bgLoading) setBgLoading([...bgLoading, bgLoadingStates.maxUnstake]);
 
     try {
       //.98 is a fix for the MAX_OUT_RATIO error from the contract
+      if (!ocean || !currentStakePool || !currentStakePool.address) return;
       const oceanAmt: BigNumber = new BigNumber(
         await ocean.getMaxUnstakeAmount(currentStakePool.address, ocean.config.default.oceanTokenAddress)
       ).multipliedBy(0.98);
@@ -95,12 +95,12 @@ const RemoveAmount = () => {
   //hooks
   usePTxManager(lastTxId);
   useTxModalToggler(txReceipt, setTxReceipt);
-  useCurrentPool({poolAddress, setPoolAddress, txReceipt, setTxReceipt});
+  useCurrentPool({ poolAddress, setPoolAddress, txReceipt, setTxReceipt });
   useWatchLocation();
   useTokenList("OCEAN");
 
   useEffect(() => {
-    if (ocean && currentStakePool) {
+    if (ocean && currentStakePool && setBgLoading && bgLoading && accountId) {
       getMaxUnstake()
         .then((res: IMaxUnstake | void) => {
           if (res) {
@@ -113,7 +113,7 @@ const RemoveAmount = () => {
           setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.maxUnstake));
         });
 
-      getAllowance(currentStakePool.token1.tokenAddress, accountId, currentStakePool.address, ocean).then((res) => {
+      getAllowance(currentStakePool.token1.address, accountId, currentStakePool.address, ocean).then((res) => {
         setAllowance(new BigNumber(res));
       });
     }
@@ -138,13 +138,13 @@ const RemoveAmount = () => {
       setBtnText("Minimum Removal is .01 OCEAN");
     } else if (allowance.lt(oceanToReceive)) {
       setBtnDisabled(false);
-      setBtnText(`Unlock ${currentStakePool.token1.symbol}`);
+      setBtnText(`Unlock ${currentStakePool?.token1.symbol}`);
     } else {
       setBtnDisabled(false);
       setBtnText("Withdrawal");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bgLoading.length, sharesToRemove, pendingUnstakeTx, currentStakePool, maxUnstake]);
+  }, [bgLoading?.length, sharesToRemove, pendingUnstakeTx, currentStakePool, maxUnstake]);
 
   useEffect(() => {
     accountId ? setNoWallet(false) : setNoWallet(true);
@@ -155,7 +155,7 @@ const RemoveAmount = () => {
     let max: IMaxUnstake | void;
     maxUnstake?.OCEAN.gt(0) ? (max = maxUnstake) : (max = await getMaxUnstake());
     try {
-      if (max && max.OCEAN.gt(0) && max.shares.gt(0)) {
+      if (max && max.OCEAN.gt(0) && max.shares.gt(0) && ocean && bgLoading && setBgLoading && currentStakePool) {
         let percInput: BigNumber = new BigNumber(val);
         setSharesPercToRemove(percInput);
         if (percInput.lte(0)) {
@@ -213,6 +213,7 @@ const RemoveAmount = () => {
   };
 
   async function maxUnstakeHandler() {
+    if (!setBgLoading || !bgLoading || !ocean || !currentStakePool) return;
     setBgLoading([...bgLoading, bgLoadingStates.maxUnstake]);
     let max: IMaxUnstake | void;
     maxUnstake ? (max = maxUnstake) : (max = await getMaxUnstake());
@@ -252,6 +253,9 @@ const RemoveAmount = () => {
   }
 
   const handleUnstake = async () => {
+    if (!setShowConfirmModal || !chainId || !setTxHistory || !txHistory || !currentStakePool || !ocean || !accountId)
+      return;
+
     let txDateId;
     setShowConfirmModal(true);
     try {
@@ -273,6 +277,7 @@ const RemoveAmount = () => {
           currentStakePool.shares
         )} shares for ${oceanToReceive?.toFixed(5)} OCEAN`
       );
+
       //shares needs to be to fixed 18, need types in global context
       const txReceipt = await ocean.unstakeOcean(
         accountId,
@@ -311,17 +316,19 @@ const RemoveAmount = () => {
       console.error(error);
       setPendingUnstakeTx(undefined);
       const allNotifications = notifications;
-      allNotifications.push({
-        type: "alert",
-        alert: {
-          message: errorMessages(error),
-          link: null,
+      if (allNotifications && setNotifications) {
+        allNotifications.push({
           type: "alert",
-        },
-      });
-      setNotifications([...allNotifications]);
+          alert: {
+            message: errorMessages(error),
+            link: null,
+            type: "alert",
+          },
+        });
+        setNotifications([...allNotifications]);
+      }
       setShowConfirmModal(false);
-      setShowTxDone(false);
+      if (setShowTxDone) setShowTxDone(false);
       deleteRecentTxs({
         txDateId,
         setTxHistory,
@@ -408,17 +415,17 @@ const RemoveAmount = () => {
                         }}
                         disabled={
                           Number(currentStakePool.shares) === 0 ||
-                          bgLoading.includes(bgLoadingStates.singlePoolData) ||
-                          bgLoading.includes(bgLoadingStates.maxUnstake) ||
-                          bgLoading.includes(bgLoadingStates.calcTrade)
+                          bgLoading?.includes(bgLoadingStates.singlePoolData) ||
+                          bgLoading?.includes(bgLoadingStates.maxUnstake) ||
+                          bgLoading?.includes(bgLoadingStates.calcTrade)
                         }
                         text="Max Unstake"
                         classes={`px-2 lg:w-24 py-0 border  rounded-full text-xs ${
                           inputDisabled ||
                           Number(currentStakePool.shares) === 0 ||
-                          bgLoading.includes(bgLoadingStates.singlePoolData) ||
-                          bgLoading.includes(bgLoadingStates.maxUnstake) ||
-                          bgLoading.includes(bgLoadingStates.calcTrade)
+                          bgLoading?.includes(bgLoadingStates.singlePoolData) ||
+                          bgLoading?.includes(bgLoadingStates.maxUnstake) ||
+                          bgLoading?.includes(bgLoadingStates.calcTrade)
                             ? "text-gray-700 border-gray-700"
                             : "hover:bg-primary-600 border-type-300"
                         }`}
@@ -429,9 +436,9 @@ const RemoveAmount = () => {
               </div>
               <div className="px-4 relative mt-6 mb-8">
                 <div className="rounded-full border-black border-4 absolute -top-7 bg-trade-darkBlue w-10 h-10 flex items-center justify-center swap-center">
-                  {bgLoading.includes(bgLoadingStates.singlePoolData) ||
-                  bgLoading.includes(bgLoadingStates.maxUnstake) ||
-                  bgLoading.includes(bgLoadingStates.calcTrade) ? (
+                  {bgLoading?.includes(bgLoadingStates.singlePoolData) ||
+                  bgLoading?.includes(bgLoadingStates.maxUnstake) ||
+                  bgLoading?.includes(bgLoadingStates.calcTrade) ? (
                     <MoonLoader size={25} color={"white"} />
                   ) : (
                     <BsArrowDown size="30px" className="text-gray-300 m-0 p-0" />
@@ -469,9 +476,9 @@ const RemoveAmount = () => {
                   id="executeUnstake"
                   text={btnText}
                   onClick={() => {
-                    if (allowance.lt(oceanToReceive)) {
+                    if (allowance.lt(oceanToReceive) && setShowUnlockTokenModal) {
                       setShowUnlockTokenModal(true);
-                    } else {
+                    } else if (setShowConfirmModal) {
                       setShowConfirmModal(true);
                       handleUnstake();
                     }
@@ -503,7 +510,7 @@ const RemoveAmount = () => {
             percentage: sharesPercToRemove,
             loading: false,
             info: { ...currentStakePool.token1, pool: currentStakePool.address },
-            balance: currentStakePool.shares,
+            balance: new BigNumber(currentStakePool.shares),
           }}
           token2={{
             value: new BigNumber(0),
@@ -514,7 +521,7 @@ const RemoveAmount = () => {
           }}
           setToken={setAllowance}
           nextFunction={() => {
-            setShowConfirmModal(true);
+            if (setShowConfirmModal) setShowConfirmModal(true);
             handleUnstake();
           }}
           remove={true}
@@ -524,8 +531,10 @@ const RemoveAmount = () => {
       )}
 
       <ConfirmModal
-        show={showConfirmModal}
-        close={() => setShowConfirmModal(false)}
+        show={showConfirmModal ? showConfirmModal : false}
+        close={() => {
+          if (setShowConfirmModal) setShowConfirmModal(false);
+        }}
         txs={
           currentStakePool && sharesToRemove && oceanToReceive
             ? [
@@ -536,7 +545,13 @@ const RemoveAmount = () => {
             : []
         }
       />
-      <TransactionDoneModal show={showTxDone} txHash={recentTxHash} close={() => setShowTxDone(false)} />
+      <TransactionDoneModal
+        show={showTxDone ? showTxDone : false}
+        txHash={recentTxHash}
+        close={() => {
+          if (setShowTxDone) setShowTxDone(false);
+        }}
+      />
 
       {userMessage ? (
         <UserMessage

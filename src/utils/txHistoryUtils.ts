@@ -2,6 +2,7 @@ import { TransactionReceipt } from "web3-core";
 import Web3 from "web3";
 import Watcher from "@dataxfi/datax.js/dist/Watcher";
 import { ITxHistory, ITxSelection } from "./types";
+import { Ocean } from "@dataxfi/datax.js";
 
 
 export function addTxHistory({
@@ -106,7 +107,7 @@ export function getTxUrl({
   txHash,
   accountId,
 }: {
-  ocean: any;
+  ocean: Ocean;
   txHash?: string | null;
   accountId: string;
 }) {

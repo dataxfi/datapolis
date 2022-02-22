@@ -56,13 +56,16 @@ export async function updateSingleStakePool({
   if (localData) {
     const found = localData.findIndex((pool) => pool.address === poolAddress);
     if (found > -1) {
+      //@ts-ignore
       localData.splice(found, 1, updatedPool);
     } else {
+      //@ts-ignore
       localData.splice(0, 0, updatedPool);
     }
     setAllStakedPools(localData);
     setLocalPoolDataStorage(localData, ocean.networkId);
   } else {
+    //@ts-ignore
     const allStakedPools: IPoolData[] = [updatedPool];
     setAllStakedPools(allStakedPools);
     setLocalPoolDataStorage(allStakedPools, ocean.networkId);
@@ -416,7 +419,7 @@ export function setPoolDataFromLocal({
   setAllStakedPools: Function;
   setCurrentStakePool: Function;
   setBgLoading: Function;
-  bgLoading: [];
+  bgLoading: string[];
 }) {
   const poolData: [] = JSON.parse(localStoragePoolData);
   setAllStakedPools(poolData);

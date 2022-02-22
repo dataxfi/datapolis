@@ -8,7 +8,6 @@ import OutsideClickHandler from "react-outside-click-handler";
 import ConfirmSwapModal from "./ConfirmSwapModal";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
-
 import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
 import useTxModalToggler from "../hooks/useTxModalToggler";
 import usePTxManager from "../hooks/usePTxManager";
@@ -55,7 +54,7 @@ export function getTokenVal(token1: IToken, token2?: IToken) {
   return { t1Val, t2Val, t1BN: new BigNumber(t1Val), t2BN: new BigNumber(t2Val) } as ITokenValues;
 }
 
-const Swap = () => {
+const Swap: React.FC = () => {
   const {
     handleConnect,
     accountId,
@@ -77,7 +76,7 @@ const Swap = () => {
   } = useContext(GlobalContext);
   const [showSettings, setShowSettings] = useState(false);
   const [showConfirmSwapModal, setShowConfirmSwapModal] = useState(false);
-  const [network, setNetwork] = useState(null);
+  const [network, setNetwork] = useState<string | number | null>(null);
   const [lastTxUrl, setLastTxUrl] = useState("");
   const [txReceipt, setTxReceipt] = useState<any>(null);
   const [token1, setToken1] = useState<IToken>(INITIAL_TOKEN_STATE);
@@ -104,9 +103,10 @@ const Swap = () => {
   useEffect(() => {
     if (txReceipt) return;
 
-    if (token1.info && token2.info && accountId && !clearingTokens) {
+    if (token1.info && token2.info && accountId && !clearingTokens && ocean) {
       updateBalance(token1.info.address)
         .then((balance) => {
+          if (!ocean || !balance) return;
           if (token1.info && token2.info && isOCEAN(token1.info.address, ocean)) {
             getAllowance(token1.info.address, accountId, token2.info.pool, ocean).then((res) => {
               setToken1({ ...token1, allowance: new BigNumber(res), balance });
@@ -119,7 +119,7 @@ const Swap = () => {
             });
           } else {
             if (token1.info)
-              getAllowance(token1.info.address, accountId, config.default.routerAddress, ocean).then((res) => {
+              getAllowance(token1.info.address, accountId, config?.default.routerAddress, ocean).then((res) => {
                 setToken1({ ...token1, allowance: new BigNumber(res), balance });
                 console.log("Allowance:", res);
               });
@@ -133,7 +133,7 @@ const Swap = () => {
           const signal = controller.signal;
           setMaxExchange(INITIAL_MAX_EXCHANGE);
           getMaxExchange(signal, balance)
-            .then((res: IMaxExchange) => {
+            .then((res: IMaxExchange | void) => {
               if (res) {
                 setMaxExchange(res);
                 if (token1.value && Number(token1.value) > Number(res.maxSell)) {
@@ -144,14 +144,14 @@ const Swap = () => {
             })
             .catch(console.error)
             .finally(() => {
-              setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.maxExchange));
+              if (setBgLoading && bgLoading) setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.maxExchange));
             });
         });
     }
 
     if (token2.info && accountId && !clearingTokens) {
       updateBalance(token2.info.address).then((balance) => {
-        setToken2({ ...token2, balance });
+        if (balance) setToken2({ ...token2, balance });
       });
     }
 
@@ -164,17 +164,17 @@ const Swap = () => {
 
   useEffect(() => {
     //if chain changes, reset tokens
-    if (!network) {
+    if (!network && chainId) {
       setNetwork(chainId);
     }
-    if (chainId !== network) {
+    if (chainId !== network && chainId) {
       setToken1(INITIAL_TOKEN_STATE);
       setToken2(INITIAL_TOKEN_STATE);
       setNetwork(chainId);
     }
   }, [chainId]);
 
-  async function getMaxExchange(signal?: AbortSignal, token1Balance?: BigNumber | null) {
+  async function getMaxExchange(signal?: AbortSignal, token1Balance?: BigNumber | null): Promise<IMaxExchange> {
     const balance = token1Balance ? token1Balance : token1.balance;
     return new Promise<IMaxExchange>(async (resolve, reject) => {
       signal?.addEventListener("abort", (e) => {
@@ -189,7 +189,7 @@ const Swap = () => {
           postExchange: new BigNumber(0),
         });
 
-      setBgLoading([...bgLoading, bgLoadingStates.maxExchange]);
+      if (setBgLoading && bgLoading) setBgLoading([...bgLoading, bgLoadingStates.maxExchange]);
       let maxBuy: BigNumber;
       let maxSell: BigNumber;
       let maxPercent: BigNumber;
@@ -202,18 +202,20 @@ const Swap = () => {
         ) {
           // try {
           // } catch (error) {}
-          maxSell = new BigNumber(await ocean.getMaxExchange(token1.info.pool)).dp(0);
+          maxSell = new BigNumber(await ocean?.getMaxExchange(token1.info.pool)).dp(0);
           console.log("Max Sell", maxSell.toString());
 
           let DtReceivedForMaxSell: BigNumber = new BigNumber(
-            await ocean.getDtReceivedForExactDt(maxSell.toString(), token1.info.pool, token2.info.pool)
+            await ocean?.getDtReceivedForExactDt(maxSell.toString(), token1.info.pool, token2.info.pool)
           );
           console.log("Dt Received for max sell", DtReceivedForMaxSell.toString());
-          const oceanNeededForMaxSell = new BigNumber(await ocean.getOceanNeeded(token1.info.pool, maxSell.toString()));
+          const oceanNeededForSellResponse = await ocean?.getOceanNeeded(token1.info.pool, maxSell.toString());
+          const oceanNeededForMaxSell = new BigNumber(oceanNeededForSellResponse || 0);
 
-          maxBuy = new BigNumber(await ocean.getMaxExchange(token2.info.pool)).dp(0);
+          maxBuy = new BigNumber(await ocean?.getMaxExchange(token2.info.pool)).dp(0);
           console.log("Max Buy", maxBuy.toString());
-          const oceanNeededForMaxBuy = new BigNumber(await ocean.getOceanNeeded(token2.info.pool, maxBuy.toString()));
+          const oceanNeededForBuyResponse = await ocean?.getOceanNeeded(token2.info.pool, maxBuy.toString());
+          const oceanNeededForMaxBuy = new BigNumber(oceanNeededForBuyResponse || 0);
 
           console.log(
             `Ocean needed for max sell: ${oceanNeededForMaxSell} \n Ocean Needed for max buy: ${oceanNeededForMaxBuy}`
@@ -225,7 +227,7 @@ const Swap = () => {
             // If the ocean needed for the maxSell is greater than the ocean needed for the max buy, then the maxSell can be left as is
             // and the maxBuy is set to the the DT received for the max sell
             DtNeededForMaxBuy = new BigNumber(
-              await ocean.getDtNeededForExactDt(maxBuy.toString(), token1.info.pool, token2.info.pool)
+              await ocean?.getDtNeededForExactDt(maxBuy.toString(), token1.info.pool, token2.info.pool)
             );
             maxSell = DtNeededForMaxBuy;
           } else {
@@ -237,14 +239,16 @@ const Swap = () => {
         } else if (token1.info && token2.info && isOCEAN(token2.info.address, ocean)) {
           // DT to OCEAN
           // Max sell is the max amount of DT that can be traded
-          maxSell = new BigNumber(await ocean.getMaxExchange(token1.info.pool));
+          maxSell = await ocean?.getMaxExchange(token1.info.pool);
+          maxSell = new BigNumber(maxSell || 0);
           // console.log("Exact max sell:", maxSell.toString());
           // Max buy is the amount of OCEAN bought from max sell
           maxBuy = new BigNumber(await calculateExchange(true, maxSell));
         } else if (token1.info && token2.info) {
           // OCEAN to DT
           // Max buy is the max amount of DT that can be traded
-          maxBuy = new BigNumber(await ocean.getMaxExchange(token2.info.pool));
+          maxBuy = await ocean?.getMaxExchange(token2.info.pool);
+          maxBuy = new BigNumber(maxBuy || 0);
           // console.log("Exact max buy:", maxBuy.toString());
           if (maxBuy.minus(maxBuy.dp(0)).gte(0.05)) {
             maxBuy = maxBuy.dp(0);
@@ -313,12 +317,14 @@ const Swap = () => {
   }
 
   async function updateBalance(address: string) {
+    if (!ocean || !accountId) return;
     return new BigNumber(await ocean.getBalance(address, accountId));
   }
 
   const setToken = async (info: ITokenInfo, pos: number) => {
     setClearingTokens(true);
     const balance = await updateBalance(info.address);
+    if (!balance) return;
     if (pos === 1) {
       setToken1({ ...token1, info, balance, value: new BigNumber(0), percentage: new BigNumber(0) });
       setToken2({ ...token2, value: new BigNumber(0) });
@@ -378,11 +384,12 @@ const Swap = () => {
         setExactToken(2);
       }
     }
-    setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
+    if (bgLoading && setBgLoading) setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
   }
 
   // This is easily testable, if we someone writes tests for this in the future, it'll be great
   async function calculateExchange(from: boolean, amount: BigNumber): Promise<BigNumber> {
+    if (!ocean) return new BigNumber(0);
     try {
       if (amount.isNaN() || amount.eq(0)) {
         return new BigNumber(0);
@@ -428,6 +435,7 @@ const Swap = () => {
     let txDateId;
     let decSlippage = slippage.div(100).dp(5).toString();
     const { t1Val, t2Val } = getTokenVal(token1, token2);
+    if (!chainId || !setTxHistory || !txHistory || !accountId || !ocean || !config) return;
     try {
       if (token1.info && token2.info && isOCEAN(token1.info.address, ocean)) {
         if (exactToken === 1) {
@@ -538,24 +546,27 @@ const Swap = () => {
     } catch (error: any) {
       console.log("DataX Caught an Error for Transaction:", txDateId);
 
-      setShowConfirmModal(false);
-      const allNotifications = notifications;
-      allNotifications.push({
-        type: "alert",
-        alert: {
-          message: errorMessages(error),
-          link: null,
+      if (setShowConfirmModal) setShowConfirmModal(false);
+      if (notifications && setNotifications) {
+        const allNotifications = notifications;
+        allNotifications.push({
           type: "alert",
-        },
-      });
-      setNotifications([...allNotifications]);
-      deleteRecentTxs({
-        txDateId,
-        setTxHistory,
-        txHistory,
-        accountId,
-        chainId,
-      });
+          alert: {
+            message: errorMessages(error),
+            link: null,
+            type: "alert",
+          },
+        });
+        setNotifications([...allNotifications]);
+      }
+      if (accountId)
+        deleteRecentTxs({
+          txDateId,
+          setTxHistory,
+          txHistory,
+          accountId,
+          chainId,
+        });
     }
   }
 
@@ -636,7 +647,7 @@ const Swap = () => {
     //Setting state here allows for max to be persisted in the input
     setToken1({ ...token1, value: bnVal });
     if (token1.info && token2.info) {
-      let exchangeLimit = { ...INITIAL_MAX_EXCHANGE };
+      let exchangeLimit = INITIAL_MAX_EXCHANGE;
 
       maxExchange.maxSell.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await getMaxExchange());
 
@@ -645,7 +656,7 @@ const Swap = () => {
       if (bnVal.gt(maxSell) && token1.balance.gte(0.00001)) {
         setToken2({ ...token2, value: maxBuy });
         setToken1({ ...token1, value: maxSell, percentage: maxPercent });
-        setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
+        if (setBgLoading && bgLoading) setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
       } else {
         const percentage =
           token1.balance.lt(0.00001) && bnVal.gt(0)
@@ -665,9 +676,10 @@ const Swap = () => {
     setPercLoading(true);
     if (val === "") val = "0";
     let bnVal = new BigNumber(val);
-    let exchangeLimit;
+    let exchangeLimit = INITIAL_MAX_EXCHANGE;
 
     maxExchange.maxPercent.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await getMaxExchange());
+
 
     const { maxPercent, maxBuy, maxSell, postExchange } = exchangeLimit;
 
@@ -701,7 +713,7 @@ const Swap = () => {
         setToken2({ ...token2, value: maxBuy });
         setToken1({ ...token1, value: maxSell });
         setPostExchange(postExchange);
-        setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
+        if (setBgLoading && bgLoading) setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
       } else {
         console.log("Value < MaxBuy");
         setToken2({ ...token2, value: bnVal });
@@ -791,7 +803,7 @@ const Swap = () => {
               tabIndex={0}
               className="rounded-full border-black bg-opacity-100 border-4 absolute -top-7 bg-trade-darkBlue hover:bg-gray-600 transition-colors duration-200 w-12 h-12 flex swap-center items-center justify-center"
             >
-              {token2.loading || token1.loading || bgLoading.includes(bgLoadingStates.calcTrade) || percLoading ? (
+              {token2.loading || token1.loading || bgLoading?.includes(bgLoadingStates.calcTrade) || percLoading ? (
                 <MoonLoader size={25} color={"white"} />
               ) : (
                 <IoSwapVertical size="30" className="text-gray-300" />
@@ -831,10 +843,10 @@ const Swap = () => {
               onClick={() => {
                 switch (btnProps.text) {
                   case "Connect Wallet":
-                    handleConnect();
+                    if (handleConnect) handleConnect();
                     break;
                   case `Unlock ${token1.info ? token1.info.symbol : ""}`:
-                    setShowUnlockTokenModal(true);
+                    if (setShowUnlockTokenModal) setShowUnlockTokenModal(true);
                     break;
                   default:
                     setShowConfirmSwapModal(true);
@@ -857,7 +869,7 @@ const Swap = () => {
         close={() => setShowConfirmSwapModal(false)}
         confirm={() => {
           setShowConfirmSwapModal(false);
-          setShowConfirmModal(true);
+          if (setShowConfirmModal) setShowConfirmModal(true);
           makeTheSwap();
         }}
         show={showConfirmSwapModal}
@@ -867,11 +879,19 @@ const Swap = () => {
         slippage={slippage.dp(0).toString()}
       />
       <ConfirmModal
-        show={showConfirmModal}
-        close={() => setShowConfirmModal(false)}
+        show={showConfirmModal ? showConfirmModal : false}
+        close={() => {
+          if (setShowConfirmModal) setShowConfirmModal(false);
+        }}
         txs={getConfirmModalProperties()}
       />
-      <TransactionDoneModal show={showTxDone} txHash={lastTxUrl} close={() => setShowTxDone(false)} />
+      <TransactionDoneModal
+        show={showTxDone ? showTxDone : false}
+        txHash={lastTxUrl}
+        close={() => {
+          if (setShowTxDone) setShowTxDone(false);
+        }}
+      />
     </div>
   );
 };

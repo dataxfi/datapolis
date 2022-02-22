@@ -11,7 +11,7 @@ export default function PTxManager(id: any) {
   } = useContext(GlobalContext);
 
   useEffect(() => {
-    if (txHistory) {
+    if (txHistory && pendingTxs && setPendingTxs && notifications && setNotifications) {
       const allPending = pendingTxs;
       if (!pendingTxs.includes(id)) {
         //find newest tx
@@ -32,6 +32,7 @@ export default function PTxManager(id: any) {
         if (!record || record.status !== "pending") {
           if (record) {
             const allNotifications = notifications;
+            //@ts-ignore
             allNotifications.push({ type: "tx", newTx: record });
             setNotifications([...allNotifications]);
           }
@@ -39,7 +40,7 @@ export default function PTxManager(id: any) {
           setPendingTxs(leftPending);
         }
       });
-    } else {
+    } else if(setPendingTxs) {
       setPendingTxs([]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

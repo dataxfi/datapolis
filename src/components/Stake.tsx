@@ -104,12 +104,12 @@ const Stake = () => {
   useWatchLocation();
 
   async function getMaxStakeAmt() {
-    if (token)
+    if (token && ocean)
       return new BigNumber(await ocean.getMaxStakeAmount(token.pool, ocean.config.default.oceanTokenAddress)).dp(5);
   }
 
   async function setOceanBalance() {
-    if (accountId && ocean) {
+    if (accountId && ocean && setLoading) {
       const OCEAN_ADDRESS = ocean.config.default.oceanTokenAddress.toLowerCase();
       setLoading(true);
       try {
@@ -136,7 +136,7 @@ const Stake = () => {
         })
         .catch(console.error);
 
-      if (token.pool)
+      if (token.pool && accountId && chainId)
         getAllowance(ocean.config.default.oceanTokenAddress, accountId, token.pool, ocean).then((res) => {
           console.log(res);
           if (oceanToken.info)
@@ -144,7 +144,7 @@ const Stake = () => {
               ...oceanToken,
               info: {
                 ...oceanToken.info,
-                chainId: chainId,
+                chainId,
                 address: ocean.config.default.oceanTokenAddress,
               },
               allowance: new BigNumber(res),
@@ -156,7 +156,7 @@ const Stake = () => {
   }, [ocean, token, tokenModalArray]);
 
   useEffect(() => {
-    if (txReceipt) {
+    if (txReceipt && setShowConfirmModal && setShowTxDone) {
       console.log("A succesful txReceipt has been set in Stake\n", txReceipt);
       if (showConfirmModal) {
         setShowConfirmModal(false);
@@ -252,7 +252,7 @@ const Stake = () => {
 
   async function executeStake() {
     let txDateId;
-    if (!token) return;
+    if (!token || !chainId || !txHistory || !setTxHistory || !ocean || !accountId) return;
     try {
       setLoadingStake(true);
       txDateId = addTxHistory({
@@ -288,7 +288,7 @@ const Stake = () => {
           stakeAmt: oceanValToStake?.toFixed(5),
           txReceipt,
         });
-        if (token.pool) {
+        if (token.pool && setAllStakedPools) {
           const json = JSON.parse(getLocalPoolData(accountId, chainId) || "[]");
           updateSingleStakePool({
             ocean,
@@ -301,39 +301,41 @@ const Stake = () => {
 
         setRecentTxHash(ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash);
         setLoadingStake(false);
-        setShowConfirmModal(false);
+        if (setShowConfirmModal) setShowConfirmModal(false);
         // setOceanValInput(null);
       } else {
         throw new Error("Didn't receive a receipt.");
       }
     } catch (error: any) {
       console.error(error);
-      const allNotifications = notifications;
-      allNotifications.push({
-        type: "alert",
-        alert: {
-          message: errorMessages(error),
-          link: null,
+      if (notifications && setNotifications) {
+        const allNotifications = notifications;
+        allNotifications.push({
           type: "alert",
-        },
-      });
-      setNotifications([...allNotifications]);
-      deleteRecentTxs({
-        txDateId,
-        setTxHistory,
-        txHistory,
-        accountId,
-        chainId,
-      });
+          alert: {
+            message: errorMessages(error),
+            link: null,
+            type: "alert",
+          },
+        });
+        setNotifications([...allNotifications]);
+        deleteRecentTxs({
+          txDateId,
+          setTxHistory,
+          txHistory,
+          accountId,
+          chainId,
+        });
+      }
       setLoadingStake(false);
-      setShowConfirmModal(false);
+      if (setShowConfirmModal) setShowConfirmModal(false);
       // setOceanValInput(null);
       setOceanValToStake(new BigNumber(0));
     }
   }
 
   async function setMaxStake() {
-    if (!token) return;
+    if (!token || !ocean) return;
     console.log(ocean);
     let maxStake: BigNumber | null;
     maxStakeAmt
@@ -365,6 +367,7 @@ const Stake = () => {
 
   async function updateNum(val: string | BigNumber, max?: BigNumber) {
     //initially set state to value to persist the max if the user continuously tries to enter over the max (or balance)
+
     setOceanValToStake(new BigNumber(val));
     if (!val) {
       setOceanValToStake(new BigNumber(0));
@@ -385,25 +388,27 @@ const Stake = () => {
         setOceanValToStake(val);
       }
     }
-    setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
+    if (setBgLoading && bgLoading) setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
   }
 
   async function updateToken(val: any) {
+    if (!accountId || !ocean) return;
     setToken(val);
     if (val) {
       setLoadingRate(true);
       const [res1, res2, myPoolShares, totalPoolShares] = await Promise.all([
-        ocean.getOceanPerDt(val.pool),
-        ocean.getDtPerOcean(val.pool),
-        ocean.getMyPoolSharesForPool(val.pool, accountId),
-        ocean.getTotalPoolShares(val.pool),
+        ocean?.getOceanPerDt(val.pool),
+        ocean?.getDtPerOcean(val.pool),
+        ocean?.getMyPoolSharesForPool(val.pool, accountId),
+        ocean?.getTotalPoolShares(val.pool),
       ]);
       setYourShares(new BigNumber(myPoolShares));
       setOceanToDt(res1);
       setDtToOcean(res2);
 
       setYourLiquidity(new BigNumber(await ocean.getOceanRemovedforPoolShares(val.pool, myPoolShares)));
-      setPoolLiquidity(await ocean.getTokensRemovedforPoolShares(val.pool, String(totalPoolShares)));
+      const { dtAmount, oceanAmount } = await ocean.getTokensRemovedforPoolShares(val.pool, String(totalPoolShares));
+      setPoolLiquidity({ dtAmount: new BigNumber(dtAmount), oceanAmount: new BigNumber(oceanAmount) });
       setLoadingRate(false);
     }
   }
@@ -547,12 +552,12 @@ const Stake = () => {
               text={btnProps.text}
               onClick={() => {
                 if (btnProps.text === "Connect wallet") {
-                  handleConnect();
+                  if (handleConnect) handleConnect();
                 } else {
                   if (oceanToken.allowance?.lt(oceanValToStake)) {
-                    setShowUnlockTokenModal(true);
+                    if (setShowUnlockTokenModal) setShowUnlockTokenModal(true);
                   } else {
-                    setShowConfirmModal(true);
+                    if (setShowConfirmModal) setShowConfirmModal(true);
                     executeStake();
                   }
                 }
@@ -580,17 +585,25 @@ const Stake = () => {
         }}
         setToken={setOceanToken}
         nextFunction={() => {
-          setShowConfirmModal(true);
+          if (setShowConfirmModal) setShowConfirmModal(true);
           executeStake();
         }}
       />
 
       <ConfirmModal
-        show={showConfirmModal}
-        close={() => setShowConfirmModal(false)}
+        show={showConfirmModal ? showConfirmModal : false}
+        close={() => {
+          if (setShowConfirmModal) setShowConfirmModal(false);
+        }}
         txs={token ? [`Stake ${oceanValToStake?.decimalPlaces(5).toString()} OCEAN in ${token.symbol} pool`] : []}
       />
-      <TransactionDoneModal show={showTxDone} txHash={recentTxHash} close={() => setShowTxDone(false)} />
+      <TransactionDoneModal
+        show={showTxDone ? showTxDone : false}
+        txHash={recentTxHash}
+        close={() => {
+          if (setShowTxDone) setShowTxDone(false);
+        }}
+      />
 
       {userMessage && userMessage.type === "alert" ? (
         <UserMessage

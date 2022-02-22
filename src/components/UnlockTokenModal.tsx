@@ -42,7 +42,7 @@ export default function UnlockTokenModal({
           getAllowance(address, accountId, pool, ocean).then((res) => {
             console.log("Response from allowance call", res);
             const allowance = new BigNumber(res);
-            if (allowance.gte(t1BN)) {
+            if (allowance.gte(t1BN) && setShowUnlockTokenModal) {
               setShowUnlockTokenModal(false);
               nextFunction();
               setPool(null);
@@ -72,13 +72,13 @@ export default function UnlockTokenModal({
         pool = token1.info.pool;
         address = token1.info.address;
       } else if (token1.info) {
-        pool = config.default.routerAddress;
+        pool = config?.default.routerAddress;
         address = token1.info.address;
       }
 
       try {
         const { t1BN } = getTokenVal(token1);
-
+        if(!accountId) return 
         setApproving("approving");
         if (amount === "perm") {
           await ocean.approve(address, pool, new BigNumber(18e10).toString(), accountId);
@@ -93,17 +93,19 @@ export default function UnlockTokenModal({
       } catch (error) {
         console.error(error);
         setApproving("pending");
-        const allNotifications = notifications;
-        allNotifications.push({
-          type: "alert",
-          alert: {
-            message: errorMessages(error),
-            link: null,
+        if (notifications && setNotifications) {
+          const allNotifications = notifications;
+          allNotifications.push({
             type: "alert",
-          },
-        });
-        setNotifications([...allNotifications]);
-        setShowUnlockTokenModal(false);
+            alert: {
+              message: errorMessages(error),
+              link: null,
+              type: "alert",
+            },
+          });
+          setNotifications([...allNotifications]);
+        }
+        if (setShowUnlockTokenModal) setShowUnlockTokenModal(false);
       }
     }
   }
@@ -119,7 +121,7 @@ export default function UnlockTokenModal({
             id="closeTokenModalBtn"
             role="button"
             onClick={() => {
-              setShowUnlockTokenModal(false);
+              if (setShowUnlockTokenModal) setShowUnlockTokenModal(false);
             }}
             className="text-type-100 text-2xl"
           />

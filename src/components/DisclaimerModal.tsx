@@ -29,7 +29,8 @@ function DisclaimerModal() {
   }, []);
 
   async function approvedDisclaimer() {
-    if (!disclaimerSigned.client || disclaimerSigned.client === "denied") {
+    if(!setShowDisclaimer || ! setDisclaimerSigned) return
+    if ((!disclaimerSigned?.client || disclaimerSigned.client === "denied")&& handleSignature) {
       setDisclaimerSigned({ ...disclaimerSigned, client: true });
       await handleSignature().then((res: any) => {
         console.log(res);
@@ -48,6 +49,7 @@ function DisclaimerModal() {
   }
 
   function deniedDisclaimer() {
+    if(!setShowDisclaimer || ! setDisclaimerSigned) return
     setShowDisclaimer(false);
     setShowReminder(false);
     setDisclaimerSigned({ client: "denied", wallet: false });

@@ -40,6 +40,7 @@ const LiquidityPosition = () => {
   useTokenList("OCEAN");
 
   useEffect(() => {
+    if (!setAllStakedPools || !setCurrentStakePool) return;
     setAllStakedPools(null);
     setCurrentStakePool(null);
   }, [setAllStakedPools, setCurrentStakePool]);
@@ -47,7 +48,8 @@ const LiquidityPosition = () => {
   useEffect(() => {
     try {
       if (accountId) {
-        let localData: any = getLocalPoolData(accountId, chainId);
+        let localData: any = getLocalPoolData(accountId, String(chainId));
+        if (!Array.isArray(bgLoading) || !setBgLoading || !setAllStakedPools || !ocean || !setLoading) return;
         if (localData && localData != null) {
           setBgLoading([...bgLoading, bgLoadingStates.allStakedPools]);
           localData = JSON.parse(localData);
@@ -83,7 +85,7 @@ const LiquidityPosition = () => {
 
   useEffect(() => {
     console.log("Currently loading in the background", bgLoading);
-    if (!accountId) {
+    if (!accountId && setLoading) {
       setUserMessage("Connect your wallet to see staked oceans.");
       setMessageId("connectWalletMessage");
       setLoading(false);
@@ -103,22 +105,31 @@ const LiquidityPosition = () => {
     try {
       if (ocean && accountId) {
         // consider a conditional that checks if stake is already loading or using a set for bgLoading
-        setPoolDataFromOcean({
-          accountId,
-          ocean,
-          chainId,
-          setAllStakedPools,
-          setNoStakedPools,
-          setLoading,
-          bgLoading,
-          setBgLoading,
-          config,
-          web3,
-          allStakedPools,
-          setError: setUserMessage,
-          stakeFetchTimeout,
-          setStakeFetchTimeout,
-        });
+        if (
+          chainId &&
+          setAllStakedPools &&
+          bgLoading &&
+          web3 &&
+          allStakedPools &&
+          stakeFetchTimeout &&
+          setStakeFetchTimeout
+        )
+          setPoolDataFromOcean({
+            accountId,
+            ocean,
+            chainId,
+            setAllStakedPools,
+            setNoStakedPools,
+            setLoading,
+            bgLoading,
+            setBgLoading,
+            config,
+            web3,
+            allStakedPools,
+            setError: setUserMessage,
+            stakeFetchTimeout,
+            setStakeFetchTimeout,
+          });
         setUserMessage(null);
       }
     } catch (error) {
@@ -135,18 +146,20 @@ const LiquidityPosition = () => {
 
   function importData(poolAddress: string) {
     setShowModal(false);
-    setBgLoading([...bgLoading, bgLoadingStates.singlePoolData]);
-    updateSingleStakePool({
-      ocean,
-      accountId,
-      setAllStakedPools,
-      poolAddress,
-      localData: allStakedPools,
-    }).then(() => {
-      setLoading(false);
-      setUserMessage(null);
-      setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData));
-    });
+    if (setLoading && setBgLoading && bgLoading && ocean && accountId && setAllStakedPools && allStakedPools) {
+      setBgLoading([...bgLoading, bgLoadingStates.singlePoolData]);
+      updateSingleStakePool({
+        ocean,
+        accountId,
+        setAllStakedPools,
+        poolAddress,
+        localData: allStakedPools,
+      }).then(() => {
+        setLoading(false);
+        setUserMessage(null);
+        setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData));
+      });
+    }
   }
 
   return (
@@ -159,8 +172,8 @@ const LiquidityPosition = () => {
           <div className="flex flex-row w-full m-auto">
             <div className="w-full flex pb-1 rounded-lg justify-between">
               <h2 className="text-2xl">Your staked pools</h2>
-              {(bgLoading.includes(bgLoadingStates.allStakedPools) ||
-                bgLoading.includes(bgLoadingStates.singlePoolData)) &&
+              {(bgLoading?.includes(bgLoadingStates.allStakedPools) ||
+                bgLoading?.includes(bgLoadingStates.singlePoolData)) &&
               accountId ? (
                 <MoonLoader color="white" size="25px" />
               ) : null}

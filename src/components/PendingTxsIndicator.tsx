@@ -3,16 +3,17 @@ import { RingLoader } from "react-spinners";
 import { GlobalContext } from "../context/GlobalState";
 
 export default function PendingTxsIndicator() {
-  const { accountId, pendingTxs, setShowTxHistoryModal, setPendingTxs } =
-    useContext(GlobalContext);
+  const { accountId, pendingTxs, setShowTxHistoryModal, setPendingTxs } = useContext(GlobalContext);
 
-    useEffect(()=>{
-      setPendingTxs([])
-    }, [accountId])
+  useEffect(() => {
+    if (setPendingTxs) setPendingTxs([]);
+  }, [accountId]);
 
-  return accountId && pendingTxs.length > 0 ? (
+  return accountId && pendingTxs && pendingTxs.length > 0 ? (
     <div
-      onClick={() => setShowTxHistoryModal(true)}
+      onClick={() => {
+        if (setShowTxHistoryModal) setShowTxHistoryModal(true);
+      }}
       className="flex items-center capitalize border border-type-500 text-type-200 rounded-md pl-4 py-1 hm-box transition-all ease-in-out transform hover:bg-primary-400 hover:bg-opacity-20"
     >
       <div className="pr-3 flex flex-row items-center">

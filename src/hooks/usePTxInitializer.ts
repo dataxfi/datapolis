@@ -16,7 +16,7 @@ export default function usePTxInitializer() {
   } = useContext(GlobalContext);
 
   useEffect(() => {
-    if (accountId && chainId && watcher) {
+    if (accountId && chainId && watcher && setTxHistory && setPendingTxs) {
       const localHistory = getLocalTxHistory({ chainId, accountId });
       if (localHistory) {
         setTxHistory(localHistory);

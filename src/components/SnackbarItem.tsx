@@ -3,37 +3,32 @@ import { BsCheckCircle, BsX } from "react-icons/bs";
 import { IoCheckboxOutline } from "react-icons/io5";
 import { GlobalContext } from "../context/GlobalState";
 import { getTxUrl, conformTx } from "../utils/txHistoryUtils";
-import BigNumber from 'bignumber.js'
-const SnackbarItem = ({
-  tx,
-  setCurrentNot,
-}: {
-  tx: any;
-  setCurrentNot: Function;
-}) => {
-  const { ocean, accountId, notifications, setNotifications } =
-    useContext(GlobalContext);
+import BigNumber from "bignumber.js";
+const SnackbarItem = ({ tx, setCurrentNot }: { tx: any; setCurrentNot: Function }) => {
+  const { ocean, accountId, notifications, setNotifications } = useContext(GlobalContext);
   const [opacity, setOpacity] = useState<string>("0");
   // const [progress, setProgress] = useState<string>("100");
   const [tokenInfo, setTokenInfo] = useState<any>();
   const [txDetails, setTxDetails] = useState<any>();
   const [url, setUrl] = useState<any>();
-  const [cleanup, setCleanup] = useState(true)
+  const [cleanup, setCleanup] = useState(true);
 
   useEffect(() => {
-    setUrl(getTxUrl({ ocean, accountId, txHash: tx.txHash }));
+    if (ocean && accountId && tx) setUrl(getTxUrl({ ocean, accountId, txHash: tx.txHash }));
     setTokenInfo(conformTx(tx));
     setTxDetails(tx);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tx]);
+  }, [tx, ocean, accountId]);
 
   useEffect(() => {
     if (txDetails && cleanup) {
       display();
     }
 
-    return () => {(setCleanup(true)) }
-    
+    return () => {
+      setCleanup(true);
+    };
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [txDetails]);
 
@@ -51,6 +46,7 @@ const SnackbarItem = ({
 
     setTimeout(() => {
       setCurrentNot(null);
+      if (!notifications || !setNotifications) return;
       const allNotifications = notifications;
       const newNotifications = allNotifications.slice(1);
       setNotifications(newNotifications);
@@ -69,22 +65,17 @@ const SnackbarItem = ({
             {/* <p className="text-type-100 text-sm">{lastTx.txType}</p> */}
             <p>
               {tx.txType === "stake"
-                ? `Stake ${new BigNumber(tx.stakeAmt).dp(5).toString()} OCEAN in ${
-                    tokenInfo.token1.symbol
-                  }/OCEAN pool`
+                ? `Stake ${new BigNumber(tx.stakeAmt).dp(5).toString()} OCEAN in ${tokenInfo.token1.symbol}/OCEAN pool`
                 : tx.txType === "unstake"
                 ? `Unstake ${new BigNumber(tx.stakeAmt).dp(5).toString()} OCEAN from ${
                     tokenInfo.token1.symbol
                   }/OCEAN pool`
-                : `Trade ${new BigNumber(tokenInfo.token1.value).dp(5).toString()} ${tokenInfo.token1.symbol} for ${new BigNumber(tokenInfo.token2.value).dp(5).toString()} ${tokenInfo.token2.symbol}`}
+                : `Trade ${new BigNumber(tokenInfo.token1.value).dp(5).toString()} ${
+                    tokenInfo.token1.symbol
+                  } for ${new BigNumber(tokenInfo.token2.value).dp(5).toString()} ${tokenInfo.token2.symbol}`}
             </p>
             <p className="text-type-300 text-sm">
-              <a
-                target="_blank"
-                rel="noreferrer"
-                href={url}
-                className="hover:text-city-blue"
-              >
+              <a target="_blank" rel="noreferrer" href={url} className="hover:text-city-blue">
                 View on explorer
               </a>
             </p>
@@ -96,7 +87,7 @@ const SnackbarItem = ({
             color="white"
             onClick={() => {
               setCurrentNot(null);
-              setCleanup(false)
+              setCleanup(false);
             }}
           />
         </div>

@@ -4,8 +4,8 @@ import {acceptsCookiesGA, deniedCookiesGA} from '../context/Analytics'
 function CookiesModal() {
   const { setCookiesAllowed } = useContext(GlobalContext);
   const [show, setShow] = useState(false);
-
   useEffect(() => {
+    if(!setCookiesAllowed) return
     const cookiePreference = localStorage.getItem("cookiesAllowed");
     switch (cookiePreference) {
       case "true":
@@ -21,9 +21,10 @@ function CookiesModal() {
         break;
     }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [setCookiesAllowed]);
 
   function confirmOrDeny(e: any) {
+    if(!setCookiesAllowed) return
     if (e.target.id === "confirmCookies") {
       localStorage.setItem("cookiesAllowed", "true");
       setCookiesAllowed(true)

@@ -13,12 +13,11 @@ import {
   deniedSignatureGA,
   connectedWalletViaGA,
 } from "./Analytics";
-import { IPoolData, IToken, ITxHistory } from "../utils/types";
+import { IDisclaimerSigned, initialState, globalStates, IPoolData, IToken, ITokenList, ITxHistory } from "../utils/types";
 
-const initialState: any = {};
 const CONNECT_TEXT = "Connect Wallet";
 
-export const GlobalContext = createContext(initialState);
+export const GlobalContext = createContext<Partial<globalStates>>(initialState);
 
 //use these states to ensure proper management of bgLoading ops
 export const bgLoadingStates = {
@@ -45,23 +44,20 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   // const [state, dispatch]: [any, Function] = useReducer(AppReducer, initialState)
 
   // essential states for connection to web3, user wallet, ocean operations, and DataX configurations
-  const [web3Modal, setWeb3Modal] = useState<Core | null>(null);
-  const [accountId, setAccountId] = useState<string | null>(null);
-  const [chainId, setChainId] = useState<number | undefined>(undefined);
-  const [provider, setProvider] = useState(null);
-  const [web3, setWeb3] = useState<Web3 | null>(null);
-  const [ocean, setOcean] = useState<Ocean | null>(null);
-  const [config, setConfig] = useState<any>(null);
-  const [watcher, setWatcher] = useState<any | null>(null);
+  const [web3Modal, setWeb3Modal] = useState<Core>();
+  const [accountId, setAccountId] = useState<string>();
+  const [chainId, setChainId] = useState<number>();
+  const [provider, setProvider] = useState<Web3Modal>();
+  const [web3, setWeb3] = useState<Web3>();
+  const [ocean, setOcean] = useState<Ocean>();
+  const [config, setConfig] = useState<Config>();
+  const [watcher, setWatcher] = useState<Watcher>();
   const [unsupportedNet, setUnsupportedNet] = useState<boolean>(false);
 
   //states responsible for user info collection
   const [cookiesAllowed, setCookiesAllowed] = useState<boolean | null>(null);
   const [showDisclaimer, setShowDisclaimer] = useState<boolean>(false);
-  const [disclaimerSigned, setDisclaimerSigned] = useState<{
-    client: boolean | null | "denied";
-    wallet: boolean | null | "denied";
-  }>({
+  const [disclaimerSigned, setDisclaimerSigned] = useState<IDisclaimerSigned>({
     client: null,
     wallet: null,
   });
@@ -81,14 +77,14 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
   const [showTxHistoryModal, setShowTxHistoryModal] = useState<boolean>(false);
   //all transaction history
-  const [txHistory, setTxHistory] = useState<ITxHistory | null>(null);
+  const [txHistory, setTxHistory] = useState<ITxHistory>();
 
   // (user)confirmModal and txDone state for specific transactions
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showTxDone, setShowTxDone] = useState(false);
 
   //all stake pool information for the current user
-  const [allStakedPools, setAllStakedPools] = useState<IPoolData[] | null>(null);
+  const [allStakedPools, setAllStakedPools] = useState<IPoolData[]>();
   //Pool information associated with pool
   const [currentStakePool, setCurrentStakePool] = useState<IPoolData>();
   //Stake pool sync timeout
@@ -97,15 +93,15 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   //dToken information associated with pool
   const [currentStakeToken, setCurrentStakeToken] = useState<{}>();
   //tokenModalArray to be rendered in token modal
-  const [tokenModalArray, setTokenModalArray] = useState<[] | null>(null);
+  const [tokenModalArray, setTokenModalArray] = useState<[]>();
   //current token pair to be traded, staked, etc
-  const [token1, setToken1] = useState<IToken | null>()
-  const [token2, setToken2] = useState<IToken | null>()
+  const [token1, setToken1] = useState<IToken>()
+  const [token2, setToken2] = useState<IToken>()
 
   //response from token fetch operation
-  const [tokenResponse, setTokenResponse] = useState<{} | null | undefined>();
+  const [tokenResponse, setTokenResponse] = useState<ITokenList>();
 
-  const [buttonText, setButtonText] = useState<string | undefined>(CONNECT_TEXT);
+  const [buttonText, setButtonText] = useState<string>(CONNECT_TEXT);
 
 
   const [notifications, setNotifications] = useState([]);
@@ -261,12 +257,12 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
    * @returns
    */
 
-  function isSupportedChain(config: Config, chainId: string, account: string | null) {
+  function isSupportedChain(config: Config, chainId: string, account?: string) {
     try {
       const network = config.getNetwork(chainId);
       connectedToNetworkGA({ network, chainId });
       if (network === "unknown") {
-        setAccountId(null);
+        setAccountId(undefined);
         setButtonText(CONNECT_TEXT);
         setUnsupportedNet(true);
       } else {
@@ -307,7 +303,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         connectedMultipleWalletsGA();
         connectedWalletGA();
       } else {
-        setAccountId(null);
+        setAccountId(undefined);
         setButtonText(CONNECT_TEXT);
         setChainId(undefined);
         setDisclaimerSigned({ client: false, wallet: false });
@@ -316,9 +312,9 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
     // Subscribe to chainId change
     provider.on("chainChanged", async (chainId: any) => {
-      setTokenModalArray(null);
+      setTokenModalArray(undefined);
       setTokenResponse(undefined);
-      setTxHistory(null);
+      setTxHistory(undefined);
       setPendingTxs([]);
       const parsedId = String(parseInt(chainId));
       console.log(chainId);
@@ -328,7 +324,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       console.log("Config for new chain:");
       setConfig(config);
       setOcean(new Ocean(web3, String(parseInt(chainId))));
-      isSupportedChain(config, parsedId, null);
+      isSupportedChain(config, parsedId, undefined);
     });
 
     // Subscribe to provider connection

@@ -8,11 +8,11 @@ export default function SnackbarArea() {
   const [currentNot, setCurrentNot] = useState<any>(null);
 
   useEffect(() => {
-    if (notifications.length > 0) {
+    if (notifications && notifications.length > 0) {
       setCurrentNot(notifications[0]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [notifications.length]);
+  }, [notifications?.length]);
 
   if (!currentNot) return null;
   return (

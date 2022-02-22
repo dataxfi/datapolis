@@ -18,7 +18,7 @@ const StakeSelect = ({ token, setToken }: { token: Record<any, any> | null; setT
     if (accountId) {
       setShowModal(true);
     } else {
-      handleConnect();
+      if(handleConnect)handleConnect();
     }
   }
 
@@ -63,7 +63,7 @@ const StakeSelect = ({ token, setToken }: { token: Record<any, any> | null; setT
                 <div className="grid grid-flow-col justify-start gap-4 text-sm">
                   <a
                     id="stakePoolLink"
-                    href={config.default.explorerUri + "/address/" + token.pool}
+                    href={config?.default.explorerUri + "/address/" + token.pool}
                     target="_blank"
                     rel="noreferrer"
                     className="text-white grid grid-flow-col items-center gap-2 justify-start border-b border-type-300"
@@ -72,7 +72,7 @@ const StakeSelect = ({ token, setToken }: { token: Record<any, any> | null; setT
                   </a>
                   <a
                     id="stakeTokenLink"
-                    href={config.default.explorerUri + "/address/" + token.address}
+                    href={config?.default.explorerUri + "/address/" + token.address}
                     target="_blank"
                     rel="noreferrer"
                     className="text-white grid grid-flow-col items-center gap-2 justify-start border-b border-type-300"

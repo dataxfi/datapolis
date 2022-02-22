@@ -9,14 +9,14 @@ const UserMessage = ({
   pulse = false,
   container = false,
   timeout = null,
-  className=""
+  className = "",
 }: {
   id?: string | null;
   message: string | IUserMessage;
   pulse: boolean;
   container: boolean;
   timeout: null | { showState: Function; time: number };
-  className?:string
+  className?: string;
 }) => {
   let link: any;
   let userMessage;
@@ -48,7 +48,7 @@ const UserMessage = ({
     }, time - 500);
 
     setTimeout(() => {
-      if (type === "alert") {
+      if (type === "alert" && notifications && setNotifications) {
         state(null);
         const allNotifications = notifications;
         const newNotifications = allNotifications.slice(1);
@@ -98,7 +98,9 @@ const UserMessage = ({
   const floatMessageEl = (
     <div
       id={id}
-      className={`max-w-xs fixed md:top-18 md:right-8 w-full mx-auto bg-black bg-opacity-80 rounded-lg p-4 transition-opacity ease-in-out opacity-${messageOpacity} duration-500 ${className? className: ""}`}
+      className={`max-w-xs fixed md:top-18 md:right-8 w-full mx-auto bg-black bg-opacity-80 rounded-lg p-4 transition-opacity ease-in-out opacity-${messageOpacity} duration-500 ${
+        className ? className : ""
+      }`}
     >
       <div className="flex justify-between items-start">
         <div className="grid grid-flow-col gap-4 items-center justify-center">

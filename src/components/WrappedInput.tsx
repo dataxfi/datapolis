@@ -22,7 +22,7 @@ export default function WrappedInput(props: any) {
    * @returns boolean (true for update with bignumber)
    */
   function getUpdateParams(e: any) {
-    if (pathname !== "/stake") setBgLoading([...bgLoading, bgLoadingStates.calcTrade]);
+    if (pathname !== "/stake" && setBgLoading && bgLoading) setBgLoading([...bgLoading, bgLoadingStates.calcTrade]);
     const value = e.target.value;
     const bnVal = new BigNumber(value);
     let result: "dec" | "trail" | undefined;
@@ -40,7 +40,7 @@ export default function WrappedInput(props: any) {
     }
 
     setInternalState(bnVal);
-    if (result === "dec") setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
+    if (result === "dec" && setBgLoading && bgLoading) setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
     return result;
   }
 

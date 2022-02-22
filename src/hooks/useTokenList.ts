@@ -2,7 +2,7 @@ import { useContext, useEffect } from "react";
 import { GlobalContext } from "../context/GlobalState";
 import { Ocean, TokenList } from "@dataxfi/datax.js";
 // import { TokenList as TList } from "@uniswap/token-lists";
-import { ITokenInfo } from "../utils/types";
+import { ITokenInfo, ITokenList } from "../utils/types";
 
 
 
@@ -14,7 +14,7 @@ export default function useTokenList(otherToken: string, setLoading?: Function) 
   useEffect(() => {
     if (accountId) {
       if (setLoading) setLoading(true);
-      const tokenList = new TokenList(
+      const tokenList: TokenList = new TokenList(
         web3,
         "4",
         process.env.REACT_APP_PINATA_KEY || "",
@@ -24,15 +24,17 @@ export default function useTokenList(otherToken: string, setLoading?: Function) 
       tokenList
         .fetchPreparedTokenList(chainId ? chainId : 4)
         .then((res) => {
+          if(res && setTokenResponse)
           setTokenResponse(res);
           console.log("Token Response:", res);
           //@ts-ignore
           const formattedList = formatTokenArray(res, otherToken, location);
           if (setTokenModalArray) setTokenModalArray(formattedList);
         })
-        .catch((err) => {
+        .catch((err: Error) => {
+          if(err && setTokenResponse)
+          setTokenResponse(undefined);
           console.error("An error occurred while fetching the token list.", err);
-          setTokenResponse(null);
         })
         .finally(() => {
           if (setLoading) setLoading(false);

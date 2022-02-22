@@ -10,6 +10,7 @@ function LiquidityPositionItem({ pool, index }: { pool: IPoolData; index: number
   const [visible, setVisible] = useState<boolean>(false);
   const { setCurrentStakeToken, setCurrentStakePool, tokenModalArray, setLoading } = useContext(GlobalContext);
   function setTokenAndPool() {
+    if (!setCurrentStakePool || !setLoading || !setCurrentStakeToken) return;
     setCurrentStakePool(pool);
 
     try {
@@ -114,7 +115,7 @@ function LiquidityPositionItem({ pool, index }: { pool: IPoolData; index: number
             </div>
             <div className="flex mt-2">
               <Link
-              id="lp-add-link"
+                id="lp-add-link"
                 key="stake"
                 to={`/stake?pool=${address}`}
                 className="modalButton rounded p-2px w-1/2 text-center mr-1"

@@ -6,7 +6,7 @@ export default function BGToggle() {
   return (
     <button
       onClick={() => {
-        setBgOff(!bgOff);
+        if(setBgOff)setBgOff(!bgOff);
         localStorage.setItem("bgPref", String(!bgOff))
       }}
       className="mx-4 p-3 w-12 h-4 bg-black bg-opacity-60 rounded-full relative shadow-lg"

@@ -2,14 +2,9 @@ import { useContext, useEffect, useState } from "react";
 import { BsBoxArrowUpRight, BsX } from "react-icons/bs";
 import { PulseLoader } from "react-spinners";
 import { GlobalContext } from "../context/GlobalState";
-import {
-  getLocalTxHistory,
-  getTxUrl,
-  watchTx,
-  conformTx,
-} from "../utils/txHistoryUtils";
+import { getLocalTxHistory, getTxUrl, watchTx, conformTx } from "../utils/txHistoryUtils";
 
-import {ITxSelection, ITxHistory} from "../utils/types"
+import { ITxSelection, ITxHistory } from "../utils/types";
 
 function TxHistoryModal() {
   const {
@@ -36,14 +31,14 @@ function TxHistoryModal() {
 
   useEffect(() => {
     if (showTxHistoryModal) {
-      if (showConfirmModal) setShowConfirmModal(false);
-      if (showTxDone) setShowTxDone(false);
+      if (showConfirmModal && setShowConfirmModal) setShowConfirmModal(false);
+      if (showTxDone && setShowTxDone) setShowTxDone(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showConfirmModal, showTxDone, showTxHistoryModal]);
 
   useEffect(() => {
-    if (ocean && watcher && txSelection && web3 && accountId) {
+    if (ocean && watcher && txSelection && web3 && accountId && chainId && setTxHistory && txHistory) {
       // watchTx(txSelection[0])
       txSelection.forEach((tx) => {
         if (tx.status !== "Success")
@@ -61,6 +56,7 @@ function TxHistoryModal() {
   }, [txSelection, watcher, web3, accountId]);
 
   useEffect(() => {
+    if (!chainId || !accountId || !txHistory) return;
     try {
       if (accountId && txHistory && Object.keys(txHistory).length !== 0) {
         const parsedHistory = parseHistory(txHistory);
@@ -71,12 +67,8 @@ function TxHistoryModal() {
         setNoTxHistory(false);
       } else {
         const localHistory = getLocalTxHistory({ chainId, accountId });
-        if (
-          accountId &&
-          localHistory &&
-          Object.keys(localHistory).length !== 0
-        ) {
-          setTxHistory(localHistory);
+        if (accountId && localHistory && Object.keys(localHistory).length !== 0) {
+          if (setTxHistory) setTxHistory(localHistory);
           const parsedHistory = parseHistory(txHistory);
           if (!parsedHistory) return;
           setTxsByDate(parsedHistory);
@@ -95,7 +87,7 @@ function TxHistoryModal() {
   }, [txHistory, pendingTxs, chainId, accountId, page, ocean]);
 
   function parseHistory(history: ITxHistory) {
-    if (!history) return;
+    if (!history || !accountId || !ocean) return;
     const txsByDate = [];
     for (let [txDateId, tx] of Object.entries(history)) {
       let txLink = getTxUrl({
@@ -107,9 +99,7 @@ function TxHistoryModal() {
       txsByDate.push({ txDateId, ...tx, txLink });
     }
     //@ts-ignore
-    txsByDate.sort(
-      (date1, date2) => Number(date2.txDateId) - Number(date1.txDateId)
-    );
+    txsByDate.sort((date1, date2) => Number(date2.txDateId) - Number(date1.txDateId));
     return txsByDate;
   }
 
@@ -124,8 +114,7 @@ function TxHistoryModal() {
   }
 
   function pageRange() {
-    if (page[1] > txSelection.length)
-      return `${page[0] + 1} - ${txSelection.length + page[0]}`;
+    if (page[1] > txSelection.length) return `${page[0] + 1} - ${txSelection.length + page[0]}`;
     return `${page[0] + 1} - ${page[1]}`;
   }
 
@@ -135,8 +124,8 @@ function TxHistoryModal() {
     const amPm = hours24 > 12 ? "Pm" : "Am";
     const hours12 = hours24 > 12 ? hours24 - 12 : hours24;
     let minutes: string | number = stamp.getMinutes();
-    if(Number(minutes) < 10){
-      minutes = `0${minutes}`
+    if (Number(minutes) < 10) {
+      minutes = `0${minutes}`;
     }
     return `${hours12}:${minutes} ${amPm}`;
   }
@@ -144,7 +133,7 @@ function TxHistoryModal() {
   function txItemTitle(tx: any) {
     const { txType } = tx;
     const { token1, token2 } = conformTx(tx);
-    
+
     switch (txType) {
       case "stake":
         return `Stake ${token1.symbol}/OCEAN`;
@@ -162,7 +151,9 @@ function TxHistoryModal() {
         <div className="flex justify-between mb-2">
           <h3>Recent Transactions</h3>
           <BsX
-            onClick={() => setShowTxHistoryModal(false)}
+            onClick={() => {
+              if (setShowTxHistoryModal) setShowTxHistoryModal(false);
+            }}
             size={28}
             className="text-type-200"
             role="button"
@@ -195,8 +186,7 @@ function TxHistoryModal() {
                       >
                         {tx.status}
                       </p>
-                      {tx.status === "Success" ||
-                      tx.status === "Failure" ? null : (
+                      {tx.status === "Success" || tx.status === "Failure" ? null : (
                         <div className="pt-.5">
                           <PulseLoader size="3px" color="white" />
                         </div>
@@ -206,17 +196,13 @@ function TxHistoryModal() {
                       href={tx.txLink}
                       target="_blank"
                       rel="noreferrer"
-                      className={
-                        tx.txLink.includes("/tx/") ? "text-city-blue" : ""
-                      }
+                      className={tx.txLink.includes("/tx/") ? "text-city-blue" : ""}
                     >
                       <BsBoxArrowUpRight />
                     </a>
                   </div>
                   <div className="flex flex-row">
-                    <p className="text-xs text-primary-400 pr-1">
-                      {new Date(Number(tx.txDateId)).toDateString()} at
-                    </p>
+                    <p className="text-xs text-primary-400 pr-1">{new Date(Number(tx.txDateId)).toDateString()} at</p>
                     <p className="text-xs text-primary-400">{exactTime(tx)}</p>
                   </div>
                 </li>

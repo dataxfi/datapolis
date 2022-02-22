@@ -40,7 +40,8 @@ export default function useCurrentPool({
   }, [location]);
 
   useEffect(() => {
-    if (!currentStakePool && poolAddress && !bgLoading.includes(bgLoadingStates.singlePoolData)) {
+    if (!bgLoading || !setBgLoading || !setCurrentStakePool) return;
+    if (!currentStakePool && poolAddress && !bgLoading?.includes(bgLoadingStates.singlePoolData)) {
       setBgLoading([...bgLoading, bgLoadingStates.singlePoolData]);
       if (allStakedPools) {
         const currentPool = allStakedPools.find((pool: { address: string }) => pool.address === poolAddress);
@@ -53,7 +54,7 @@ export default function useCurrentPool({
 
   useEffect(() => {
     let localStoragePoolData;
-    if (accountId) {
+    if (accountId && chainId && setAllStakedPools && setBgLoading && setCurrentStakePool && bgLoading) {
       localStoragePoolData = getLocalPoolData(accountId, chainId);
       if (localStoragePoolData && poolAddress) {
         setPoolDataFromLocal({
@@ -65,7 +66,6 @@ export default function useCurrentPool({
           bgLoading,
         });
       }
-      // !currentStakePool && !allStakedPools
       if (poolAddress && ocean) {
         setBgLoading([...bgLoading, bgLoadingStates.singlePoolData]);
         updateSingleStakePool({
@@ -82,20 +82,31 @@ export default function useCurrentPool({
   }, [chainId, accountId, ocean]);
 
   useEffect(() => {
-    if (txReceipt && !bgLoading.includes(bgLoadingStates.singlePoolData)) {
-      setBgLoading([...bgLoading, bgLoadingStates.singlePoolData]);
-      updateSingleStakePool({
-        ocean,
-        accountId,
-        localData: allStakedPools,
-        poolAddress: currentStakePool.address,
-        setAllStakedPools,
-      }).then((info) => {
-        console.log("Updates liquidity position", info);
-        setCurrentStakePool(info);
-      });
-      if (setTxReceipt) setTxReceipt(null);
-      setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData));
+    if (
+      accountId &&
+      chainId &&
+      setAllStakedPools &&
+      setBgLoading &&
+      setCurrentStakePool &&
+      bgLoading &&
+      allStakedPools &&
+      currentStakePool
+    ) {
+      if (txReceipt && !bgLoading?.includes(bgLoadingStates.singlePoolData) && ocean) {
+        setBgLoading([...bgLoading, bgLoadingStates.singlePoolData]);
+        updateSingleStakePool({
+          ocean,
+          accountId,
+          localData: allStakedPools,
+          poolAddress: currentStakePool.address,
+          setAllStakedPools,
+        }).then((info) => {
+          console.log("Updates liquidity position", info);
+          setCurrentStakePool(info);
+        });
+        if (setTxReceipt) setTxReceipt(null);
+        setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData));
+      }
     }
   }, [txReceipt, setTxReceipt]);
 }
