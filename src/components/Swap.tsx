@@ -2,7 +2,7 @@ import SwapInput from "./SwapInput";
 import { IoSwapVertical } from "react-icons/io5";
 import { MdTune } from "react-icons/md";
 import { useState, useContext, useEffect } from "react";
-import { bgLoadingStates, GlobalContext, removeBgLoadingState } from "../context/GlobalState";
+import { bgLoadingStates, GlobalContext, INITIAL_TOKEN_STATE, removeBgLoadingState } from "../context/GlobalState";
 import Button from "./Button";
 import OutsideClickHandler from "react-outside-click-handler";
 import ConfirmSwapModal from "./ConfirmSwapModal";
@@ -24,14 +24,6 @@ const text = {
   T_SWAP: "Trade",
   T_SWAP_FROM: "You are selling",
   T_SWAP_TO: "You are buying",
-};
-
-export const INITIAL_TOKEN_STATE: IToken = {
-  info: null,
-  value: new BigNumber(0),
-  balance: new BigNumber(0),
-  percentage: new BigNumber(0),
-  loading: false,
 };
 
 const INITIAL_MAX_EXCHANGE: IMaxExchange = {
@@ -73,14 +65,18 @@ const Swap: React.FC = () => {
     bgLoading,
     setBgLoading,
     setShowUnlockTokenModal,
+    token1,
+    setToken1,
+    token2,
+    setToken2,
   } = useContext(GlobalContext);
   const [showSettings, setShowSettings] = useState(false);
   const [showConfirmSwapModal, setShowConfirmSwapModal] = useState(false);
   const [network, setNetwork] = useState<string | number | null>(null);
   const [lastTxUrl, setLastTxUrl] = useState("");
   const [txReceipt, setTxReceipt] = useState<any>(null);
-  const [token1, setToken1] = useState<IToken>(INITIAL_TOKEN_STATE);
-  const [token2, setToken2] = useState<IToken>(INITIAL_TOKEN_STATE);
+  // const [token1, setToken1] = useState<IToken>(INITIAL_TOKEN_STATE);
+  // const [token2, setToken2] = useState<IToken>(INITIAL_TOKEN_STATE);
   const [exactToken, setExactToken] = useState<number>(1);
   const [postExchange, setPostExchange] = useState<BigNumber>(new BigNumber(0));
   const [slippage, setSlippage] = useState<BigNumber>(new BigNumber(1));
@@ -103,7 +99,7 @@ const Swap: React.FC = () => {
   useEffect(() => {
     if (txReceipt) return;
 
-    if (token1.info && token2.info && accountId && !clearingTokens && ocean) {
+    if (token1?.info && token2?.info && accountId && !clearingTokens && ocean) {
       updateBalance(token1.info.address)
         .then((balance) => {
           if (!ocean || !balance) return;
@@ -156,7 +152,7 @@ const Swap: React.FC = () => {
     }
 
     return () => controller.abort();
-  }, [token1.info, token2.info, accountId, clearingTokens]);
+  }, [token1?.info, token2?.info, accountId, clearingTokens]);
 
   useEffect(() => {
     getButtonProperties();
@@ -175,13 +171,13 @@ const Swap: React.FC = () => {
   }, [chainId]);
 
   async function getMaxExchange(signal?: AbortSignal, token1Balance?: BigNumber | null): Promise<IMaxExchange> {
-    const balance = token1Balance ? token1Balance : token1.balance;
+    const balance = token1Balance ? token1Balance : token1?.balance;
     return new Promise<IMaxExchange>(async (resolve, reject) => {
       signal?.addEventListener("abort", (e) => {
         reject(new Error("aborted"));
       });
 
-      if (token1.balance.lt(0.00001))
+      if (token1?.balance.lt(0.00001))
         resolve({
           maxPercent: new BigNumber(100),
           maxSell: new BigNumber(0),
@@ -195,8 +191,8 @@ const Swap: React.FC = () => {
       let maxPercent: BigNumber;
       try {
         if (
-          token1.info &&
-          token2.info &&
+          token1?.info &&
+          token2?.info &&
           !isOCEAN(token1.info.address, ocean) &&
           !isOCEAN(token2.info.address, ocean)
         ) {
@@ -236,7 +232,7 @@ const Swap: React.FC = () => {
             // limited by sell token
             maxBuy = DtReceivedForMaxSell;
           }
-        } else if (token1.info && token2.info && isOCEAN(token2.info.address, ocean)) {
+        } else if (token1?.info && token2?.info && isOCEAN(token2.info.address, ocean)) {
           // DT to OCEAN
           // Max sell is the max amount of DT that can be traded
           maxSell = await ocean?.getMaxExchange(token1.info.pool);
@@ -244,7 +240,7 @@ const Swap: React.FC = () => {
           // console.log("Exact max sell:", maxSell.toString());
           // Max buy is the amount of OCEAN bought from max sell
           maxBuy = new BigNumber(await calculateExchange(true, maxSell));
-        } else if (token1.info && token2.info) {
+        } else if (token1?.info && token2?.info) {
           // OCEAN to DT
           // Max buy is the max amount of DT that can be traded
           maxBuy = await ocean?.getMaxExchange(token2.info.pool);
@@ -266,11 +262,10 @@ const Swap: React.FC = () => {
 
         //Max percent is the percent of the max sell out of token 1 balance
         //if balance is 0 max percent should be 0
-        if (balance.eq(0)) {
+        if (balance?.eq(0)) {
           maxPercent = new BigNumber(0);
         } else {
           // console.log("Max Sell:", maxSell.toString());
-
           maxPercent = maxSell.div(balance).multipliedBy(100);
         }
 
@@ -279,7 +274,7 @@ const Swap: React.FC = () => {
 
         if (maxPercent.gt(100)) {
           maxPercent = new BigNumber(100);
-          if (balance.dp(5).gt(0.00001)) {
+          if (balance?.dp(5).gt(0.00001)) {
             maxSell = balance.dp(5);
             maxBuy = await calculateExchange(true, maxSell);
           }
@@ -355,7 +350,7 @@ const Swap: React.FC = () => {
     if (perc.isNaN()) {
       setToken1({ ...token1, percentage: new BigNumber(0) });
     } else if (perc.gte(100)) {
-      setToken1({ ...token1, percentage: new BigNumber(100), value: token1.balance });
+      setToken1({ ...token1, percentage: new BigNumber(100), value: token1?.balance });
       setToken2({ ...token2, percentage: new BigNumber(0) });
       updateOtherTokenValue(true, new BigNumber(100));
     } else {
@@ -367,7 +362,7 @@ const Swap: React.FC = () => {
   }
 
   async function updateOtherTokenValue(from: boolean, inputAmount: BigNumber) {
-    if (token1.info && token2.info) {
+    if (token1?.info && token2?.info) {
       if (from) {
         setToken2({ ...token2, loading: true });
         let exchange = await calculateExchange(from, inputAmount);
@@ -395,7 +390,7 @@ const Swap: React.FC = () => {
         return new BigNumber(0);
       }
       // OCEAN to DT where amount is either from sell or buy input
-      if (token1.info && token2.info && isOCEAN(token1.info.address, ocean)) {
+      if (token1?.info && token2?.info && isOCEAN(token1.info.address, ocean)) {
         if (from) {
           return new BigNumber(await ocean.getDtReceived(token2.info.pool, amount.dp(18).toString()));
         } else {
@@ -404,7 +399,7 @@ const Swap: React.FC = () => {
       }
 
       // DT to OCEAN where amount is either from sell or buy input
-      if (token1.info && token2.info && isOCEAN(token2.info.address, ocean)) {
+      if (token1?.info && token2?.info && isOCEAN(token2.info.address, ocean)) {
         if (from) {
           return new BigNumber(await ocean.getOceanReceived(token1.info.pool, amount.dp(18).toString()));
         } else {
@@ -413,11 +408,11 @@ const Swap: React.FC = () => {
       }
 
       // DT to DT where amount is either from sell or buy input
-      if (from && token1.info && token2.info) {
+      if (from && token1?.info && token2?.info) {
         return new BigNumber(
           await ocean.getDtReceivedForExactDt(amount.dp(18).toString(), token1.info.pool, token2.info.pool)
         );
-      } else if (token1.info && token2.info) {
+      } else if (token1?.info && token2?.info) {
         return new BigNumber(
           await ocean.getDtNeededForExactDt(amount.dp(18).toString(), token1.info.pool, token2.info.pool)
         );
@@ -437,7 +432,7 @@ const Swap: React.FC = () => {
     const { t1Val, t2Val } = getTokenVal(token1, token2);
     if (!chainId || !setTxHistory || !txHistory || !accountId || !ocean || !config) return;
     try {
-      if (token1.info && token2.info && isOCEAN(token1.info.address, ocean)) {
+      if (token1?.info && token2?.info && isOCEAN(token1.info.address, ocean)) {
         if (exactToken === 1) {
           console.log("exact ocean to dt");
           console.log(accountId, token2.info.pool.toString(), token2.value.toString(), token1.value.toString());
@@ -457,7 +452,7 @@ const Swap: React.FC = () => {
 
           txReceipt = await ocean.swapExactOceanToDt(accountId, token2.info.pool, t2Val, t1Val, decSlippage);
         }
-      } else if (token1.info && token2.info && isOCEAN(token2.info.address, ocean)) {
+      } else if (token1?.info && token2?.info && isOCEAN(token2.info.address, ocean)) {
         if (exactToken === 1) {
           console.log("exact dt to ocean");
           console.log(accountId, token1.info.pool, token2.value.toString(), token1.value.toString());
@@ -479,7 +474,7 @@ const Swap: React.FC = () => {
           txType = "DT to Ocean";
           txReceipt = await ocean.swapExactDtToOcean(accountId, token1.info.pool, t2Val, t1Val, decSlippage);
         }
-      } else if (token1.info && token2.info) {
+      } else if (token1?.info && token2?.info) {
         if (exactToken === 1) {
           console.log("exact dt to dt");
           // prettier-ignore
@@ -530,8 +525,8 @@ const Swap: React.FC = () => {
           setTxHistory,
           txHistory,
           accountId: String(accountId),
-          token1: { ...token1, value: toFixed5(token1.value) },
-          token2: { ...token2, value: toFixed5(token2.value) },
+          token1: { ...token1, value: toFixed5(token1?.value) },
+          token2: { ...token2, value: toFixed5(token2?.value) },
           txType,
           slippage: decSlippage,
           txDateId,
@@ -572,7 +567,7 @@ const Swap: React.FC = () => {
 
   function getConfirmModalProperties(): string[] {
     const { t1Val, t2Val } = getTokenVal(token1, token2);
-    if (token1.info && token2.info) {
+    if (token1?.info && token2?.info) {
       return [
         `Swap ${token1.value} ${token1.info.symbol} for ${t2Val} 
     ${token2.info.symbol}`,
@@ -590,21 +585,21 @@ const Swap: React.FC = () => {
       });
     }
 
-    if (accountId && !(token1.info && token2.info)) {
+    if (accountId && !(token1?.info && token2?.info)) {
       setBtnProps({
         text: "Select Tokens",
         disabled: true,
       });
     }
 
-    if ((accountId && token1.info && token2.info && t1BN.eq(0)) || !t2BN.eq(0)) {
+    if ((accountId && token1?.info && token2?.info && t1BN.eq(0)) || !t2BN.eq(0)) {
       setBtnProps({
         text: "Enter Token Amount",
         disabled: true,
       });
     }
 
-    if (accountId && token1.info && token2.info && t1BN.gt(0) && t2BN.gt(0)) {
+    if (accountId && token1?.info && token2?.info && t1BN.gt(0) && t2BN.gt(0)) {
       if (token1.balance.lt(token1.value)) {
         setBtnProps({
           text: `Not Enough ${token1.info.symbol}`,
@@ -646,7 +641,7 @@ const Swap: React.FC = () => {
     const bnVal = new BigNumber(value);
     //Setting state here allows for max to be persisted in the input
     setToken1({ ...token1, value: bnVal });
-    if (token1.info && token2.info) {
+    if (token1?.info && token2?.info) {
       let exchangeLimit = INITIAL_MAX_EXCHANGE;
 
       maxExchange.maxSell.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await getMaxExchange());
@@ -680,10 +675,9 @@ const Swap: React.FC = () => {
 
     maxExchange.maxPercent.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await getMaxExchange());
 
-
     const { maxPercent, maxBuy, maxSell, postExchange } = exchangeLimit;
 
-    if (bnVal.gte(maxPercent) && token1.balance.gte(0.00001)) {
+    if (bnVal.gte(maxPercent) && token1?.balance.gte(0.00001)) {
       setToken1({
         ...token1,
         value: maxSell,
@@ -702,7 +696,7 @@ const Swap: React.FC = () => {
     const bnVal = new BigNumber(value);
     //Setting state here allows for max to be persisted in the input
     setToken2({ ...token2, value: bnVal });
-    if (token1.info && token2.info) {
+    if (token1?.info && token2?.info) {
       let exchangeLimit;
 
       maxExchange.maxBuy.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await getMaxExchange());
@@ -781,8 +775,8 @@ const Swap: React.FC = () => {
             max={maxExchange.maxSell}
             perc={token1.percentage}
             onPerc={onPercToken1}
-            otherToken={token2.info ? token2.info.symbol : ""}
-            num={typeof token1.value === "string" ? token1.value : token1.value.dp(5).toString()}
+            otherToken={token2?.info ? token2.info.symbol : ""}
+            num={typeof token1?.value === "string" ? token1.value : token1.value.dp(5).toString()}
             value={token1.info}
             balance={token1.balance}
             title={text.T_SWAP_FROM}
@@ -803,7 +797,7 @@ const Swap: React.FC = () => {
               tabIndex={0}
               className="rounded-full border-black bg-opacity-100 border-4 absolute -top-7 bg-trade-darkBlue hover:bg-gray-600 transition-colors duration-200 w-12 h-12 flex swap-center items-center justify-center"
             >
-              {token2.loading || token1.loading || bgLoading?.includes(bgLoadingStates.calcTrade) || percLoading ? (
+              {token2?.loading || token1?.loading || bgLoading?.includes(bgLoadingStates.calcTrade) || percLoading ? (
                 <MoonLoader size={25} color={"white"} />
               ) : (
                 <IoSwapVertical size="30" className="text-gray-300" />
@@ -815,7 +809,7 @@ const Swap: React.FC = () => {
             onPerc={() => {}}
             max={maxExchange.maxBuy}
             otherToken={token1.info ? token1.info.symbol : ""}
-            num={typeof token2.value === "string" ? token2.value : token2.value.dp(5).toString()}
+            num={typeof token2?.value === "string" ? token2.value : token2.value.dp(5).toString()}
             value={token2.info}
             balance={token2.balance}
             title={text.T_SWAP_TO}
@@ -825,7 +819,7 @@ const Swap: React.FC = () => {
             updateNum={dbUpdateToken2}
           />
 
-          {token1.info && token2.info && postExchange.isNaN && postExchange.gt(0) ? (
+          {token1?.info && token2?.info && postExchange.isNaN && postExchange.gt(0) ? (
             <div className="my-4 p-2 modalSelectBg flex justify-between text-type-400 text-sm rounded-lg">
               <p>Exchange rate</p>
               <p>
@@ -845,7 +839,7 @@ const Swap: React.FC = () => {
                   case "Connect Wallet":
                     if (handleConnect) handleConnect();
                     break;
-                  case `Unlock ${token1.info ? token1.info.symbol : ""}`:
+                  case `Unlock ${token1?.info ? token1.info.symbol : ""}`:
                     if (setShowUnlockTokenModal) setShowUnlockTokenModal(true);
                     break;
                   default:

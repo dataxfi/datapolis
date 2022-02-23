@@ -11,7 +11,6 @@ import {
 import TokenModal from "./TokenModal";
 import { MoonLoader } from "react-spinners";
 import useWatchLocation from "../hooks/useWatchLocation";
-import useTokenList from "../hooks/useTokenList";
 import { IUserMessage, IPoolData } from "../utils/types";
 const LiquidityPosition = () => {
   const {
@@ -37,7 +36,6 @@ const LiquidityPosition = () => {
   const [messageId, setMessageId] = useState<string | null>("importMessage");
 
   useWatchLocation();
-  useTokenList("OCEAN");
 
   useEffect(() => {
     if (!setAllStakedPools || !setCurrentStakePool) return;

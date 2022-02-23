@@ -1,6 +1,5 @@
 import { useContext, useEffect } from "react";
-import { INITIAL_TOKEN_STATE } from "../components/Swap";
-import { GlobalContext } from "../context/GlobalState";
+import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
 
 export default function useTxModalToggler(
   txReceipt: any,

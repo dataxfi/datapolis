@@ -3,7 +3,6 @@ import { useLocation } from "react-router-dom";
 import { GlobalContext } from "../context/GlobalState";
 import { bgLoadingStates, removeBgLoadingState } from "../context/GlobalState";
 import { updateSingleStakePool, getLocalPoolData, setPoolDataFromLocal } from "../utils/stakedPoolsUtils";
-import useTokenList from "./useTokenList";
 
 export default function useCurrentPool({
   poolAddress,
@@ -31,7 +30,6 @@ export default function useCurrentPool({
     setLoading,
   } = useContext(GlobalContext);
 
-  useTokenList("OCEAN", setLoading);
   const location = useLocation();
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);

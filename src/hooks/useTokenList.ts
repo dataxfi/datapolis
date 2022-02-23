@@ -1,18 +1,35 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { GlobalContext } from "../context/GlobalState";
 import { Ocean, TokenList } from "@dataxfi/datax.js";
 // import { TokenList as TList } from "@uniswap/token-lists";
 import { ITokenInfo, ITokenList } from "../utils/types";
 
-
-
-
-export default function useTokenList(otherToken: string, setLoading?: Function) {
+export default function useTokenList({
+  otherToken,
+  setLoading,
+  setError,
+}: {
+  otherToken: string;
+  setLoading?: Function;
+  setError?: Function;
+}) {
   const { location, chainId, web3, setTokenResponse, tokenResponse, setTokenModalArray, accountId } =
     useContext(GlobalContext);
 
   useEffect(() => {
-    if (accountId) {
+    setTokenResponse(undefined);
+  }, [location]);
+
+  const initialChain = useRef(chainId);
+  useEffect(() => {
+    if (setTokenModalArray && setTokenResponse && chainId !== initialChain.current) {
+      setTokenModalArray(undefined);
+      setTokenResponse(undefined);
+    }
+  }, [chainId, setTokenModalArray, setTokenResponse]);
+
+  useEffect(() => {
+    if (accountId && !tokenResponse) {
       if (setLoading) setLoading(true);
       const tokenList: TokenList = new TokenList(
         web3,
@@ -24,23 +41,25 @@ export default function useTokenList(otherToken: string, setLoading?: Function) 
       tokenList
         .fetchPreparedTokenList(chainId ? chainId : 4)
         .then((res) => {
-          if(res && setTokenResponse)
-          setTokenResponse(res);
-          console.log("Token Response:", res);
-          //@ts-ignore
-          const formattedList = formatTokenArray(res, otherToken, location);
-          if (setTokenModalArray) setTokenModalArray(formattedList);
+          if (res && setTokenResponse && setTokenModalArray) {
+            setTokenResponse(res);
+            console.log("Token List Response:", res);
+            //@ts-ignore
+            const formattedList = formatTokenArray(res, otherToken, location);
+            console.log(formattedList);
+            setTokenModalArray(formattedList);
+          }
         })
         .catch((err: Error) => {
-          if(err && setTokenResponse)
-          setTokenResponse(undefined);
+          if (err && setTokenResponse) setTokenResponse(undefined);
           console.error("An error occurred while fetching the token list.", err);
+          if (setError) setError(true);
         })
         .finally(() => {
           if (setLoading) setLoading(false);
         });
     }
-  }, [location, otherToken]);
+  }, [location, otherToken, setTokenModalArray, tokenResponse, setTokenResponse]);
 }
 
 export function formatTokenArray(

@@ -13,11 +13,18 @@ import {
   deniedSignatureGA,
   connectedWalletViaGA,
 } from "./Analytics";
-import { IDisclaimerSigned, initialState, globalStates, IPoolData, IToken, ITokenList, ITxHistory } from "../utils/types";
+import { IDisclaimerSigned, globalStates, IPoolData, IToken, ITokenList, ITxHistory } from "../utils/types";
+import BigNumber from 'bignumber.js'
 
 const CONNECT_TEXT = "Connect Wallet";
-
-export const GlobalContext = createContext<Partial<globalStates>>(initialState);
+export const INITIAL_TOKEN_STATE: IToken = {
+  info: null,
+  value: new BigNumber(0),
+  balance: new BigNumber(0),
+  percentage: new BigNumber(0),
+  loading: false,
+};
+export const GlobalContext = createContext<globalStates>({} as globalStates);
 
 //use these states to ensure proper management of bgLoading ops
 export const bgLoadingStates = {
@@ -95,8 +102,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   //tokenModalArray to be rendered in token modal
   const [tokenModalArray, setTokenModalArray] = useState<[]>();
   //current token pair to be traded, staked, etc
-  const [token1, setToken1] = useState<IToken>()
-  const [token2, setToken2] = useState<IToken>()
+  const [token1, setToken1] = useState<IToken>(INITIAL_TOKEN_STATE)
+  const [token2, setToken2] = useState<IToken>(INITIAL_TOKEN_STATE)
 
   //response from token fetch operation
   const [tokenResponse, setTokenResponse] = useState<ITokenList>();
@@ -312,8 +319,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
     // Subscribe to chainId change
     provider.on("chainChanged", async (chainId: any) => {
-      setTokenModalArray(undefined);
-      setTokenResponse(undefined);
       setTxHistory(undefined);
       setPendingTxs([]);
       const parsedId = String(parseInt(chainId));
@@ -397,6 +402,10 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setLocation,
         bgOff,
         setBgOff,
+        token1, 
+        setToken1, 
+        token2, 
+        setToken2
       }}
     >
       {children}

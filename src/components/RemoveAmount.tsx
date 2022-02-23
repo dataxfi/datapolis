@@ -18,7 +18,7 @@ import BigNumber from "bignumber.js";
 import WrappedInput from "./WrappedInput";
 import UnlockTokenModal from "./UnlockTokenModal";
 import useWatchLocation from "../hooks/useWatchLocation";
-import useTokenList, { getAllowance } from "../hooks/useTokenList";
+import { getAllowance } from "../hooks/useTokenList";
 import { IMaxUnstake, IUserMessage } from "../utils/types";
 
 const RemoveAmount = () => {
@@ -97,7 +97,6 @@ const RemoveAmount = () => {
   useTxModalToggler(txReceipt, setTxReceipt);
   useCurrentPool({ poolAddress, setPoolAddress, txReceipt, setTxReceipt });
   useWatchLocation();
-  useTokenList("OCEAN");
 
   useEffect(() => {
     if (ocean && currentStakePool && setBgLoading && bgLoading && accountId) {

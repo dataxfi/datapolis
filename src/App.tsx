@@ -16,6 +16,7 @@ import SnackbarArea from "./components/SnackbarArea";
 import usePTxInitializer from "./hooks/usePTxInitializer";
 import BigNumber from "bignumber.js";
 import LandingPage from "./components/LandingPage";
+import useTokenList from "./hooks/useTokenList";
 BigNumber.config({ DECIMAL_PLACES: 18, ROUNDING_MODE: BigNumber.ROUND_DOWN, EXPONENTIAL_AT: 18 });
 
 //import "./stars.css"
@@ -24,13 +25,9 @@ function App() {
 
   document.getElementById("loader");
 
-  useEffect(() => {
-    console.log(location);
-  }, [location]);
-
+  // useTokenList(otherToken)
   usePTxInitializer();
   useEffect(() => {
-    console.log(process.env.NODE_ENV);
     if (cookiesAllowed) {
       initializeGA();
     }

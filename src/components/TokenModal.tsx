@@ -15,36 +15,26 @@ const TokenModal = ({ close, onClick, otherToken }: { close: Function; onClick: 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
-  useTokenList(otherToken, setLoading);
+  useTokenList({otherToken, setLoading, setError});
 
-  const intialChain = useRef(chainId);
+  const initialChain = useRef(chainId);
   useEffect(() => {
-    if (chainId !== intialChain.current) close();
+    if (chainId !== initialChain.current) close();
   }, [chainId]);
 
   useEffect(() => {
-    if (!tokenResponse) {
+    if (!tokenModalArray) {
       setLoading(true);
       setError(false);
-      // if (tokenResponse === undefined) {
-      //   const formattedList = formatTokenArray(tokenResponse, otherToken, location);
-      //   setTokenModalArray(formattedList);
-      //   setLoading(false);
-      //   setError(false);
-      // } else if (tokenResponse === null) {
-      //   setError(true);
-      //   setLoading(false);
-      // }
     } else {
-      setError(true);
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tokenResponse]);
+  }, [tokenResponse, tokenModalArray]);
 
   const tokenRenderer = (idx: number, key: string | number) => {
-    //@ts-ignore
-    return <TokenItem onClick={onClick} key={key} token={tokenModalArray[idx]} />;
+    if (tokenModalArray) return <TokenItem onClick={onClick} key={key} token={tokenModalArray[idx]} />;
+    return <></>;
   };
 
   const searchToken = (val: string) => {

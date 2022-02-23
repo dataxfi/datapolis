@@ -54,7 +54,7 @@ export interface IUserMessage {
   message?: any;
   link?: string | { href: string; desc: string } | null;
   type: string;
-  alert?: any
+  alert?: any;
 }
 
 export interface ITokenInfo {
@@ -212,51 +212,55 @@ export interface globalStates {
   setLocation: Function;
   bgOff: boolean;
   setBgOff: Function;
+  token1: IToken;
+  token2: IToken;
+  setToken1: Function;
+  setToken2: Function;
 }
 
-export const initialState: globalStates = {
-  handleConnect : () => {},
-  buttonText : "Connect Wallet",
-  chainId : undefined,
-  network : "unknown",
-  unsupportedNet : false,
-  handleSignature : () => {},
-  cookiesAllowed : null,
-  setCookiesAllowed : () => {},
-  showDisclaimer : false,
-  setShowDisclaimer : () => {},
-  disclaimerSigned : { client: false, wallet: false },
-  setDisclaimerSigned : () => {},
-  loading : false,
-  setLoading : () => {},
-  setAllStakedPools : () => {},
-  setTokenModalArray : () => {},
-  setTokenResponse : () => {},
-  currentStakeToken : null,
-  setCurrentStakeToken : () => {},
-  setCurrentStakePool : () => {},
-  bgLoading : [],
-  setBgLoading : () => {},
-  setTxHistory : () => {},
-  showSnackbar : false,
-  setShowSnackbar : () => {},
-  pendingTxs : [],
-  setPendingTxs : () => {},
-  showTxHistoryModal : false,
-  setShowTxHistoryModal : () => {},
-  setWatcher : () => {},
-  showConfirmModal : false,
-  setShowConfirmModal : () => {},
-  showTxDone : false,
-  setShowTxDone : () => {},
-  stakeFetchTimeout : false,
-  setStakeFetchTimeout : () => {},
-  notifications : [],
-  setNotifications : () => {},
-  showUnlockTokenModal : false,
-  setShowUnlockTokenModal : () => {},
-  location : "/",
-  setLocation : () => {},
-  bgOff : false,
-  setBgOff : () => {},
-};
+// export const initialState: globalStates = {
+//   handleConnect : () => {},
+//   buttonText : "Connect Wallet",
+//   chainId : undefined,
+//   network : "unknown",
+//   unsupportedNet : false,
+//   handleSignature : () => {},
+//   cookiesAllowed : null,
+//   setCookiesAllowed : () => {},
+//   showDisclaimer : false,
+//   setShowDisclaimer : () => {},
+//   disclaimerSigned : { client: false, wallet: false },
+//   setDisclaimerSigned : () => {},
+//   loading : false,
+//   setLoading : () => {},
+//   setAllStakedPools : () => {},
+//   setTokenModalArray : () => {},
+//   setTokenResponse : () => {},
+//   currentStakeToken : null,
+//   setCurrentStakeToken : () => {},
+//   setCurrentStakePool : () => {},
+//   bgLoading : [],
+//   setBgLoading : () => {},
+//   setTxHistory : () => {},
+//   showSnackbar : false,
+//   setShowSnackbar : () => {},
+//   pendingTxs : [],
+//   setPendingTxs : () => {},
+//   showTxHistoryModal : false,
+//   setShowTxHistoryModal : () => {},
+//   setWatcher : () => {},
+//   showConfirmModal : false,
+//   setShowConfirmModal : () => {},
+//   showTxDone : false,
+//   setShowTxDone : () => {},
+//   stakeFetchTimeout : false,
+//   setStakeFetchTimeout : () => {},
+//   notifications : [],
+//   setNotifications : () => {},
+//   showUnlockTokenModal : false,
+//   setShowUnlockTokenModal : () => {},
+//   location : "/",
+//   setLocation : () => {},
+//   bgOff : false,
+//   setBgOff : () => {},
+// };
