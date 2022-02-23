@@ -18,7 +18,8 @@ import { toFixed5 } from "../utils/equate";
 import UnlockTokenModal from "./UnlockTokenModal";
 import { getAllowance } from "../hooks/useTokenList";
 import useWatchLocation from "../hooks/useWatchLocation";
-import { IToken, IMaxExchange, ITokenValues, IBtnProps, ITokenInfo } from "../utils/types";
+import { IToken, IMaxExchange, ITokenValues, IBtnProps } from "../utils/types";
+import { TokenInfo } from "@dataxfi/datax.js/dist/TokenList"
 
 const text = {
   T_SWAP: "Trade",
@@ -316,7 +317,7 @@ const Swap: React.FC = () => {
     return new BigNumber(await ocean.getBalance(address, accountId));
   }
 
-  const setToken = async (info: ITokenInfo, pos: number) => {
+  const setToken = async (info: TokenInfo, pos: number) => {
     setClearingTokens(true);
     const balance = await updateBalance(info.address);
     if (!balance) return;
@@ -379,7 +380,7 @@ const Swap: React.FC = () => {
         setExactToken(2);
       }
     }
-    if (bgLoading && setBgLoading) setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
+    if (bgLoading) setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
   }
 
   // This is easily testable, if we someone writes tests for this in the future, it'll be great
@@ -542,7 +543,6 @@ const Swap: React.FC = () => {
       console.log("DataX Caught an Error for Transaction:", txDateId);
 
       if (setShowConfirmModal) setShowConfirmModal(false);
-      if (notifications && setNotifications) {
         const allNotifications = notifications;
         allNotifications.push({
           type: "alert",
@@ -553,7 +553,7 @@ const Swap: React.FC = () => {
           },
         });
         setNotifications([...allNotifications]);
-      }
+      
       if (accountId)
         deleteRecentTxs({
           txDateId,

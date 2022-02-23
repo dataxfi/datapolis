@@ -1,11 +1,13 @@
 import BigNumber from "bignumber.js";
 import { TokenDetails } from "@dataxfi/datax.js/dist/Ocean";
 import { TransactionReceipt } from "web3-core";
-import { Config, Ocean } from "@dataxfi/datax.js";
+import { Config, Ocean} from "@dataxfi/datax.js";
+import { TList, TokenInfo } from "@dataxfi/datax.js/dist/TokenList"
 import Web3 from "web3";
 import Web3Modal from "web3modal";
 import Watcher from "@dataxfi/datax.js/dist/Watcher";
-import Core from "web3modal";
+
+
 export type ApprovalStates = "approved" | "approving" | "pending";
 
 export interface IBtnProps {
@@ -30,7 +32,7 @@ export interface IPoolLiquidity {
 export interface IToken {
   balance: BigNumber;
   value: BigNumber | string;
-  info: ITokenInfo | null;
+  info: TokenInfo | null;
   loading: boolean;
   percentage: BigNumber;
   allowance?: BigNumber;
@@ -57,35 +59,6 @@ export interface IUserMessage {
   alert?: any;
 }
 
-export interface ITokenInfo {
-  address: string;
-  chainId: string | number;
-  decimals: string | number;
-  logoURI: string;
-  name: string;
-  symbol: string;
-  pool: string;
-  tags?: string[];
-}
-
-export interface ITokenList {
-  name: string;
-  logoURI: string;
-  keywords: string[];
-  tags: {
-    datatokens: {
-      name: string;
-      description: string;
-    };
-  };
-  timestamp: string;
-  tokens: ITokenInfo[];
-  version: {
-    major: number;
-    minor: number;
-    patch: number;
-  };
-}
 
 export interface IMaxEval {
   t1Max: BigNumber;
@@ -105,8 +78,8 @@ export interface IPoolData {
   //pool address
   address: string;
   //tokens in pool
-  token1: ITokenInfo;
-  token2: ITokenInfo;
+  token1: TokenInfo;
+  token2: TokenInfo;
   //the amount of shares you own
   shares: string;
   //total dt in pool
@@ -125,15 +98,15 @@ export type LocalStorageMethods = "get" | "set" | "clear" | "remove" | "key" | "
 
 export interface ITxTokenDetails {
   balance: string;
-  info: ITokenInfo;
+  info: TokenInfo;
   percentage: string;
   value: string;
 }
 
 export interface ITxObject {
   accountId: string;
-  token1: ITxTokenDetails | ITokenInfo;
-  token2: ITxTokenDetails | ITokenInfo;
+  token1: ITxTokenDetails | TokenInfo;
+  token2: ITxTokenDetails | TokenInfo;
   txHash: string | null;
   status: string;
   txType: string;
@@ -156,6 +129,7 @@ export interface IDisclaimerSigned {
   wallet: boolean | null | "denied";
 }
 
+
 export interface globalStates {
   ocean?: Ocean;
   handleConnect: Function;
@@ -169,53 +143,53 @@ export interface globalStates {
   unsupportedNet: boolean;
   handleSignature: Function;
   cookiesAllowed: boolean | null;
-  setCookiesAllowed: Function;
+  setCookiesAllowed: React.Dispatch<React.SetStateAction<boolean | null>>;
   showDisclaimer: boolean;
-  setShowDisclaimer: Function;
+  setShowDisclaimer: React.Dispatch<React.SetStateAction<boolean>>;
   disclaimerSigned: IDisclaimerSigned;
-  setDisclaimerSigned: Function;
+  setDisclaimerSigned: React.Dispatch<React.SetStateAction<IDisclaimerSigned>>;
   loading: boolean;
-  setLoading: Function;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   allStakedPools?: IPoolData[];
-  setAllStakedPools: Function;
-  tokenModalArray?: ITokenInfo[];
-  setTokenModalArray: Function;
-  tokenResponse?: ITokenList;
-  setTokenResponse: Function;
+  setAllStakedPools: React.Dispatch<React.SetStateAction<IPoolData[] | undefined>>;
+  tokenModalArray?: TokenInfo[];
+  setTokenModalArray: React.Dispatch<React.SetStateAction<TokenInfo[] | undefined>>;
+  tokenResponse?: TList;
+  setTokenResponse: React.Dispatch<React.SetStateAction<TList | undefined>>;
   currentStakeToken: any;
-  setCurrentStakeToken: Function;
+  setCurrentStakeToken: React.Dispatch<React.SetStateAction<any>>;
   currentStakePool?: IPoolData;
-  setCurrentStakePool: Function;
+  setCurrentStakePool: React.Dispatch<React.SetStateAction<IPoolData | undefined>>;
   bgLoading: string[];
-  setBgLoading: Function;
+  setBgLoading: React.Dispatch<React.SetStateAction<string[]>>;
   txHistory?: ITxHistory;
-  setTxHistory: Function;
+  setTxHistory: React.Dispatch<React.SetStateAction<ITxHistory | undefined>>;
   showSnackbar: boolean;
-  setShowSnackbar: Function;
+  setShowSnackbar: React.Dispatch<React.SetStateAction<boolean>>;
   pendingTxs: number[];
-  setPendingTxs: Function;
+  setPendingTxs: React.Dispatch<React.SetStateAction<number[]>>;
   showTxHistoryModal: boolean;
-  setShowTxHistoryModal: Function;
+  setShowTxHistoryModal: React.Dispatch<React.SetStateAction<boolean>>;
   watcher?: Watcher;
-  setWatcher: Function;
+  setWatcher: React.Dispatch<React.SetStateAction<Watcher | undefined>>;
   showConfirmModal: boolean;
-  setShowConfirmModal: Function;
+  setShowConfirmModal: React.Dispatch<React.SetStateAction<boolean>>;
   showTxDone: boolean;
-  setShowTxDone: Function;
+  setShowTxDone: React.Dispatch<React.SetStateAction<boolean>>;
   stakeFetchTimeout: boolean;
-  setStakeFetchTimeout: Function;
+  setStakeFetchTimeout: React.Dispatch<React.SetStateAction<boolean>>;
   notifications: IUserMessage[];
-  setNotifications: Function;
+  setNotifications: React.Dispatch<React.SetStateAction<IUserMessage[]>>;
   showUnlockTokenModal: boolean;
-  setShowUnlockTokenModal: Function;
+  setShowUnlockTokenModal: React.Dispatch<React.SetStateAction<boolean>>;
   location: string;
-  setLocation: Function;
+  setLocation: React.Dispatch<React.SetStateAction<string>>;
   bgOff: boolean;
-  setBgOff: Function;
+  setBgOff: React.Dispatch<React.SetStateAction<boolean>>;
   token1: IToken;
   token2: IToken;
-  setToken1: Function;
-  setToken2: Function;
+  setToken1: React.Dispatch<React.SetStateAction<IToken>>;
+  setToken2: React.Dispatch<React.SetStateAction<IToken>>;
 }
 
 // export const initialState: globalStates = {

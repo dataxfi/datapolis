@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { BsCheckCircle, BsX } from "react-icons/bs";
+import { BsX } from "react-icons/bs";
 import { IoCheckboxOutline } from "react-icons/io5";
 import { GlobalContext } from "../context/GlobalState";
 import { getTxUrl, conformTx } from "../utils/txHistoryUtils";

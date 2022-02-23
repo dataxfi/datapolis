@@ -39,8 +39,8 @@ const LiquidityPosition = () => {
 
   useEffect(() => {
     if (!setAllStakedPools || !setCurrentStakePool) return;
-    setAllStakedPools(null);
-    setCurrentStakePool(null);
+    setAllStakedPools(undefined);
+    setCurrentStakePool(undefined);
   }, [setAllStakedPools, setCurrentStakePool]);
 
   useEffect(() => {
@@ -144,7 +144,7 @@ const LiquidityPosition = () => {
 
   function importData(poolAddress: string) {
     setShowModal(false);
-    if (setLoading && setBgLoading && bgLoading && ocean && accountId && setAllStakedPools && allStakedPools) {
+    if (bgLoading && ocean && accountId && allStakedPools) {
       setBgLoading([...bgLoading, bgLoadingStates.singlePoolData]);
       updateSingleStakePool({
         ocean,

@@ -2,7 +2,8 @@ import { useContext, useEffect, useRef } from "react";
 import { GlobalContext } from "../context/GlobalState";
 import { Ocean, TokenList } from "@dataxfi/datax.js";
 // import { TokenList as TList } from "@uniswap/token-lists";
-import { ITokenInfo, ITokenList } from "../utils/types";
+import { TList, TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
+import Web3 from "web3";
 
 export default function useTokenList({
   otherToken,
@@ -22,26 +23,18 @@ export default function useTokenList({
 
   const initialChain = useRef(chainId);
   useEffect(() => {
-    if (setTokenModalArray && setTokenResponse && chainId !== initialChain.current) {
+    if (chainId !== initialChain.current) {
       setTokenModalArray(undefined);
       setTokenResponse(undefined);
     }
   }, [chainId, setTokenModalArray, setTokenResponse]);
 
   useEffect(() => {
-    if (accountId && !tokenResponse) {
+    if (accountId && !tokenResponse && web3 && chainId) {
       if (setLoading) setLoading(true);
-      const tokenList: TokenList = new TokenList(
-        web3,
-        "4",
-        process.env.REACT_APP_PINATA_KEY || "",
-        process.env.REACT_APP_PINATA_KEY || ""
-      );
-
-      tokenList
-        .fetchPreparedTokenList(chainId ? chainId : 4)
+      getTokenList(web3, chainId)
         .then((res) => {
-          if (res && setTokenResponse && setTokenModalArray) {
+          if (res) {
             setTokenResponse(res);
             console.log("Token List Response:", res);
             //@ts-ignore
@@ -51,7 +44,7 @@ export default function useTokenList({
           }
         })
         .catch((err: Error) => {
-          if (err && setTokenResponse) setTokenResponse(undefined);
+          if (err) setTokenResponse(undefined);
           console.error("An error occurred while fetching the token list.", err);
           if (setError) setError(true);
         })
@@ -59,15 +52,31 @@ export default function useTokenList({
           if (setLoading) setLoading(false);
         });
     }
-  }, [location, otherToken, setTokenModalArray, tokenResponse, setTokenResponse]);
+  }, [location, otherToken, setTokenModalArray, tokenResponse, setTokenResponse, web3, chainId]);
+}
+
+async function getTokenList(web3: Web3, chainId: number): Promise<TList> {
+  const tokenList: TokenList = new TokenList(
+    web3,
+    "4",
+    process.env.REACT_APP_PINATA_KEY || "",
+    process.env.REACT_APP_PINATA_KEY || ""
+  );
+
+  return await tokenList.fetchPreparedTokenList(chainId ? chainId : 4);
+}
+
+export async function getToken(web3: Web3, chainId: number, pool: string): Promise<TokenInfo | undefined> {
+  const tokenList = await getTokenList(web3, chainId);
+  return tokenList.tokens.find((token) => token.pool === pool);
 }
 
 export function formatTokenArray(
-  tokenResponse: { tokens: ITokenInfo[] },
+  tokenResponse: { tokens: TokenInfo[] },
   otherToken: any,
   location: string
-): ITokenInfo[] {
-  let tokenList: ITokenInfo[] = tokenResponse.tokens;
+): TokenInfo[] {
+  let tokenList: TokenInfo[] = tokenResponse.tokens;
   if (location === "/trade") {
     tokenList = tokenResponse.tokens.filter((t) => t.symbol !== otherToken);
   } else {

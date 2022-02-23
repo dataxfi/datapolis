@@ -46,7 +46,7 @@ const TokenModal = ({ close, onClick, otherToken }: { close: Function; onClick: 
             t.symbol.toLowerCase().indexOf(val.toLowerCase()) >= 0
         )
       );
-    } else if (setTokenModalArray && tokenResponse && location) {
+    } else if (tokenResponse && location) {
       setTokenModalArray(formatTokenArray(tokenResponse, otherToken, location));
     }
   };

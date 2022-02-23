@@ -93,7 +93,6 @@ export default function UnlockTokenModal({
       } catch (error) {
         console.error(error);
         setApproving("pending");
-        if (notifications && setNotifications) {
           const allNotifications = notifications;
           allNotifications.push({
             type: "alert",
@@ -104,7 +103,7 @@ export default function UnlockTokenModal({
             },
           });
           setNotifications([...allNotifications]);
-        }
+        
         if (setShowUnlockTokenModal) setShowUnlockTokenModal(false);
       }
     }

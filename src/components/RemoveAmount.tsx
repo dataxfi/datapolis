@@ -315,17 +315,16 @@ const RemoveAmount = () => {
       console.error(error);
       setPendingUnstakeTx(undefined);
       const allNotifications = notifications;
-      if (allNotifications && setNotifications) {
-        allNotifications.push({
+      allNotifications.push({
+        type: "alert",
+        alert: {
+          message: errorMessages(error),
+          link: null,
           type: "alert",
-          alert: {
-            message: errorMessages(error),
-            link: null,
-            type: "alert",
-          },
-        });
-        setNotifications([...allNotifications]);
-      }
+        },
+      });
+      setNotifications([...allNotifications]);
+
       setShowConfirmModal(false);
       if (setShowTxDone) setShowTxDone(false);
       deleteRecentTxs({

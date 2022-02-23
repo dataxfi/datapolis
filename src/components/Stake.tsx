@@ -23,7 +23,9 @@ import UnlockTokenModal from "./UnlockTokenModal";
 import { IToken, IUserMessage } from "../utils/types";
 import useWatchLocation from "../hooks/useWatchLocation";
 import { getAllowance } from "../hooks/useTokenList";
-import { IPoolLiquidity, ITokenInfo, IBtnProps } from "../utils/types";
+import { IPoolLiquidity, IBtnProps } from "../utils/types";
+import {TokenInfo } from "@dataxfi/datax.js/dist/TokenList"
+
 const text = {
   T_STAKE: "Stake",
   T_SELECT_TOKEN: "Select token",
@@ -58,7 +60,7 @@ const Stake = () => {
     loading,
     setLoading,
   } = useContext(GlobalContext);
-  const [token, setToken] = useState<ITokenInfo | null>(null);
+  const [token, setToken] = useState<TokenInfo | null>(null);
   const [dtToOcean, setDtToOcean] = useState<any>(null);
   const [oceanToDt, setOceanToDt] = useState<any>(null);
   const [loadingRate, setLoadingRate] = useState(false);
@@ -308,7 +310,7 @@ const Stake = () => {
       }
     } catch (error: any) {
       console.error(error);
-      if (notifications && setNotifications) {
+      if (notifications) {
         const allNotifications = notifications;
         allNotifications.push({
           type: "alert",

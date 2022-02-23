@@ -13,8 +13,9 @@ import {
   deniedSignatureGA,
   connectedWalletViaGA,
 } from "./Analytics";
-import { IDisclaimerSigned, globalStates, IPoolData, IToken, ITokenList, ITxHistory } from "../utils/types";
+import { IDisclaimerSigned, globalStates, IPoolData, IToken, ITxHistory, IUserMessage } from "../utils/types";
 import BigNumber from 'bignumber.js'
+import { TList, TokenInfo } from "@dataxfi/datax.js/dist/TokenList"
 
 const CONNECT_TEXT = "Connect Wallet";
 export const INITIAL_TOKEN_STATE: IToken = {
@@ -100,18 +101,18 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   //dToken information associated with pool
   const [currentStakeToken, setCurrentStakeToken] = useState<{}>();
   //tokenModalArray to be rendered in token modal
-  const [tokenModalArray, setTokenModalArray] = useState<[]>();
+  const [tokenModalArray, setTokenModalArray] = useState<TokenInfo[]>();
   //current token pair to be traded, staked, etc
   const [token1, setToken1] = useState<IToken>(INITIAL_TOKEN_STATE)
   const [token2, setToken2] = useState<IToken>(INITIAL_TOKEN_STATE)
 
   //response from token fetch operation
-  const [tokenResponse, setTokenResponse] = useState<ITokenList>();
+  const [tokenResponse, setTokenResponse] = useState<TList>();
 
   const [buttonText, setButtonText] = useState<string>(CONNECT_TEXT);
 
 
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState<IUserMessage[]>([]);
 
   const [showUnlockTokenModal, setShowUnlockTokenModal] = useState<boolean>(false);
 
