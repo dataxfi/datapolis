@@ -11,7 +11,7 @@ const text = {
 };
 
 const TokenModal = ({ close, onClick, otherToken }: { close: Function; onClick: Function; otherToken: string }) => {
-  const { tokenModalArray, setTokenModalArray, tokenResponse, location, chainId } = useContext(GlobalContext);
+  const { tokenModalArray, setTokenModalArray, tokenResponse, location, chainId, accountId } = useContext(GlobalContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
@@ -23,7 +23,7 @@ const TokenModal = ({ close, onClick, otherToken }: { close: Function; onClick: 
   }, [chainId]);
 
   useEffect(() => {
-    if (!tokenModalArray) {
+    if (!tokenModalArray && accountId) {
       setLoading(true);
       setError(false);
     } else {

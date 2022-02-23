@@ -13,11 +13,10 @@ import usePTxManager from "../hooks/usePTxManager";
 import useTxModalToggler from "../hooks/useTxModalToggler";
 import errorMessages from "../utils/errorMessages";
 import { DebounceInput } from "react-debounce-input";
-import useCurrentPool from "../hooks/useCurrentPool";
+import useLiquidityPos from "../hooks/useLiquidityPos";
 import BigNumber from "bignumber.js";
 import WrappedInput from "./WrappedInput";
 import UnlockTokenModal from "./UnlockTokenModal";
-import useWatchLocation from "../hooks/useWatchLocation";
 import { getAllowance } from "../hooks/useTokenList";
 import { IMaxUnstake, IUserMessage } from "../utils/types";
 
@@ -25,10 +24,8 @@ const RemoveAmount = () => {
   const {
     chainId,
     accountId,
-    currentStakePool,
+    singleLiquidityPos,
     ocean,
-    web3,
-    setTokenResponse,
     bgLoading,
     setBgLoading,
     txHistory,
@@ -72,20 +69,20 @@ const RemoveAmount = () => {
 
     try {
       //.98 is a fix for the MAX_OUT_RATIO error from the contract
-      if (!ocean || !currentStakePool || !currentStakePool.address) return;
+      if (!ocean || !singleLiquidityPos || !singleLiquidityPos.address) return;
       const oceanAmt: BigNumber = new BigNumber(
-        await ocean.getMaxUnstakeAmount(currentStakePool.address, ocean.config.default.oceanTokenAddress)
+        await ocean.getMaxUnstakeAmount(singleLiquidityPos.address, ocean.config.default.oceanTokenAddress)
       ).multipliedBy(0.98);
 
       const shareAmt: BigNumber = new BigNumber(
         await ocean.getPoolSharesRequiredToUnstake(
-          currentStakePool.address,
+          singleLiquidityPos.address,
           ocean.config.default.oceanTokenAddress,
           oceanAmt.toFixed(18)
         )
       );
 
-      const userPerc: BigNumber = shareAmt.div(Number(currentStakePool.shares)).multipliedBy(100);
+      const userPerc: BigNumber = shareAmt.div(Number(singleLiquidityPos.shares)).multipliedBy(100);
       return { OCEAN: oceanAmt, shares: shareAmt, userPerc };
     } catch (error) {
       console.error(error);
@@ -95,11 +92,10 @@ const RemoveAmount = () => {
   //hooks
   usePTxManager(lastTxId);
   useTxModalToggler(txReceipt, setTxReceipt);
-  useCurrentPool({ poolAddress, setPoolAddress, txReceipt, setTxReceipt });
-  useWatchLocation();
+  useLiquidityPos();
 
   useEffect(() => {
-    if (ocean && currentStakePool && setBgLoading && bgLoading && accountId) {
+    if (ocean && singleLiquidityPos && setBgLoading && bgLoading && accountId) {
       getMaxUnstake()
         .then((res: IMaxUnstake | void) => {
           if (res) {
@@ -112,16 +108,16 @@ const RemoveAmount = () => {
           setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.maxUnstake));
         });
 
-      getAllowance(currentStakePool.token1.address, accountId, currentStakePool.address, ocean).then((res) => {
+      getAllowance(singleLiquidityPos.token1Info.address, accountId, singleLiquidityPos.address, ocean).then((res) => {
         setAllowance(new BigNumber(res));
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ocean, currentStakePool]);
+  }, [ocean, singleLiquidityPos]);
 
   useEffect(() => {
     setInputDisabled(false);
-    if (currentStakePool && Number(currentStakePool.shares) === 0) {
+    if (singleLiquidityPos && Number(singleLiquidityPos.shares) === 0) {
       setBtnDisabled(true);
       setInputDisabled(true);
       setBtnText("Not Enough Shares");
@@ -137,13 +133,13 @@ const RemoveAmount = () => {
       setBtnText("Minimum Removal is .01 OCEAN");
     } else if (allowance.lt(oceanToReceive)) {
       setBtnDisabled(false);
-      setBtnText(`Unlock ${currentStakePool?.token1.symbol}`);
+      setBtnText(`Unlock ${singleLiquidityPos?.token1Info.symbol}`);
     } else {
       setBtnDisabled(false);
       setBtnText("Withdrawal");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bgLoading?.length, sharesToRemove, pendingUnstakeTx, currentStakePool, maxUnstake]);
+  }, [bgLoading?.length, sharesToRemove, pendingUnstakeTx, singleLiquidityPos, maxUnstake]);
 
   useEffect(() => {
     accountId ? setNoWallet(false) : setNoWallet(true);
@@ -154,7 +150,7 @@ const RemoveAmount = () => {
     let max: IMaxUnstake | void;
     maxUnstake?.OCEAN.gt(0) ? (max = maxUnstake) : (max = await getMaxUnstake());
     try {
-      if (max && max.OCEAN.gt(0) && max.shares.gt(0) && ocean && bgLoading && setBgLoading && currentStakePool) {
+      if (max && max.OCEAN.gt(0) && max.shares.gt(0) && ocean && bgLoading && setBgLoading && singleLiquidityPos) {
         let percInput: BigNumber = new BigNumber(val);
         setSharesPercToRemove(percInput);
         if (percInput.lte(0)) {
@@ -174,10 +170,10 @@ const RemoveAmount = () => {
         if (percInput.gt(0) && percInput.lte(100)) setSharesPercToRemove(percInput);
 
         const userTotalStakedOcean: BigNumber = new BigNumber(
-          await ocean.getOceanRemovedforPoolShares(currentStakePool.address, currentStakePool.shares)
+          await ocean.getOceanRemovedforPoolShares(singleLiquidityPos.address, singleLiquidityPos.shares)
         );
 
-        console.log("Current user shares", currentStakePool.shares);
+        console.log("Current user shares", singleLiquidityPos.shares);
 
         const oceanFromPerc: BigNumber = userTotalStakedOcean.times(percInput).div(100);
 
@@ -186,7 +182,7 @@ const RemoveAmount = () => {
 
         const sharesNeeded = new BigNumber(
           await ocean.getPoolSharesRequiredToUnstake(
-            currentStakePool.address,
+            singleLiquidityPos.address,
             ocean.config.default.oceanTokenAddress,
             oceanFromPerc.toFixed(18)
           )
@@ -212,7 +208,7 @@ const RemoveAmount = () => {
   };
 
   async function maxUnstakeHandler() {
-    if (!setBgLoading || !bgLoading || !ocean || !currentStakePool) return;
+    if (!setBgLoading || !bgLoading || !ocean || !singleLiquidityPos) return;
     setBgLoading([...bgLoading, bgLoadingStates.maxUnstake]);
     let max: IMaxUnstake | void;
     maxUnstake ? (max = maxUnstake) : (max = await getMaxUnstake());
@@ -221,7 +217,7 @@ const RemoveAmount = () => {
     try {
       if (max && max.OCEAN.gt(0) && max.shares.gt(0)) {
         const userTotalStakedOcean: BigNumber = new BigNumber(
-          await ocean.getOceanRemovedforPoolShares(currentStakePool.address, currentStakePool.shares)
+          await ocean.getOceanRemovedforPoolShares(singleLiquidityPos.address, singleLiquidityPos.shares)
         );
 
         console.log("Total user shares in ocean", userTotalStakedOcean);
@@ -235,7 +231,7 @@ const RemoveAmount = () => {
         } else {
           const sharesNeeded = new BigNumber(
             await ocean.getPoolSharesRequiredToUnstake(
-              currentStakePool.address,
+              singleLiquidityPos.address,
               ocean.config.default.oceanTokenAddress,
               userTotalStakedOcean.toFixed(18)
             )
@@ -252,7 +248,7 @@ const RemoveAmount = () => {
   }
 
   const handleUnstake = async () => {
-    if (!setShowConfirmModal || !chainId || !setTxHistory || !txHistory || !currentStakePool || !ocean || !accountId)
+    if (!setShowConfirmModal || !chainId || !setTxHistory || !txHistory || !singleLiquidityPos || !ocean || !accountId)
       return;
 
     let txDateId;
@@ -263,8 +259,8 @@ const RemoveAmount = () => {
         setTxHistory,
         txHistory,
         accountId: String(accountId),
-        token1: currentStakePool.token1,
-        token2: currentStakePool.token2,
+        token1: singleLiquidityPos.token1Info,
+        token2: singleLiquidityPos.token1Info,
         txType: "unstake",
         status: "pending",
         stakeAmt: sharesToRemove?.toFixed(5),
@@ -272,17 +268,17 @@ const RemoveAmount = () => {
       setLastTxId(txDateId);
       setPendingUnstakeTx(txDateId);
       console.log(
-        `Unstaking from pool ${currentStakePool.address}, ${toFixed18(
-          currentStakePool.shares
+        `Unstaking from pool ${singleLiquidityPos.address}, ${toFixed18(
+          singleLiquidityPos.shares
         )} shares for ${oceanToReceive?.toFixed(5)} OCEAN`
       );
 
       //shares needs to be to fixed 18, need types in global context
       const txReceipt = await ocean.unstakeOcean(
         accountId,
-        currentStakePool.address,
+        singleLiquidityPos.address,
         oceanToReceive.toFixed(18),
-        currentStakePool.shares
+        singleLiquidityPos.shares
       );
 
       if (txReceipt) {
@@ -294,8 +290,8 @@ const RemoveAmount = () => {
           setTxHistory,
           txHistory,
           accountId: String(accountId),
-          token1: currentStakePool.token1,
-          token2: currentStakePool.token2,
+          token1: singleLiquidityPos.token1Info,
+          token2: singleLiquidityPos.token1Info,
           txType: "unstake",
           txDateId,
           status: "indexing",
@@ -343,7 +339,7 @@ const RemoveAmount = () => {
     <div className="absolute top-0 w-full h-full">
       {noWallet ? (
         <UserMessage message="Connect your wallet to continue." pulse={false} container={true} timeout={null} />
-      ) : currentStakePool ? (
+      ) : singleLiquidityPos ? (
         <div className="flex w-full h-full items-center pt-16 px-2">
           <div id="removeStakeModal" className="w-107 mx-auto">
             <div className="mx-auto bg-black opacity-90 w-full rounded-lg p-3 hm-box">
@@ -361,9 +357,9 @@ const RemoveAmount = () => {
                     alt=""
                     width="40px"
                   />
-                  {currentStakePool ? (
+                  {singleLiquidityPos ? (
                     <p className="text-type-100 text-sm md:text-lg">
-                      {currentStakePool?.token1.symbol}/{currentStakePool?.token2.symbol}
+                      {singleLiquidityPos?.token1Info.symbol}/{singleLiquidityPos?.token2Info.symbol}
                     </p>
                   ) : (
                     <PulseLoader color="white" size="4px" margin="5px" />
@@ -399,10 +395,10 @@ const RemoveAmount = () => {
                   </div>
                   <div>
                     <p id="sharesDisplay" className="text-sm text-type-400 whitespace-nowrap text-right">
-                      {Number(currentStakePool.shares) === 0
+                      {Number(singleLiquidityPos.shares) === 0
                         ? "Shares: 0"
-                        : Number(currentStakePool.shares) > 0.001
-                        ? `Shares: ${toFixed5(currentStakePool.shares)}`
+                        : Number(singleLiquidityPos.shares) > 0.001
+                        ? `Shares: ${toFixed5(singleLiquidityPos.shares)}`
                         : "Shares: < 0.001"}
                     </p>
                     <div className="text-sm text-type-300 grid grid-flow-col justify-end gap-2">
@@ -412,7 +408,7 @@ const RemoveAmount = () => {
                           maxUnstakeHandler();
                         }}
                         disabled={
-                          Number(currentStakePool.shares) === 0 ||
+                          Number(singleLiquidityPos.shares) === 0 ||
                           bgLoading?.includes(bgLoadingStates.singlePoolData) ||
                           bgLoading?.includes(bgLoadingStates.maxUnstake) ||
                           bgLoading?.includes(bgLoadingStates.calcTrade)
@@ -420,7 +416,7 @@ const RemoveAmount = () => {
                         text="Max Unstake"
                         classes={`px-2 lg:w-24 py-0 border  rounded-full text-xs ${
                           inputDisabled ||
-                          Number(currentStakePool.shares) === 0 ||
+                          Number(singleLiquidityPos.shares) === 0 ||
                           bgLoading?.includes(bgLoadingStates.singlePoolData) ||
                           bgLoading?.includes(bgLoadingStates.maxUnstake) ||
                           bgLoading?.includes(bgLoadingStates.calcTrade)
@@ -464,7 +460,7 @@ const RemoveAmount = () => {
                     >
                       {oceanToReceive.lt(new BigNumber(0.00001)) ? 0 : oceanToReceive.toString() || 0}
                     </p>
-                    <p className="text-xs text-type-100">{currentStakePool?.token2.symbol}</p>
+                    <p className="text-xs text-type-100">{singleLiquidityPos?.token2Info.symbol}</p>
                   </div>
                 </div>
               </div>
@@ -501,20 +497,20 @@ const RemoveAmount = () => {
         <></>
       )}
 
-      {currentStakePool ? (
+      {singleLiquidityPos ? (
         <UnlockTokenModal
           token1={{
             value: sharesToRemove,
             percentage: sharesPercToRemove,
             loading: false,
-            info: { ...currentStakePool.token1, pool: currentStakePool.address },
-            balance: new BigNumber(currentStakePool.shares),
+            info: { ...singleLiquidityPos.token1Info, pool: singleLiquidityPos.address },
+            balance: new BigNumber(singleLiquidityPos.shares),
           }}
           token2={{
             value: new BigNumber(0),
             percentage: new BigNumber(0),
             loading: false,
-            info: currentStakePool.token1,
+            info: singleLiquidityPos.token1Info,
             balance: new BigNumber(0),
           }}
           setToken={setAllowance}
@@ -534,10 +530,10 @@ const RemoveAmount = () => {
           if (setShowConfirmModal) setShowConfirmModal(false);
         }}
         txs={
-          currentStakePool && sharesToRemove && oceanToReceive
+          singleLiquidityPos && sharesToRemove && oceanToReceive
             ? [
-                `Unstake ${oceanToReceive.dp(5).toString()} OCEAN from the ${
-                  currentStakePool.token1.symbol || "OCEAN"
+                `Unstake ${oceanToReceive.dp(5).toString()} ${singleLiquidityPos.token2Info.symbol} from the ${
+                  singleLiquidityPos.token1Info.symbol
                 } pool.`,
               ]
             : []

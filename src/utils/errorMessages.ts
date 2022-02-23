@@ -106,16 +106,6 @@ export default function errorMessages(error: any): string {
       case "4900":
       case "4901":
         //similar issue, could be either code
-        rpcError = [
-          {
-            standard: "EIP-1193",
-            message: "The provider is disconnected from all chains.",
-          },
-          {
-            standard: "EIP-1193",
-            message: "The provider is disconnected from the specified chain.",
-          },
-        ];
         return "The provider disconnected, refresh the page.";
 
       default:

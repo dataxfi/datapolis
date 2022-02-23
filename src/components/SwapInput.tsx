@@ -3,7 +3,7 @@ import { BsChevronDown } from "react-icons/bs";
 import TokenModal from "./TokenModal";
 import { DebounceInput } from "react-debounce-input";
 import { useContext } from "react";
-import { bgLoadingStates, GlobalContext } from "../context/GlobalState";
+import { GlobalContext } from "../context/GlobalState";
 import Button from "./Button";
 import BigNumber from "bignumber.js";
 import WrappedInput from "./WrappedInput";
@@ -37,7 +37,7 @@ const SwapInput = ({
   max: BigNumber;
 }) => {
   const [showModal, setShowModal] = useState(false);
-  const { accountId, handleConnect, bgLoading, setBgLoading } = useContext(GlobalContext);
+  const { accountId, handleConnect } = useContext(GlobalContext);
 
   const tokenSelected = (token: Record<any, any>) => {
     setToken(token, pos, true);

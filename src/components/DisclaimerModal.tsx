@@ -20,7 +20,7 @@ export const Disclaimer = (): string => {
 };
 
 function DisclaimerModal() {
-  const { setDisclaimerSigned, disclaimerSigned, setShowDisclaimer, handleSignature, web3, accountId } =
+  const { setDisclaimerSigned, disclaimerSigned, setShowDisclaimer, handleSignature} =
     useContext(GlobalContext);
   const [showReminder, setShowReminder] = useState(false);
 

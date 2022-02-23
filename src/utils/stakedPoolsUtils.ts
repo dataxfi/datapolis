@@ -2,7 +2,7 @@ import { percOf } from "./equate";
 import { Ocean } from "@dataxfi/datax.js";
 import { removeBgLoadingState, bgLoadingStates } from "../context/GlobalState";
 import Web3 from "web3";
-import { IPoolData } from "./types";
+import { ILiquidityPosition } from "./types";
 
 
 /**
@@ -39,7 +39,7 @@ export async function updateSingleStakePool({
 }: {
   ocean: Ocean;
   accountId: string;
-  localData: IPoolData[];
+  localData: ILiquidityPosition[];
   setAllStakedPools: Function;
   poolAddress: string;
 }) {
@@ -66,7 +66,7 @@ export async function updateSingleStakePool({
     setLocalPoolDataStorage(localData, ocean.networkId);
   } else {
     //@ts-ignore
-    const allStakedPools: IPoolData[] = [updatedPool];
+    const allStakedPools: ILiquidityPosition[] = [updatedPool];
     setAllStakedPools(allStakedPools);
     setLocalPoolDataStorage(allStakedPools, ocean.networkId);
   }
@@ -82,10 +82,10 @@ export async function updateUserStakePerPool({
 }: {
   ocean: Ocean;
   accountId: string;
-  localData: IPoolData[];
+  localData: ILiquidityPosition[];
   setAllStakedPools: Function;
 }) {
-  let updatedData = localData.map(async (pool: IPoolData) => {
+  let updatedData = localData.map(async (pool: ILiquidityPosition) => {
     const shares = await ocean.getMyPoolSharesForPool(pool.address, accountId);
     const { totalPoolShares, yourPoolSharePerc, dtAmount, oceanAmount } =
       await getPoolInfoFromUserShares({
@@ -176,7 +176,7 @@ export async function getAllStakedPools({
     );
     if (!poolList || poolList.length === 0) return poolList;
     console.log("Recieved response from oceean.allStakedPools", poolList);
-    const userPoolData: Promise<IPoolData>[] = poolList.map(
+    const userPoolData: Promise<ILiquidityPosition>[] = poolList.map(
       async ({
         shares,
         poolAddress,
@@ -252,7 +252,7 @@ export async function setPoolDataFromOcean({
   setLoading?: Function;
   config: any;
   web3: Web3;
-  allStakedPools: IPoolData[];
+  allStakedPools: ILiquidityPosition[];
   setError?: Function;
   setStakeFetchTimeout: Function;
   stakeFetchTimeout: boolean;
@@ -280,7 +280,7 @@ export async function setPoolDataFromOcean({
   let fromBlock = toBlock - 5000;
   let fetchCount: number = 0;
   const initalLocation = window.location.href;
-  let fetchedStakePools: IPoolData[] = [];
+  let fetchedStakePools: ILiquidityPosition[] = [];
   let interval: number;
   let blockRange: number;
   let promises: any = [];
@@ -311,7 +311,7 @@ export async function setPoolDataFromOcean({
             if (!res || res.length === 0) return;
             const settledArr: any = await Promise.allSettled(res);
             const newData = settledArr.map(
-              (promise: PromiseSettledResult<IPoolData>) => {
+              (promise: PromiseSettledResult<ILiquidityPosition>) => {
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
                 return promise.value;
@@ -359,7 +359,7 @@ export async function setPoolDataFromOcean({
 
   if (poolAddress && setCurrentStakePool) {
     const pool = fetchedStakePools.find(
-      (pool: IPoolData) => pool.address === poolAddress
+      (pool: ILiquidityPosition) => pool.address === poolAddress
     );
     setCurrentStakePool(pool);
   }
@@ -380,7 +380,7 @@ export async function setPoolDataFromOcean({
  */
 
 export function setLocalPoolDataStorage(
-  allStakedPools: IPoolData[],
+  allStakedPools: ILiquidityPosition[],
   chainId: string | number
 ) {
   const key = `allStakedPools@${chainId}@${allStakedPools[0].accountId.toLowerCase()}`;

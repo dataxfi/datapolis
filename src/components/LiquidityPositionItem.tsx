@@ -1,22 +1,33 @@
 import { useContext, useState } from "react";
-import { GlobalContext } from "../context/GlobalState";
-import { IPoolData } from "../utils/types";
+import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
+import { ILiquidityPosition } from "../utils/types";
 import { BsChevronDown, BsChevronUp } from "react-icons/bs";
 import { Link } from "react-router-dom";
 import { toFixed5 } from "../utils/equate";
-function LiquidityPositionItem({ pool, index }: { pool: IPoolData; index: number }) {
-  const { address, token1, token2, shares, dtAmount, oceanAmount, yourPoolSharePerc, totalPoolShares } = pool;
+import { getToken } from "../hooks/useTokenList";
+function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: ILiquidityPosition; index: number }) {
+  const { address, token1Info, token2Info, shares, dtAmount, oceanAmount, yourPoolSharePerc, totalPoolShares } =
+    singleLiqPosItem;
+  const { setSingleLiquidityPos, web3, ocean, chainId, tokenModalArray, setLoading, setToken1, setToken2 } =
+    useContext(GlobalContext);
 
   const [visible, setVisible] = useState<boolean>(false);
-  const { setCurrentStakeToken, setCurrentStakePool, tokenModalArray, setLoading } = useContext(GlobalContext);
-  function setTokenAndPool() {
-    if (!setCurrentStakePool || !setLoading || !setCurrentStakeToken) return;
-    setCurrentStakePool(pool);
+  async function setTokenAndPool() {
+    if (!setSingleLiquidityPos || !setLoading || !token2Info.pool) return;
+    setSingleLiquidityPos(singleLiqPosItem);
 
     try {
-      if (tokenModalArray) {
-        const currentToken = tokenModalArray.find((token: { pool: string }) => token.pool === address);
-        setCurrentStakeToken(currentToken);
+      if (tokenModalArray && web3 && chainId && ocean) {
+        const currentToken = await getToken(web3, chainId, address, "pool");
+        if (currentToken) setToken2({ ...INITIAL_TOKEN_STATE, info: currentToken });
+
+        getToken(web3, chainId, ocean.config.default.oceanTokenAddress, "reserve").then((res) => {
+          if (res)
+            setToken1({
+              ...INITIAL_TOKEN_STATE,
+              info: res,
+            });
+        });
       }
     } catch (error) {
       console.error(error);
@@ -26,7 +37,7 @@ function LiquidityPositionItem({ pool, index }: { pool: IPoolData; index: number
   }
 
   return (
-    <li id={`${token1.symbol}-lp-item`} key={`LP${index}`}>
+    <li id={`${token1Info.symbol}-lp-item`} key={`LP${index}`}>
       <div className="w-full mx-auto z-0">
         <div
           onClick={() => setVisible(!visible)}
@@ -48,7 +59,7 @@ function LiquidityPositionItem({ pool, index }: { pool: IPoolData; index: number
               alt=""
               width="40px"
             />
-            <p className="text-type-100 text-sm md:text-lg">{`${token1.symbol}/${token2.symbol}`}</p>
+            <p className="text-type-100 text-sm md:text-lg">{`${token1Info.symbol}/${token2Info.symbol}`}</p>
           </div>
           <div className="grid grid-flow-col gap-1 items-center">
             <p className="hidden lg:block text-type-200 text-sm">Manage</p>
@@ -56,7 +67,7 @@ function LiquidityPositionItem({ pool, index }: { pool: IPoolData; index: number
           </div>
         </div>
         {visible ? (
-          <div id={`${token1.symbol}-lp-info`} className={`p-2 modalSelectBg bg-opacity-75 rounded-b-lg mb-2`}>
+          <div id={`${token1Info.symbol}-lp-info`} className={`p-2 modalSelectBg bg-opacity-75 rounded-b-lg mb-2`}>
             <div className="py-2 px-4 bg-black bg-opacity-70 rounded-lg">
               <div className="grid grid-cols-2 justify-between">
                 <div>
@@ -81,7 +92,7 @@ function LiquidityPositionItem({ pool, index }: { pool: IPoolData; index: number
                 </div>
                 <div>
                   <p id="totalPooled1Title" className="text-type-300 text-sm">
-                    Total Pooled {token1.symbol}
+                    Total Pooled {token1Info.symbol}
                   </p>
                 </div>
                 <div id="totalPooled1" className="justify-self-end">
@@ -89,7 +100,7 @@ function LiquidityPositionItem({ pool, index }: { pool: IPoolData; index: number
                 </div>
                 <div>
                   <p id="totalPooled2Title" className="text-type-300 text-sm">
-                    Total Pooled {token2.symbol}
+                    Total Pooled {token2Info.symbol}
                   </p>
                 </div>
                 <div className="justify-self-end">

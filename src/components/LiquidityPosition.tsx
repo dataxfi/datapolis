@@ -3,15 +3,13 @@ import { bgLoadingStates, GlobalContext, removeBgLoadingState } from "../context
 import LiquidityPositionItem from "./LiquidityPositionItem";
 import UserMessage from "./UserMessage";
 import {
-  setPoolDataFromOcean,
   getLocalPoolData,
   updateUserStakePerPool,
   updateSingleStakePool,
 } from "../utils/stakedPoolsUtils";
 import TokenModal from "./TokenModal";
 import { MoonLoader } from "react-spinners";
-import useWatchLocation from "../hooks/useWatchLocation";
-import { IUserMessage, IPoolData } from "../utils/types";
+import { IUserMessage, ILiquidityPosition } from "../utils/types";
 const LiquidityPosition = () => {
   const {
     accountId,
@@ -26,7 +24,7 @@ const LiquidityPosition = () => {
     web3,
     stakeFetchTimeout,
     setStakeFetchTimeout,
-    setCurrentStakePool,
+    setSingleLiquidityPos,
   } = useContext(GlobalContext);
   const [noStakedPools, setNoStakedPools] = useState<boolean>(false);
   const [userMessage, setUserMessage] = useState<string | IUserMessage | null>(
@@ -35,13 +33,11 @@ const LiquidityPosition = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [messageId, setMessageId] = useState<string | null>("importMessage");
 
-  useWatchLocation();
-
   useEffect(() => {
-    if (!setAllStakedPools || !setCurrentStakePool) return;
+    if (!setAllStakedPools || !setSingleLiquidityPos) return;
     setAllStakedPools(undefined);
-    setCurrentStakePool(undefined);
-  }, [setAllStakedPools, setCurrentStakePool]);
+    setSingleLiquidityPos(undefined);
+  }, [setAllStakedPools, setSingleLiquidityPos]);
 
   useEffect(() => {
     try {
@@ -99,48 +95,6 @@ const LiquidityPosition = () => {
     }
   }, [noStakedPools, allStakedPools, accountId, bgLoading, setLoading]);
 
-  function scanData() {
-    try {
-      if (ocean && accountId) {
-        // consider a conditional that checks if stake is already loading or using a set for bgLoading
-        if (
-          chainId &&
-          setAllStakedPools &&
-          bgLoading &&
-          web3 &&
-          allStakedPools &&
-          stakeFetchTimeout &&
-          setStakeFetchTimeout
-        )
-          setPoolDataFromOcean({
-            accountId,
-            ocean,
-            chainId,
-            setAllStakedPools,
-            setNoStakedPools,
-            setLoading,
-            bgLoading,
-            setBgLoading,
-            config,
-            web3,
-            allStakedPools,
-            setError: setUserMessage,
-            stakeFetchTimeout,
-            setStakeFetchTimeout,
-          });
-        setUserMessage(null);
-      }
-    } catch (error) {
-      setUserMessage({
-        message: "We couldnt retrieve your pool share information.",
-        link: {
-          href: "https://discord.com/invite/b974xHrUGV",
-          desc: "Reach out on our discord for support!",
-        },
-        type: "error",
-      });
-    }
-  }
 
   function importData(poolAddress: string) {
     setShowModal(false);
@@ -191,8 +145,8 @@ const LiquidityPosition = () => {
             </div>
           ) : (
             <ul className={`${bgLoading ? " md:mt-1" : "md:mt-5"} pr-3 pl-3 overflow-scroll hm-hide-scrollbar`}>
-              {allStakedPools?.map((pool: IPoolData, index: number) => (
-                <LiquidityPositionItem pool={pool} index={index} />
+              {allStakedPools?.map((pool: ILiquidityPosition, index: number) => (
+                <LiquidityPositionItem singleLiqPosItem={pool} index={index} />
               ))}
             </ul>
           )}

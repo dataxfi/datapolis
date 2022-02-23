@@ -1,7 +1,7 @@
 import SwapInput from "./SwapInput";
 import { IoSwapVertical } from "react-icons/io5";
 import { MdTune } from "react-icons/md";
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import { bgLoadingStates, GlobalContext, INITIAL_TOKEN_STATE, removeBgLoadingState } from "../context/GlobalState";
 import Button from "./Button";
 import OutsideClickHandler from "react-outside-click-handler";
@@ -17,9 +17,8 @@ import BigNumber from "bignumber.js";
 import { toFixed5 } from "../utils/equate";
 import UnlockTokenModal from "./UnlockTokenModal";
 import { getAllowance } from "../hooks/useTokenList";
-import useWatchLocation from "../hooks/useWatchLocation";
 import { IToken, IMaxExchange, ITokenValues, IBtnProps } from "../utils/types";
-import { TokenInfo } from "@dataxfi/datax.js/dist/TokenList"
+import { TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
 
 const text = {
   T_SWAP: "Trade",
@@ -38,6 +37,12 @@ export function isOCEAN(tokenAddress: string, ocean: any) {
   return tokenAddress.toLowerCase() === ocean.config.default.oceanTokenAddress.toLowerCase();
 }
 
+/**
+ * Returns the value of the token is string and big number format.
+ * @param token1
+ * @param token2
+ * @returns
+ */
 export function getTokenVal(token1: IToken, token2?: IToken) {
   let t1Val;
   let t2Val;
@@ -54,7 +59,6 @@ const Swap: React.FC = () => {
     ocean,
     chainId,
     config,
-    setLoading,
     txHistory,
     setTxHistory,
     showConfirmModal,
@@ -95,19 +99,35 @@ const Swap: React.FC = () => {
   //hooks
   usePTxManager(lastTxId);
   useTxModalToggler(txReceipt, setTxReceipt, setToken1, setToken2);
-  useWatchLocation();
+
+  useEffect(() => {
+    getButtonProperties();
+  }, [token1, token2, accountId]);
+
+  const initialRender = useRef(true);
+  useEffect(() => {
+    //if chain changes, reset tokens
+    if (!network && chainId) {
+      setNetwork(chainId);
+    }
+    if (chainId !== network && chainId) {
+      setToken2(INITIAL_TOKEN_STATE);
+      setToken1(INITIAL_TOKEN_STATE);
+      setNetwork(chainId);
+      initialRender.current = false;
+    }
+  }, [chainId]);
+
   let controller = new AbortController();
   useEffect(() => {
     if (txReceipt) return;
-
-    if (token1?.info && token2?.info && accountId && !clearingTokens && ocean) {
+    if (token1?.info && token2?.info && accountId && !clearingTokens && ocean && !initialRender) {
       updateBalance(token1.info.address)
         .then((balance) => {
           if (!ocean || !balance) return;
           if (token1.info && token2.info && isOCEAN(token1.info.address, ocean)) {
             getAllowance(token1.info.address, accountId, token2.info.pool, ocean).then((res) => {
               setToken1({ ...token1, allowance: new BigNumber(res), balance });
-              console.log("Allowance:", res);
             });
           } else if (token1.info && token2.info && isOCEAN(token2.info.address, ocean)) {
             getAllowance(token1.info.address, accountId, token1.info.pool, ocean).then((res) => {
@@ -146,30 +166,14 @@ const Swap: React.FC = () => {
         });
     }
 
-    if (token2.info && accountId && !clearingTokens) {
+    if (token2.info && accountId && !clearingTokens && !initialRender) {
       updateBalance(token2.info.address).then((balance) => {
         if (balance) setToken2({ ...token2, balance });
       });
     }
 
     return () => controller.abort();
-  }, [token1?.info, token2?.info, accountId, clearingTokens]);
-
-  useEffect(() => {
-    getButtonProperties();
-  }, [token1, token2, accountId]);
-
-  useEffect(() => {
-    //if chain changes, reset tokens
-    if (!network && chainId) {
-      setNetwork(chainId);
-    }
-    if (chainId !== network && chainId) {
-      setToken1(INITIAL_TOKEN_STATE);
-      setToken2(INITIAL_TOKEN_STATE);
-      setNetwork(chainId);
-    }
-  }, [chainId]);
+  }, [token1.info, token2.info, accountId, clearingTokens]);
 
   async function getMaxExchange(signal?: AbortSignal, token1Balance?: BigNumber | null): Promise<IMaxExchange> {
     const balance = token1Balance ? token1Balance : token1?.balance;
@@ -543,17 +547,17 @@ const Swap: React.FC = () => {
       console.log("DataX Caught an Error for Transaction:", txDateId);
 
       if (setShowConfirmModal) setShowConfirmModal(false);
-        const allNotifications = notifications;
-        allNotifications.push({
+      const allNotifications = notifications;
+      allNotifications.push({
+        type: "alert",
+        alert: {
+          message: errorMessages(error),
+          link: null,
           type: "alert",
-          alert: {
-            message: errorMessages(error),
-            link: null,
-            type: "alert",
-          },
-        });
-        setNotifications([...allNotifications]);
-      
+        },
+      });
+      setNotifications([...allNotifications]);
+
       if (accountId)
         deleteRecentTxs({
           txDateId,

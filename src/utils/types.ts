@@ -31,7 +31,7 @@ export interface IPoolLiquidity {
 
 export interface IToken {
   balance: BigNumber;
-  value: BigNumber | string;
+  value: BigNumber;
   info: TokenInfo | null;
   loading: boolean;
   percentage: BigNumber;
@@ -72,14 +72,14 @@ export interface ITokenDetails extends TokenDetails {
   tokenAddress: string;
 }
 
-export interface IPoolData {
+export interface ILiquidityPosition {
   //user wallet ID (hash)
   accountId: string;
   //pool address
   address: string;
   //tokens in pool
-  token1: TokenInfo;
-  token2: TokenInfo;
+  token1Info: TokenInfo;
+  token2Info: TokenInfo;
   //the amount of shares you own
   shares: string;
   //total dt in pool
@@ -150,16 +150,14 @@ export interface globalStates {
   setDisclaimerSigned: React.Dispatch<React.SetStateAction<IDisclaimerSigned>>;
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  allStakedPools?: IPoolData[];
-  setAllStakedPools: React.Dispatch<React.SetStateAction<IPoolData[] | undefined>>;
+  allStakedPools?: ILiquidityPosition[];
+  setAllStakedPools: React.Dispatch<React.SetStateAction<ILiquidityPosition[] | undefined>>;
   tokenModalArray?: TokenInfo[];
   setTokenModalArray: React.Dispatch<React.SetStateAction<TokenInfo[] | undefined>>;
   tokenResponse?: TList;
   setTokenResponse: React.Dispatch<React.SetStateAction<TList | undefined>>;
-  currentStakeToken: any;
-  setCurrentStakeToken: React.Dispatch<React.SetStateAction<any>>;
-  currentStakePool?: IPoolData;
-  setCurrentStakePool: React.Dispatch<React.SetStateAction<IPoolData | undefined>>;
+  singleLiquidityPos?: ILiquidityPosition;
+  setSingleLiquidityPos: React.Dispatch<React.SetStateAction<ILiquidityPosition | undefined>>;
   bgLoading: string[];
   setBgLoading: React.Dispatch<React.SetStateAction<string[]>>;
   txHistory?: ITxHistory;
@@ -187,54 +185,8 @@ export interface globalStates {
   bgOff: boolean;
   setBgOff: React.Dispatch<React.SetStateAction<boolean>>;
   token1: IToken;
-  token2: IToken;
   setToken1: React.Dispatch<React.SetStateAction<IToken>>;
+  token2: IToken;
   setToken2: React.Dispatch<React.SetStateAction<IToken>>;
 }
 
-// export const initialState: globalStates = {
-//   handleConnect : () => {},
-//   buttonText : "Connect Wallet",
-//   chainId : undefined,
-//   network : "unknown",
-//   unsupportedNet : false,
-//   handleSignature : () => {},
-//   cookiesAllowed : null,
-//   setCookiesAllowed : () => {},
-//   showDisclaimer : false,
-//   setShowDisclaimer : () => {},
-//   disclaimerSigned : { client: false, wallet: false },
-//   setDisclaimerSigned : () => {},
-//   loading : false,
-//   setLoading : () => {},
-//   setAllStakedPools : () => {},
-//   setTokenModalArray : () => {},
-//   setTokenResponse : () => {},
-//   currentStakeToken : null,
-//   setCurrentStakeToken : () => {},
-//   setCurrentStakePool : () => {},
-//   bgLoading : [],
-//   setBgLoading : () => {},
-//   setTxHistory : () => {},
-//   showSnackbar : false,
-//   setShowSnackbar : () => {},
-//   pendingTxs : [],
-//   setPendingTxs : () => {},
-//   showTxHistoryModal : false,
-//   setShowTxHistoryModal : () => {},
-//   setWatcher : () => {},
-//   showConfirmModal : false,
-//   setShowConfirmModal : () => {},
-//   showTxDone : false,
-//   setShowTxDone : () => {},
-//   stakeFetchTimeout : false,
-//   setStakeFetchTimeout : () => {},
-//   notifications : [],
-//   setNotifications : () => {},
-//   showUnlockTokenModal : false,
-//   setShowUnlockTokenModal : () => {},
-//   location : "/",
-//   setLocation : () => {},
-//   bgOff : false,
-//   setBgOff : () => {},
-// };

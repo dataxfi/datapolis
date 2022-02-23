@@ -3,15 +3,16 @@ import TokenModal from "./TokenModal";
 import { BsChevronDown, BsBoxArrowUpRight } from "react-icons/bs";
 import { GlobalContext } from "../context/GlobalState";
 import {ReactComponent as XLogo} from "../assets/datax-x-logo.svg"
+import { IToken } from "../utils/types";
 
-const StakeSelect = ({ token, setToken }: { token: Record<any, any> | null; setToken: Function }) => {
+const StakeSelect = ({ token, setToken }: { token: IToken | null; setToken: Function }) => {
   const { config, accountId, handleConnect } = useContext(GlobalContext);
 
   const [showModal, setShowModal] = useState(false);
 
   const tokenSelected = (val: any) => {
-    setToken(val);
-    setShowModal(false);
+    setToken({...token, info:val});
+    setShowModal(false); 
   };
 
   function showTokenModal() {
@@ -28,8 +29,8 @@ const StakeSelect = ({ token, setToken }: { token: Record<any, any> | null; setT
       <div className="mt-2 modalSelectBg p-2 rounded-lg">
         <div className="md:grid md:grid-cols-5">
           <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center">
-            {token ? (
-              <img src={token.logoURI} className="w-10 h-10 rounded-md" alt="" />
+            {token?.info ? (
+              <img src={token.info.logoURI} className="w-10 h-10 rounded-md" alt="" />
             ) : (
               <div className="w-10 h-10 rounded-md bg-background flex justify-center items-center text-3xl">
               <XLogo style={{height: "30px"}} />
@@ -43,11 +44,11 @@ const StakeSelect = ({ token, setToken }: { token: Record<any, any> | null; setT
                 showTokenModal();
               }}
             >
-              {token ? (
+              {token?.info ? (
                 <div>
                   <p className="text-type-100 text-xs">DataToken</p>
                   <span className="text-type-200 font-bold grid grid-flow-col items-center gap-1">
-                    <span id="stakeToken" className="text-xs sm:text-lg">{token.symbol}</span>
+                    <span id="stakeToken" className="text-xs sm:text-lg">{token.info.symbol}</span>
                     <BsChevronDown className="text-type-200" size="16" />
                   </span>
                 </div>
@@ -57,13 +58,13 @@ const StakeSelect = ({ token, setToken }: { token: Record<any, any> | null; setT
             </div>
           </div>
           <div className="col-span-3 ml-4 mt-3 md:mt-0">
-            {token ? (
+            {token?.info ? (
               <div>
-                <p className="text-type-100 uppercase text-xs md:text-base">{token.name}</p>
+                <p className="text-type-100 uppercase text-xs md:text-base">{token.info.name}</p>
                 <div className="grid grid-flow-col justify-start gap-4 text-sm">
                   <a
                     id="stakePoolLink"
-                    href={config?.default.explorerUri + "/address/" + token.pool}
+                    href={config?.default.explorerUri + "/address/" + token.info.pool}
                     target="_blank"
                     rel="noreferrer"
                     className="text-white grid grid-flow-col items-center gap-2 justify-start border-b border-type-300"
@@ -72,7 +73,7 @@ const StakeSelect = ({ token, setToken }: { token: Record<any, any> | null; setT
                   </a>
                   <a
                     id="stakeTokenLink"
-                    href={config?.default.explorerUri + "/address/" + token.address}
+                    href={config?.default.explorerUri + "/address/" + token.info.address}
                     target="_blank"
                     rel="noreferrer"
                     className="text-white grid grid-flow-col items-center gap-2 justify-start border-b border-type-300"

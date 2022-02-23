@@ -19,6 +19,7 @@ export default function useTokenList({
 
   useEffect(() => {
     setTokenResponse(undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
 
   const initialChain = useRef(chainId);
@@ -27,6 +28,7 @@ export default function useTokenList({
       setTokenModalArray(undefined);
       setTokenResponse(undefined);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, setTokenModalArray, setTokenResponse]);
 
   useEffect(() => {
@@ -39,7 +41,6 @@ export default function useTokenList({
             console.log("Token List Response:", res);
             //@ts-ignore
             const formattedList = formatTokenArray(res, otherToken, location);
-            console.log(formattedList);
             setTokenModalArray(formattedList);
           }
         })
@@ -52,7 +53,8 @@ export default function useTokenList({
           if (setLoading) setLoading(false);
         });
     }
-  }, [location, otherToken, setTokenModalArray, tokenResponse, setTokenResponse, web3, chainId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location, otherToken, tokenResponse, web3, chainId]);
 }
 
 async function getTokenList(web3: Web3, chainId: number): Promise<TList> {
@@ -66,9 +68,19 @@ async function getTokenList(web3: Web3, chainId: number): Promise<TList> {
   return await tokenList.fetchPreparedTokenList(chainId ? chainId : 4);
 }
 
-export async function getToken(web3: Web3, chainId: number, pool: string): Promise<TokenInfo | undefined> {
+export async function getToken(
+  web3: Web3,
+  chainId: number,
+  address: string,
+  addressType: "pool" | "reserve"
+): Promise<TokenInfo | undefined> {
   const tokenList = await getTokenList(web3, chainId);
-  return tokenList.tokens.find((token) => token.pool === pool);
+  console.log(tokenList.tokens);
+
+  if (addressType === "pool") {
+    return tokenList.tokens.find((token) => token.pool.toLowerCase() === address.toLowerCase());
+  }
+  return tokenList.tokens.find((token) => token.address.toLowerCase() === address.toLowerCase());
 }
 
 export function formatTokenArray(
@@ -93,5 +105,7 @@ export function formatTokenArray(
 }
 
 export async function getAllowance(tokenAddress: string, accountId: string, router: string, ocean: Ocean) {
-  return await ocean.getAllowance(tokenAddress, accountId, router);
+  const allowance = await ocean.getAllowance(tokenAddress, accountId, router);
+  console.log("Allowance:", allowance);
+  return allowance;
 }

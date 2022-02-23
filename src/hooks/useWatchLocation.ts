@@ -1,11 +1,13 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { GlobalContext } from "../context/GlobalState";
 
 export default function useWatchLocation() {
-  const {setLocation} = useContext(GlobalContext);
+  const { setLocation } = useContext(GlobalContext);
   const currentLocation = useLocation();
+  const lastLocation = useRef(currentLocation);
   useEffect(() => {
-    if (setLocation) setLocation(currentLocation.pathname);
+    setLocation(currentLocation.pathname);
+    lastLocation.current = currentLocation
   }, [currentLocation, setLocation]);
 }

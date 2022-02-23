@@ -20,7 +20,7 @@ export default function LandingPage() {
           </div>
         </div>
         <div className="lg:mr-6 flex justify-end lg:w-auto items-center">
-          <a href="https://datax.fi" target="_blank" className="mx-2 hover:text-yellow">
+          <a href="https://datax.fi" target="_blank" rel="noreferrer" className="mx-2 hover:text-yellow">
             About DataX
           </a>
         </div>

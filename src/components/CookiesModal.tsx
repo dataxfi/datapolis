@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { GlobalContext } from "../context/GlobalState";
-import {acceptsCookiesGA, deniedCookiesGA} from '../context/Analytics'
+import {acceptsCookiesGA} from '../context/Analytics'
 function CookiesModal() {
   const { setCookiesAllowed } = useContext(GlobalContext);
   const [show, setShow] = useState(false);

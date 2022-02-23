@@ -13,7 +13,7 @@ import {
   deniedSignatureGA,
   connectedWalletViaGA,
 } from "./Analytics";
-import { IDisclaimerSigned, globalStates, IPoolData, IToken, ITxHistory, IUserMessage } from "../utils/types";
+import { IDisclaimerSigned, globalStates, ILiquidityPosition, IToken, ITxHistory, IUserMessage } from "../utils/types";
 import BigNumber from 'bignumber.js'
 import { TList, TokenInfo } from "@dataxfi/datax.js/dist/TokenList"
 
@@ -92,14 +92,12 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [showTxDone, setShowTxDone] = useState(false);
 
   //all stake pool information for the current user
-  const [allStakedPools, setAllStakedPools] = useState<IPoolData[]>();
+  const [allStakedPools, setAllStakedPools] = useState<ILiquidityPosition[]>();
   //Pool information associated with pool
-  const [currentStakePool, setCurrentStakePool] = useState<IPoolData>();
+  const [singleLiquidityPos, setSingleLiquidityPos] = useState<ILiquidityPosition>();
   //Stake pool sync timeout
   const [stakeFetchTimeout, setStakeFetchTimeout] = useState<boolean>(false);
 
-  //dToken information associated with pool
-  const [currentStakeToken, setCurrentStakeToken] = useState<{}>();
   //tokenModalArray to be rendered in token modal
   const [tokenModalArray, setTokenModalArray] = useState<TokenInfo[]>();
   //current token pair to be traded, staked, etc
@@ -320,6 +318,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
     // Subscribe to chainId change
     provider.on("chainChanged", async (chainId: any) => {
+      setToken1(INITIAL_TOKEN_STATE)
+      setToken2(INITIAL_TOKEN_STATE)
       setTxHistory(undefined);
       setPendingTxs([]);
       const parsedId = String(parseInt(chainId));
@@ -373,10 +373,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setTokenModalArray,
         tokenResponse,
         setTokenResponse,
-        currentStakeToken,
-        setCurrentStakeToken,
-        currentStakePool,
-        setCurrentStakePool,
+        singleLiquidityPos,
+        setSingleLiquidityPos,
         bgLoading,
         setBgLoading,
         txHistory,
