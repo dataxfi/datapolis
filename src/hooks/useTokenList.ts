@@ -4,6 +4,7 @@ import { Ocean, TokenList } from "@dataxfi/datax.js";
 // import { TokenList as TList } from "@uniswap/token-lists";
 import { TList, TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
 import Web3 from "web3";
+import { useLocation } from "react-router-dom";
 
 export default function useTokenList({
   otherToken,
@@ -21,6 +22,7 @@ export default function useTokenList({
     setTokenResponse(undefined);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
+
 
   const initialChain = useRef(chainId);
   useEffect(() => {

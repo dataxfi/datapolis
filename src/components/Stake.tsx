@@ -23,6 +23,7 @@ import { IToken, IUserMessage } from "../utils/types";
 import { getAllowance, getToken } from "../hooks/useTokenList";
 import { IPoolLiquidity, IBtnProps } from "../utils/types";
 import { getTokenVal } from "./Swap";
+import useAutoLoadToken from "../hooks/useAutoLoadToken";
 
 const INITIAL_BUTTON_STATE = {
   text: "Connect wallet",
@@ -69,11 +70,18 @@ const Stake = () => {
   usePTxManager(lastTxId);
   useTxModalToggler(txReceipt, setTxReceipt);
   useLiquidityPos();
+  useAutoLoadToken(updateToken);
 
   useEffect(() => {
     setToken2(INITIAL_TOKEN_STATE);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(()=>{
+    if(token2.info){
+      updateToken(token2)
+    }
+  }, [token2.info])
 
   useEffect(() => {
     if (!chainId || !web3 || !ocean || !accountId) return;
@@ -355,7 +363,8 @@ const Stake = () => {
       setYourShares(new BigNumber(myPoolShares));
       setOceanToDt(res1);
       setDtToOcean(res2);
-
+      console.log("<-- I was called this many times");
+      
       setYourLiquidity(new BigNumber(await ocean.getOceanRemovedforPoolShares(pool, myPoolShares)));
       const { dtAmount, oceanAmount } = await ocean.getTokensRemovedforPoolShares(pool, String(totalPoolShares));
       setPoolLiquidity({ dtAmount: new BigNumber(dtAmount), oceanAmount: new BigNumber(oceanAmount) });
@@ -386,12 +395,7 @@ const Stake = () => {
                 <UserMessage message={userMessage.message} pulse={true} container={false} timeout={null} />
               ) : null}
             </div>
-            <StakeSelect
-              token={token2}
-              setToken={(val: any) => {
-                updateToken(val);
-              }}
-            />
+            <StakeSelect token={token2} setToken={setToken2} />
             <div className="px-4 relative mt-6 mb-10">
               <div className="rounded-full border-black border-4 absolute -top-7 bg-trade-darkBlue w-12 h-12 flex items-center justify-center swap-center">
                 {loading ? (

@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { toFixed5 } from "../utils/equate";
 import { getToken } from "../hooks/useTokenList";
 function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: ILiquidityPosition; index: number }) {
+  
   const { address, token1Info, token2Info, shares, dtAmount, oceanAmount, yourPoolSharePerc, totalPoolShares } =
     singleLiqPosItem;
   const { setSingleLiquidityPos, web3, ocean, chainId, tokenModalArray, setLoading, setToken1, setToken2 } =
@@ -130,7 +131,6 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                 key="stake"
                 to={`/stake?pool=${address}`}
                 className="modalButton rounded p-2px w-1/2 text-center mr-1"
-                onClick={setTokenAndPool}
               >
                 <div className="bg-black w-full h-full rounded p-2px">Add</div>
               </Link>
@@ -143,10 +143,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                     ? "modalButton cursor-not-allowed pointer-events-none rounded p-2px w-1/2 text-center text-gray-500"
                     : "modalButton rounded p-2px w-1/2 text-center"
                 } `}
-                onClick={() => {
-                  console.log("Exact user shares", shares);
-                  if (Number(shares) > 0) setTokenAndPool();
-                }}
+                
               >
                 <div className="bg-black w-full h-full rounded p-2px">Remove</div>
               </Link>

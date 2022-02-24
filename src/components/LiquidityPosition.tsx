@@ -2,14 +2,11 @@ import { useContext, useEffect, useState } from "react";
 import { bgLoadingStates, GlobalContext, removeBgLoadingState } from "../context/GlobalState";
 import LiquidityPositionItem from "./LiquidityPositionItem";
 import UserMessage from "./UserMessage";
-import {
-  getLocalPoolData,
-  updateUserStakePerPool,
-  updateSingleStakePool,
-} from "../utils/stakedPoolsUtils";
+import { getLocalPoolData, updateUserStakePerPool, updateSingleStakePool } from "../utils/stakedPoolsUtils";
 import TokenModal from "./TokenModal";
 import { MoonLoader } from "react-spinners";
 import { IUserMessage, ILiquidityPosition } from "../utils/types";
+import useLiquidityPos from "../hooks/useLiquidityPos";
 const LiquidityPosition = () => {
   const {
     accountId,
@@ -20,10 +17,6 @@ const LiquidityPosition = () => {
     setAllStakedPools,
     bgLoading,
     setBgLoading,
-    config,
-    web3,
-    stakeFetchTimeout,
-    setStakeFetchTimeout,
     setSingleLiquidityPos,
   } = useContext(GlobalContext);
   const [noStakedPools, setNoStakedPools] = useState<boolean>(false);
@@ -32,6 +25,8 @@ const LiquidityPosition = () => {
   );
   const [showModal, setShowModal] = useState<boolean>(false);
   const [messageId, setMessageId] = useState<string | null>("importMessage");
+  const [importPool, setImportPool] = useState<string>();
+  useLiquidityPos(importPool, setImportPool);
 
   useEffect(() => {
     if (!setAllStakedPools || !setSingleLiquidityPos) return;
@@ -78,6 +73,8 @@ const LiquidityPosition = () => {
   }, [accountId, ocean]);
 
   useEffect(() => {
+    console.log(allStakedPools);
+
     console.log("Currently loading in the background", bgLoading);
     if (!accountId && setLoading) {
       setUserMessage("Connect your wallet to see staked oceans.");
@@ -94,25 +91,6 @@ const LiquidityPosition = () => {
       setUserMessage(null);
     }
   }, [noStakedPools, allStakedPools, accountId, bgLoading, setLoading]);
-
-
-  function importData(poolAddress: string) {
-    setShowModal(false);
-    if (bgLoading && ocean && accountId && allStakedPools) {
-      setBgLoading([...bgLoading, bgLoadingStates.singlePoolData]);
-      updateSingleStakePool({
-        ocean,
-        accountId,
-        setAllStakedPools,
-        poolAddress,
-        localData: allStakedPools,
-      }).then(() => {
-        setLoading(false);
-        setUserMessage(null);
-        setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData));
-      });
-    }
-  }
 
   return (
     <div className="absolute w-full h-full top-0 bottom-0  py-16 lg:py-28 px-2">
@@ -153,7 +131,8 @@ const LiquidityPosition = () => {
           {showModal ? (
             <TokenModal
               onClick={(e: any) => {
-                importData(e.pool);
+                setShowModal(false);
+                setImportPool(e.pool.toLowerCase());
               }}
               close={() => setShowModal(false)}
               otherToken="OCEAN"

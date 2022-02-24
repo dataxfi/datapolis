@@ -1,23 +1,32 @@
 import { useContext, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { isOCEAN } from "../components/Swap";
-import { GlobalContext } from "../context/GlobalState";
+import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
 import { bgLoadingStates, removeBgLoadingState } from "../context/GlobalState";
 import { percOf } from "../utils/equate";
-import { getLocalPoolData } from "../utils/stakedPoolsUtils";
+import { getLocalPoolData, setLocalPoolDataStorage } from "../utils/stakedPoolsUtils";
 import { ILiquidityPosition } from "../utils/types";
 import { getToken } from "./useTokenList";
 
-export default function useLiquidityPos() {
-  const { allStakedPools, setSingleLiquidityPos, chainId, accountId, ocean, setAllStakedPools, token1, token2, web3 } =
-    useContext(GlobalContext);
-  const location = useLocation();
+export default function useLiquidityPos(
+  importPool?: string | undefined,
+  setImportPool?: React.Dispatch<React.SetStateAction<string | undefined>>
+) {
+  const {
+    allStakedPools,
+    setSingleLiquidityPos,
+    chainId,
+    accountId,
+    ocean,
+    setAllStakedPools,
+    token1,
+    token2,
+    web3,
+  } = useContext(GlobalContext);
 
   useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    const pool = queryParams.get("pool");
-
     if (
+      web3 &&
       ocean &&
       accountId &&
       chainId &&
@@ -25,9 +34,9 @@ export default function useLiquidityPos() {
       token2.info &&
       (isOCEAN(token1.info.address, ocean) || isOCEAN(token2.info?.address, ocean))
     ) {
-      let dtPool: string | null = pool;
-      if (dtPool === null)
-        isOCEAN(token1.info.address, ocean) ? (dtPool = token1.info.pool) : (dtPool = token2.info.pool);
+      let dtPool: string;
+
+      isOCEAN(token1.info.address, ocean) ? (dtPool = token1.info.pool) : (dtPool = token2.info.pool);
 
       const localStoragePoolData = getLocalPoolData(accountId, chainId);
 
@@ -43,78 +52,24 @@ export default function useLiquidityPos() {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token1, token2, ocean, allStakedPools]);
+  }, [token1.info, token2.info, ocean, allStakedPools, accountId, web3]);
 
-  // useEffect(() => {
-  //   if (!bgLoading || !setBgLoading || !setSingleLiquidityPos) return;
-  //   if (!singleLiquidityPos && poolAddress && !bgLoading?.includes(bgLoadingStates.singlePoolData)) {
-  //     setBgLoading([...bgLoading, bgLoadingStates.singlePoolData]);
-  //     if (allStakedPools) {
-  //       const currentPool = allStakedPools.find((pool: { address: string }) => pool.address === poolAddress);
-  //       setSingleLiquidityPos(currentPool);
-  //       console.log(currentPool);
-  //     }
-  //   }
-  //   setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData));
-  // }, [allStakedPools, poolAddress]);
+  useEffect(() => {
+    console.log("importing", importPool);
 
-  // useEffect(() => {
-  //   let localStoragePoolData;
-  //   if (accountId && chainId) {
-  //     localStoragePoolData = getLocalPoolData(accountId, chainId);
-  //     if (localStoragePoolData && poolAddress) {
-  //       setPoolDataFromLocal({
-  //         localStoragePoolData,
-  //         poolAddress: poolAddress,
-  //         setAllStakedPools,
-  //         setSingleLiquidityPos,
-  //         setBgLoading,
-  //         bgLoading,
-  //       });
-  //     }
-  //     if (poolAddress && ocean) {
-  //       setBgLoading([...bgLoading, bgLoadingStates.singlePoolData]);
-  //       updateSingleStakePool({
-  //         ocean,
-  //         accountId,
-  //         localData: JSON.parse(localStoragePoolData || ""),
-  //         poolAddress: poolAddress || "",
-  //         setAllStakedPools,
-  //       }).then(() => {
-  //         setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData));
-  //       });
-  //     }
-  //   }
-  // }, [chainId, accountId, ocean]);
-
-  // useEffect(() => {
-  //   if (
-  //     accountId &&
-  //     chainId &&
-  //     setAllStakedPools &&
-  //     setBgLoading &&
-  //     setSingleLiquidityPos &&
-  //     bgLoading &&
-  //     allStakedPools &&
-  //     singleLiquidityPos
-  //   ) {
-  //     if (txReceipt && !bgLoading?.includes(bgLoadingStates.singlePoolData) && ocean) {
-  //       setBgLoading([...bgLoading, bgLoadingStates.singlePoolData]);
-  //       updateSingleStakePool({
-  //         ocean,
-  //         accountId,
-  //         localData: allStakedPools,
-  //         poolAddress: singleLiquidityPos.address,
-  //         setAllStakedPools,
-  //       }).then((info) => {
-  //         console.log("Updates liquidity position", info);
-  //         setSingleLiquidityPos(info);
-  //       });
-  //       if (setTxReceipt) setTxReceipt(null);
-  //       setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData));
-  //     }
-  //   }
-  // }, [txReceipt, setTxReceipt]);
+    if (importPool && setImportPool && chainId) {
+      updateSingleStakePool(importPool).then((res) => {
+        if (res && allStakedPools) {
+          setAllStakedPools([...allStakedPools, res]);
+          setLocalPoolDataStorage([...allStakedPools, res], chainId);
+        } else if (res) {
+          setAllStakedPools([res]);
+          setLocalPoolDataStorage([res], chainId);
+        }
+      });
+      setImportPool(undefined);
+    }
+  }, [importPool]);
 
   async function updateSingleStakePool(poolAddress: string): Promise<ILiquidityPosition | void> {
     if (!ocean || !accountId || !web3 || !chainId) return;
@@ -142,17 +97,5 @@ export default function useLiquidityPos() {
       console.error(error);
     }
     return;
-    // if (localData) {
-    //   const found = localData.findIndex((pool) => pool.address === poolAddress);
-    //   if (found > -1) {
-    //     localData.splice(found, 1, updatedPool);
-    //   } else {
-    //     localData.splice(0, 0, updatedPool);
-    //   }
-    //   setLocalPoolDataStorage(localData, chainId);
-    // } else {
-    //   const allStakedPools: ILiquidityPosition[] = [updatedPool];
-    //   setLocalPoolDataStorage(allStakedPools, ocean.networkId);
-    // }
   }
 }
