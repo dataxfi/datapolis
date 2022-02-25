@@ -40,7 +40,7 @@ export default function WrappedInput(props: any) {
     }
 
     setInternalState(bnVal);
-    if (result === "dec" && setBgLoading && bgLoading) setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
+    if (result === "dec") setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
     return result;
   }
 

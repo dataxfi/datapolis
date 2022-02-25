@@ -10,7 +10,6 @@ import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
 import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
 import useTxModalToggler from "../hooks/useTxModalToggler";
-import usePTxManager from "../hooks/usePTxManager";
 import errorMessages from "../utils/errorMessages";
 import { MoonLoader } from "react-spinners";
 import BigNumber from "bignumber.js";
@@ -97,7 +96,6 @@ const Swap: React.FC = () => {
   const [clearingTokens, setClearingTokens] = useState<boolean>(false);
   const [swap, setSwap] = useState<boolean>(false);
   //hooks
-  usePTxManager(lastTxId);
   useTxModalToggler(txReceipt, setTxReceipt, setToken1, setToken2);
 
   useEffect(() => {
@@ -442,7 +440,7 @@ const Swap: React.FC = () => {
           console.log("exact ocean to dt");
           console.log(accountId, token2.info.pool.toString(), token2.value.toString(), token1.value.toString());
           // prettier-ignore
-          txDateId = addTxHistory({chainId,setTxHistory,txHistory,accountId: String(accountId),token1,token2,txType: "Ocean to DT",slippage: decSlippage,status: "pending",});
+          txDateId = addTxHistory({chainId,setTxHistory,txHistory,accountId: String(accountId),token1,token2,txType: "Ocean to DT",slippage: decSlippage,status: "Pending",});
           setLastTxId(txDateId);
           txType = "Ocean to DT";
 
@@ -450,7 +448,7 @@ const Swap: React.FC = () => {
         } else {
           console.log("ocean to exact dt");
           // prettier-ignore
-          txDateId = addTxHistory({chainId,setTxHistory,txHistory,accountId: String(accountId),token1,token2,txType: "Ocean to DT",slippage: decSlippage,status: "pending",});
+          txDateId = addTxHistory({chainId,setTxHistory,txHistory,accountId: String(accountId),token1,token2,txType: "Ocean to DT",slippage: decSlippage,status: "Pending",});
           setLastTxId(txDateId);
 
           txType = "Ocean to DT";
@@ -463,7 +461,7 @@ const Swap: React.FC = () => {
           console.log(accountId, token1.info.pool, token2.value.toString(), token1.value.toString());
 
           // prettier-ignore
-          txDateId = addTxHistory({chainId,setTxHistory,txHistory,accountId: String(accountId),token1,token2,txType: "DT to Ocean",slippage: decSlippage,status: "pending",});
+          txDateId = addTxHistory({chainId,setTxHistory,txHistory,accountId: String(accountId),token1,token2,txType: "DT to Ocean",slippage: decSlippage,status: "Pending",});
           setLastTxId(txDateId);
 
           txType = "DT to Ocean";
@@ -473,7 +471,7 @@ const Swap: React.FC = () => {
           console.log("dt to exact ocean");
           console.log(accountId, token1.info.pool, token2.value.toString(), token1.value.toString());
           // prettier-ignore
-          txDateId = addTxHistory({chainId,setTxHistory,txHistory,accountId: String(accountId),token1,token2,txType: "DT to Ocean",slippage: decSlippage,status: "pending",});
+          txDateId = addTxHistory({chainId,setTxHistory,txHistory,accountId: String(accountId),token1,token2,txType: "DT to Ocean",slippage: decSlippage,status: "Pending",});
           setLastTxId(txDateId);
 
           txType = "DT to Ocean";
@@ -485,7 +483,7 @@ const Swap: React.FC = () => {
           // prettier-ignore
           console.log(accountId,token1.info.address,token2.info.address,t2Val,t1Val,token1.info.pool,token2.info.pool,config.default.routerAddress,decSlippage);
           // prettier-ignore
-          txDateId = addTxHistory({chainId,setTxHistory,txHistory,accountId: String(accountId),token1,token2,txType: "DT to DT",slippage: decSlippage,status: "pending",});
+          txDateId = addTxHistory({chainId,setTxHistory,txHistory,accountId: String(accountId),token1,token2,txType: "DT to DT",slippage: decSlippage,status: "Pending",});
           setLastTxId(txDateId);
           txType = "DT to DT";
           txReceipt = await ocean.swapExactDtToDt(
@@ -504,7 +502,7 @@ const Swap: React.FC = () => {
           // prettier-ignore
           console.log(accountId,token1.info.address,token2.info.address,t2Val,t1Val,token1.info.pool,token2.info.pool,config.default.routerAddress,decSlippage);
           // prettier-ignore
-          txDateId = addTxHistory({chainId,setTxHistory,txHistory,accountId: String(accountId),token1,token2,txType: "DT to DT",slippage: decSlippage,status: "pending",});
+          txDateId = addTxHistory({chainId,setTxHistory,txHistory,accountId: String(accountId),token1,token2,txType: "DT to DT",slippage: decSlippage,status: "Pending",});
           setLastTxId(txDateId);
 
           txType = "DT to DT";
@@ -536,7 +534,7 @@ const Swap: React.FC = () => {
           slippage: decSlippage,
           txDateId,
           txHash: txReceipt.transactionHash,
-          status: "indexing",
+          status: "Indexing",
           txReceipt,
         });
         setPostExchange(new BigNumber(0));
@@ -858,8 +856,6 @@ const Swap: React.FC = () => {
         </div>
       </div>
       <UnlockTokenModal
-        token1={token1}
-        token2={token2}
         setToken={setToken1}
         nextFunction={() => setShowConfirmSwapModal(true)}
       />

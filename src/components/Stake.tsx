@@ -11,7 +11,6 @@ import UserMessage from "./UserMessage";
 import { toFixed5 } from "../utils/equate";
 import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
 import { getLocalPoolData, updateSingleStakePool } from "../utils/stakedPoolsUtils";
-import usePTxManager from "../hooks/usePTxManager";
 import useTxModalToggler from "../hooks/useTxModalToggler";
 import errorMessages from "../utils/errorMessages";
 import useLiquidityPos from "../hooks/useLiquidityPos";
@@ -22,7 +21,7 @@ import UnlockTokenModal from "./UnlockTokenModal";
 import { IToken, IUserMessage } from "../utils/types";
 import { getAllowance, getToken } from "../hooks/useTokenList";
 import { IPoolLiquidity, IBtnProps } from "../utils/types";
-import { getTokenVal } from "./Swap";
+import { getTokenVal, isOCEAN } from "./Swap";
 import useAutoLoadToken from "../hooks/useAutoLoadToken";
 
 const INITIAL_BUTTON_STATE = {
@@ -67,40 +66,24 @@ const Stake = () => {
   const [yourShares, setYourShares] = useState<BigNumber>(new BigNumber(0));
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
   //hooks
-  usePTxManager(lastTxId);
   useTxModalToggler(txReceipt, setTxReceipt);
   useLiquidityPos();
-  useAutoLoadToken(updateToken);
+  useAutoLoadToken();
 
+  const initialRender = useRef(true);
   useEffect(() => {
     setToken2(INITIAL_TOKEN_STATE);
+    initialRender.current = false;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(()=>{
-    if(token2.info){
-      updateToken(token2)
-    }
-  }, [token2.info])
 
   useEffect(() => {
     if (!chainId || !web3 || !ocean || !accountId) return;
     //set ocean token and get balance
-    if (token1.info?.symbol !== "OCEAN") {
-      getToken(web3, chainId, ocean.config.default.oceanTokenAddress, "reserve")
-        .then((res) => {
-          if (res)
-            setToken1({
-              ...INITIAL_TOKEN_STATE,
-              info: res,
-            });
-        })
-        .then(() => {
-          setOceanBalance();
-        });
-    } else if (token2.info) {
+    if (token2.info && !initialRender) {
       //get allowance and max stake
       getMaxAndAllowance();
+      updateToken(token2);
     } else {
       //get balance
       setOceanBalance();
@@ -228,8 +211,8 @@ const Stake = () => {
         token1: token2,
         token2: token1,
         txType: "stake",
-        status: "pending",
-        stakeAmt: t1BN.dp(5).toString(),
+        status: "Pending",
+        stakeAmt: t1BN.dp(5),
       });
       setLastTxId(txDateId);
       console.log(accountId, token2?.info?.pool, token1.value?.toString());
@@ -250,8 +233,8 @@ const Stake = () => {
           txType: "stake",
           txDateId,
           txHash: txReceipt.transactionHash,
-          status: "indexing",
-          stakeAmt: t1BN.dp(5).toString(),
+          status: "Indexing",
+          stakeAmt: t1BN.dp(5),
           txReceipt,
         });
         if (token2.info) {
@@ -364,7 +347,7 @@ const Stake = () => {
       setOceanToDt(res1);
       setDtToOcean(res2);
       console.log("<-- I was called this many times");
-      
+
       setYourLiquidity(new BigNumber(await ocean.getOceanRemovedforPoolShares(pool, myPoolShares)));
       const { dtAmount, oceanAmount } = await ocean.getTokensRemovedforPoolShares(pool, String(totalPoolShares));
       setPoolLiquidity({ dtAmount: new BigNumber(dtAmount), oceanAmount: new BigNumber(oceanAmount) });
@@ -531,8 +514,6 @@ const Stake = () => {
         </div>
       </div>
       <UnlockTokenModal
-        token1={token1}
-        token2={token2}
         setToken={setToken1}
         nextFunction={() => {
           if (setShowConfirmModal) setShowConfirmModal(true);

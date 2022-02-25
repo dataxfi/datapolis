@@ -3,7 +3,7 @@ import Web3 from "web3";
 import Watcher from "@dataxfi/datax.js/dist/Watcher";
 import { ITxHistory, ITxSelection } from "./types";
 import { Ocean } from "@dataxfi/datax.js";
-
+import BigNumber from 'bignumber.js'
 
 export function addTxHistory({
   chainId,
@@ -32,7 +32,7 @@ export function addTxHistory({
   slippage?: string;
   txDateId?: number | string;
   txReceipt?: TransactionReceipt;
-  stakeAmt?: string | number;
+  stakeAmt?: BigNumber;
 }) {
   try {
     let localTxHistory = getLocalTxHistory({ chainId, accountId });
@@ -68,10 +68,10 @@ export function addTxHistory({
     switch (status) {
       case "Success":
         break;
-      case "indexing":
+      case "Indexing":
         break;
       default:
-        status = "pending";
+        status = "Pending";
         break;
     }
     return txDateId;
@@ -233,18 +233,17 @@ export async function watchTx({
     accountId,
     token1,
     token2,
-    txHash,
     status,
     txType,
     slippage,
-    stakeAmt,
+    shares: stakeAmt,
     txReceipt,
     txDateId,
   } = tx;
 
   try {    
-    const response = txHash
-      ? await watcher.waitTransaction(web3, txHash, {
+    const response = txReceipt?.transactionHash
+      ? await watcher.waitTransaction(web3,  txReceipt.transactionHash, {
           interval: 250,
           blocksToWait: 1,
         })
@@ -259,7 +258,7 @@ export async function watchTx({
         token1,
         token2,
         txType,
-        txHash,
+        txHash: txReceipt?.transactionHash,
         status: "Success",
         slippage,
         txDateId,
@@ -275,7 +274,7 @@ export async function watchTx({
         token1,
         token2,
         txType,
-        txHash,
+        txHash: txReceipt?.transactionHash,
         status: "Failure",
         slippage,
         txDateId,
@@ -306,7 +305,7 @@ export async function setPendingTxsFromHistory({
     if (
       Number(id) > olderThanAnHour &&
       //@ts-ignore
-      tx.status === "pending" &&
+      tx.status === "Pending" &&
       !pendingTxs.includes(id)
     ) {
       //if the tx is within the last hour and pending, set pendingTxs with tx

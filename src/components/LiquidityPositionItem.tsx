@@ -6,38 +6,13 @@ import { Link } from "react-router-dom";
 import { toFixed5 } from "../utils/equate";
 import { getToken } from "../hooks/useTokenList";
 function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: ILiquidityPosition; index: number }) {
-  
   const { address, token1Info, token2Info, shares, dtAmount, oceanAmount, yourPoolSharePerc, totalPoolShares } =
     singleLiqPosItem;
-  const { setSingleLiquidityPos, web3, ocean, chainId, tokenModalArray, setLoading, setToken1, setToken2 } =
-    useContext(GlobalContext);
+  const { setSingleLiquidityPos } = useContext(GlobalContext);
 
   const [visible, setVisible] = useState<boolean>(false);
-  async function setTokenAndPool() {
-    if (!setSingleLiquidityPos || !setLoading || !token2Info.pool) return;
-    setSingleLiquidityPos(singleLiqPosItem);
 
-    try {
-      if (tokenModalArray && web3 && chainId && ocean) {
-        const currentToken = await getToken(web3, chainId, address, "pool");
-        if (currentToken) setToken2({ ...INITIAL_TOKEN_STATE, info: currentToken });
-
-        getToken(web3, chainId, ocean.config.default.oceanTokenAddress, "reserve").then((res) => {
-          if (res)
-            setToken1({
-              ...INITIAL_TOKEN_STATE,
-              info: res,
-            });
-        });
-      }
-    } catch (error) {
-      console.error(error);
-    }
-
-    setLoading(true);
-  }
-
-  return (
+  return token1Info && token2Info ? (
     <li id={`${token1Info.symbol}-lp-item`} key={`LP${index}`}>
       <div className="w-full mx-auto z-0">
         <div
@@ -60,7 +35,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
               alt=""
               width="40px"
             />
-            <p className="text-type-100 text-sm md:text-lg">{`${token1Info.symbol}/${token2Info.symbol}`}</p>
+            <p className="text-type-100 text-sm md:text-lg">{`${token2Info.symbol}/${token1Info.symbol}`}</p>
           </div>
           <div className="grid grid-flow-col gap-1 items-center">
             <p className="hidden lg:block text-type-200 text-sm">Manage</p>
@@ -143,7 +118,10 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                     ? "modalButton cursor-not-allowed pointer-events-none rounded p-2px w-1/2 text-center text-gray-500"
                     : "modalButton rounded p-2px w-1/2 text-center"
                 } `}
-                
+                onClick={() => {
+                  console.log("Exact user shares", shares);
+                  if (Number(shares) > 0) setSingleLiquidityPos(singleLiqPosItem);
+                }}
               >
                 <div className="bg-black w-full h-full rounded p-2px">Remove</div>
               </Link>
@@ -154,6 +132,8 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
         )}
       </div>
     </li>
+  ) : (
+    <></>
   );
 }
 

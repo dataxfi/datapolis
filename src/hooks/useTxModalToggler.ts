@@ -10,7 +10,7 @@ export default function useTxModalToggler(
   const { showConfirmModal, setShowConfirmModal, setShowTxDone } = useContext(GlobalContext);
   useEffect(() => {
     if (txReceipt) {
-      if (showConfirmModal && setShowConfirmModal && setShowTxDone) {
+      if (showConfirmModal) {
         setShowConfirmModal(false);
         setShowTxDone(true);
       }

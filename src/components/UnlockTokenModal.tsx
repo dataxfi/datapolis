@@ -8,29 +8,31 @@ import errorMessages from "../utils/errorMessages";
 import { getAllowance } from "../hooks/useTokenList";
 import { IToken, ApprovalStates } from "../utils/types";
 export default function UnlockTokenModal({
-  token1,
-  token2,
   setToken,
   nextFunction,
   remove,
 }: {
-  token1: IToken;
-  token2: IToken;
   setToken: Function;
   nextFunction: Function;
   remove?: boolean;
 }) {
-  const { accountId, config, ocean, showUnlockTokenModal, setShowUnlockTokenModal, notifications, setNotifications } =
-    useContext(GlobalContext);
+  const {
+    accountId,
+    config,
+    ocean,
+    showUnlockTokenModal,
+    setShowUnlockTokenModal,
+    notifications,
+    setNotifications,
+    lastTx,
+    token1,
+    token2,
+    setSingleLiquidityPos,
+    singleLiquidityPos,
+  } = useContext(GlobalContext);
   const [approving, setApproving] = useState<ApprovalStates>("pending");
-  const [t1BN, setT1BN] = useState<BigNumber>(new BigNumber(0));
   const [pool, setPool] = useState<string | null>(null);
   const [address, setAddress] = useState<string | null>(null);
-
-  useEffect(() => {
-    const { t1BN } = getTokenVal(token1, token1);
-    setT1BN(t1BN);
-  }, [token1]);
 
   // Set up the interval.
   useEffect(() => {
@@ -42,7 +44,7 @@ export default function UnlockTokenModal({
           getAllowance(address, accountId, pool, ocean).then((res) => {
             console.log("Response from allowance call", res);
             const allowance = new BigNumber(res);
-            if (allowance.gte(t1BN) && setShowUnlockTokenModal) {
+            if (allowance.gte(token1.value) && setShowUnlockTokenModal) {
               setShowUnlockTokenModal(false);
               nextFunction();
               setPool(null);
@@ -62,10 +64,7 @@ export default function UnlockTokenModal({
       let pool: string = "";
       let address: string = "";
 
-      if (remove && token1.info) {
-        pool = token1.info.pool;
-        address = token1.info.address;
-      } else if (token1.info && token2.info && isOCEAN(token1.info.address, ocean)) {
+      if (token1.info && token2.info && isOCEAN(token1.info.address, ocean)) {
         pool = token2.info.pool;
         address = token1.info.address;
       } else if (token1.info && token2.info && isOCEAN(token2.info.address, ocean)) {
@@ -77,15 +76,14 @@ export default function UnlockTokenModal({
       }
 
       try {
-        const { t1BN } = getTokenVal(token1);
-        if(!accountId) return 
+        if (!accountId || !lastTx?.shares) return;
         setApproving("approving");
         if (amount === "perm") {
           await ocean.approve(address, pool, new BigNumber(18e10).toString(), accountId);
-          remove ? setToken(new BigNumber(18e10)) : setToken({ ...token1, allowance: new BigNumber(18e10) });
+          setToken({ ...token1, allowance: new BigNumber(18e10) });
         } else {
-          await ocean.approve(address, pool, t1BN.plus(0.001).toString(), accountId);
-          remove ? setToken(t1BN.plus(0.001)) : setToken({ ...token1, allowance: t1BN.plus(0.001) });
+          await ocean.approve(address, pool, token1.value.plus(0.001).toString(), accountId);
+          setToken({ ...token1, allowance: token1.value.plus(0.001) });
         }
         setApproving("approved");
         setPool(pool);
@@ -93,23 +91,23 @@ export default function UnlockTokenModal({
       } catch (error) {
         console.error(error);
         setApproving("pending");
-          const allNotifications = notifications;
-          allNotifications.push({
+        const allNotifications = notifications;
+        allNotifications.push({
+          type: "alert",
+          alert: {
+            message: errorMessages(error),
+            link: null,
             type: "alert",
-            alert: {
-              message: errorMessages(error),
-              link: null,
-              type: "alert",
-            },
-          });
-          setNotifications([...allNotifications]);
-        
+          },
+        });
+        setNotifications([...allNotifications]);
+
         if (setShowUnlockTokenModal) setShowUnlockTokenModal(false);
       }
     }
   }
 
-  return showUnlockTokenModal && token1.info ? (
+  return showUnlockTokenModal && token1.info && lastTx ? (
     <div
       id="transactionDoneModal"
       className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 sm:max-w-sm w-full z-20 shadow"
@@ -138,7 +136,9 @@ export default function UnlockTokenModal({
         )}
         <h3 className="text-sm lg:text-2xl pb-5">Unlock {token1.info.symbol}</h3>
         <p className="text-sm lg:text-base text-center pb-5">
-          DataX needs your permission to spend {t1BN.dp(5).toString()} {remove ? "shares" : token1.info.symbol}.
+          DataX needs your permission to spend{" "}
+          {remove ? lastTx.shares?.dp(5).toString() : token1.value.dp(5).toString()}{" "}
+          {remove ? "shares" : token1.info.symbol}.
         </p>
 
         <button

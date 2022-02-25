@@ -96,31 +96,31 @@ export type BalancePos = 1 | 2 | "stake";
 export type ITxType = "trade" | "stake" | "unstake";
 export type LocalStorageMethods = "get" | "set" | "clear" | "remove" | "key" | "length";
 
-export interface ITxTokenDetails {
-  balance: string;
-  info: TokenInfo;
-  percentage: string;
-  value: string;
-}
+// export interface ITxTokenDetails {
+//   balance: string;
+//   info: TokenInfo;
+//   percentage: string;
+//   value: string;
+// }
 
-export interface ITxObject {
+export interface ITxDetails {
   accountId: string;
-  token1: ITxTokenDetails | TokenInfo;
-  token2: ITxTokenDetails | TokenInfo;
-  txHash: string | null;
-  status: string;
-  txType: string;
+  txDateId: string;
+  token1: IToken;
+  token2: IToken;
+  status: "Pending" | "Indexing" | "Success" | "Failure";
+  txType: ITxType;
   slippage?: string;
-  stakeAmt?: string;
+  shares?: BigNumber;
   txReceipt?: TransactionReceipt;
 }
 
+
 export interface ITxHistory {
-  [txDateId: string]: ITxObject;
+  [txDateId: string]: ITxDetails;
 }
 
-export interface ITxSelection extends ITxObject {
-  txDateId: string | number;
+export interface ITxSelection extends ITxDetails {
   txLink: string;
 }
 
@@ -162,10 +162,12 @@ export interface globalStates {
   setBgLoading: React.Dispatch<React.SetStateAction<string[]>>;
   txHistory?: ITxHistory;
   setTxHistory: React.Dispatch<React.SetStateAction<ITxHistory | undefined>>;
+  lastTx? : ITxDetails
+  setLastTx : React.Dispatch<React.SetStateAction<ITxDetails | undefined>>
+  pendingTxs: string[];
+  setPendingTxs: React.Dispatch<React.SetStateAction<string[]>>;
   showSnackbar: boolean;
   setShowSnackbar: React.Dispatch<React.SetStateAction<boolean>>;
-  pendingTxs: number[];
-  setPendingTxs: React.Dispatch<React.SetStateAction<number[]>>;
   showTxHistoryModal: boolean;
   setShowTxHistoryModal: React.Dispatch<React.SetStateAction<boolean>>;
   watcher?: Watcher;

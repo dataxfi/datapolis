@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { bgLoadingStates, GlobalContext, removeBgLoadingState } from "../context/GlobalState";
+import { bgLoadingStates, GlobalContext, INITIAL_TOKEN_STATE, removeBgLoadingState } from "../context/GlobalState";
 import LiquidityPositionItem from "./LiquidityPositionItem";
 import UserMessage from "./UserMessage";
 import { getLocalPoolData, updateUserStakePerPool, updateSingleStakePool } from "../utils/stakedPoolsUtils";
@@ -18,6 +18,8 @@ const LiquidityPosition = () => {
     bgLoading,
     setBgLoading,
     setSingleLiquidityPos,
+    setToken1,
+    setToken2,
   } = useContext(GlobalContext);
   const [noStakedPools, setNoStakedPools] = useState<boolean>(false);
   const [userMessage, setUserMessage] = useState<string | IUserMessage | null>(
@@ -29,16 +31,13 @@ const LiquidityPosition = () => {
   useLiquidityPos(importPool, setImportPool);
 
   useEffect(() => {
-    if (!setAllStakedPools || !setSingleLiquidityPos) return;
-    setAllStakedPools(undefined);
-    setSingleLiquidityPos(undefined);
-  }, [setAllStakedPools, setSingleLiquidityPos]);
-
-  useEffect(() => {
     try {
+      setToken1(INITIAL_TOKEN_STATE);
+      setToken2(INITIAL_TOKEN_STATE);
+
       if (accountId) {
         let localData: any = getLocalPoolData(accountId, String(chainId));
-        if (!Array.isArray(bgLoading) || !setBgLoading || !setAllStakedPools || !ocean || !setLoading) return;
+        if (!ocean || !setLoading) return;
         if (localData && localData != null) {
           setBgLoading([...bgLoading, bgLoadingStates.allStakedPools]);
           localData = JSON.parse(localData);
@@ -73,8 +72,6 @@ const LiquidityPosition = () => {
   }, [accountId, ocean]);
 
   useEffect(() => {
-    console.log(allStakedPools);
-
     console.log("Currently loading in the background", bgLoading);
     if (!accountId && setLoading) {
       setUserMessage("Connect your wallet to see staked oceans.");
@@ -86,7 +83,6 @@ const LiquidityPosition = () => {
     } else if (accountId && !allStakedPools) {
       setMessageId("importMessage");
       setUserMessage("Dont see your tokens? Import a pool by name with the import button below.");
-      //, or scan the entire blockchain.
     } else if (accountId && allStakedPools) {
       setUserMessage(null);
     }
@@ -140,8 +136,7 @@ const LiquidityPosition = () => {
           ) : (
             <></>
           )}
-          {/* <div className="flex flex-row w-full m-auto"> */}
-          {/* <div className="max-w-2xl w-full py-2 bg-black"> */}
+
           <div className="w-full flex justify-center">
             <div className="w-full pr-1">
               <button
@@ -156,26 +151,9 @@ const LiquidityPosition = () => {
                 Import
               </button>
             </div>
-            {/* <div className="w-1/2 pl-1">
-                  <button
-                  id="scanStakeBtn"
-                    title="Scan for your stake information."
-                    disabled={accountId ? false : true}
-                    onClick={() => {
-                      scanData();
-                    }}
-                    className={`p-3 w-full  bg-primary-600 rounded ${
-                      accountId ? "bg-primary-600 text-white hover:bg-primary-500" : "bg-primary-800 text-gray-500"
-                    }`}
-                  >
-                    Scan
-                  </button>
-                </div> */}
           </div>
         </div>
       </div>
-      {/* </div> */}
-      {/* </div> */}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { isOCEAN } from "../components/Swap";
 import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
@@ -23,8 +23,13 @@ export default function useLiquidityPos(
     token2,
     web3,
   } = useContext(GlobalContext);
+  const location = useLocation();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const pool = queryParams.get("pool");
+
     if (
       web3 &&
       ocean &&
@@ -34,9 +39,11 @@ export default function useLiquidityPos(
       token2.info &&
       (isOCEAN(token1.info.address, ocean) || isOCEAN(token2.info?.address, ocean))
     ) {
-      let dtPool: string;
+      let dtPool: string | null = pool;
+      console.log(dtPool);
 
-      isOCEAN(token1.info.address, ocean) ? (dtPool = token1.info.pool) : (dtPool = token2.info.pool);
+      if (dtPool === null)
+        isOCEAN(token1.info.address, ocean) ? (dtPool = token1.info.pool) : (dtPool = token2.info.pool);
 
       const localStoragePoolData = getLocalPoolData(accountId, chainId);
 
@@ -54,29 +61,40 @@ export default function useLiquidityPos(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token1.info, token2.info, ocean, allStakedPools, accountId, web3]);
 
+  const nextToImport = useRef(importPool);
   useEffect(() => {
-    console.log("importing", importPool);
-
-    if (importPool && setImportPool && chainId) {
-      updateSingleStakePool(importPool).then((res) => {
-        if (res && allStakedPools) {
-          setAllStakedPools([...allStakedPools, res]);
-          setLocalPoolDataStorage([...allStakedPools, res], chainId);
-        } else if (res) {
-          setAllStakedPools([res]);
-          setLocalPoolDataStorage([res], chainId);
-        }
-      });
-      setImportPool(undefined);
+    if (importPool && setImportPool && chainId && !loading) {
+      updateSingleStakePool(importPool)
+        .then((res) => {
+          if (res && allStakedPools) {
+            let newData = allStakedPools;
+            const index = allStakedPools.findIndex((item) => item.address === res.address);
+            console.log(index);
+            
+            (index >= 0) ? newData.splice(index, 1, res) : newData.push(res)
+            setAllStakedPools(newData);
+            setLocalPoolDataStorage(newData, chainId);
+          } else if (res) { 
+            setAllStakedPools([res]);
+            setLocalPoolDataStorage([res], chainId);
+          }
+        })
+        .catch(console.error)
+        .finally(() => {
+          setImportPool(nextToImport.current);
+          setLoading(false);
+        });
+    } else if (loading) {
+      nextToImport.current = importPool;
     }
-  }, [importPool]);
+  }, [importPool, loading]);
 
   async function updateSingleStakePool(poolAddress: string): Promise<ILiquidityPosition | void> {
     if (!ocean || !accountId || !web3 || !chainId) return;
     try {
       poolAddress = poolAddress.toLowerCase();
       const shares = await ocean.getMyPoolSharesForPool(poolAddress, accountId);
-      const token1Info = await getToken(web3, chainId, poolAddress, "pool");
+      const token1Info = await getToken(web3, chainId, ocean.config.default.oceanTokenAddress, "reserve");
       const token2Info = await getToken(web3, chainId, poolAddress, "pool");
       const totalPoolShares = await ocean.getTotalPoolShares(poolAddress);
       const yourPoolSharePerc = percOf(shares, totalPoolShares);

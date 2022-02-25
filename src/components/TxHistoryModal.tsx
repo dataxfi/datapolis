@@ -92,11 +92,11 @@ function TxHistoryModal() {
     for (let [txDateId, tx] of Object.entries(history)) {
       let txLink = getTxUrl({
         ocean,
-        txHash: tx.txHash,
+        txHash: tx.txReceipt?.transactionHash,
         accountId,
       });
       if (!txLink) txLink = "/";
-      txsByDate.push({ txDateId, ...tx, txLink });
+      txsByDate.push({...tx, txDateId, txLink });
     }
     //@ts-ignore
     txsByDate.sort((date1, date2) => Number(date2.txDateId) - Number(date1.txDateId));

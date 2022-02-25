@@ -13,9 +13,17 @@ import {
   deniedSignatureGA,
   connectedWalletViaGA,
 } from "./Analytics";
-import { IDisclaimerSigned, globalStates, ILiquidityPosition, IToken, ITxHistory, IUserMessage } from "../utils/types";
-import BigNumber from 'bignumber.js'
-import { TList, TokenInfo } from "@dataxfi/datax.js/dist/TokenList"
+import {
+  IDisclaimerSigned,
+  globalStates,
+  ILiquidityPosition,
+  IToken,
+  ITxHistory,
+  IUserMessage,
+  ITxDetails,
+} from "../utils/types";
+import BigNumber from "bignumber.js";
+import { TList, TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
 
 const CONNECT_TEXT = "Connect Wallet";
 export const INITIAL_TOKEN_STATE: IToken = {
@@ -79,13 +87,14 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [bgLoading, setBgLoading] = useState<string[]>([]);
 
   //array of pending transaction Ids
-  const [pendingTxs, setPendingTxs] = useState<number[]>([]);
+  const [pendingTxs, setPendingTxs] = useState<string[]>([]);
 
   //Transaction and tx modal states
   const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
   const [showTxHistoryModal, setShowTxHistoryModal] = useState<boolean>(false);
   //all transaction history
   const [txHistory, setTxHistory] = useState<ITxHistory>();
+  const [lastTx, setLastTx] = useState<ITxDetails>();
 
   // (user)confirmModal and txDone state for specific transactions
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -101,14 +110,13 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   //tokenModalArray to be rendered in token modal
   const [tokenModalArray, setTokenModalArray] = useState<TokenInfo[]>();
   //current token pair to be traded, staked, etc
-  const [token1, setToken1] = useState<IToken>(INITIAL_TOKEN_STATE)
-  const [token2, setToken2] = useState<IToken>(INITIAL_TOKEN_STATE)
+  const [token1, setToken1] = useState<IToken>(INITIAL_TOKEN_STATE);
+  const [token2, setToken2] = useState<IToken>(INITIAL_TOKEN_STATE);
 
   //response from token fetch operation
   const [tokenResponse, setTokenResponse] = useState<TList>();
 
   const [buttonText, setButtonText] = useState<string>(CONNECT_TEXT);
-
 
   const [notifications, setNotifications] = useState<IUserMessage[]>([]);
 
@@ -123,7 +131,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       const value = localStorage.getItem(key || "");
-      if (value === "pending") localStorage.removeItem(key || "");
+      if (value === "Pending") localStorage.removeItem(key || "");
     }
 
     const bgPref = localStorage.getItem("bgPref");
@@ -318,8 +326,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
     // Subscribe to chainId change
     provider.on("chainChanged", async (chainId: any) => {
-      setToken1(INITIAL_TOKEN_STATE)
-      setToken2(INITIAL_TOKEN_STATE)
+      setToken1(INITIAL_TOKEN_STATE);
+      setToken2(INITIAL_TOKEN_STATE);
       setTxHistory(undefined);
       setPendingTxs([]);
       const parsedId = String(parseInt(chainId));
@@ -379,6 +387,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setBgLoading,
         txHistory,
         setTxHistory,
+        lastTx, 
+        setLastTx,
         showSnackbar,
         setShowSnackbar,
         pendingTxs,
@@ -401,10 +411,10 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setLocation,
         bgOff,
         setBgOff,
-        token1, 
-        setToken1, 
-        token2, 
-        setToken2
+        token1,
+        setToken1,
+        token2,
+        setToken2,
       }}
     >
       {children}

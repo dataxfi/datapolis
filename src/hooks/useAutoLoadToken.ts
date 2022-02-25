@@ -2,16 +2,16 @@ import { useContext, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
 import { getToken } from "./useTokenList";
-
-export default function useAutoLoadToken(updateToken: Function) {
-  const { web3, chainId, setToken2, token2 } = useContext(GlobalContext);
+import BigNumber from "bignumber.js";
+export default function useAutoLoadToken() {
+  const { web3, chainId, setToken2, token1, setToken1, ocean, accountId } = useContext(GlobalContext);
 
   const url = useLocation();
   useEffect(() => {
     const queryParams = new URLSearchParams(url.search);
     const pool = queryParams.get("pool");
 
-    if (pool && web3 && chainId) {
+    if (pool && web3 && chainId && ocean && accountId) {
       getToken(web3, chainId, pool, "pool").then((info) => {
         console.log(info);
         if (info) {
@@ -19,6 +19,20 @@ export default function useAutoLoadToken(updateToken: Function) {
           setToken2(token);
         }
       });
+
+      if (token1.info?.symbol !== "OCEAN" ) {
+        getToken(web3, chainId, ocean.config.default.oceanTokenAddress, "reserve").then(async (res) => {
+          const balance = new BigNumber(
+            await ocean.getBalance(ocean.config.default.oceanTokenAddress.toLowerCase(), accountId)
+          );
+          if (res)
+            setToken1({
+              ...INITIAL_TOKEN_STATE,
+              info: res,
+              balance,
+            });
+        });
+      }
     }
-  }, [url, web3, chainId]);
+  }, [url, web3, chainId, ocean, accountId]);
 }

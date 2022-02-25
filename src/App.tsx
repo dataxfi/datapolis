@@ -13,10 +13,10 @@ import DisclaimerModal from "./components/DisclaimerModal";
 import TxHistoryModal from "./components/TxHistoryModal";
 import Footer from "./components/Footer";
 import SnackbarArea from "./components/SnackbarArea";
-import usePTxInitializer from "./hooks/usePTxInitializer";
 import BigNumber from "bignumber.js";
 import LandingPage from "./components/LandingPage";
 import WatchLocation from "./components/WatchLocation";
+import useTxHistory from "./hooks/useTxHistory";
 BigNumber.config({ DECIMAL_PLACES: 18, ROUNDING_MODE: BigNumber.ROUND_DOWN, EXPONENTIAL_AT: 18 });
 
 //import "./stars.css"
@@ -24,9 +24,7 @@ function App() {
   const { unsupportedNet, showDisclaimer, cookiesAllowed, location, bgOff } = useContext(GlobalContext);
 
   document.getElementById("loader");
-
-  // useTokenList(otherToken)
-  usePTxInitializer();
+  useTxHistory()
 
   useEffect(() => {
     if (cookiesAllowed) {
