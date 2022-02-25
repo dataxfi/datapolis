@@ -57,6 +57,7 @@ export interface IUserMessage {
   link?: string | { href: string; desc: string } | null;
   type: string;
   alert?: any;
+  newTx?: ITxDetails
 }
 
 
@@ -93,7 +94,7 @@ export interface ILiquidityPosition {
 }
 
 export type BalancePos = 1 | 2 | "stake";
-export type ITxType = "trade" | "stake" | "unstake";
+export type ITxType = "trade" | "stake" | "unstake" | "approve";
 export type LocalStorageMethods = "get" | "set" | "clear" | "remove" | "key" | "length";
 
 // export interface ITxTokenDetails {
@@ -110,7 +111,7 @@ export interface ITxDetails {
   token2: IToken;
   status: "Pending" | "Indexing" | "Success" | "Failure";
   txType: ITxType;
-  slippage?: string;
+  slippage?: BigNumber;
   shares?: BigNumber;
   txReceipt?: TransactionReceipt;
 }

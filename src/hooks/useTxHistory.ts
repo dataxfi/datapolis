@@ -1,6 +1,7 @@
 import { useEffect, useContext, useState } from "react";
 import { GlobalContext } from "../context/GlobalState";
-import { getLocalTxHistory, setPendingTxsFromHistory } from "../utils/txHistoryUtils";
+import { addTxHistory, getLocalTxHistory, setLocalTxHistory, setPendingTxsFromHistory } from "../utils/txHistoryUtils";
+import { ITxHistory } from "../utils/types";
 
 export default function useTxHistory() {
   const {
@@ -36,25 +37,48 @@ export default function useTxHistory() {
 
   //manages pending transaction indicator
   useEffect(() => {
-    console.log("Last tx", lastTx);
-    
-    if (lastTx) {
+    function addHistory() {
+      if (accountId && chainId && lastTx) {
+        const { txDateId } = lastTx;
+        const newTxHistory = { ...txHistory, [txDateId]: lastTx };
+        setTxHistory(newTxHistory);
+        setLocalTxHistory({ txHistory: newTxHistory, accountId, chainId });
+      }
+    }
+
+    if (lastTx && chainId && accountId) {
       let newTxs;
       const { txDateId, status } = lastTx;
-      console.log("Status", status);
-      
-      if (status === "Pending") {
-        newTxs = pendingTxs;
-        newTxs.push(txDateId);
-        setTxHistory({...txHistory, txDateId: lastTx})
-      } else {
-        newTxs = pendingTxs.filter((item) => item !== txDateId);
-        console.log("Filtering", newTxs);
-        
+      let newTxHistory: ITxHistory;
+
+      switch (status) {
+        case "Pending":
+          newTxs = pendingTxs;
+          newTxs.push(txDateId);
+          setTxHistory({ ...txHistory, [txDateId]: lastTx });
+          addHistory();
+          break;
+        case "Indexing":
+          const allNotifications = notifications;
+          allNotifications.push({ type: "tx", newTx: lastTx });
+          setNotifications([...allNotifications]);
+          newTxs = pendingTxs.filter((item) => item !== txDateId);
+          addHistory();
+          break;
+        case "Failure":
+          let localTxHistory = getLocalTxHistory({ chainId, accountId });
+          newTxHistory = { ...txHistory, ...localTxHistory };
+          delete newTxHistory[txDateId];
+          setTxHistory({ ...newTxHistory });
+          setLocalTxHistory({ txHistory: newTxHistory, accountId, chainId });
+          newTxs = pendingTxs.filter((item) => item !== txDateId);
+          break;
+        default:
+          newTxs = pendingTxs.filter((item) => item !== txDateId);
+          break;
       }
+
       setPendingTxs(newTxs);
     }
   }, [lastTx]);
-
-
 }

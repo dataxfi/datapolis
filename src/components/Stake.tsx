@@ -18,7 +18,7 @@ import BigNumber from "bignumber.js";
 import { DebounceInput } from "react-debounce-input";
 import WrappedInput from "./WrappedInput";
 import UnlockTokenModal from "./UnlockTokenModal";
-import { IToken, IUserMessage } from "../utils/types";
+import { IToken, ITxDetails, IUserMessage } from "../utils/types";
 import { getAllowance, getToken } from "../hooks/useTokenList";
 import { IPoolLiquidity, IBtnProps } from "../utils/types";
 import { getTokenVal, isOCEAN } from "./Swap";
@@ -51,6 +51,7 @@ const Stake = () => {
     token1,
     setToken1,
     web3,
+    setLastTx,
   } = useContext(GlobalContext);
   const [dtToOcean, setDtToOcean] = useState<any>(null);
   const [oceanToDt, setOceanToDt] = useState<any>(null);
@@ -80,7 +81,7 @@ const Stake = () => {
   useEffect(() => {
     if (!chainId || !web3 || !ocean || !accountId) return;
     //set ocean token and get balance
-    if (token2.info && !initialRender) {
+    if (token2.info && !initialRender.current) {
       //get allowance and max stake
       getMaxAndAllowance();
       updateToken(token2);
@@ -187,56 +188,29 @@ const Stake = () => {
       .then(() => {
         if (token2.info && accountId && chainId && ocean)
           getAllowance(ocean.config.default.oceanTokenAddress, accountId, token2.info.pool, ocean).then((res) => {
-            if (token1.info)
-              setToken1({
-                ...token1,
-                allowance: new BigNumber(res),
-              });
+            console.log(res);
+            setToken1({
+              ...token1,
+              allowance: new BigNumber(res),
+            });
           });
       })
       .catch(console.error);
   }
 
-  async function executeStake() {
+  async function executeStake(preTxDetails: ITxDetails) {
     const { t1BN } = getTokenVal(token1, token2);
-    let txDateId;
-    if (!token2.info || !chainId || !txHistory || !setTxHistory || !ocean || !accountId) return;
+    if (!token2.info || !chainId || !txHistory || !ocean || !accountId) return;
     try {
       setLoading(true);
-      txDateId = addTxHistory({
-        chainId,
-        setTxHistory,
-        txHistory,
-        accountId: String(accountId),
-        token1: token2,
-        token2: token1,
-        txType: "stake",
-        status: "Pending",
-        stakeAmt: t1BN.dp(5),
-      });
-      setLastTxId(txDateId);
       console.log(accountId, token2?.info?.pool, token1.value?.toString());
       const txReceipt = await ocean.stakeOcean(accountId, token2.info.pool, token1.value?.toString());
 
       if (txReceipt) {
-        setToken2(INITIAL_TOKEN_STATE);
-        setToken1({ ...token1, value: new BigNumber(0) });
+        setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
+
         setOceanBalance();
         setTxReceipt(txReceipt);
-        addTxHistory({
-          chainId,
-          setTxHistory,
-          txHistory,
-          accountId: String(accountId),
-          token1: token2,
-          token2: token1,
-          txType: "stake",
-          txDateId,
-          txHash: txReceipt.transactionHash,
-          status: "Indexing",
-          stakeAmt: t1BN.dp(5),
-          txReceipt,
-        });
         if (token2.info) {
           const json = JSON.parse(getLocalPoolData(accountId, chainId) || "[]");
           updateSingleStakePool({
@@ -255,6 +229,7 @@ const Stake = () => {
         throw new Error("Didn't receive a receipt.");
       }
     } catch (error: any) {
+      setLastTx({ ...preTxDetails, txReceipt, status: "Failure" });
       console.error(error);
       if (notifications) {
         const allNotifications = notifications;
@@ -267,13 +242,6 @@ const Stake = () => {
           },
         });
         setNotifications([...allNotifications]);
-        deleteRecentTxs({
-          txDateId,
-          setTxHistory,
-          txHistory,
-          accountId,
-          chainId,
-        });
       }
       if (setShowConfirmModal) setShowConfirmModal(false);
       // setOceanValInput(null);
@@ -287,11 +255,18 @@ const Stake = () => {
     if (!token2.info || !ocean) return;
     console.log(ocean);
     let maxStake: BigNumber | null;
-    maxStakeAmt
-      ? (maxStake = maxStakeAmt)
-      : (maxStake = new BigNumber(
-          await ocean.getMaxStakeAmount(token2.info.pool, ocean.config.default.oceanTokenAddress)
-        ));
+
+    console.log(maxStakeAmt);
+
+    if (maxStakeAmt.gt(0)) {
+      maxStake = maxStakeAmt;
+    } else {
+      getMaxAndAllowance();
+      maxStake = new BigNumber(await ocean.getMaxStakeAmount(token2.info.pool, ocean.config.default.oceanTokenAddress));
+    }
+
+    console.log(maxStake);
+
     console.log("Max Stake Amount - ", maxStake.toFixed(18));
     if (maxStake.isNaN()) {
       setToken1({ ...token1, value: new BigNumber(0) });
@@ -315,9 +290,9 @@ const Stake = () => {
     }
     val = new BigNumber(val);
 
-    if (!max) {
-      maxStakeAmt.gt(0) ? (max = maxStakeAmt) : (max = await getMaxStakeAmt());
-    }
+    // if (!max) {
+    //   maxStakeAmt.gt(0) ? (max = maxStakeAmt) : (max = await getMaxStakeAmt());
+    // }
 
     if (max) {
       if (token1.balance.lt(val)) {
@@ -346,7 +321,6 @@ const Stake = () => {
       setYourShares(new BigNumber(myPoolShares));
       setOceanToDt(res1);
       setDtToOcean(res2);
-      console.log("<-- I was called this many times");
 
       setYourLiquidity(new BigNumber(await ocean.getOceanRemovedforPoolShares(pool, myPoolShares)));
       const { dtAmount, oceanAmount } = await ocean.getTokensRemovedforPoolShares(pool, String(totalPoolShares));
@@ -491,14 +465,34 @@ const Stake = () => {
               id="executeStake"
               text={btnProps.text}
               onClick={() => {
-                if (btnProps.text === "Connect wallet") {
-                  if (handleConnect) handleConnect();
+                if (btnProps.text === "Connect wallet" || !accountId) {
+                  handleConnect();
                 } else {
                   if (token1.allowance?.lt(token1.value)) {
-                    if (setShowUnlockTokenModal) setShowUnlockTokenModal(true);
+                    const preTxDetails: ITxDetails = {
+                      accountId,
+                      status: "Pending",
+                      token1,
+                      token2,
+                      txDateId: Date.now().toString(),
+                      txType: "approve",
+                    };
+                    console.log(token1);
+                    setLastTx(preTxDetails);
+                    setShowUnlockTokenModal(true);
                   } else {
-                    if (setShowConfirmModal) setShowConfirmModal(true);
-                    executeStake();
+                    setShowConfirmModal(true);
+                    const preTxDetails: ITxDetails = {
+                      accountId,
+                      status: "Pending",
+                      token1,
+                      token2,
+                      txDateId: Date.now().toString(),
+                      txType: "stake",
+                    };
+                    
+                    setLastTx(preTxDetails);
+                    executeStake(preTxDetails);
                   }
                 }
               }}
@@ -513,11 +507,21 @@ const Stake = () => {
           </div>
         </div>
       </div>
+
       <UnlockTokenModal
         setToken={setToken1}
         nextFunction={() => {
-          if (setShowConfirmModal) setShowConfirmModal(true);
-          executeStake();
+          setShowConfirmModal(true);
+          if (!accountId) return;
+          const preTxDetails: ITxDetails = {
+            accountId,
+            status: "Pending",
+            token1,
+            token2,
+            txDateId: Date.now().toString(),
+            txType: "stake",
+          };
+          executeStake(preTxDetails);
         }}
       />
 
@@ -528,11 +532,14 @@ const Stake = () => {
         }}
         txs={token2.info ? [`Stake ${token1.value?.toString()} OCEAN in ${token2.info.symbol} pool`] : []}
       />
+
       <TransactionDoneModal
         show={showTxDone ? showTxDone : false}
         txHash={recentTxHash}
         close={() => {
-          if (setShowTxDone) setShowTxDone(false);
+          setShowTxDone(false);
+          setToken2(INITIAL_TOKEN_STATE);
+          setToken1({ ...token1, value: new BigNumber(0) });
         }}
       />
 

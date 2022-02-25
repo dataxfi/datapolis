@@ -16,7 +16,7 @@ import BigNumber from "bignumber.js";
 import { toFixed5 } from "../utils/equate";
 import UnlockTokenModal from "./UnlockTokenModal";
 import { getAllowance } from "../hooks/useTokenList";
-import { IToken, IMaxExchange, ITokenValues, IBtnProps } from "../utils/types";
+import { IToken, IMaxExchange, ITokenValues, IBtnProps, ITxType, ITxDetails } from "../utils/types";
 import { TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
 
 const text = {
@@ -73,6 +73,8 @@ const Swap: React.FC = () => {
     setToken1,
     token2,
     setToken2,
+    setLastTx,
+    lastTx,
   } = useContext(GlobalContext);
   const [showSettings, setShowSettings] = useState(false);
   const [showConfirmSwapModal, setShowConfirmSwapModal] = useState(false);
@@ -112,17 +114,19 @@ const Swap: React.FC = () => {
       setToken2(INITIAL_TOKEN_STATE);
       setToken1(INITIAL_TOKEN_STATE);
       setNetwork(chainId);
+      console.log("Setting initial render to false");
+
       initialRender.current = false;
     }
   }, [chainId]);
 
   let controller = new AbortController();
   useEffect(() => {
-    if (txReceipt) return;
-    if (token1?.info && token2?.info && accountId && !clearingTokens && ocean && !initialRender) {
+    // if (txReceipt) return;
+    if (token1?.info && token2?.info && accountId && !clearingTokens && ocean && !initialRender.current) {
       updateBalance(token1.info.address)
         .then((balance) => {
-          if (!ocean || !balance) return;
+          if (!balance) return;
           if (token1.info && token2.info && isOCEAN(token1.info.address, ocean)) {
             getAllowance(token1.info.address, accountId, token2.info.pool, ocean).then((res) => {
               setToken1({ ...token1, allowance: new BigNumber(res), balance });
@@ -130,13 +134,11 @@ const Swap: React.FC = () => {
           } else if (token1.info && token2.info && isOCEAN(token2.info.address, ocean)) {
             getAllowance(token1.info.address, accountId, token1.info.pool, ocean).then((res) => {
               setToken1({ ...token1, allowance: new BigNumber(res), balance });
-              console.log("Allowance:", res);
             });
           } else {
             if (token1.info)
               getAllowance(token1.info.address, accountId, config?.default.routerAddress, ocean).then((res) => {
                 setToken1({ ...token1, allowance: new BigNumber(res), balance });
-                console.log("Allowance:", res);
               });
           }
 
@@ -427,65 +429,59 @@ const Swap: React.FC = () => {
     return new BigNumber(0);
   }
 
-  async function makeTheSwap() {
+  function determineTxType() {
+    if (token1?.info && token2?.info && isOCEAN(token1.info.address, ocean)) {
+      if (exactToken === 1) {
+        return "Ocean to DT";
+      } else {
+        return "Ocean to DT";
+      }
+    } else if (token1?.info && token2?.info && isOCEAN(token2.info.address, ocean)) {
+      if (exactToken === 1) {
+        return "DT to Ocean";
+      } else {
+        return "DT to Ocean";
+      }
+    } else if (token1?.info && token2?.info) {
+      if (exactToken === 1) {
+        return "DT to DT";
+      } else {
+        return "DT to DT";
+      }
+    }
+  }
+
+  async function makeTheSwap(preTxDetails: ITxDetails) {
     let txReceipt = null;
-    let txType;
-    let txDateId;
-    let decSlippage = slippage.div(100).dp(5).toString();
+
+    let decSlippage = slippage.div(100).dp(5);
     const { t1Val, t2Val } = getTokenVal(token1, token2);
-    if (!chainId || !setTxHistory || !txHistory || !accountId || !ocean || !config) return;
+    if (!chainId || !token2.info || !token1.info || !txHistory || !accountId || !ocean || !config) return;
     try {
-      if (token1?.info && token2?.info && isOCEAN(token1.info.address, ocean)) {
+      if (isOCEAN(token1.info.address, ocean)) {
         if (exactToken === 1) {
           console.log("exact ocean to dt");
-          console.log(accountId, token2.info.pool.toString(), token2.value.toString(), token1.value.toString());
-          // prettier-ignore
-          txDateId = addTxHistory({chainId,setTxHistory,txHistory,accountId: String(accountId),token1,token2,txType: "Ocean to DT",slippage: decSlippage,status: "Pending",});
-          setLastTxId(txDateId);
-          txType = "Ocean to DT";
-
-          txReceipt = await ocean.swapExactOceanToDt(accountId, token2.info.pool, t2Val, t1Val, decSlippage);
+          // console.log(accountId, token2.info.pool.toString(), token2.value.toString(), token1.value.toString());
+          txReceipt = await ocean.swapExactOceanToDt(accountId, token2.info.pool, t2Val, t1Val, decSlippage.toString());
         } else {
           console.log("ocean to exact dt");
-          // prettier-ignore
-          txDateId = addTxHistory({chainId,setTxHistory,txHistory,accountId: String(accountId),token1,token2,txType: "Ocean to DT",slippage: decSlippage,status: "Pending",});
-          setLastTxId(txDateId);
-
-          txType = "Ocean to DT";
-
-          txReceipt = await ocean.swapExactOceanToDt(accountId, token2.info.pool, t2Val, t1Val, decSlippage);
+          txReceipt = await ocean.swapExactOceanToDt(accountId, token2.info.pool, t2Val, t1Val, decSlippage.toString());
         }
-      } else if (token1?.info && token2?.info && isOCEAN(token2.info.address, ocean)) {
+      } else if (isOCEAN(token2.info.address, ocean)) {
         if (exactToken === 1) {
           console.log("exact dt to ocean");
-          console.log(accountId, token1.info.pool, token2.value.toString(), token1.value.toString());
-
-          // prettier-ignore
-          txDateId = addTxHistory({chainId,setTxHistory,txHistory,accountId: String(accountId),token1,token2,txType: "DT to Ocean",slippage: decSlippage,status: "Pending",});
-          setLastTxId(txDateId);
-
-          txType = "DT to Ocean";
-          txReceipt = await ocean.swapExactDtToOcean(accountId, token1.info.pool, t2Val, t1Val, decSlippage);
+          // console.log(accountId, token1.info.pool, token2.value.toString(), token1.value.toString());
+          txReceipt = await ocean.swapExactDtToOcean(accountId, token1.info.pool, t2Val, t1Val, decSlippage.toString());
         } else {
           //Error: Throws not enough datatokens
           console.log("dt to exact ocean");
-          console.log(accountId, token1.info.pool, token2.value.toString(), token1.value.toString());
-          // prettier-ignore
-          txDateId = addTxHistory({chainId,setTxHistory,txHistory,accountId: String(accountId),token1,token2,txType: "DT to Ocean",slippage: decSlippage,status: "Pending",});
-          setLastTxId(txDateId);
-
-          txType = "DT to Ocean";
-          txReceipt = await ocean.swapExactDtToOcean(accountId, token1.info.pool, t2Val, t1Val, decSlippage);
+          // console.log(accountId, token1.info.pool, token2.value.toString(), token1.value.toString());
+          txReceipt = await ocean.swapExactDtToOcean(accountId, token1.info.pool, t2Val, t1Val, decSlippage.toString());
         }
-      } else if (token1?.info && token2?.info) {
+      } else {
         if (exactToken === 1) {
           console.log("exact dt to dt");
-          // prettier-ignore
-          console.log(accountId,token1.info.address,token2.info.address,t2Val,t1Val,token1.info.pool,token2.info.pool,config.default.routerAddress,decSlippage);
-          // prettier-ignore
-          txDateId = addTxHistory({chainId,setTxHistory,txHistory,accountId: String(accountId),token1,token2,txType: "DT to DT",slippage: decSlippage,status: "Pending",});
-          setLastTxId(txDateId);
-          txType = "DT to DT";
+          // console.log(accountId,token1.info.address,token2.info.address,t2Val,t1Val,token1.info.pool,token2.info.pool,config.default.routerAddress,decSlippage);
           txReceipt = await ocean.swapExactDtToDt(
             accountId,
             token1.info.address,
@@ -495,18 +491,11 @@ const Swap: React.FC = () => {
             token1.info.pool,
             token2.info.pool,
             config.default.routerAddress,
-            decSlippage
+            decSlippage.toString()
           );
         } else {
           console.log("dt to exact dt");
-          // prettier-ignore
-          console.log(accountId,token1.info.address,token2.info.address,t2Val,t1Val,token1.info.pool,token2.info.pool,config.default.routerAddress,decSlippage);
-          // prettier-ignore
-          txDateId = addTxHistory({chainId,setTxHistory,txHistory,accountId: String(accountId),token1,token2,txType: "DT to DT",slippage: decSlippage,status: "Pending",});
-          setLastTxId(txDateId);
-
-          txType = "DT to DT";
-
+          // console.log(accountId,token1.info.address,token2.info.address,t2Val, t1Val,token1.info.pool,token2.info.pool,config.default.routerAddress,decSlippage)
           txReceipt = await ocean.swapExactDtToDt(
             accountId,
             token1.info.address,
@@ -516,33 +505,21 @@ const Swap: React.FC = () => {
             token1.info.pool,
             token2.info.pool,
             config.default.routerAddress,
-            decSlippage
+            decSlippage.toString()
           );
         }
       }
       if (txReceipt) {
         setTxReceipt(txReceipt);
         setLastTxUrl(config.default.explorerUri + "/tx/" + txReceipt.transactionHash);
-        addTxHistory({
-          chainId,
-          setTxHistory,
-          txHistory,
-          accountId: String(accountId),
-          token1: { ...token1, value: toFixed5(token1?.value) },
-          token2: { ...token2, value: toFixed5(token2?.value) },
-          txType,
-          slippage: decSlippage,
-          txDateId,
-          txHash: txReceipt.transactionHash,
-          status: "Indexing",
-          txReceipt,
-        });
+        setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
         setPostExchange(new BigNumber(0));
       } else {
         throw new Error("Didn't receive a receipt.");
       }
     } catch (error: any) {
-      console.log("DataX Caught an Error for Transaction:", txDateId);
+      console.log("DataX Caught an Error for Transaction:", lastTx?.txDateId);
+      setLastTx({ ...preTxDetails, status: "Failure" });
 
       if (setShowConfirmModal) setShowConfirmModal(false);
       const allNotifications = notifications;
@@ -555,15 +532,6 @@ const Swap: React.FC = () => {
         },
       });
       setNotifications([...allNotifications]);
-
-      if (accountId)
-        deleteRecentTxs({
-          txDateId,
-          setTxHistory,
-          txHistory,
-          accountId,
-          chainId,
-        });
     }
   }
 
@@ -718,6 +686,7 @@ const Swap: React.FC = () => {
     }
   }
 
+
   return (
     <div className="w-full h-full absolute top-0">
       <div id="swapModal" className="flex mt-6 w-full h-full items-center justify-center">
@@ -842,7 +811,17 @@ const Swap: React.FC = () => {
                     if (handleConnect) handleConnect();
                     break;
                   case `Unlock ${token1?.info ? token1.info.symbol : ""}`:
-                    if (setShowUnlockTokenModal) setShowUnlockTokenModal(true);
+                    if (!accountId || !slippage) return;
+                    setLastTx({
+                      accountId,
+                      status: "Pending",
+                      token1,
+                      token2,
+                      txDateId: Date.now().toString(),
+                      txType: "approve",
+                      slippage,
+                    });
+                    setShowUnlockTokenModal(true);
                     break;
                   default:
                     setShowConfirmSwapModal(true);
@@ -855,16 +834,24 @@ const Swap: React.FC = () => {
           </div>
         </div>
       </div>
-      <UnlockTokenModal
-        setToken={setToken1}
-        nextFunction={() => setShowConfirmSwapModal(true)}
-      />
+      <UnlockTokenModal setToken={setToken1} nextFunction={() => setShowConfirmSwapModal(true)} />
       <ConfirmSwapModal
         close={() => setShowConfirmSwapModal(false)}
         confirm={() => {
           setShowConfirmSwapModal(false);
-          if (setShowConfirmModal) setShowConfirmModal(true);
-          makeTheSwap();
+          setShowConfirmModal(true);
+          if (!accountId || !slippage) return;
+          const preTxDetails: ITxDetails = {
+            accountId,
+            status: "Pending",
+            token1,
+            token2,
+            txDateId: Date.now().toString(),
+            txType: "trade",
+            slippage,
+          };
+          setLastTx(preTxDetails);
+          if (preTxDetails) makeTheSwap(preTxDetails);
         }}
         show={showConfirmSwapModal}
         token1={token1}

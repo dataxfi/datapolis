@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { GlobalContext } from "../context/GlobalState";
+import { ITxDetails } from "../utils/types";
 import SnackbarItem from "./SnackbarItem";
 import UserMessage from "./UserMessage";
 
@@ -18,7 +19,7 @@ export default function SnackbarArea() {
   return (
     <div className={`max-w-xs fixed right-2 top-16 md:right-8 w-full`}>
       {currentNot.type === "tx" ? (
-        <SnackbarItem tx={currentNot.newTx} setCurrentNot={setCurrentNot} />
+        <SnackbarItem tx={currentNot.newTx as ITxDetails} setCurrentNot={setCurrentNot} />
       ) : (
         <UserMessage
           message={currentNot.alert}

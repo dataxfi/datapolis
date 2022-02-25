@@ -29,7 +29,7 @@ export function addTxHistory({
   txType?: string;
   txHash?: string | null;
   status?: string;
-  slippage?: string;
+  slippage?: BigNumber;
   txDateId?: number | string;
   txReceipt?: TransactionReceipt;
   stakeAmt?: BigNumber;

@@ -43,7 +43,7 @@ const RemoveAmount = () => {
     setToken2,
     setLastTx,
     lastTx,
-    setSingleLiquidityPos
+    setSingleLiquidityPos,
   } = useContext(GlobalContext);
   const [noWallet, setNoWallet] = useState<boolean>(false);
   const [recentTxHash, setRecentTxHash] = useState("");
@@ -249,7 +249,7 @@ const RemoveAmount = () => {
     if (!chainId || !singleLiquidityPos || !ocean || !accountId) return;
 
     setShowConfirmModal(true);
-    setPendingUnstakeTx(true)
+    setPendingUnstakeTx(true);
     console.log(
       `Unstaking from pool ${singleLiquidityPos.address}, ${toFixed18(
         singleLiquidityPos.shares
@@ -267,7 +267,7 @@ const RemoveAmount = () => {
       if (txReceipt) {
         setRecentTxHash(ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash);
         setTxReceipt(txReceipt);
-        setLastTx({ ...preTxDetails, txReceipt, status:"Indexing" });
+        setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
         if (singleLiquidityPos && preTxDetails.shares) {
           const newShares = new BigNumber(singleLiquidityPos.shares).minus(preTxDetails.shares);
           setSingleLiquidityPos({ ...singleLiquidityPos, shares: newShares.toString() });
@@ -300,11 +300,11 @@ const RemoveAmount = () => {
         });
     }
     console.log("Setting defaults");
-    
+
     setPendingUnstakeTx(false);
     setShares(new BigNumber(0));
     setToken1({ ...token1, value: new BigNumber(0), percentage: new BigNumber(0) });
-    setImportPool(singleLiquidityPos.address)
+    setImportPool(singleLiquidityPos.address);
   };
   return (
     <div className="absolute top-0 w-full h-full">
@@ -442,21 +442,30 @@ const RemoveAmount = () => {
                   text={btnText}
                   onClick={() => {
                     if (!accountId || !token1 || !token2) return;
-                    const preTxDetails: ITxDetails = {
-                      txDateId: Date.now().toString(),
-                      accountId,
-                      status: "Pending",
-                      token1,
-                      token2,
-                      txType: "unstake",
-                      shares,
-                    };
-
-                    setLastTx(preTxDetails);
 
                     if (token1.allowance?.lt(token1.value)) {
+                      const preTxDetails: ITxDetails = {
+                        txDateId: Date.now().toString(),
+                        accountId,
+                        status: "Pending",
+                        token1,
+                        token2,
+                        txType: "approve",
+                        shares,
+                      };
                       setShowUnlockTokenModal(true);
                     } else {
+                      const preTxDetails: ITxDetails = {
+                        txDateId: Date.now().toString(),
+                        accountId,
+                        status: "Pending",
+                        token1,
+                        token2,
+                        txType: "unstake",
+                        shares,
+                      };
+
+                      setLastTx(preTxDetails);
                       setShowConfirmModal(true);
                       handleUnstake(preTxDetails);
                     }
@@ -486,7 +495,19 @@ const RemoveAmount = () => {
           setToken={setToken1}
           nextFunction={() => {
             if (setShowConfirmModal) setShowConfirmModal(true);
-            if (lastTx) handleUnstake(lastTx);
+            if (!accountId) return;
+            const preTxDetails: ITxDetails = {
+              txDateId: Date.now().toString(),
+              accountId,
+              status: "Pending",
+              token1,
+              token2,
+              txType: "unstake",
+              shares,
+            };
+
+            setLastTx(preTxDetails);
+            handleUnstake(preTxDetails);
           }}
           remove={true}
         />

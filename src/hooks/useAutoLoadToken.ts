@@ -11,6 +11,21 @@ export default function useAutoLoadToken() {
     const queryParams = new URLSearchParams(url.search);
     const pool = queryParams.get("pool");
 
+    if (token1.info?.symbol !== "OCEAN" && accountId && ocean && web3 && chainId) {
+      getToken(web3, chainId, ocean.config.default.oceanTokenAddress, "reserve").then(async (res) => {
+        const balance = new BigNumber(
+          await ocean.getBalance(ocean.config.default.oceanTokenAddress.toLowerCase(), accountId)
+        );
+
+        if (res)
+          setToken1({
+            ...INITIAL_TOKEN_STATE,
+            info: res,
+            balance,
+          });
+      });
+    }
+
     if (pool && web3 && chainId && ocean && accountId) {
       getToken(web3, chainId, pool, "pool").then((info) => {
         console.log(info);
@@ -20,19 +35,7 @@ export default function useAutoLoadToken() {
         }
       });
 
-      if (token1.info?.symbol !== "OCEAN" ) {
-        getToken(web3, chainId, ocean.config.default.oceanTokenAddress, "reserve").then(async (res) => {
-          const balance = new BigNumber(
-            await ocean.getBalance(ocean.config.default.oceanTokenAddress.toLowerCase(), accountId)
-          );
-          if (res)
-            setToken1({
-              ...INITIAL_TOKEN_STATE,
-              info: res,
-              balance,
-            });
-        });
-      }
+      console.log(token1.info?.symbol !== "OCEAN");
     }
   }, [url, web3, chainId, ocean, accountId]);
 }

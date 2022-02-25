@@ -4,7 +4,7 @@ import { PulseLoader } from "react-spinners";
 import { GlobalContext } from "../context/GlobalState";
 import { getLocalTxHistory, getTxUrl, watchTx, conformTx } from "../utils/txHistoryUtils";
 
-import { ITxSelection, ITxHistory } from "../utils/types";
+import { ITxSelection, ITxHistory, ITxDetails } from "../utils/types";
 
 function TxHistoryModal() {
   const {
@@ -130,17 +130,17 @@ function TxHistoryModal() {
     return `${hours12}:${minutes} ${amPm}`;
   }
 
-  function txItemTitle(tx: any) {
-    const { txType } = tx;
-    const { token1, token2 } = conformTx(tx);
-
-    switch (txType) {
+  function txItemTitle(tx: ITxDetails) {
+if(tx.token1.info && tx.token2.info)
+    switch (tx.txType) {
       case "stake":
-        return `Stake ${token1.symbol}/OCEAN`;
+        return `Stake ${tx.token2.info.symbol}/OCEAN`;
       case "unstake":
-        return `Unstake ${token1.symbol}/OCEAN`;
+        return `Unstake ${tx.token2.info.symbol}/OCEAN`;
+      case "approve":
+        return `Unlock ${tx.token1.info.symbol}`
       default:
-        return `${token1.symbol} to ${token2.symbol}`;
+        return `${tx.token1.info.symbol} to ${tx.token2.info.symbol}`;
     }
   }
 

@@ -27,8 +27,7 @@ export default function UnlockTokenModal({
     lastTx,
     token1,
     token2,
-    setSingleLiquidityPos,
-    singleLiquidityPos,
+    setLastTx,
   } = useContext(GlobalContext);
   const [approving, setApproving] = useState<ApprovalStates>("pending");
   const [pool, setPool] = useState<string | null>(null);
@@ -59,7 +58,6 @@ export default function UnlockTokenModal({
   }, [address, accountId, pool, ocean]);
 
   async function unlockTokens(amount: "perm" | "once") {
-    // currently being passed tx amount in both scenarios
     if (ocean) {
       let pool: string = "";
       let address: string = "";
@@ -76,19 +74,28 @@ export default function UnlockTokenModal({
       }
 
       try {
-        if (!accountId || !lastTx?.shares) return;
+        if (!accountId || (lastTx?.txType === "unstake" && !lastTx?.shares)) return;
         setApproving("approving");
+        let txReceipt;
         if (amount === "perm") {
-          await ocean.approve(address, pool, new BigNumber(18e10).toString(), accountId);
+          txReceipt = await ocean.approve(address, pool, new BigNumber(18e10).toString(), accountId);
           setToken({ ...token1, allowance: new BigNumber(18e10) });
         } else {
-          await ocean.approve(address, pool, token1.value.plus(0.001).toString(), accountId);
+          txReceipt = await ocean.approve(address, pool, token1.value.plus(0.001).toString(), accountId);
           setToken({ ...token1, allowance: token1.value.plus(0.001) });
         }
+
+        if (lastTx?.txType === "approve") {
+          setLastTx({ ...lastTx, txReceipt, status: "Indexing" });
+        }
+
         setApproving("approved");
         setPool(pool);
         setAddress(address);
       } catch (error) {
+        if (lastTx?.txType === "approve") {
+          setLastTx({ ...lastTx, status: "Failure" });
+        }
         console.error(error);
         setApproving("pending");
         const allNotifications = notifications;
@@ -101,8 +108,7 @@ export default function UnlockTokenModal({
           },
         });
         setNotifications([...allNotifications]);
-
-        if (setShowUnlockTokenModal) setShowUnlockTokenModal(false);
+        setShowUnlockTokenModal(false);
       }
     }
   }

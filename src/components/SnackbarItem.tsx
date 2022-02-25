@@ -1,11 +1,12 @@
 import { useContext, useEffect, useState } from "react";
 import { BsX } from "react-icons/bs";
 import { IoCheckboxOutline } from "react-icons/io5";
-import { GlobalContext } from "../context/GlobalState";
+import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
 import { getTxUrl, conformTx } from "../utils/txHistoryUtils";
 import BigNumber from "bignumber.js";
-const SnackbarItem = ({ tx, setCurrentNot }: { tx: any; setCurrentNot: Function }) => {
-  const { ocean, accountId, notifications, setNotifications } = useContext(GlobalContext);
+import { ITxDetails } from "../utils/types";
+const SnackbarItem = ({ tx, setCurrentNot }: { tx: ITxDetails; setCurrentNot: Function }) => {
+  const { ocean, accountId, notifications, setNotifications, setToken1, setToken2 } = useContext(GlobalContext);
   const [opacity, setOpacity] = useState<string>("0");
   // const [progress, setProgress] = useState<string>("100");
   const [tokenInfo, setTokenInfo] = useState<any>();
@@ -14,7 +15,8 @@ const SnackbarItem = ({ tx, setCurrentNot }: { tx: any; setCurrentNot: Function 
   const [cleanup, setCleanup] = useState(true);
 
   useEffect(() => {
-    if (ocean && accountId && tx) setUrl(getTxUrl({ ocean, accountId, txHash: tx.txHash }));
+    if (ocean && accountId && tx.txReceipt)
+      setUrl(getTxUrl({ ocean, accountId, txHash: tx.txReceipt.transactionHash }));
     setTokenInfo(conformTx(tx));
     setTxDetails(tx);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -64,12 +66,16 @@ const SnackbarItem = ({ tx, setCurrentNot }: { tx: any; setCurrentNot: Function 
           <div>
             {/* <p className="text-type-100 text-sm">{lastTx.txType}</p> */}
             <p>
-              {tx.txType === "stake"
-                ? `Stake ${new BigNumber(tx.stakeAmt).dp(5).toString()} OCEAN in ${tokenInfo.token1.symbol}/OCEAN pool`
-                : tx.txType === "unstake"
-                ? `Unstake ${new BigNumber(tx.stakeAmt).dp(5).toString()} OCEAN from ${
-                    tokenInfo.token1.symbol
+              {tx.txType === "stake" && tx.token2.info
+                ? `Stake ${new BigNumber(tx.token1.value).dp(5).toString()} OCEAN in ${
+                    tx.token2.info.symbol
                   }/OCEAN pool`
+                : tx.txType === "unstake" && tx.shares && tx.token2.info
+                ? `Unstake ${new BigNumber(tx.shares).dp(5).toString()} OCEAN from ${
+                    tx.token2.info.symbol
+                  }/OCEAN pool`
+                : tx.txType === "approve"
+                ? `Unlock ${tx.token1.value} ${tx.token1.info?.symbol}`
                 : `Trade ${new BigNumber(tokenInfo.token1.value).dp(5).toString()} ${
                     tokenInfo.token1.symbol
                   } for ${new BigNumber(tokenInfo.token2.value).dp(5).toString()} ${tokenInfo.token2.symbol}`}
