@@ -69,7 +69,6 @@ const Stake = () => {
   const [yourShares, setYourShares] = useState<BigNumber>(new BigNumber(0));
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
 
-
   //hooks
   // useTxModalToggler(txReceipt, setTxReceipt);
   useLiquidityPos();
@@ -84,8 +83,6 @@ const Stake = () => {
   }, [ocean, chainId, web3, ocean, accountId, token2.info, tokensCleared]);
 
   useEffect(() => {
-    console.log(token1.info , token2.info , tokensCleared.current);
-    
     if (token1.info && token2.info && tokensCleared.current) {
       getMaxAndAllowance();
     }
@@ -163,8 +160,6 @@ const Stake = () => {
   }
 
   async function getMaxAndAllowance() {
-    console.log("getting max and allowance");
-
     getMaxStakeAmt()
       .then((res: BigNumber | void) => {
         if (res) {
