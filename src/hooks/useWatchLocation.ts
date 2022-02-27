@@ -1,9 +1,9 @@
 import { useContext, useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
 
 export default function useWatchLocation() {
-  const { setLocation, setToken1, setToken2, token1, token2, tokensCleared } = useContext(GlobalContext);
+  const { setLocation, setToken1, setToken2, token1, token2, tokensCleared, accountId } = useContext(GlobalContext);
   const currentLocation = useLocation();
   const lastLocation = useRef(currentLocation);
   useEffect(() => {
@@ -36,4 +36,17 @@ export default function useWatchLocation() {
       }
     }
   }, [currentLocation.pathname, token1.info, token2.info, token1, token2]);
+
+  const initialAccount = useRef(accountId);
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (
+      initialAccount.current &&
+      accountId !== initialAccount.current &&
+      currentLocation.pathname === "/stake/remove"
+    ) {
+      navigate("/stake/list");
+    }
+    initialAccount.current = accountId;
+  }, [accountId]);
 }

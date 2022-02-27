@@ -86,12 +86,12 @@ const Stake = () => {
     if (token1.info && token2.info && tokensCleared.current) {
       getMaxAndAllowance();
     }
-  }, [token1.info, token2.info, tokensCleared]);
+  }, [token1.info, token2.info, tokensCleared, accountId]);
 
   useEffect(() => {
     if (!accountId) {
       setBtnProps(INITIAL_BUTTON_STATE);
-    } else if (!token2) {
+    } else if (!token2.info) {
       setBtnProps({
         ...INITIAL_BUTTON_STATE,
         text: "Select a Token",
@@ -175,6 +175,7 @@ const Stake = () => {
               ...token1,
               allowance: new BigNumber(res),
               balance,
+              value: new BigNumber(0)
             });
           });
       })
@@ -228,6 +229,7 @@ const Stake = () => {
       setToken1({ ...token1, value: new BigNumber(0) });
     } finally {
       setLoading(false);
+      getMaxAndAllowance()
     }
   }
 
@@ -381,11 +383,11 @@ const Stake = () => {
                           id="maxStake"
                           text="Max Stake"
                           classes={`px-2 py-0 lg:w-20 border rounded-full text-xs ${
-                            token1.balance.isNaN() || token1.balance.eq(0) || !accountId || !token2
+                            token1.balance.isNaN() || token1.balance.eq(0) || !accountId || !token2.info
                               ? "text-gray-600 border-gray-600"
                               : "border-type-300 hover:bg-primary-600"
                           }`}
-                          disabled={token1.balance && accountId && token2 ? false : true}
+                          disabled={token1.balance && accountId && token2.info ? false : true}
                         />
                       </div>
                     </div>

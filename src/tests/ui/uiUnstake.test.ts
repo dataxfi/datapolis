@@ -70,7 +70,9 @@ describe("User Interface Works as Expected", () => {
 
   // it("Stake button is disabled when input > balance", async () => {});
   it("Transactions for less than .01 ocean are not allowed", async () => {
-    await clearInput(page, "#unstakeAmtInput");
+    await page.reload()
+    await quickConnectWallet(page)
+    await page.waitForSelector("#removeStakeModal")
     const shares = await getSharesFromUnstake(page);
     const { input, receive } = await inputUnstakeAmt(page, ".0001", shares || "");
     expect(Number(input)).toEqual(0.0001);
@@ -84,16 +86,16 @@ describe("User Interface Works as Expected", () => {
   it("Max unstake should limit input when less than user shares", async () => {
     const shares = await getSharesFromUnstake(page);
     const { input, receive } = await inputUnstakeAmt(page, "max", shares || "");
-    expect(Number(input)).toBeGreaterThan(0);
+    expect(Number(input)).toBeLessThan(100);
     expect(Number(receive)).toBeGreaterThan(0);
-    const btnText = await getExecuteButtonText(page, "unstake", "Withdrawal");
-    expect(btnText).toBe("Withdrawal");
+    const btnText = await getExecuteButtonText(page, "unstake", "Unlock");
+    expect(btnText).toBe("Unlock OCEAN");
   });
 
   it("Navigates to lp when account changes", async ()=>{
     await switchAccounts(metamask, page, 2, true);
     await page.bringToFront()
-    await page.waitForSelector("lpModal")
+    await page.waitForSelector("#lpModal")
   })
 
   it("Shows connect wallet modal when there is no wallet connected", async () => {
@@ -106,6 +108,8 @@ describe("User Interface Works as Expected", () => {
 
   it("Shares updates when connecting wallet", async () => {
     await quickConnectWallet(page);
+    await page.waitForSelector("#sharesDisplay");
+  await page.waitForFunction('document.querySelector("#sharesDisplay").innerText !== ""');
     const shares = await getSharesFromUnstake(page);
     expect(Number(shares)).toBeGreaterThan(0);
   });
@@ -119,8 +123,8 @@ describe("User Interface Works as Expected", () => {
       const { input, receive } = await inputUnstakeAmt(page, "max", shares || "");
       expect(Number(input)).toBe(100);
       expect(Number(receive)).toBeGreaterThan(0);
-      const btnText = await getExecuteButtonText(page, "unstake", "Withdrawal");
-      expect(btnText).toBe("Withdrawal");
+      const btnText = await getExecuteButtonText(page, "unstake", "Unlock");
+      expect(btnText).toBe("Unlock OCEAN");
     }
   });
 

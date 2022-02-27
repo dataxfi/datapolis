@@ -863,13 +863,14 @@ export async function inputUnstakeAmt(page: puppeteer.Page, unstakeAmt: string, 
 
   if (unstakeAmt === "max") {
     await page.waitForSelector("#maxUnstakeBtn");
+    await page.waitForFunction('document.querySelector("#maxUnstakeBtn[disabled]") === null')
     await page.click("#maxUnstakeBtn");
     await page.waitForSelector("#unstakeAmtInput");
     await page.waitForFunction('Number(document.querySelector("#unstakeAmtInput").value) > 0');
     input = await page.evaluate('document.querySelector("#unstakeAmtInput").value');
     await page.waitForSelector("#oceanToReceive");
     await page.waitForFunction('Number(document.querySelector("#oceanToReceive").innerText) > 0');
-    receive = await page.evaluate('document.querySelector("#oceanToReceive").value');
+    receive = await page.evaluate('document.querySelector("#oceanToReceive").innerText');
   } else {
     await page.waitForSelector("#unstakeAmtInput");
     await page.type("#unstakeAmtInput", unstakeAmt, { delay: 150 });
@@ -945,9 +946,7 @@ export async function switchAccounts(
   await metamask.switchAccount(acct);
   await page.bringToFront();
   if (signDisclaimer) {
-    // quickConnectWallet(page);
-    await metamask.page.bringToFront();
-    await approveTransactions(metamask, page, 1);
+    await forceSignDisclaimer(metamask, page)
   }
 }
 

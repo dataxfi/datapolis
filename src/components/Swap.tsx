@@ -1,8 +1,8 @@
 import SwapInput from "./SwapInput";
 import { IoSwapVertical } from "react-icons/io5";
 import { MdTune } from "react-icons/md";
-import { useState, useContext, useEffect, useRef } from "react";
-import { bgLoadingStates, GlobalContext, INITIAL_TOKEN_STATE, removeBgLoadingState } from "../context/GlobalState";
+import { useState, useContext, useEffect } from "react";
+import { bgLoadingStates, GlobalContext, removeBgLoadingState } from "../context/GlobalState";
 import Button from "./Button";
 import OutsideClickHandler from "react-outside-click-handler";
 import ConfirmSwapModal from "./ConfirmSwapModal";
@@ -74,7 +74,7 @@ const Swap: React.FC = () => {
     setToken2,
     setLastTx,
     lastTx,
-    tokensCleared
+    tokensCleared,
   } = useContext(GlobalContext);
   const [showSettings, setShowSettings] = useState(false);
   const [showConfirmSwapModal, setShowConfirmSwapModal] = useState(false);
@@ -104,6 +104,8 @@ const Swap: React.FC = () => {
   let controller = new AbortController();
   useEffect(() => {
     if (!tokensCleared.current) return;
+    console.log(token1?.info && token2?.info && accountId && !clearingTokens && ocean);
+
     if (token1?.info && token2?.info && accountId && !clearingTokens && ocean) {
       updateBalance(token1.info.address)
         .then((balance) => {
@@ -147,9 +149,15 @@ const Swap: React.FC = () => {
         });
     }
 
-    if (token2.info && accountId && !clearingTokens ) {
+    if (token2.info && accountId && !clearingTokens) {
       updateBalance(token2.info.address).then((balance) => {
         if (balance) setToken2({ ...token2, balance });
+      });
+    }
+
+    if (token1.info && accountId && !clearingTokens) {
+      updateBalance(token1.info.address).then((balance) => {
+        if (balance) setToken1({ ...token1, balance });
       });
     }
 
@@ -666,7 +674,6 @@ const Swap: React.FC = () => {
       }
     }
   }
-
 
   return (
     <div className="w-full h-full absolute top-0">

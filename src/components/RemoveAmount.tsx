@@ -149,6 +149,7 @@ const RemoveAmount = () => {
   }, [accountId, chainId, token1.value]);
 
   const updateNum = async (val: string) => {
+    if (val == "") val = "0";
     let max: IMaxUnstake | void;
     maxUnstake?.OCEAN.gt(0) ? (max = maxUnstake) : (max = await getMaxUnstake());
     try {
@@ -199,10 +200,11 @@ const RemoveAmount = () => {
           setShares(max.shares);
           setToken1({ ...token1, value: max.OCEAN, percentage: max.OCEAN.div(userTotalStakedOcean).times(100) });
         }
-        setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
       }
     } catch (error) {
       console.error(error);
+    } finally {
+      setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
     }
   };
 

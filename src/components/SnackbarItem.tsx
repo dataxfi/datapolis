@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { BsX } from "react-icons/bs";
 import { IoCheckboxOutline } from "react-icons/io5";
-import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
+import { GlobalContext } from "../context/GlobalState";
 import { getTxUrl, conformTx } from "../utils/txHistoryUtils";
 import BigNumber from "bignumber.js";
 import { ITxDetails } from "../utils/types";

@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
+import { GlobalContext } from "../context/GlobalState";
 import { ILiquidityPosition } from "../utils/types";
 import { BsChevronDown, BsChevronUp } from "react-icons/bs";
 import { Link } from "react-router-dom";
@@ -13,7 +13,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
   const [visible, setVisible] = useState<boolean>(false);
 
   return token1Info && token2Info ? (
-    <li id={`${token1Info.symbol}-lp-item`} key={`LP${index}`}>
+    <li id={`${token2Info.symbol}-lp-item`} key={`LP${index}`}>
       <div className="w-full mx-auto z-0">
         <div
           onClick={() => setVisible(!visible)}
@@ -68,7 +68,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                 </div>
                 <div>
                   <p id="totalPooled1Title" className="text-type-300 text-sm">
-                    Total Pooled {token1Info.symbol}
+                    Total Pooled {token2Info.symbol}
                   </p>
                 </div>
                 <div id="totalPooled1" className="justify-self-end">
@@ -76,7 +76,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                 </div>
                 <div>
                   <p id="totalPooled2Title" className="text-type-300 text-sm">
-                    Total Pooled {token2Info.symbol}
+                    Total Pooled {token1Info.symbol}
                   </p>
                 </div>
                 <div className="justify-self-end">

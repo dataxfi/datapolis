@@ -4,7 +4,7 @@ import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
 import { getToken } from "./useTokenList";
 import BigNumber from "bignumber.js";
 export default function useAutoLoadToken() {
-  const { web3, chainId, setToken2, token1, setToken1, ocean, accountId } = useContext(GlobalContext);
+  const { web3, chainId, setToken2, token1, setToken1, ocean, accountId, token2 } = useContext(GlobalContext);
 
   const url = useLocation();
   useEffect(() => {
@@ -38,4 +38,6 @@ export default function useAutoLoadToken() {
       console.log(token1.info?.symbol !== "OCEAN");
     }
   }, [url, web3, chainId, ocean, accountId]);
+
+
 }

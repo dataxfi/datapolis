@@ -126,7 +126,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
   const [bgOff, setBgOff] = useState(false);
 
-  const tokensCleared= useRef(false)
+  const tokensCleared = useRef(false);
 
   // remove all pending signatures to instantiate disclaimer flow upon user reconnection
   useEffect(() => {
@@ -306,7 +306,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
    */
 
   function setListeners(provider: any, web3: Web3) {
-    provider.on("accountsChanged", (accounts: any) => {
+    provider.on("accountsChanged", async (accounts: any) => {
       let account = accounts[0] ? accounts[0].toLowerCase() : null;
       const localSignature = localStorage.getItem(account ? account : "");
       if (localSignature && localSignature !== "pending") {
@@ -389,7 +389,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setBgLoading,
         txHistory,
         setTxHistory,
-        lastTx, 
+        lastTx,
         setLastTx,
         showSnackbar,
         setShowSnackbar,
@@ -417,7 +417,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setToken1,
         token2,
         setToken2,
-        tokensCleared, 
+        tokensCleared,
       }}
     >
       {children}
