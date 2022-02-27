@@ -124,7 +124,8 @@ export default function UnlockTokenModal({
             id="closeTokenModalBtn"
             role="button"
             onClick={() => {
-              if (setShowUnlockTokenModal) setShowUnlockTokenModal(false);
+              setShowUnlockTokenModal(false);
+              setLastTx({...lastTx, status: "Failure"})
             }}
             className="text-type-100 text-2xl"
           />

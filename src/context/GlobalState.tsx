@@ -3,7 +3,7 @@ import Watcher from "@dataxfi/datax.js/dist/Watcher";
 import { Ocean, Config } from "@dataxfi/datax.js";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-import { createContext, PropsWithChildren, useEffect, useState } from "react";
+import { createContext, PropsWithChildren, useEffect, useRef, useState } from "react";
 import Core from "web3modal";
 import { Disclaimer } from "../components/DisclaimerModal";
 import {
@@ -125,6 +125,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [location, setLocation] = useState<string>("/");
 
   const [bgOff, setBgOff] = useState(false);
+
+  const tokensCleared= useRef(false)
 
   // remove all pending signatures to instantiate disclaimer flow upon user reconnection
   useEffect(() => {
@@ -415,6 +417,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setToken1,
         token2,
         setToken2,
+        tokensCleared, 
       }}
     >
       {children}

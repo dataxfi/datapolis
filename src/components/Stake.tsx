@@ -9,7 +9,6 @@ import TransactionDoneModal from "./TransactionDoneModal";
 import { Link } from "react-router-dom";
 import UserMessage from "./UserMessage";
 import { toFixed5 } from "../utils/equate";
-import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
 import { getLocalPoolData, updateSingleStakePool } from "../utils/stakedPoolsUtils";
 import useTxModalToggler from "../hooks/useTxModalToggler";
 import errorMessages from "../utils/errorMessages";
@@ -23,6 +22,7 @@ import { getAllowance, getToken } from "../hooks/useTokenList";
 import { IPoolLiquidity, IBtnProps } from "../utils/types";
 import { getTokenVal, isOCEAN } from "./Swap";
 import useAutoLoadToken from "../hooks/useAutoLoadToken";
+import useWatchLocation from "../hooks/useWatchLocation";
 
 const INITIAL_BUTTON_STATE = {
   text: "Connect wallet",
@@ -52,6 +52,8 @@ const Stake = () => {
     setToken1,
     web3,
     setLastTx,
+    lastTx,
+    tokensCleared,
   } = useContext(GlobalContext);
   const [dtToOcean, setDtToOcean] = useState<any>(null);
   const [oceanToDt, setOceanToDt] = useState<any>(null);
@@ -66,43 +68,28 @@ const Stake = () => {
   const [yourLiquidity, setYourLiquidity] = useState<BigNumber>(new BigNumber(0));
   const [yourShares, setYourShares] = useState<BigNumber>(new BigNumber(0));
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
+
+
   //hooks
-  useTxModalToggler(txReceipt, setTxReceipt);
+  // useTxModalToggler(txReceipt, setTxReceipt);
   useLiquidityPos();
   useAutoLoadToken();
 
-  const initialRender = useRef(true);
   useEffect(() => {
-    setToken2(INITIAL_TOKEN_STATE);
-    initialRender.current = false;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (!chainId || !web3 || !ocean || !accountId) return;
-    //set ocean token and get balance
-    if (token2.info && !initialRender.current) {
-      //get allowance and max stake
-      getMaxAndAllowance();
+    if (!chainId || !web3 || !ocean || !accountId || !tokensCleared.current) return;
+    if (token2.info && !isOCEAN(token2.info.address, ocean)) {
       updateToken(token2);
-    } else {
-      //get balance
-      setOceanBalance();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ocean, chainId, web3, ocean, accountId, token2.info]);
+  }, [ocean, chainId, web3, ocean, accountId, token2.info, tokensCleared]);
 
   useEffect(() => {
-    if (txReceipt) {
-      console.log("A succesful txReceipt has been set in Stake\n", txReceipt);
-      if (showConfirmModal) {
-        setShowConfirmModal(false);
-        setShowTxDone(true);
-      }
+    console.log(token1.info , token2.info , tokensCleared.current);
+    
+    if (token1.info && token2.info && tokensCleared.current) {
+      getMaxAndAllowance();
     }
-    setOceanBalance();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [txReceipt]);
+  }, [token1.info, token2.info, tokensCleared]);
 
   useEffect(() => {
     if (!accountId) {
@@ -125,7 +112,7 @@ const Stake = () => {
         text: "Not Enough OCEAN Balance",
         disabled: true,
       });
-    } else if (loading) {
+    } else if (lastTx?.status === "Pending") {
       setBtnProps({
         ...INITIAL_BUTTON_STATE,
         text: "Processing Transaction...",
@@ -151,7 +138,7 @@ const Stake = () => {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountId, ocean, chainId, token2, token1.value, token1.balance, loading, token1.info]);
+  }, [accountId, ocean, chainId, token2, token1.value, token1.balance, loading, token1.info, lastTx?.status]);
 
   async function getMaxStakeAmt() {
     if (token2.info && ocean)
@@ -176,22 +163,23 @@ const Stake = () => {
   }
 
   async function getMaxAndAllowance() {
+    console.log("getting max and allowance");
+
     getMaxStakeAmt()
       .then((res: BigNumber | void) => {
         if (res) {
           setMaxStakeAmt(res);
-          if (token2.value?.gt(1)) {
-            updateNum(token1.value, res);
-          }
         }
       })
       .then(() => {
         if (token2.info && accountId && chainId && ocean)
-          getAllowance(ocean.config.default.oceanTokenAddress, accountId, token2.info.pool, ocean).then((res) => {
-            console.log(res);
+          getAllowance(ocean.config.default.oceanTokenAddress, accountId, token2.info.pool, ocean).then(async (res) => {
+            if (!token1.info) return;
+            const balance = new BigNumber(await ocean.getBalance(token1.info.address, accountId));
             setToken1({
               ...token1,
               allowance: new BigNumber(res),
+              balance,
             });
           });
       })
@@ -199,7 +187,6 @@ const Stake = () => {
   }
 
   async function executeStake(preTxDetails: ITxDetails) {
-    const { t1BN } = getTokenVal(token1, token2);
     if (!token2.info || !chainId || !txHistory || !ocean || !accountId) return;
     try {
       setLoading(true);
@@ -223,8 +210,7 @@ const Stake = () => {
         }
 
         setRecentTxHash(ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash);
-        if (setShowConfirmModal) setShowConfirmModal(false);
-        // setOceanValInput(null);
+        setShowConfirmModal(false);
       } else {
         throw new Error("Didn't receive a receipt.");
       }
@@ -243,8 +229,7 @@ const Stake = () => {
         });
         setNotifications([...allNotifications]);
       }
-      if (setShowConfirmModal) setShowConfirmModal(false);
-      // setOceanValInput(null);
+      setShowConfirmModal(false);
       setToken1({ ...token1, value: new BigNumber(0) });
     } finally {
       setLoading(false);
@@ -253,20 +238,13 @@ const Stake = () => {
 
   async function setMaxStake() {
     if (!token2.info || !ocean) return;
-    console.log(ocean);
     let maxStake: BigNumber | null;
-
-    console.log(maxStakeAmt);
 
     if (maxStakeAmt.gt(0)) {
       maxStake = maxStakeAmt;
     } else {
-      getMaxAndAllowance();
       maxStake = new BigNumber(await ocean.getMaxStakeAmount(token2.info.pool, ocean.config.default.oceanTokenAddress));
     }
-
-    console.log(maxStake);
-
     console.log("Max Stake Amount - ", maxStake.toFixed(18));
     if (maxStake.isNaN()) {
       setToken1({ ...token1, value: new BigNumber(0) });
@@ -290,9 +268,9 @@ const Stake = () => {
     }
     val = new BigNumber(val);
 
-    // if (!max) {
-    //   maxStakeAmt.gt(0) ? (max = maxStakeAmt) : (max = await getMaxStakeAmt());
-    // }
+    if (!max) {
+      maxStakeAmt.gt(0) ? (max = maxStakeAmt) : (max = await getMaxStakeAmt());
+    }
 
     if (max) {
       if (token1.balance.lt(val)) {
@@ -352,7 +330,7 @@ const Stake = () => {
                 <UserMessage message={userMessage.message} pulse={true} container={false} timeout={null} />
               ) : null}
             </div>
-            <StakeSelect token={token2} setToken={setToken2} />
+            <StakeSelect />
             <div className="px-4 relative mt-6 mb-10">
               <div className="rounded-full border-black border-4 absolute -top-7 bg-trade-darkBlue w-12 h-12 flex items-center justify-center swap-center">
                 {loading ? (
@@ -490,7 +468,7 @@ const Stake = () => {
                       txDateId: Date.now().toString(),
                       txType: "stake",
                     };
-                    
+
                     setLastTx(preTxDetails);
                     executeStake(preTxDetails);
                   }

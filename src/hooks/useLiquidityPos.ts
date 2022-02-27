@@ -1,8 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { isOCEAN } from "../components/Swap";
-import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
-import { bgLoadingStates, removeBgLoadingState } from "../context/GlobalState";
+import { GlobalContext } from "../context/GlobalState";
 import { percOf } from "../utils/equate";
 import { getLocalPoolData, setLocalPoolDataStorage } from "../utils/stakedPoolsUtils";
 import { ILiquidityPosition } from "../utils/types";
@@ -22,6 +21,7 @@ export default function useLiquidityPos(
     token1,
     token2,
     web3,
+    tokensCleared
   } = useContext(GlobalContext);
   const location = useLocation();
   const [loading, setLoading] = useState(false);
@@ -40,7 +40,6 @@ export default function useLiquidityPos(
       (isOCEAN(token1.info.address, ocean) || isOCEAN(token2.info?.address, ocean))
     ) {
       let dtPool: string | null = pool;
-      console.log(dtPool);
 
       if (dtPool === null)
         isOCEAN(token1.info.address, ocean) ? (dtPool = token1.info.pool) : (dtPool = token2.info.pool);

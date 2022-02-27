@@ -191,5 +191,6 @@ export interface globalStates {
   setToken1: React.Dispatch<React.SetStateAction<IToken>>;
   token2: IToken;
   setToken2: React.Dispatch<React.SetStateAction<IToken>>;
+  tokensCleared: React.MutableRefObject<boolean> , 
 }
 

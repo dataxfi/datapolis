@@ -4,8 +4,6 @@ import { Ocean, TokenList } from "@dataxfi/datax.js";
 // import { TokenList as TList } from "@uniswap/token-lists";
 import { TList, TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
 import Web3 from "web3";
-import { useLocation } from "react-router-dom";
-
 export default function useTokenList({
   otherToken,
   setLoading,
@@ -77,8 +75,6 @@ export async function getToken(
   addressType: "pool" | "reserve"
 ): Promise<TokenInfo | undefined> {
   const tokenList = await getTokenList(web3, chainId);
-  console.log(tokenList.tokens);
-
   if (addressType === "pool") {
     return tokenList.tokens.find((token) => token.pool.toLowerCase() === address.toLowerCase());
   }

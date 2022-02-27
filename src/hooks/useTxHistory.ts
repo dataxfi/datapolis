@@ -24,12 +24,12 @@ export default function useTxHistory() {
       const localHistory = getLocalTxHistory({ chainId, accountId });
       if (localHistory) {
         setTxHistory(localHistory);
-        setPendingTxsFromHistory({
-          txHistory: localHistory,
-          pendingTxs,
-          setPendingTxs,
-          watcher,
-        });
+        // setPendingTxsFromHistory({
+        //   txHistory: localHistory,
+        //   pendingTxs,
+        //   setPendingTxs,
+        //   watcher,
+        // });
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

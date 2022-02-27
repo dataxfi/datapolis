@@ -8,16 +8,15 @@ import OutsideClickHandler from "react-outside-click-handler";
 import ConfirmSwapModal from "./ConfirmSwapModal";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
-import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
 import useTxModalToggler from "../hooks/useTxModalToggler";
 import errorMessages from "../utils/errorMessages";
 import { MoonLoader } from "react-spinners";
 import BigNumber from "bignumber.js";
-import { toFixed5 } from "../utils/equate";
 import UnlockTokenModal from "./UnlockTokenModal";
 import { getAllowance } from "../hooks/useTokenList";
 import { IToken, IMaxExchange, ITokenValues, IBtnProps, ITxType, ITxDetails } from "../utils/types";
 import { TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
+import useWatchLocation from "../hooks/useWatchLocation";
 
 const text = {
   T_SWAP: "Trade",
@@ -75,19 +74,15 @@ const Swap: React.FC = () => {
     setToken2,
     setLastTx,
     lastTx,
+    tokensCleared
   } = useContext(GlobalContext);
   const [showSettings, setShowSettings] = useState(false);
   const [showConfirmSwapModal, setShowConfirmSwapModal] = useState(false);
-  const [network, setNetwork] = useState<string | number | null>(null);
   const [lastTxUrl, setLastTxUrl] = useState("");
   const [txReceipt, setTxReceipt] = useState<any>(null);
-  // const [token1, setToken1] = useState<IToken>(INITIAL_TOKEN_STATE);
-  // const [token2, setToken2] = useState<IToken>(INITIAL_TOKEN_STATE);
   const [exactToken, setExactToken] = useState<number>(1);
   const [postExchange, setPostExchange] = useState<BigNumber>(new BigNumber(0));
   const [slippage, setSlippage] = useState<BigNumber>(new BigNumber(1));
-  //very last transaction
-  const [lastTxId, setLastTxId] = useState<any>(null);
   const [btnProps, setBtnProps] = useState<IBtnProps>({
     text: "Select Tokens",
     disabled: true,
@@ -97,33 +92,19 @@ const Swap: React.FC = () => {
   const [maxExchange, setMaxExchange] = useState<IMaxExchange>(INITIAL_MAX_EXCHANGE);
   const [clearingTokens, setClearingTokens] = useState<boolean>(false);
   const [swap, setSwap] = useState<boolean>(false);
+
   //hooks
   useTxModalToggler(txReceipt, setTxReceipt, setToken1, setToken2);
+  // const tokensCleared = useWatchLocation()
 
   useEffect(() => {
     getButtonProperties();
   }, [token1, token2, accountId]);
 
-  const initialRender = useRef(true);
-  useEffect(() => {
-    //if chain changes, reset tokens
-    if (!network && chainId) {
-      setNetwork(chainId);
-    }
-    if (chainId !== network && chainId) {
-      setToken2(INITIAL_TOKEN_STATE);
-      setToken1(INITIAL_TOKEN_STATE);
-      setNetwork(chainId);
-      console.log("Setting initial render to false");
-
-      initialRender.current = false;
-    }
-  }, [chainId]);
-
   let controller = new AbortController();
   useEffect(() => {
-    // if (txReceipt) return;
-    if (token1?.info && token2?.info && accountId && !clearingTokens && ocean && !initialRender.current) {
+    if (!tokensCleared.current) return;
+    if (token1?.info && token2?.info && accountId && !clearingTokens && ocean) {
       updateBalance(token1.info.address)
         .then((balance) => {
           if (!balance) return;
@@ -166,7 +147,7 @@ const Swap: React.FC = () => {
         });
     }
 
-    if (token2.info && accountId && !clearingTokens && !initialRender) {
+    if (token2.info && accountId && !clearingTokens ) {
       updateBalance(token2.info.address).then((balance) => {
         if (balance) setToken2({ ...token2, balance });
       });
