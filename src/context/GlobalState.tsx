@@ -35,25 +35,6 @@ export const INITIAL_TOKEN_STATE: IToken = {
 };
 export const GlobalContext = createContext<globalStates>({} as globalStates);
 
-//use these states to ensure proper management of bgLoading ops
-export const bgLoadingStates = {
-  allStakedPools: "stake",
-  tokenList: "tokens",
-  singlePoolData: "pool",
-  allTxHistory: "history",
-  singleTx: "tx",
-  txPending: "txPending",
-  maxStake: "maxStake",
-  maxUnstake: "maxUnstake",
-  balance: "balance",
-  maxExchange: "maxExchange",
-  calcTrade: "calcTrade",
-};
-
-export function removeBgLoadingState(bgLoading: string[], state: string): string[] {
-  const newBgLoading = bgLoading.filter((s: string) => s !== state);
-  return newBgLoading;
-}
 
 export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }) => {
   const NETWORK = "mainnet";
@@ -80,11 +61,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
   // loading state is to be used when the app needs to finish loading before a page can render (i.e. show loading screen)
   const [loading, setLoading] = useState<boolean>(true);
-
-  // bg loading is to be used when the app can render the page without needing to finish loading
-  // when using bg loading push a loading item with the operation name (using bgLoadingStates)
-  // consider using type Set<string>
-  const [bgLoading, setBgLoading] = useState<string[]>([]);
 
   //array of pending transaction Ids
   const [pendingTxs, setPendingTxs] = useState<string[]>([]);
@@ -385,8 +361,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setTokenResponse,
         singleLiquidityPos,
         setSingleLiquidityPos,
-        bgLoading,
-        setBgLoading,
         txHistory,
         setTxHistory,
         lastTx,

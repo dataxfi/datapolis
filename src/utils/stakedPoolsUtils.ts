@@ -1,6 +1,5 @@
 import { percOf } from "./equate";
 import { Ocean } from "@dataxfi/datax.js";
-import { removeBgLoadingState, bgLoadingStates } from "../context/GlobalState";
 import Web3 from "web3";
 import { ILiquidityPosition } from "./types";
 
@@ -226,11 +225,9 @@ export async function setPoolDataFromOcean({
   ocean,
   chainId,
   poolAddress,
-  setBgLoading,
   setAllStakedPools,
   setCurrentStakePool,
   setNoStakedPools,
-  bgLoading,
   setLoading,
   config,
   web3,
@@ -244,11 +241,9 @@ export async function setPoolDataFromOcean({
   ocean: any;
   chainId: string | number;
   poolAddress?: string | null;
-  setBgLoading?: Function;
   setAllStakedPools: Function;
   setCurrentStakePool?: Function;
   setNoStakedPools: Function;
-  bgLoading: string[];
   setLoading?: Function;
   config: any;
   web3: Web3;
@@ -262,16 +257,7 @@ export async function setPoolDataFromOcean({
 
   if (poolAddress) poolAddress = poolAddress.toLowerCase();
 
-  // if (!newTx) {
-  //   if (stakeFetchTimeout || bgLoading.includes(bgLoadingStates.allStakedPools))
-  //   console.log("Returning early");
-
-  //     return;
-  // }
-
   stakeFetchCooldown(setStakeFetchTimeout);
-  if (setBgLoading)
-    setBgLoading([...bgLoading, bgLoadingStates.allStakedPools]);
 
   const firstBlock: number = config.default.startBlock || 0;
   console.log("First block is:", firstBlock);
@@ -364,11 +350,6 @@ export async function setPoolDataFromOcean({
     setCurrentStakePool(pool);
   }
 
-  if (setBgLoading) {
-    setBgLoading(
-      removeBgLoadingState(bgLoading, bgLoadingStates.allStakedPools)
-    );
-  }
   if (setLoading) setLoading(false);
 }
 
@@ -411,15 +392,11 @@ export function setPoolDataFromLocal({
   poolAddress,
   setAllStakedPools,
   setCurrentStakePool,
-  setBgLoading,
-  bgLoading,
 }: {
   localStoragePoolData: string;
   poolAddress: string;
   setAllStakedPools: Function;
   setCurrentStakePool: Function;
-  setBgLoading: Function;
-  bgLoading: string[];
 }) {
   const poolData: [] = JSON.parse(localStoragePoolData);
   setAllStakedPools(poolData);
@@ -430,9 +407,6 @@ export function setPoolDataFromLocal({
 
   if (found) {
     setCurrentStakePool(found);
-    setBgLoading(
-      removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData)
-    );
     return true;
   }
 }

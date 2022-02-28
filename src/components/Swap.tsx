@@ -611,7 +611,6 @@ const Swap: React.FC = () => {
     } else {
       updateValueFromPercentage(true, val);
     }
-    // setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
     setPercLoading(false);
   }
 

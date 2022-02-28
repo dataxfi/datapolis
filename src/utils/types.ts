@@ -159,8 +159,6 @@ export interface globalStates {
   setTokenResponse: React.Dispatch<React.SetStateAction<TList | undefined>>;
   singleLiquidityPos?: ILiquidityPosition;
   setSingleLiquidityPos: React.Dispatch<React.SetStateAction<ILiquidityPosition | undefined>>;
-  bgLoading: string[];
-  setBgLoading: React.Dispatch<React.SetStateAction<string[]>>;
   txHistory?: ITxHistory;
   setTxHistory: React.Dispatch<React.SetStateAction<ITxHistory | undefined>>;
   lastTx? : ITxDetails

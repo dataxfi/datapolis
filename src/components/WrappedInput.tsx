@@ -1,7 +1,6 @@
 import BigNumber from "bignumber.js";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { useLocation } from "react-router-dom";
-import { GlobalContext, bgLoadingStates, removeBgLoadingState } from "../context/GlobalState";
 /**
  * Use to check inputs before debounce input. On change will fire immediately and check:
  * - If number is over max
@@ -13,7 +12,6 @@ import { GlobalContext, bgLoadingStates, removeBgLoadingState } from "../context
  */
 
 export default function WrappedInput(props: any) {
-  const { bgLoading, setBgLoading } = useContext(GlobalContext);
   const [internalState, setInternalState] = useState<BigNumber>(new BigNumber(0));
   const { pathname } = useLocation();
   /**
@@ -22,7 +20,6 @@ export default function WrappedInput(props: any) {
    * @returns boolean (true for update with bignumber)
    */
   function getUpdateParams(e: any) {
-    if (pathname !== "/stake" && setBgLoading && bgLoading) setBgLoading([...bgLoading, bgLoadingStates.calcTrade]);
     const value = e.target.value;
     const bnVal = new BigNumber(value);
     let result: "dec" | "trail" | undefined;
@@ -40,7 +37,6 @@ export default function WrappedInput(props: any) {
     }
 
     setInternalState(bnVal);
-    if (result === "dec") setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
     return result;
   }
 
