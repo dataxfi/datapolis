@@ -1,26 +1,15 @@
 import { useContext, useEffect, useState } from "react";
-import { bgLoadingStates, GlobalContext, INITIAL_TOKEN_STATE, removeBgLoadingState } from "../context/GlobalState";
+import {GlobalContext, INITIAL_TOKEN_STATE} from "../context/GlobalState";
 import LiquidityPositionItem from "./LiquidityPositionItem";
 import UserMessage from "./UserMessage";
-import { getLocalPoolData, updateUserStakePerPool, updateSingleStakePool } from "../utils/stakedPoolsUtils";
+import { getLocalPoolData } from "../utils/stakedPoolsUtils";
 import TokenModal from "./TokenModal";
 import { MoonLoader } from "react-spinners";
 import { IUserMessage, ILiquidityPosition } from "../utils/types";
 import useLiquidityPos from "../hooks/useLiquidityPos";
 const LiquidityPosition = () => {
-  const {
-    accountId,
-    ocean,
-    chainId,
-    setLoading,
-    allStakedPools,
-    setAllStakedPools,
-    bgLoading,
-    setBgLoading,
-    setSingleLiquidityPos,
-    setToken1,
-    setToken2,
-  } = useContext(GlobalContext);
+  const { accountId, ocean, chainId, allStakedPools, setAllStakedPools, setToken1, setToken2 } =
+    useContext(GlobalContext);
   const [noStakedPools, setNoStakedPools] = useState<boolean>(false);
   const [userMessage, setUserMessage] = useState<string | IUserMessage | null>(
     "Dont see your tokens? Import a pool by name with the import button below."
@@ -37,32 +26,13 @@ const LiquidityPosition = () => {
 
       if (accountId) {
         let localData: any = getLocalPoolData(accountId, String(chainId));
-        if (!ocean || !setLoading) return;
+        if (!ocean) return;
         if (localData && localData != null) {
-          setBgLoading([...bgLoading, bgLoadingStates.allStakedPools]);
           localData = JSON.parse(localData);
           setNoStakedPools(false);
           console.log("Setting stake pool data from local.", localData);
           setAllStakedPools(localData);
-          setLoading(false);
           setUserMessage(null);
-        }
-        if (localData) {
-          console.log("Fetching stake pool data from local.");
-          updateUserStakePerPool({
-            ocean,
-            accountId,
-            localData,
-            setAllStakedPools,
-          }).then(() => {
-            setBgLoading([
-              ...removeBgLoadingState(bgLoading, bgLoadingStates.allStakedPools),
-              ...removeBgLoadingState(bgLoading, bgLoadingStates.singlePoolData),
-            ]);
-            setLoading(false);
-            setNoStakedPools(false);
-            setUserMessage(null);
-          });
         }
       }
     } catch (error) {
@@ -72,11 +42,9 @@ const LiquidityPosition = () => {
   }, [accountId, ocean]);
 
   useEffect(() => {
-    console.log("Currently loading in the background", bgLoading);
-    if (!accountId && setLoading) {
+    if (!accountId) {
       setUserMessage("Connect your wallet to see staked oceans.");
       setMessageId("connectWalletMessage");
-      setLoading(false);
     } else if (noStakedPools) {
       setMessageId("noStakedPools");
       setUserMessage("You have no stake in any pools.");
@@ -86,7 +54,7 @@ const LiquidityPosition = () => {
     } else if (accountId && allStakedPools) {
       setUserMessage(null);
     }
-  }, [noStakedPools, allStakedPools, accountId, bgLoading, setLoading]);
+  }, [noStakedPools, allStakedPools, accountId]);
 
   return (
     <div className="absolute w-full h-full top-0 bottom-0  py-16 lg:py-28 px-2">
@@ -98,11 +66,7 @@ const LiquidityPosition = () => {
           <div className="flex flex-row w-full m-auto">
             <div className="w-full flex pb-1 rounded-lg justify-between">
               <h2 className="text-2xl">Your staked pools</h2>
-              {(bgLoading?.includes(bgLoadingStates.allStakedPools) ||
-                bgLoading?.includes(bgLoadingStates.singlePoolData)) &&
-              accountId ? (
-                <MoonLoader color="white" size="25px" />
-              ) : null}
+              {importPool && accountId ? <MoonLoader color="white" size="25px" /> : null}
             </div>
           </div>
 
@@ -118,7 +82,7 @@ const LiquidityPosition = () => {
               />
             </div>
           ) : (
-            <ul className={`${bgLoading ? " md:mt-1" : "md:mt-5"} pr-3 pl-3 overflow-scroll hm-hide-scrollbar`}>
+            <ul className={`${importPool ? " md:mt-1" : "md:mt-5"} pr-3 pl-3 overflow-scroll hm-hide-scrollbar`}>
               {allStakedPools?.map((pool: ILiquidityPosition, index: number) => (
                 <LiquidityPositionItem singleLiqPosItem={pool} index={index} />
               ))}

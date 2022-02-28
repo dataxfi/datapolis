@@ -1,16 +1,21 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { GlobalContext } from "../context/GlobalState";
 import { ILiquidityPosition } from "../utils/types";
 import { BsChevronDown, BsChevronUp } from "react-icons/bs";
 import { Link } from "react-router-dom";
 import { toFixed5 } from "../utils/equate";
-import { getToken } from "../hooks/useTokenList";
+import useLiquidityPos from "../hooks/useLiquidityPos";
 function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: ILiquidityPosition; index: number }) {
   const { address, token1Info, token2Info, shares, dtAmount, oceanAmount, yourPoolSharePerc, totalPoolShares } =
     singleLiqPosItem;
   const { setSingleLiquidityPos } = useContext(GlobalContext);
-
   const [visible, setVisible] = useState<boolean>(false);
+  const [importPool, setImportPool] = useState<string>()
+  useLiquidityPos(importPool, setImportPool)
+
+  useEffect(()=>{
+    setImportPool(address)
+  }, [])
 
   return token1Info && token2Info ? (
     <li id={`${token2Info.symbol}-lp-item`} key={`LP${index}`}>
@@ -19,7 +24,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
           onClick={() => setVisible(!visible)}
           className={`flex justify-between p-2  ${
             visible ? "rounded-t-lg" : "rounded-lg mb-2"
-          } modalSelectBg bg-opacity-75 select-none `}
+          } ${importPool? "bg-city-blue opacity-25" :"modalSelectBg"}  bg-opacity-75 select-none `}
           role="button"
         >
           <div className="grid grid-flow-col gap-2 items-center justify-start">
