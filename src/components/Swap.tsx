@@ -184,11 +184,11 @@ const Swap: React.FC = () => {
       let maxSell: BigNumber;
       let maxPercent: BigNumber;
       try {
-        if (
+        if (ocean &&
           token1?.info &&
           token2?.info &&
           !isOCEAN(token1.info.address, ocean) &&
-          !isOCEAN(token2.info.address, ocean)
+          !isOCEAN(token2.info.address, ocean) 
         ) {
           // try {
           // } catch (error) {}
@@ -226,18 +226,18 @@ const Swap: React.FC = () => {
             // limited by sell token
             maxBuy = DtReceivedForMaxSell;
           }
-        } else if (token1?.info && token2?.info && isOCEAN(token2.info.address, ocean)) {
+        } else if (ocean && token1?.info && token2?.info && isOCEAN(token2.info.address, ocean)) {
           // DT to OCEAN
           // Max sell is the max amount of DT that can be traded
-          maxSell = await ocean?.getMaxExchange(token1.info.pool);
+          maxSell = new BigNumber(await ocean?.getMaxExchange(token1.info.pool));
           maxSell = new BigNumber(maxSell || 0);
           // console.log("Exact max sell:", maxSell.toString());
           // Max buy is the amount of OCEAN bought from max sell
           maxBuy = new BigNumber(await calculateExchange(true, maxSell));
-        } else if (token1?.info && token2?.info) {
+        } else if (ocean && token1?.info && token2?.info) {
           // OCEAN to DT
           // Max buy is the max amount of DT that can be traded
-          maxBuy = await ocean?.getMaxExchange(token2.info.pool);
+          maxBuy = new BigNumber(await ocean?.getMaxExchange(token2.info.pool));
           maxBuy = new BigNumber(maxBuy || 0);
           // console.log("Exact max buy:", maxBuy.toString());
           if (maxBuy.minus(maxBuy.dp(0)).gte(0.05)) {
