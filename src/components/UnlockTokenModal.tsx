@@ -3,10 +3,10 @@ import { GlobalContext } from "../context/GlobalState";
 import { BiLockAlt, BiLockOpenAlt } from "react-icons/bi";
 import { MdClose } from "react-icons/md";
 import BigNumber from "bignumber.js";
-import { getTokenVal, isOCEAN } from "./Swap";
+import { isOCEAN } from "./Swap";
 import errorMessages from "../utils/errorMessages";
 import { getAllowance } from "../hooks/useTokenList";
-import { IToken, ApprovalStates } from "../utils/types";
+import {  ApprovalStates } from "../utils/types";
 export default function UnlockTokenModal({
   setToken,
   nextFunction,

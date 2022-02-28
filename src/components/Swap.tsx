@@ -2,7 +2,7 @@ import SwapInput from "./SwapInput";
 import { IoSwapVertical } from "react-icons/io5";
 import { MdTune } from "react-icons/md";
 import { useState, useContext, useEffect } from "react";
-import { bgLoadingStates, GlobalContext, removeBgLoadingState } from "../context/GlobalState";
+import { GlobalContext } from "../context/GlobalState";
 import Button from "./Button";
 import OutsideClickHandler from "react-outside-click-handler";
 import ConfirmSwapModal from "./ConfirmSwapModal";
@@ -14,8 +14,9 @@ import { MoonLoader } from "react-spinners";
 import BigNumber from "bignumber.js";
 import UnlockTokenModal from "./UnlockTokenModal";
 import { getAllowance } from "../hooks/useTokenList";
-import { IToken, IMaxExchange, ITokenValues, IBtnProps, ITxType, ITxDetails } from "../utils/types";
+import { IMaxExchange, IBtnProps, ITxDetails } from "../utils/types";
 import { TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
+import { Ocean } from "@dataxfi/datax.js";
 
 const text = {
   T_SWAP: "Trade",
@@ -30,23 +31,8 @@ const INITIAL_MAX_EXCHANGE: IMaxExchange = {
   postExchange: new BigNumber(0),
 };
 
-export function isOCEAN(tokenAddress: string, ocean: any) {
+export function isOCEAN(tokenAddress: string, ocean: Ocean) {
   return tokenAddress.toLowerCase() === ocean.config.default.oceanTokenAddress.toLowerCase();
-}
-
-/**
- * Returns the value of the token is string and big number format.
- * @param token1
- * @param token2
- * @returns
- */
-export function getTokenVal(token1: IToken, token2?: IToken) {
-  let t1Val;
-  let t2Val;
-  typeof token1.value === "string" ? (t1Val = token1.value) : (t1Val = token1.value.dp(5).toString());
-  if (!token2) return { t1Val, t2Val: "", t1BN: new BigNumber(t1Val), t2BN: new BigNumber(0) };
-  typeof token2.value === "string" ? (t2Val = token1.value) : (t2Val = token2.value.dp(5).toString());
-  return { t1Val, t2Val, t1BN: new BigNumber(t1Val), t2BN: new BigNumber(t2Val) } as ITokenValues;
 }
 
 const Swap: React.FC = () => {
@@ -56,16 +42,12 @@ const Swap: React.FC = () => {
     ocean,
     chainId,
     config,
-    txHistory,
-    setTxHistory,
     showConfirmModal,
     setShowConfirmModal,
     showTxDone,
     setShowTxDone,
     notifications,
     setNotifications,
-    bgLoading,
-    setBgLoading,
     setShowUnlockTokenModal,
     token1,
     setToken1,
@@ -140,10 +122,7 @@ const Swap: React.FC = () => {
                 }
               }
             })
-            .catch(console.error)
-            .finally(() => {
-              if (setBgLoading && bgLoading) setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.maxExchange));
-            });
+            .catch(console.error);
         });
     }
 
@@ -177,16 +156,16 @@ const Swap: React.FC = () => {
           postExchange: new BigNumber(0),
         });
 
-      if (setBgLoading && bgLoading) setBgLoading([...bgLoading, bgLoadingStates.maxExchange]);
       let maxBuy: BigNumber;
       let maxSell: BigNumber;
       let maxPercent: BigNumber;
       try {
-        if (ocean &&
+        if (
+          ocean &&
           token1?.info &&
           token2?.info &&
           !isOCEAN(token1.info.address, ocean) &&
-          !isOCEAN(token2.info.address, ocean) 
+          !isOCEAN(token2.info.address, ocean)
         ) {
           // try {
           // } catch (error) {}
@@ -371,7 +350,6 @@ const Swap: React.FC = () => {
         setExactToken(2);
       }
     }
-    if (bgLoading) setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
   }
 
   // This is easily testable, if we someone writes tests for this in the future, it'll be great
@@ -416,54 +394,55 @@ const Swap: React.FC = () => {
     return new BigNumber(0);
   }
 
-  function determineTxType() {
-    if (token1?.info && token2?.info && isOCEAN(token1.info.address, ocean)) {
-      if (exactToken === 1) {
-        return "Ocean to DT";
-      } else {
-        return "Ocean to DT";
-      }
-    } else if (token1?.info && token2?.info && isOCEAN(token2.info.address, ocean)) {
-      if (exactToken === 1) {
-        return "DT to Ocean";
-      } else {
-        return "DT to Ocean";
-      }
-    } else if (token1?.info && token2?.info) {
-      if (exactToken === 1) {
-        return "DT to DT";
-      } else {
-        return "DT to DT";
-      }
-    }
-  }
-
   async function makeTheSwap(preTxDetails: ITxDetails) {
     let txReceipt = null;
 
     let decSlippage = slippage.div(100).dp(5);
-    const { t1Val, t2Val } = getTokenVal(token1, token2);
-    if (!chainId || !token2.info || !token1.info || !txHistory || !accountId || !ocean || !config) return;
+    if (!chainId || !token2.info || !token1.info || !accountId || !ocean || !config) return;
     try {
       if (isOCEAN(token1.info.address, ocean)) {
         if (exactToken === 1) {
           console.log("exact ocean to dt");
           // console.log(accountId, token2.info.pool.toString(), token2.value.toString(), token1.value.toString());
-          txReceipt = await ocean.swapExactOceanToDt(accountId, token2.info.pool, t2Val, t1Val, decSlippage.toString());
+          txReceipt = await ocean.swapExactOceanToDt(
+            accountId,
+            token2.info.pool,
+            token2.value.toString(),
+            token1.value.toString(),
+            decSlippage.toString()
+          );
         } else {
           console.log("ocean to exact dt");
-          txReceipt = await ocean.swapExactOceanToDt(accountId, token2.info.pool, t2Val, t1Val, decSlippage.toString());
+          txReceipt = await ocean.swapExactOceanToDt(
+            accountId,
+            token2.info.pool,
+            token2.value.toString(),
+            token1.value.toString(),
+            decSlippage.toString()
+          );
         }
       } else if (isOCEAN(token2.info.address, ocean)) {
         if (exactToken === 1) {
           console.log("exact dt to ocean");
           // console.log(accountId, token1.info.pool, token2.value.toString(), token1.value.toString());
-          txReceipt = await ocean.swapExactDtToOcean(accountId, token1.info.pool, t2Val, t1Val, decSlippage.toString());
+          txReceipt = await ocean.swapExactDtToOcean(
+            accountId,
+            token1.info.pool,
+            token2.value.toString(),
+            token1.value.toString(),
+            decSlippage.toString()
+          );
         } else {
           //Error: Throws not enough datatokens
           console.log("dt to exact ocean");
           // console.log(accountId, token1.info.pool, token2.value.toString(), token1.value.toString());
-          txReceipt = await ocean.swapExactDtToOcean(accountId, token1.info.pool, t2Val, t1Val, decSlippage.toString());
+          txReceipt = await ocean.swapExactDtToOcean(
+            accountId,
+            token1.info.pool,
+            token2.value.toString(),
+            token1.value.toString(),
+            decSlippage.toString()
+          );
         }
       } else {
         if (exactToken === 1) {
@@ -473,8 +452,8 @@ const Swap: React.FC = () => {
             accountId,
             token1.info.address,
             token2.info.address,
-            t2Val,
-            t1Val,
+            token2.value.toString(),
+            token1.value.toString(),
             token1.info.pool,
             token2.info.pool,
             config.default.routerAddress,
@@ -487,8 +466,8 @@ const Swap: React.FC = () => {
             accountId,
             token1.info.address,
             token2.info.address,
-            t2Val,
-            t1Val,
+            token2.value.toString(),
+            token1.value.toString(),
             token1.info.pool,
             token2.info.pool,
             config.default.routerAddress,
@@ -522,10 +501,9 @@ const Swap: React.FC = () => {
   }
 
   function getConfirmModalProperties(): string[] {
-    const { t1Val, t2Val } = getTokenVal(token1, token2);
     if (token1?.info && token2?.info) {
       return [
-        `Swap ${token1.value} ${token1.info.symbol} for ${t2Val} 
+        `Swap ${token1.value} ${token1.info.symbol} for ${token2.value} 
     ${token2.info.symbol}`,
       ];
     }
@@ -533,7 +511,6 @@ const Swap: React.FC = () => {
   }
 
   function getButtonProperties() {
-    const { t1BN, t2BN } = getTokenVal(token1, token2);
     if (!accountId) {
       setBtnProps({
         text: "Connect Wallet",
@@ -548,38 +525,39 @@ const Swap: React.FC = () => {
       });
     }
 
-    if ((accountId && token1?.info && token2?.info && t1BN.eq(0)) || !t2BN.eq(0)) {
+    if ((accountId && token1?.info && token2?.info && token1.value.eq(0)) || !token2.value.eq(0)) {
       setBtnProps({
         text: "Enter Token Amount",
         disabled: true,
       });
     }
 
-    if (accountId && token1?.info && token2?.info && t1BN.gt(0) && t2BN.gt(0)) {
+    if (accountId && token1?.info && token2?.info && token1.value.gt(0) && token1.value.gt(0)) {
       if (token1.balance.lt(token1.value)) {
         setBtnProps({
           text: `Not Enough ${token1.info.symbol}`,
           disabled: true,
         });
       } else if (
-        (isOCEAN(token1.info.address, ocean) && t1BN.lt(0.01)) ||
-        (isOCEAN(token2.info.address, ocean) && t2BN.lt(0.01))
+        ocean &&
+        ((isOCEAN(token1.info.address, ocean) && token1.value.lt(0.01)) ||
+          (isOCEAN(token2.info.address, ocean) && token2.value.lt(0.01)))
       ) {
         setBtnProps({
           text: `Minimum trade is .01 OCEAN`,
           disabled: true,
         });
-      } else if (t1BN.lt(0.001)) {
+      } else if (token1.value.lt(0.001)) {
         setBtnProps({
           text: `Minimum trade is .001 ${token1.info.symbol}`,
           disabled: true,
         });
-      } else if (t2BN.lt(0.001)) {
+      } else if (token2.value.lt(0.001)) {
         setBtnProps({
           text: `Minimum trade is .001 ${token2.info.symbol}`,
           disabled: true,
         });
-      } else if (token1.allowance?.lt(t1BN)) {
+      } else if (token1.allowance?.lt(token1.value)) {
         setBtnProps({
           text: `Unlock ${token1.info.symbol}`,
           disabled: false,
@@ -607,7 +585,6 @@ const Swap: React.FC = () => {
       if (bnVal.gt(maxSell) && token1.balance.gte(0.00001)) {
         setToken2({ ...token2, value: maxBuy });
         setToken1({ ...token1, value: maxSell, percentage: maxPercent });
-        if (setBgLoading && bgLoading) setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
       } else {
         const percentage =
           token1.balance.lt(0.00001) && bnVal.gt(0)
@@ -663,7 +640,6 @@ const Swap: React.FC = () => {
         setToken2({ ...token2, value: maxBuy });
         setToken1({ ...token1, value: maxSell });
         setPostExchange(postExchange);
-        if (setBgLoading && bgLoading) setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
       } else {
         console.log("Value < MaxBuy");
         setToken2({ ...token2, value: bnVal });
@@ -753,7 +729,7 @@ const Swap: React.FC = () => {
               tabIndex={0}
               className="rounded-full border-black bg-opacity-100 border-4 absolute -top-7 bg-trade-darkBlue hover:bg-gray-600 transition-colors duration-200 w-12 h-12 flex swap-center items-center justify-center"
             >
-              {token2?.loading || token1?.loading || bgLoading?.includes(bgLoadingStates.calcTrade) || percLoading ? (
+              {token2?.loading || token1?.loading || percLoading ? (
                 <MoonLoader size={25} color={"white"} />
               ) : (
                 <IoSwapVertical size="30" className="text-gray-300" />
