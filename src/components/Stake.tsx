@@ -1,6 +1,6 @@
 import { AiOutlinePlus } from "react-icons/ai";
 import StakeSelect from "./StakeSelect";
-import { useState, useContext, useEffect, useRef } from "react";
+import { useState, useContext, useEffect } from "react";
 import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
 import { MoonLoader } from "react-spinners";
 import Button from "./Button";
@@ -17,11 +17,10 @@ import { DebounceInput } from "react-debounce-input";
 import WrappedInput from "./WrappedInput";
 import UnlockTokenModal from "./UnlockTokenModal";
 import { IToken, ITxDetails, IUserMessage } from "../utils/types";
-import { getAllowance, getToken } from "../hooks/useTokenList";
+import { getAllowance } from "../hooks/useTokenList";
 import { IPoolLiquidity, IBtnProps } from "../utils/types";
-import { getTokenVal, isOCEAN } from "./Swap";
+import { isOCEAN } from "./Swap";
 import useAutoLoadToken from "../hooks/useAutoLoadToken";
-import useWatchLocation from "../hooks/useWatchLocation";
 
 const INITIAL_BUTTON_STATE = {
   text: "Connect wallet",
@@ -35,8 +34,6 @@ const Stake = () => {
     accountId,
     chainId,
     handleConnect,
-    txHistory,
-    setTxHistory,
     showConfirmModal,
     setShowConfirmModal,
     showTxDone,
@@ -56,21 +53,18 @@ const Stake = () => {
   } = useContext(GlobalContext);
   const [dtToOcean, setDtToOcean] = useState<any>(null);
   const [oceanToDt, setOceanToDt] = useState<any>(null);
-  const [txReceipt, setTxReceipt] = useState<any | null>(null);
   const [recentTxHash, setRecentTxHash] = useState("");
   const [loading, setLoading] = useState(false);
   const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
   const [userMessage, setUserMessage] = useState<IUserMessage | false>(false);
-  //very last transaction
-  const [lastTxId, setLastTxId] = useState<any>(null);
   const [poolLiquidity, setPoolLiquidity] = useState<IPoolLiquidity | null>(null);
   const [yourLiquidity, setYourLiquidity] = useState<BigNumber>(new BigNumber(0));
   const [yourShares, setYourShares] = useState<BigNumber>(new BigNumber(0));
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
-
+  const [importPool, setImportPool] = useState<string>()
   //hooks
   // useTxModalToggler(txReceipt, setTxReceipt);
-  useLiquidityPos();
+  useLiquidityPos(importPool, setImportPool);
   useAutoLoadToken();
 
   useEffect(() => {
@@ -182,7 +176,7 @@ const Stake = () => {
   }
 
   async function executeStake(preTxDetails: ITxDetails) {
-    if (!token2.info || !chainId || !txHistory || !ocean || !accountId) return;
+    if (!token2.info || !chainId || !ocean || !accountId) return;
     try {
       setLoading(true);
       console.log(accountId, token2?.info?.pool, token1.value?.toString());
@@ -190,9 +184,7 @@ const Stake = () => {
 
       if (txReceipt) {
         setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
-
         setOceanBalance();
-        setTxReceipt(txReceipt);
         if (token2.info) {
           const json = JSON.parse(getLocalPoolData(accountId, chainId) || "[]");
           updateSingleStakePool({
@@ -210,7 +202,7 @@ const Stake = () => {
         throw new Error("Didn't receive a receipt.");
       }
     } catch (error: any) {
-      setLastTx({ ...preTxDetails, txReceipt, status: "Failure" });
+      setLastTx({ ...preTxDetails, status: "Failure" });
       console.error(error);
       if (notifications) {
         const allNotifications = notifications;

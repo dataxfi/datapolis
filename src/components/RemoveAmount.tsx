@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { BsArrowDown } from "react-icons/bs";
 import { Link } from "react-router-dom";
-import { GlobalContext} from "../context/GlobalState";
+import { GlobalContext } from "../context/GlobalState";
 import Button from "./Button";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
@@ -44,9 +44,8 @@ const RemoveAmount = () => {
   const [btnText, setBtnText] = useState("Enter Amount to Remove");
   const [inputDisabled, setInputDisabled] = useState(false);
   const [userMessage, setUserMessage] = useState<IUserMessage | null>();
-  const [importPool, setImportPool] = useState<string>();
   const [shares, setShares] = useState<BigNumber>(new BigNumber(0));
-  const [calculating, setCalculating] = useState<boolean>(false)
+  const [calculating, setCalculating] = useState<boolean>(false);
   //Max possible amount of OCEAN to remove
   const [maxUnstake, setMaxUnstake] = useState<IMaxUnstake | null>({
     OCEAN: new BigNumber(0),
@@ -55,7 +54,7 @@ const RemoveAmount = () => {
   });
 
   async function getMaxUnstake(): Promise<IMaxUnstake | void> {
-  try {
+    try {
       //.98 is a fix for the MAX_OUT_RATIO error from the contract
       if (!ocean || !singleLiquidityPos || !singleLiquidityPos.address) return;
       const oceanAmt: BigNumber = new BigNumber(
@@ -79,7 +78,7 @@ const RemoveAmount = () => {
 
   //hooks
   useTxModalToggler();
-  useLiquidityPos(importPool, setImportPool);
+  useLiquidityPos();
   useAutoLoadToken();
 
   useEffect(() => {
@@ -91,8 +90,7 @@ const RemoveAmount = () => {
             console.log("Max unstake amount set at:", { ocean: res.OCEAN.toString(), shares: res.shares.toString() });
           }
         })
-        .catch(console.error)
-        
+        .catch(console.error);
 
       getAllowance(token1.info.address, accountId, token2.info.pool, ocean).then((res) => {
         setToken1({ ...token1, allowance: new BigNumber(res) });
@@ -127,10 +125,8 @@ const RemoveAmount = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token1.value, lastTx, singleLiquidityPos, maxUnstake, token1.allowance]);
 
-
-
   const updateNum = async (val: string) => {
-    setCalculating(true)
+    setCalculating(true);
     if (val == "") val = "0";
     let max: IMaxUnstake | void;
     maxUnstake?.OCEAN.gt(0) ? (max = maxUnstake) : (max = await getMaxUnstake());
@@ -184,8 +180,8 @@ const RemoveAmount = () => {
       }
     } catch (error) {
       console.error(error);
-    }  finally {
-      setCalculating(false)
+    } finally {
+      setCalculating(false);
     }
   };
 
@@ -272,7 +268,6 @@ const RemoveAmount = () => {
 
     setShares(new BigNumber(0));
     setToken1({ ...token1, value: new BigNumber(0), percentage: new BigNumber(0) });
-    setImportPool(singleLiquidityPos.address);
   };
   return (
     <div className="absolute top-0 w-full h-full">
@@ -346,14 +341,10 @@ const RemoveAmount = () => {
                         onClick={() => {
                           maxUnstakeHandler();
                         }}
-                        disabled={
-                          Number(singleLiquidityPos?.shares) === 0 ||
-                          importPool ? true : false
-                        }
+                        disabled={Number(singleLiquidityPos?.shares) === 0}
                         text="Max Unstake"
                         classes={`px-2 lg:w-24 py-0 border  rounded-full text-xs ${
-                          inputDisabled ||
-                          Number(singleLiquidityPos?.shares) === 0 ||importPool
+                          inputDisabled || Number(singleLiquidityPos?.shares) === 0
                             ? "text-gray-700 border-gray-700"
                             : "hover:bg-primary-600 border-type-300"
                         }`}
@@ -364,7 +355,7 @@ const RemoveAmount = () => {
               </div>
               <div className="px-4 relative mt-6 mb-8">
                 <div className="rounded-full border-black border-4 absolute -top-7 bg-trade-darkBlue w-10 h-10 flex items-center justify-center swap-center">
-                  {importPool || calculating?  (
+                  {calculating ? (
                     <MoonLoader size={25} color={"white"} />
                   ) : (
                     <BsArrowDown size="30px" className="text-gray-300 m-0 p-0" />
