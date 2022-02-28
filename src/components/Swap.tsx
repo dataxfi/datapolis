@@ -407,8 +407,8 @@ const Swap: React.FC = () => {
           txReceipt = await ocean.swapExactOceanToDt(
             accountId,
             token2.info.pool,
-            token2.value.toString(),
-            token1.value.toString(),
+            token2.value.dp(5).toString(),
+            token1.value.dp(5).toString(),
             decSlippage.toString()
           );
         } else {
@@ -416,8 +416,8 @@ const Swap: React.FC = () => {
           txReceipt = await ocean.swapExactOceanToDt(
             accountId,
             token2.info.pool,
-            token2.value.toString(),
-            token1.value.toString(),
+            token2.value.dp(5).toString(),
+            token1.value.dp(5).toString(),
             decSlippage.toString()
           );
         }
@@ -428,8 +428,8 @@ const Swap: React.FC = () => {
           txReceipt = await ocean.swapExactDtToOcean(
             accountId,
             token1.info.pool,
-            token2.value.toString(),
-            token1.value.toString(),
+            token2.value.dp(5).toString(),
+            token1.value.dp(5).toString(),
             decSlippage.toString()
           );
         } else {
@@ -439,8 +439,8 @@ const Swap: React.FC = () => {
           txReceipt = await ocean.swapExactDtToOcean(
             accountId,
             token1.info.pool,
-            token2.value.toString(),
-            token1.value.toString(),
+            token2.value.dp(5).toString(),
+            token1.value.dp(5).toString(),
             decSlippage.toString()
           );
         }
@@ -452,8 +452,8 @@ const Swap: React.FC = () => {
             accountId,
             token1.info.address,
             token2.info.address,
-            token2.value.toString(),
-            token1.value.toString(),
+            token2.value.dp(5).toString(),
+            token1.value.dp(5).toString(),
             token1.info.pool,
             token2.info.pool,
             config.default.routerAddress,
@@ -466,8 +466,8 @@ const Swap: React.FC = () => {
             accountId,
             token1.info.address,
             token2.info.address,
-            token2.value.toString(),
-            token1.value.toString(),
+            token2.value.dp(5).toString(),
+            token1.value.dp(5).toString(),
             token1.info.pool,
             token2.info.pool,
             config.default.routerAddress,
@@ -498,16 +498,6 @@ const Swap: React.FC = () => {
       });
       setNotifications([...allNotifications]);
     }
-  }
-
-  function getConfirmModalProperties(): string[] {
-    if (token1?.info && token2?.info) {
-      return [
-        `Swap ${token1.value} ${token1.info.symbol} for ${token2.value} 
-    ${token2.info.symbol}`,
-      ];
-    }
-    return [];
   }
 
   function getButtonProperties() {
@@ -823,9 +813,12 @@ const Swap: React.FC = () => {
       <ConfirmModal
         show={showConfirmModal ? showConfirmModal : false}
         close={() => {
-          if (setShowConfirmModal) setShowConfirmModal(false);
+          setShowConfirmModal(false);
         }}
-        txs={getConfirmModalProperties()}
+        txs={[
+          `Swap ${token1.value.dp(5)} ${token1.info?.symbol} for ${token2.value.dp(5)} 
+      ${token2.info?.symbol}`,
+        ]}
       />
       <TransactionDoneModal
         show={showTxDone ? showTxDone : false}

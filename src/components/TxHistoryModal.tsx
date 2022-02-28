@@ -1,10 +1,9 @@
 import { useContext, useEffect, useState } from "react";
-import { BsBoxArrowUpRight, BsX } from "react-icons/bs";
-import { PulseLoader } from "react-spinners";
+import { BsX } from "react-icons/bs";
 import { GlobalContext } from "../context/GlobalState";
-import { getLocalTxHistory, getTxUrl, watchTx, conformTx } from "../utils/txHistoryUtils";
-
+import { getLocalTxHistory, getTxUrl, setLocalTxHistory } from "../utils/txHistoryUtils";
 import { ITxSelection, ITxHistory, ITxDetails } from "../utils/types";
+import TxHistoryItem from "./TxHistoryItem";
 
 function TxHistoryModal() {
   const {
@@ -16,8 +15,6 @@ function TxHistoryModal() {
     chainId,
     accountId,
     ocean,
-    watcher,
-    web3,
     setShowConfirmModal,
     setShowTxDone,
     showTxDone,
@@ -28,32 +25,34 @@ function TxHistoryModal() {
   const [txSelection, setTxSelection] = useState<ITxSelection[]>([]);
   const [txsByDate, setTxsByDate] = useState<ITxSelection[]>([]);
   const [noTxHistory, setNoTxHistory] = useState<boolean>(false);
+  const [tx1, setTx1] = useState<ITxDetails>();
+  const [tx2, setTx2] = useState<ITxDetails>();
+  const [tx3, setTx3] = useState<ITxDetails>();
+  const [tx4, setTx4] = useState<ITxDetails>();
+  const [tx5, setTx5] = useState<ITxDetails>();
+
+  useEffect(() => {
+    if (tx1 && tx2 && tx3 && tx4 && tx5 && accountId && chainId) {
+      const newTxHistory: ITxHistory = {
+        ...txHistory,
+        [tx1.txDateId]: tx1,
+        [tx2.txDateId]: tx2,
+        [tx3.txDateId]: tx3,
+        [tx4.txDateId]: tx4,
+        [tx5.txDateId]: tx5,
+      }
+      setTxHistory(newTxHistory);
+      setLocalTxHistory({ txHistory: newTxHistory, accountId, chainId })
+    }
+  }, [tx1, tx2, tx3, tx4, tx5]);
 
   useEffect(() => {
     if (showTxHistoryModal) {
-      if (showConfirmModal && setShowConfirmModal) setShowConfirmModal(false);
-      if (showTxDone && setShowTxDone) setShowTxDone(false);
+      if (showConfirmModal) setShowConfirmModal(false);
+      if (showTxDone) setShowTxDone(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showConfirmModal, showTxDone, showTxHistoryModal]);
-
-  useEffect(() => {
-    if (ocean && watcher && txSelection && web3 && accountId && chainId && setTxHistory && txHistory) {
-      // watchTx(txSelection[0])
-      txSelection.forEach((tx) => {
-        if (tx.status !== "Success")
-          watchTx({
-            tx,
-            watcher,
-            web3,
-            chainId,
-            setTxHistory,
-            txHistory,
-          });
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [txSelection, watcher, web3, accountId]);
 
   useEffect(() => {
     if (!chainId || !accountId || !txHistory) return;
@@ -86,6 +85,14 @@ function TxHistoryModal() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [txHistory, pendingTxs, chainId, accountId, page, ocean]);
 
+  function resetTxs(){
+    setTx1(undefined)
+    setTx2(undefined)
+    setTx3(undefined)
+    setTx4(undefined)
+    setTx5(undefined)
+  }
+
   function parseHistory(history: ITxHistory) {
     if (!history || !accountId || !ocean) return;
     const txsByDate = [];
@@ -96,7 +103,7 @@ function TxHistoryModal() {
         accountId,
       });
       if (!txLink) txLink = "/";
-      txsByDate.push({...tx, txDateId, txLink });
+      txsByDate.push({ ...tx, txDateId, txLink });
     }
     //@ts-ignore
     txsByDate.sort((date1, date2) => Number(date2.txDateId) - Number(date1.txDateId));
@@ -105,11 +112,13 @@ function TxHistoryModal() {
 
   function lastPage() {
     if (page[0] === 0) return;
+    resetTxs()
     setPage([page[0] - 5, page[1] - 5]);
   }
 
   function nextPage() {
     if (page[1] >= txsByDate.length) return;
+    resetTxs()
     setPage([page[0] + 5, page[1] + 5]);
   }
 
@@ -118,34 +127,7 @@ function TxHistoryModal() {
     return `${page[0] + 1} - ${page[1]}`;
   }
 
-  function exactTime(tx: any) {
-    const stamp = new Date(Number(tx.txDateId));
-    const hours24 = stamp.getHours();
-    const amPm = hours24 > 12 ? "Pm" : "Am";
-    const hours12 = hours24 > 12 ? hours24 - 12 : hours24;
-    let minutes: string | number = stamp.getMinutes();
-    if (Number(minutes) < 10) {
-      minutes = `0${minutes}`;
-    }
-    return `${hours12}:${minutes} ${amPm}`;
-  }
-
-  function txItemTitle(tx: ITxDetails) {
-if(tx.token1.info && tx.token2.info)
-    switch (tx.txType) {
-      case "stake":
-        return `Stake ${tx.token2.info.symbol}/OCEAN`;
-      case "unstake":
-        return `Unstake ${tx.token2.info.symbol}/OCEAN`;
-      case "approve":
-        return `Unlock ${tx.token1.info.symbol}`
-      default:
-        return `${tx.token1.info.symbol} to ${tx.token2.info.symbol}`;
-    }
-  }
-
-  if (!showTxHistoryModal) return null;
-  return (
+  return showTxHistoryModal ? (
     <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 sm:max-w-md w-full z-20 shadow">
       <div className="bg-black bg-opacity-95 border rounded-lg p-4 hm-box mx-3">
         <div className="flex justify-between mb-2">
@@ -167,46 +149,11 @@ if(tx.token1.info && tx.token2.info)
         ) : (
           <>
             <ul>
-              {txSelection.map((tx, index) => (
-                <li
-                  key={`tx${index}`}
-                  className="flex flex-col mb-2 justify-center bg-gray-800 rounded-lg p-2 hover:bg-gray-900 border border-transparent hover:border-gray-600"
-                >
-                  <div className="flex flex-row w-full justify-between">
-                    <div className="flex">
-                      <h4>{txItemTitle(tx)}: </h4>
-                      <p
-                        className={`ml-1 ${
-                          tx.status === "Success"
-                            ? "text-city-blue"
-                            : tx.status === "Failure"
-                            ? "text-red-600"
-                            : "text-primary-400"
-                        } `}
-                      >
-                        {tx.status}
-                      </p>
-                      {tx.status === "Success" || tx.status === "Failure" ? null : (
-                        <div className="pt-.5">
-                          <PulseLoader size="3px" color="white" />
-                        </div>
-                      )}
-                    </div>
-                    <a
-                      href={tx.txLink}
-                      target="_blank"
-                      rel="noreferrer"
-                      className={tx.txLink.includes("/tx/") ? "text-city-blue" : ""}
-                    >
-                      <BsBoxArrowUpRight />
-                    </a>
-                  </div>
-                  <div className="flex flex-row">
-                    <p className="text-xs text-primary-400 pr-1">{new Date(Number(tx.txDateId)).toDateString()} at</p>
-                    <p className="text-xs text-primary-400">{exactTime(tx)}</p>
-                  </div>
-                </li>
-              ))}
+              <TxHistoryItem tx={txSelection[0]} index={0} setTx={setTx1} />
+              <TxHistoryItem tx={txSelection[1]} index={1} setTx={setTx2} />
+              <TxHistoryItem tx={txSelection[2]} index={2} setTx={setTx3} />
+              <TxHistoryItem tx={txSelection[3]} index={3} setTx={setTx4} />
+              <TxHistoryItem tx={txSelection[4]} index={4} setTx={setTx5} />
             </ul>{" "}
             <div className="flex justify-between">
               <button className="text-lg" onClick={lastPage}>
@@ -221,6 +168,8 @@ if(tx.token1.info && tx.token2.info)
         )}
       </div>
     </div>
+  ) : (
+    <></>
   );
 }
 

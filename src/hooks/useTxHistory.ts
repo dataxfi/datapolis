@@ -1,6 +1,6 @@
-import { useEffect, useContext, useState } from "react";
+import { useEffect, useContext } from "react";
 import { GlobalContext } from "../context/GlobalState";
-import { addTxHistory, getLocalTxHistory, setLocalTxHistory, setPendingTxsFromHistory } from "../utils/txHistoryUtils";
+import { getLocalTxHistory, setLocalTxHistory } from "../utils/txHistoryUtils";
 import { ITxHistory } from "../utils/types";
 
 export default function useTxHistory() {
@@ -15,7 +15,6 @@ export default function useTxHistory() {
     watcher,
     setTxHistory,
     lastTx,
-    setLastTx,
   } = useContext(GlobalContext);
 
   //initializes transaction history from local storage
@@ -24,12 +23,6 @@ export default function useTxHistory() {
       const localHistory = getLocalTxHistory({ chainId, accountId });
       if (localHistory) {
         setTxHistory(localHistory);
-        // setPendingTxsFromHistory({
-        //   txHistory: localHistory,
-        //   pendingTxs,
-        //   setPendingTxs,
-        //   watcher,
-        // });
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -81,4 +74,7 @@ export default function useTxHistory() {
       setPendingTxs(newTxs);
     }
   }, [lastTx]);
+
+
+
 }

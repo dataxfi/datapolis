@@ -2,14 +2,13 @@ import { useContext, useEffect, useState } from "react";
 import { BsX } from "react-icons/bs";
 import { IoCheckboxOutline } from "react-icons/io5";
 import { GlobalContext } from "../context/GlobalState";
-import { getTxUrl, conformTx } from "../utils/txHistoryUtils";
+import { getTxUrl } from "../utils/txHistoryUtils";
 import BigNumber from "bignumber.js";
 import { ITxDetails } from "../utils/types";
 const SnackbarItem = ({ tx, setCurrentNot }: { tx: ITxDetails; setCurrentNot: Function }) => {
   const { ocean, accountId, notifications, setNotifications, setToken1, setToken2 } = useContext(GlobalContext);
   const [opacity, setOpacity] = useState<string>("0");
   // const [progress, setProgress] = useState<string>("100");
-  const [tokenInfo, setTokenInfo] = useState<any>();
   const [txDetails, setTxDetails] = useState<any>();
   const [url, setUrl] = useState<any>();
   const [cleanup, setCleanup] = useState(true);
@@ -17,7 +16,6 @@ const SnackbarItem = ({ tx, setCurrentNot }: { tx: ITxDetails; setCurrentNot: Fu
   useEffect(() => {
     if (ocean && accountId && tx.txReceipt)
       setUrl(getTxUrl({ ocean, accountId, txHash: tx.txReceipt.transactionHash }));
-    setTokenInfo(conformTx(tx));
     setTxDetails(tx);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tx, ocean, accountId]);
@@ -76,9 +74,9 @@ const SnackbarItem = ({ tx, setCurrentNot }: { tx: ITxDetails; setCurrentNot: Fu
                   }/OCEAN pool`
                 : tx.txType === "approve"
                 ? `Unlock ${tx.token1.value} ${tx.token1.info?.symbol}`
-                : `Trade ${new BigNumber(tokenInfo.token1.value).dp(5).toString()} ${
-                    tokenInfo.token1.symbol
-                  } for ${new BigNumber(tokenInfo.token2.value).dp(5).toString()} ${tokenInfo.token2.symbol}`}
+                : `Trade ${new BigNumber(tx.token1.value).dp(5).toString()} ${
+                    tx.token1.info?.symbol
+                  } for ${new BigNumber(tx.token2.value).dp(5).toString()} ${tx.token2.info?.symbol}`}
             </p>
             <p className="text-type-300 text-sm">
               <a target="_blank" rel="noreferrer" href={url} className="hover:text-city-blue">
