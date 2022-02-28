@@ -1,15 +1,7 @@
 import { ITxHistory } from "./types";
 import { Ocean } from "@dataxfi/datax.js";
 
-export function getTxUrl({
-  ocean,
-  txHash,
-  accountId,
-}: {
-  ocean: Ocean;
-  txHash?: string | null;
-  accountId: string;
-}) {
+export function getTxUrl({ ocean, txHash, accountId }: { ocean: Ocean; txHash?: string | null; accountId: string }) {
   try {
     if (txHash && ocean && accountId) {
       return ocean.config.default.explorerUri + "/tx/" + txHash;
@@ -33,10 +25,7 @@ export function setLocalTxHistory({
   chainId: string | number;
 }) {
   try {
-    localStorage.setItem(
-      `txHistory@${chainId}@${accountId.toLowerCase()}`,
-      JSON.stringify(txHistory)
-    );
+    localStorage.setItem(`txHistory@${chainId}@${accountId.toLowerCase()}`, JSON.stringify(txHistory));
   } catch (error) {
     console.error(error);
   }
@@ -67,22 +56,12 @@ export function getTxById({
   }
 }
 
-export function getLocalTxHistory({
-  chainId,
-  accountId,
-}: {
-  chainId: string | number;
-  accountId: string;
-}) {
-  if (!accountId) return;
+export function getLocalTxHistory({ chainId, accountId }: { chainId: string | number; accountId: string }): ITxHistory {
   try {
-    const localTxHistory = localStorage.getItem(
-      `txHistory@${chainId}@${accountId.toLowerCase()}`
-    );
+    const localTxHistory = localStorage.getItem(`txHistory@${chainId}@${accountId.toLowerCase()}`);
     if (localTxHistory) return JSON.parse(localTxHistory);
-    return {};
   } catch (error) {
     console.error(error);
   }
+  return {};
 }
-

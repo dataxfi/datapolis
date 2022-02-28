@@ -20,8 +20,13 @@ export default function useTxHistory() {
   //initializes transaction history from local storage
   useEffect(() => {
     if (accountId && chainId && watcher) {
-      const localHistory = getLocalTxHistory({ chainId, accountId });
+      const localHistory: ITxHistory = getLocalTxHistory({ chainId, accountId });
       if (localHistory) {
+        for(let [id, tx] of Object.entries(localHistory)){
+          if(tx.status ==="Pending"){
+            delete localHistory[id] 
+          }
+        }
         setTxHistory(localHistory);
       }
     }
