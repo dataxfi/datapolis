@@ -16,7 +16,6 @@ import UnlockTokenModal from "./UnlockTokenModal";
 import { getAllowance } from "../hooks/useTokenList";
 import { IToken, IMaxExchange, ITokenValues, IBtnProps, ITxType, ITxDetails } from "../utils/types";
 import { TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
-import useWatchLocation from "../hooks/useWatchLocation";
 
 const text = {
   T_SWAP: "Trade",
@@ -79,7 +78,6 @@ const Swap: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showConfirmSwapModal, setShowConfirmSwapModal] = useState(false);
   const [lastTxUrl, setLastTxUrl] = useState("");
-  const [txReceipt, setTxReceipt] = useState<any>(null);
   const [exactToken, setExactToken] = useState<number>(1);
   const [postExchange, setPostExchange] = useState<BigNumber>(new BigNumber(0));
   const [slippage, setSlippage] = useState<BigNumber>(new BigNumber(1));
@@ -94,7 +92,7 @@ const Swap: React.FC = () => {
   const [swap, setSwap] = useState<boolean>(false);
 
   //hooks
-  useTxModalToggler(txReceipt, setTxReceipt, setToken1, setToken2);
+  useTxModalToggler();
   // const tokensCleared = useWatchLocation()
 
   useEffect(() => {
@@ -499,7 +497,6 @@ const Swap: React.FC = () => {
         }
       }
       if (txReceipt) {
-        setTxReceipt(txReceipt);
         setLastTxUrl(config.default.explorerUri + "/tx/" + txReceipt.transactionHash);
         setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
         setPostExchange(new BigNumber(0));

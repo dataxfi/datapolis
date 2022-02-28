@@ -1,14 +1,13 @@
 import { useContext, useEffect, useState } from "react";
 import { BsArrowDown } from "react-icons/bs";
 import { Link } from "react-router-dom";
-import { GlobalContext, bgLoadingStates, removeBgLoadingState } from "../context/GlobalState";
+import { GlobalContext} from "../context/GlobalState";
 import Button from "./Button";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
 import UserMessage from "./UserMessage";
 import { toFixed18, toFixed5 } from "../utils/equate";
 import { MoonLoader, PulseLoader } from "react-spinners";
-import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
 import useTxModalToggler from "../hooks/useTxModalToggler";
 import errorMessages from "../utils/errorMessages";
 import { DebounceInput } from "react-debounce-input";
@@ -26,10 +25,6 @@ const RemoveAmount = () => {
     accountId,
     singleLiquidityPos,
     ocean,
-    bgLoading,
-    setBgLoading,
-    txHistory,
-    setTxHistory,
     showConfirmModal,
     setShowConfirmModal,
     showTxDone,
@@ -40,25 +35,18 @@ const RemoveAmount = () => {
     token1,
     token2,
     setToken1,
-    setToken2,
     setLastTx,
     lastTx,
     setSingleLiquidityPos,
   } = useContext(GlobalContext);
-  const [noWallet, setNoWallet] = useState<boolean>(false);
   const [recentTxHash, setRecentTxHash] = useState("");
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
   const [btnText, setBtnText] = useState("Enter Amount to Remove");
   const [inputDisabled, setInputDisabled] = useState(false);
-  const [pendingUnstakeTx, setPendingUnstakeTx] = useState<boolean>(false);
   const [userMessage, setUserMessage] = useState<IUserMessage | null>();
-  const [txReceipt, setTxReceipt] = useState<any | null>(null);
   const [importPool, setImportPool] = useState<string>();
-
-  //very last transaction
-  const [lastTxId, setLastTxId] = useState<any>(null);
-
   const [shares, setShares] = useState<BigNumber>(new BigNumber(0));
+  const [calculating, setCalculating] = useState<boolean>(false)
   //Max possible amount of OCEAN to remove
   const [maxUnstake, setMaxUnstake] = useState<IMaxUnstake | null>({
     OCEAN: new BigNumber(0),
@@ -67,9 +55,7 @@ const RemoveAmount = () => {
   });
 
   async function getMaxUnstake(): Promise<IMaxUnstake | void> {
-    setBgLoading([...bgLoading, bgLoadingStates.maxUnstake]);
-
-    try {
+  try {
       //.98 is a fix for the MAX_OUT_RATIO error from the contract
       if (!ocean || !singleLiquidityPos || !singleLiquidityPos.address) return;
       const oceanAmt: BigNumber = new BigNumber(
@@ -92,12 +78,12 @@ const RemoveAmount = () => {
   }
 
   //hooks
-  useTxModalToggler(txReceipt, setTxReceipt);
+  useTxModalToggler();
   useLiquidityPos(importPool, setImportPool);
   useAutoLoadToken();
 
   useEffect(() => {
-    if (ocean && singleLiquidityPos && bgLoading && accountId && token1.info && token2.info) {
+    if (ocean && singleLiquidityPos && accountId && token1.info && token2.info) {
       getMaxUnstake()
         .then((res: IMaxUnstake | void) => {
           if (res) {
@@ -106,9 +92,7 @@ const RemoveAmount = () => {
           }
         })
         .catch(console.error)
-        .finally(() => {
-          setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.maxUnstake));
-        });
+        
 
       getAllowance(token1.info.address, accountId, token2.info.pool, ocean).then((res) => {
         setToken1({ ...token1, allowance: new BigNumber(res) });
@@ -123,7 +107,7 @@ const RemoveAmount = () => {
       setBtnDisabled(true);
       setInputDisabled(true);
       setBtnText("Not Enough Shares");
-    } else if (pendingUnstakeTx) {
+    } else if (lastTx && lastTx.txType === "unstake" && lastTx.status === "Pending") {
       setBtnDisabled(true);
       setInputDisabled(true);
       setBtnText("Processing Transaction ...");
@@ -141,19 +125,17 @@ const RemoveAmount = () => {
       setBtnText("Withdrawal");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bgLoading?.length, token1.value, pendingUnstakeTx, singleLiquidityPos, maxUnstake, token1.allowance]);
+  }, [token1.value, lastTx, singleLiquidityPos, maxUnstake, token1.allowance]);
 
-  useEffect(() => {
-    accountId ? setNoWallet(false) : setNoWallet(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountId, chainId, token1.value]);
+
 
   const updateNum = async (val: string) => {
+    setCalculating(true)
     if (val == "") val = "0";
     let max: IMaxUnstake | void;
     maxUnstake?.OCEAN.gt(0) ? (max = maxUnstake) : (max = await getMaxUnstake());
     try {
-      if (max && max.OCEAN.gt(0) && max.shares.gt(0) && ocean && bgLoading && setBgLoading && singleLiquidityPos) {
+      if (max && max.OCEAN.gt(0) && max.shares.gt(0) && ocean && singleLiquidityPos) {
         let percInput: BigNumber = new BigNumber(val);
         setToken1({ ...token1, percentage: percInput });
         if (percInput.lte(0)) {
@@ -161,7 +143,6 @@ const RemoveAmount = () => {
           setToken1({ ...token1, value: new BigNumber(0), percentage: new BigNumber(0) });
           return;
         }
-        setBgLoading([...bgLoading, bgLoadingStates.calcTrade]);
 
         if (percInput.gte(100)) {
           val = "100";
@@ -203,14 +184,13 @@ const RemoveAmount = () => {
       }
     } catch (error) {
       console.error(error);
-    } finally {
-      setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.calcTrade));
+    }  finally {
+      setCalculating(false)
     }
   };
 
   async function maxUnstakeHandler() {
-    if (!setBgLoading || !bgLoading || !ocean || !singleLiquidityPos) return;
-    setBgLoading([...bgLoading, bgLoadingStates.maxUnstake]);
+    if (!ocean || !singleLiquidityPos) return;
     let max: IMaxUnstake | void;
     maxUnstake ? (max = maxUnstake) : (max = await getMaxUnstake());
     console.log("Max unstake is set at:", max);
@@ -226,7 +206,6 @@ const RemoveAmount = () => {
         if (userTotalStakedOcean.gt(max?.OCEAN)) {
           setShares(max.shares);
           setToken1({ ...token1, value: max.OCEAN, percentage: max.OCEAN.div(userTotalStakedOcean).times(100) });
-          setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.maxUnstake));
           return;
         } else {
           const sharesNeeded = new BigNumber(
@@ -239,7 +218,6 @@ const RemoveAmount = () => {
 
           setShares(sharesNeeded);
           setToken1({ ...token1, value: userTotalStakedOcean, percentage: new BigNumber(100) });
-          setBgLoading(removeBgLoadingState(bgLoading, bgLoadingStates.maxUnstake));
         }
       }
     } catch (error) {
@@ -251,7 +229,6 @@ const RemoveAmount = () => {
     if (!chainId || !singleLiquidityPos || !ocean || !accountId) return;
 
     setShowConfirmModal(true);
-    setPendingUnstakeTx(true);
     console.log(
       `Unstaking from pool ${singleLiquidityPos.address}, ${toFixed18(
         singleLiquidityPos.shares
@@ -268,7 +245,6 @@ const RemoveAmount = () => {
 
       if (txReceipt) {
         setRecentTxHash(ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash);
-        setTxReceipt(txReceipt);
         setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
         if (singleLiquidityPos && preTxDetails.shares) {
           const newShares = new BigNumber(singleLiquidityPos.shares).minus(preTxDetails.shares);
@@ -292,25 +268,15 @@ const RemoveAmount = () => {
       setNotifications([...allNotifications]);
       setShowConfirmModal(false);
       setShowTxDone(false);
-      if (txHistory)
-        deleteRecentTxs({
-          txDateId: preTxDetails.txDateId,
-          setTxHistory,
-          txHistory,
-          chainId,
-          accountId,
-        });
     }
-    console.log("Setting defaults");
 
-    setPendingUnstakeTx(false);
     setShares(new BigNumber(0));
     setToken1({ ...token1, value: new BigNumber(0), percentage: new BigNumber(0) });
     setImportPool(singleLiquidityPos.address);
   };
   return (
     <div className="absolute top-0 w-full h-full">
-      {noWallet ? (
+      {!accountId ? (
         <UserMessage message="Connect your wallet to continue." pulse={false} container={true} timeout={null} />
       ) : token2.info && token1.info ? (
         <div className="flex w-full h-full items-center pt-16 px-2">
@@ -382,17 +348,12 @@ const RemoveAmount = () => {
                         }}
                         disabled={
                           Number(singleLiquidityPos?.shares) === 0 ||
-                          bgLoading?.includes(bgLoadingStates.singlePoolData) ||
-                          bgLoading?.includes(bgLoadingStates.maxUnstake) ||
-                          bgLoading?.includes(bgLoadingStates.calcTrade)
+                          importPool ? true : false
                         }
                         text="Max Unstake"
                         classes={`px-2 lg:w-24 py-0 border  rounded-full text-xs ${
                           inputDisabled ||
-                          Number(singleLiquidityPos?.shares) === 0 ||
-                          bgLoading?.includes(bgLoadingStates.singlePoolData) ||
-                          bgLoading?.includes(bgLoadingStates.maxUnstake) ||
-                          bgLoading?.includes(bgLoadingStates.calcTrade)
+                          Number(singleLiquidityPos?.shares) === 0 ||importPool
                             ? "text-gray-700 border-gray-700"
                             : "hover:bg-primary-600 border-type-300"
                         }`}
@@ -403,9 +364,7 @@ const RemoveAmount = () => {
               </div>
               <div className="px-4 relative mt-6 mb-8">
                 <div className="rounded-full border-black border-4 absolute -top-7 bg-trade-darkBlue w-10 h-10 flex items-center justify-center swap-center">
-                  {bgLoading?.includes(bgLoadingStates.singlePoolData) ||
-                  bgLoading?.includes(bgLoadingStates.maxUnstake) ||
-                  bgLoading?.includes(bgLoadingStates.calcTrade) ? (
+                  {importPool || calculating?  (
                     <MoonLoader size={25} color={"white"} />
                   ) : (
                     <BsArrowDown size="30px" className="text-gray-300 m-0 p-0" />

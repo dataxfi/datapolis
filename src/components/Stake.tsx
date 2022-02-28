@@ -10,7 +10,6 @@ import { Link } from "react-router-dom";
 import UserMessage from "./UserMessage";
 import { toFixed5 } from "../utils/equate";
 import { getLocalPoolData, updateSingleStakePool } from "../utils/stakedPoolsUtils";
-import useTxModalToggler from "../hooks/useTxModalToggler";
 import errorMessages from "../utils/errorMessages";
 import useLiquidityPos from "../hooks/useLiquidityPos";
 import BigNumber from "bignumber.js";
