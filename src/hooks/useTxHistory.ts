@@ -22,9 +22,9 @@ export default function useTxHistory() {
     if (accountId && chainId && watcher) {
       const localHistory: ITxHistory = getLocalTxHistory({ chainId, accountId });
       if (localHistory) {
-        for(let [id, tx] of Object.entries(localHistory)){
-          if(tx.status ==="Pending"){
-            delete localHistory[id] 
+        for (let [id, tx] of Object.entries(localHistory)) {
+          if (tx.status === "Pending") {
+            delete localHistory[id];
           }
         }
         setTxHistory(localHistory);
@@ -78,8 +78,6 @@ export default function useTxHistory() {
 
       setPendingTxs(newTxs);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastTx]);
-
-
-
 }

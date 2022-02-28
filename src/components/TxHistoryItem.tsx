@@ -36,6 +36,7 @@ export default function TxHistoryItem({
     } else if (config) {
       setTxLink(`${config?.default.explorerUri}/address/${accountId}`);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tx]);
 
   function exactTime(tx: any) {

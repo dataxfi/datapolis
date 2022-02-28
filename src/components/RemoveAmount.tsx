@@ -127,7 +127,7 @@ const RemoveAmount = () => {
 
   const updateNum = async (val: string) => {
     setCalculating(true);
-    if (val == "") val = "0";
+    if (val === "") val = "0";
     let max: IMaxUnstake | void;
     maxUnstake?.OCEAN.gt(0) ? (max = maxUnstake) : (max = await getMaxUnstake());
     try {
@@ -405,6 +405,7 @@ const RemoveAmount = () => {
                         txType: "approve",
                         shares,
                       };
+                      setLastTx(preTxDetails)
                       setShowUnlockTokenModal(true);
                     } else {
                       const preTxDetails: ITxDetails = {

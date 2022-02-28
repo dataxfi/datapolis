@@ -6,7 +6,7 @@ import BigNumber from "bignumber.js";
 import { isOCEAN } from "./Swap";
 import errorMessages from "../utils/errorMessages";
 import { getAllowance } from "../hooks/useTokenList";
-import {  ApprovalStates } from "../utils/types";
+import { ApprovalStates } from "../utils/types";
 export default function UnlockTokenModal({
   setToken,
   nextFunction,
@@ -55,6 +55,7 @@ export default function UnlockTokenModal({
       );
     }
     return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, accountId, pool, ocean]);
 
   async function unlockTokens(amount: "perm" | "once") {
@@ -125,7 +126,7 @@ export default function UnlockTokenModal({
             role="button"
             onClick={() => {
               setShowUnlockTokenModal(false);
-              setLastTx({...lastTx, status: "Failure"})
+              setLastTx({ ...lastTx, status: "Failure" });
             }}
             className="text-type-100 text-2xl"
           />

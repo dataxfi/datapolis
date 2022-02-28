@@ -6,7 +6,7 @@ import { getTxUrl } from "../utils/txHistoryUtils";
 import BigNumber from "bignumber.js";
 import { ITxDetails } from "../utils/types";
 const SnackbarItem = ({ tx, setCurrentNot }: { tx: ITxDetails; setCurrentNot: Function }) => {
-  const { ocean, accountId, notifications, setNotifications, setToken1, setToken2 } = useContext(GlobalContext);
+  const { ocean, accountId, notifications, setNotifications } = useContext(GlobalContext);
   const [opacity, setOpacity] = useState<string>("0");
   // const [progress, setProgress] = useState<string>("100");
   const [txDetails, setTxDetails] = useState<any>();

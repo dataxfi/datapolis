@@ -3,7 +3,6 @@ import TokenModal from "./TokenModal";
 import { BsChevronDown, BsBoxArrowUpRight } from "react-icons/bs";
 import { GlobalContext } from "../context/GlobalState";
 import {ReactComponent as XLogo} from "../assets/datax-x-logo.svg"
-import { IToken } from "../utils/types";
 import BigNumber from 'bignumber.js'
 
 const StakeSelect = () => {

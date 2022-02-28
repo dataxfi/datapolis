@@ -21,7 +21,6 @@ export default function useTokenList({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
 
-
   const initialChain = useRef(chainId);
   useEffect(() => {
     if (chainId !== initialChain.current) {
@@ -90,9 +89,7 @@ export function formatTokenArray(
   if (location === "/trade") {
     tokenList = tokenResponse.tokens.filter((t) => t.symbol !== otherToken);
   } else {
-    tokenList = tokenResponse.tokens.filter((t) => {
-      if (t.symbol !== otherToken && t.pool) return t;
-    });
+    tokenList = tokenResponse.tokens.filter((t) => t.symbol !== otherToken && t.pool);
   }
   if (tokenList.length > 0) {
     //@ts-ignore

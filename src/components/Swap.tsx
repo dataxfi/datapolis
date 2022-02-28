@@ -79,6 +79,7 @@ const Swap: React.FC = () => {
 
   useEffect(() => {
     getButtonProperties();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token1, token2, accountId]);
 
   let controller = new AbortController();
@@ -109,6 +110,7 @@ const Swap: React.FC = () => {
         })
         .then((balance) => {
           controller.abort();
+          // eslint-disable-next-line react-hooks/exhaustive-deps
           controller = new AbortController();
           const signal = controller.signal;
           setMaxExchange(INITIAL_MAX_EXCHANGE);

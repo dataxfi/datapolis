@@ -17,6 +17,7 @@ export default function useWatchLocation() {
       }
       setToken2(INITIAL_TOKEN_STATE);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentLocation]);
 
   useEffect(() => {
@@ -35,6 +36,7 @@ export default function useWatchLocation() {
         lastLocation.current = currentLocation;
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentLocation.pathname, token1.info, token2.info, token1, token2]);
 
   const initialAccount = useRef(accountId);
@@ -48,5 +50,6 @@ export default function useWatchLocation() {
       navigate("/stake/list");
     }
     initialAccount.current = accountId;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId]);
 }

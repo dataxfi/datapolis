@@ -40,10 +40,11 @@ function TxHistoryModal() {
         [tx3.txDateId]: tx3,
         [tx4.txDateId]: tx4,
         [tx5.txDateId]: tx5,
-      }
+      };
       setTxHistory(newTxHistory);
-      setLocalTxHistory({ txHistory: newTxHistory, accountId, chainId })
+      setLocalTxHistory({ txHistory: newTxHistory, accountId, chainId });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tx1, tx2, tx3, tx4, tx5]);
 
   useEffect(() => {
@@ -85,12 +86,12 @@ function TxHistoryModal() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [txHistory, pendingTxs, chainId, accountId, page, ocean]);
 
-  function resetTxs(){
-    setTx1(undefined)
-    setTx2(undefined)
-    setTx3(undefined)
-    setTx4(undefined)
-    setTx5(undefined)
+  function resetTxs() {
+    setTx1(undefined);
+    setTx2(undefined);
+    setTx3(undefined);
+    setTx4(undefined);
+    setTx5(undefined);
   }
 
   function parseHistory(history: ITxHistory) {
@@ -112,13 +113,13 @@ function TxHistoryModal() {
 
   function lastPage() {
     if (page[0] === 0) return;
-    resetTxs()
+    resetTxs();
     setPage([page[0] - 5, page[1] - 5]);
   }
 
   function nextPage() {
     if (page[1] >= txsByDate.length) return;
-    resetTxs()
+    resetTxs();
     setPage([page[0] + 5, page[1] + 5]);
   }
 

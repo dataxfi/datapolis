@@ -1,6 +1,5 @@
 import BigNumber from "bignumber.js";
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
 /**
  * Use to check inputs before debounce input. On change will fire immediately and check:
  * - If number is over max
@@ -13,7 +12,6 @@ import { useLocation } from "react-router-dom";
 
 export default function WrappedInput(props: any) {
   const [internalState, setInternalState] = useState<BigNumber>(new BigNumber(0));
-  const { pathname } = useLocation();
   /**
    * Determines whether to update the token state with a string or a bignumber
    * @param e

@@ -10,21 +10,22 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
     singleLiqPosItem;
   const { setSingleLiquidityPos } = useContext(GlobalContext);
   const [visible, setVisible] = useState<boolean>(false);
-  const [importPool, setImportPool] = useState<string>()
-  useLiquidityPos(importPool, setImportPool)
+  const [importPool, setImportPool] = useState<string>();
+  useLiquidityPos(importPool, setImportPool);
 
-  useEffect(()=>{
-    setImportPool(address)
-  }, [])
+  useEffect(() => {
+    setImportPool(address);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return token1Info && token2Info ? (
     <li id={`${token2Info.symbol}-lp-item`} key={`LP${index}`}>
       <div className="w-full mx-auto z-0">
         <div
           onClick={() => setVisible(!visible)}
-          className={`flex justify-between p-2  ${
-            visible ? "rounded-t-lg" : "rounded-lg mb-2"
-          } ${importPool? "bg-city-blue opacity-25" :"modalSelectBg"}  bg-opacity-75 select-none `}
+          className={`flex justify-between p-2  ${visible ? "rounded-t-lg" : "rounded-lg mb-2"} ${
+            importPool ? "bg-city-blue opacity-25" : "modalSelectBg"
+          }  bg-opacity-75 select-none `}
           role="button"
         >
           <div className="grid grid-flow-col gap-2 items-center justify-start">

@@ -6,8 +6,8 @@ export default function PendingTxsIndicator() {
   const { accountId, pendingTxs, setShowTxHistoryModal, setPendingTxs } = useContext(GlobalContext);
 
   useEffect(() => {
-    if (setPendingTxs) setPendingTxs([]);
-  }, [accountId]);
+    setPendingTxs([]);
+  }, [accountId, setPendingTxs]);
 
   return accountId && pendingTxs && pendingTxs.length > 0 ? (
     <div

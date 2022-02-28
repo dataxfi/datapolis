@@ -11,15 +11,17 @@ const text = {
 };
 
 const TokenModal = ({ close, onClick, otherToken }: { close: Function; onClick: Function; otherToken: string }) => {
-  const { tokenModalArray, setTokenModalArray, tokenResponse, location, chainId, accountId } = useContext(GlobalContext);
+  const { tokenModalArray, setTokenModalArray, tokenResponse, location, chainId, accountId } =
+    useContext(GlobalContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
-  useTokenList({otherToken, setLoading, setError});
+  useTokenList({ otherToken, setLoading, setError });
 
   const initialChain = useRef(chainId);
   useEffect(() => {
     if (chainId !== initialChain.current) close();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId]);
 
   useEffect(() => {

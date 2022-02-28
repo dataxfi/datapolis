@@ -61,7 +61,7 @@ const Stake = () => {
   const [yourLiquidity, setYourLiquidity] = useState<BigNumber>(new BigNumber(0));
   const [yourShares, setYourShares] = useState<BigNumber>(new BigNumber(0));
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
-  const [importPool, setImportPool] = useState<string>()
+  const [importPool, setImportPool] = useState<string>();
   //hooks
   // useTxModalToggler(txReceipt, setTxReceipt);
   useLiquidityPos(importPool, setImportPool);
@@ -79,6 +79,7 @@ const Stake = () => {
     if (token1.info && token2.info && tokensCleared.current) {
       getMaxAndAllowance();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token1.info, token2.info, tokensCleared, accountId]);
 
   useEffect(() => {
@@ -168,7 +169,7 @@ const Stake = () => {
               ...token1,
               allowance: new BigNumber(res),
               balance,
-              value: new BigNumber(0)
+              value: new BigNumber(0),
             });
           });
       })
@@ -220,7 +221,7 @@ const Stake = () => {
       setToken1({ ...token1, value: new BigNumber(0) });
     } finally {
       setLoading(false);
-      getMaxAndAllowance()
+      getMaxAndAllowance();
     }
   }
 
