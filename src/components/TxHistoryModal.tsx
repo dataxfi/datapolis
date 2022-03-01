@@ -150,11 +150,11 @@ function TxHistoryModal() {
         ) : (
           <>
             <ul>
-              <TxHistoryItem tx={txSelection[0]} index={0} setTx={setTx1} />
-              <TxHistoryItem tx={txSelection[1]} index={1} setTx={setTx2} />
-              <TxHistoryItem tx={txSelection[2]} index={2} setTx={setTx3} />
-              <TxHistoryItem tx={txSelection[3]} index={3} setTx={setTx4} />
-              <TxHistoryItem tx={txSelection[4]} index={4} setTx={setTx5} />
+              {txSelection[0] ? <TxHistoryItem tx={txSelection[0]} index={0} setTx={setTx1} /> : <></>}
+              {txSelection[1] ? <TxHistoryItem tx={txSelection[1]} index={1} setTx={setTx2} /> : <></>}
+              {txSelection[2] ? <TxHistoryItem tx={txSelection[2]} index={2} setTx={setTx3} /> : <></>}
+              {txSelection[3] ? <TxHistoryItem tx={txSelection[3]} index={3} setTx={setTx4} /> : <></>}
+              {txSelection[4] ? <TxHistoryItem tx={txSelection[4]} index={4} setTx={setTx5} /> : <></>}
             </ul>{" "}
             <div className="flex justify-between">
               <button className="text-lg" onClick={lastPage}>
