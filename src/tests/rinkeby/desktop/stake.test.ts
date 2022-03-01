@@ -12,6 +12,7 @@ import {
   navToStake,
   reloadOrContinue,
   setUpStake,
+  navToTradeXFromLanding,
 } from "../../utils";
 
 describe("Execute Standard Trades on Stake", () => {
@@ -28,8 +29,10 @@ describe("Execute Standard Trades on Stake", () => {
       browser = tools?.browser;
       metamask = tools?.metamask;
     }
-    await setupDataX(page, metamask, "rinkeby", false);
+    await page.setViewport({ width: 1039, height: 913 });
+    await navToTradeXFromLanding(page);
     await navToStake(page);
+    await setupDataX(page, metamask, "rinkeby", false);
   });
 
   afterAll(async () => {

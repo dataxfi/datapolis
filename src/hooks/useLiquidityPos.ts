@@ -30,20 +30,35 @@ export default function useLiquidityPos(
       (isOCEAN(token1.info.address, ocean) || isOCEAN(token2.info?.address, ocean))
     ) {
       let dtPool: string | null = pool;
+      console.log("Importing", pool);
 
       if (dtPool === null)
         isOCEAN(token1.info.address, ocean) ? (dtPool = token1.info.pool) : (dtPool = token2.info.pool);
 
       const localStoragePoolData = getLocalPoolData(accountId, chainId);
 
+      console.log(allStakedPools);
+      const findPool = (pool: { address: string }) => pool.address === dtPool;
+
       if (allStakedPools) {
-        const singlePosition = allStakedPools.find((pool: { address: string }) => pool.address === dtPool);
+        const singlePosition = allStakedPools.find(findPool);
         setSingleLiquidityPos(singlePosition);
       } else if (localStoragePoolData) {
-        setAllStakedPools(JSON.parse(localStoragePoolData));
+        updateSingleStakePool(dtPool).then((res) => {
+          if (res) {
+            setSingleLiquidityPos(res);
+            const parsedData: ILiquidityPosition[] = JSON.parse(localStoragePoolData);
+            const oldDataIndex = parsedData.findIndex(findPool);
+            parsedData.splice(oldDataIndex, 1, res);
+            setAllStakedPools(parsedData);
+          }
+        });
       } else {
         updateSingleStakePool(dtPool).then((res) => {
-          if (res) setAllStakedPools([res]);
+          if (res) {
+            setAllStakedPools([res]);
+            setSingleLiquidityPos(res);
+          }
         });
       }
     }
@@ -52,7 +67,7 @@ export default function useLiquidityPos(
 
   const nextToImport = useRef(importPool);
   useEffect(() => {
-    if (importPool && setImportPool && chainId && !loading) {
+    if (importPool && chainId && !loading) {
       updateSingleStakePool(importPool)
         .then((res) => {
           if (res && allStakedPools) {
@@ -70,7 +85,7 @@ export default function useLiquidityPos(
         })
         .catch(console.error)
         .finally(() => {
-          setImportPool(nextToImport.current);
+          if (setImportPool) setImportPool(nextToImport.current);
           setLoading(false);
         });
     } else if (loading) {

@@ -8,11 +8,11 @@ import {
   approveTransactions,
   checkBalance,
   confirmAndCloseTxDoneModal,
-  confirmSwapModal,
   confirmTokensClearedAfterTrade,
   executeTransaction,
   reloadOrContinue,
   setUpSwap,
+  navToTradeXFromLanding,
 } from "../../utils";
 
 describe("Execute Standard Trades on Trade", () => {
@@ -29,6 +29,7 @@ describe("Execute Standard Trades on Trade", () => {
       browser = tools?.browser;
       metamask = tools?.metamask;
     }
+    await navToTradeXFromLanding(page);
     await setupDataX(page, metamask, "rinkeby", false);
   });
 

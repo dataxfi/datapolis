@@ -735,7 +735,6 @@ export async function confirmSwapModal(page: puppeteer.Page, metamask: dappeteer
 
   await page.waitForSelector("#confirmSwapModalBtn");
   await page.click("#confirmSwapModalBtn");
-  console.log("AWEHOgiohgei");
 
   await metamask.page.bringToFront();
   await metamask.page.bringToFront();
@@ -1014,9 +1013,9 @@ export async function confirmTokensClearedAfterTrade(page: puppeteer.Page) {
 
 export async function confirmInputClearedAfterStake(page: puppeteer.Page) {
   await page.waitForSelector("#executeStake");
-  await page.waitForFunction("document.querySelector('#executeStake').innerText === 'Enter OCEAN Amount'");
+  await page.waitForFunction("document.querySelector('#executeStake').innerText === 'Select a Token'", {timeout:3000});
   await page.waitForSelector("#stakeAmtInput");
-  await page.waitForFunction("document.querySelector('#stakeAmtInput').value === '0'");
+  await page.waitForFunction("document.querySelector('#stakeAmtInput').value === '0'", {timeout:3000});
 }
 
 export async function confirmInputClearedAfterUnstake(page: puppeteer.Page) {

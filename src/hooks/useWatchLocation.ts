@@ -1,9 +1,9 @@
 import { useContext, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
-
+import BigNumber from "bignumber.js"
 export default function useWatchLocation() {
-  const { setLocation, setToken1, setToken2, token1, token2, tokensCleared, accountId } = useContext(GlobalContext);
+  const { setLocation, token2, tokensCleared, accountId, showConfirmModal, setShowConfirmModal, setShowTxDone, lastTx, setToken1, token1, setToken2, location } = useContext(GlobalContext);
   const currentLocation = useLocation();
   const lastLocation = useRef(currentLocation);
   useEffect(() => {
@@ -52,4 +52,23 @@ export default function useWatchLocation() {
     initialAccount.current = accountId;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId]);
+
+  useEffect(() => {
+    if (lastTx && lastTx.status === "Indexing" && lastTx.txType !== "approve") {
+      if (showConfirmModal) {
+        setShowConfirmModal(false);
+        setShowTxDone(true);
+      }
+      if (location === "/stake/remove") {
+        setToken1({...token1, value: new BigNumber(0), percentage: new BigNumber(0)})
+      } else if(location === "/trade") {
+        setToken1(INITIAL_TOKEN_STATE);
+        setToken2(INITIAL_TOKEN_STATE);
+      } else if(location === "/stake") {
+        setToken2(INITIAL_TOKEN_STATE)
+        setToken1({...token1, value: new BigNumber(0)})
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastTx]);
 }

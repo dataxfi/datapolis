@@ -13,6 +13,8 @@ import {
   setupUnstake,
   executeTransaction,
   awaitUpdateShares,
+  navToTradeXFromLanding,
+  acceptCookies,
 } from "../../utils";
 import BigNumber from "bignumber.js";
 describe("Execute Standard Trades on Stake", () => {
@@ -30,6 +32,9 @@ describe("Execute Standard Trades on Stake", () => {
       browser = tools?.browser;
       metamask = tools?.metamask;
     }
+    await page.setViewport({ width: 1039, height: 913 });
+    await acceptCookies(page)
+    await navToTradeXFromLanding(page)
     await setupDataX(page, metamask, "rinkeby", false);
     initialShares = await navToRemoveStake(page, "SAGKRI-94");
   });

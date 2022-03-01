@@ -62,8 +62,8 @@ const Stake = () => {
   const [yourShares, setYourShares] = useState<BigNumber>(new BigNumber(0));
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
   const [importPool, setImportPool] = useState<string>();
+  
   //hooks
-  // useTxModalToggler(txReceipt, setTxReceipt);
   useLiquidityPos(importPool, setImportPool);
   useAutoLoadToken();
 
@@ -495,7 +495,7 @@ const Stake = () => {
       <ConfirmModal
         show={showConfirmModal ? showConfirmModal : false}
         close={() => {
-          if (setShowConfirmModal) setShowConfirmModal(false);
+          setShowConfirmModal(false);
         }}
         txs={token2.info ? [`Stake ${token1.value?.toString()} OCEAN in ${token2.info.symbol} pool`] : []}
       />

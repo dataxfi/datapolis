@@ -8,7 +8,6 @@ import OutsideClickHandler from "react-outside-click-handler";
 import ConfirmSwapModal from "./ConfirmSwapModal";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
-import useTxModalToggler from "../hooks/useTxModalToggler";
 import errorMessages from "../utils/errorMessages";
 import { MoonLoader } from "react-spinners";
 import BigNumber from "bignumber.js";
@@ -74,8 +73,6 @@ const Swap: React.FC = () => {
   const [swap, setSwap] = useState<boolean>(false);
 
   //hooks
-  useTxModalToggler();
-  // const tokensCleared = useWatchLocation()
 
   useEffect(() => {
     getButtonProperties();
@@ -85,8 +82,6 @@ const Swap: React.FC = () => {
   let controller = new AbortController();
   useEffect(() => {
     if (!tokensCleared.current) return;
-    console.log(token1?.info && token2?.info && accountId && !clearingTokens && ocean);
-
     if (token1?.info && token2?.info && accountId && !clearingTokens && ocean) {
       updateBalance(token1.info.address)
         .then((balance) => {

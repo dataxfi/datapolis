@@ -8,7 +8,6 @@ import TransactionDoneModal from "./TransactionDoneModal";
 import UserMessage from "./UserMessage";
 import { toFixed18, toFixed5 } from "../utils/equate";
 import { MoonLoader, PulseLoader } from "react-spinners";
-import useTxModalToggler from "../hooks/useTxModalToggler";
 import errorMessages from "../utils/errorMessages";
 import { DebounceInput } from "react-debounce-input";
 import useLiquidityPos from "../hooks/useLiquidityPos";
@@ -77,8 +76,7 @@ const RemoveAmount = () => {
   }
 
   //hooks
-  useTxModalToggler();
-  useLiquidityPos();
+  useLiquidityPos(token1.info?.pool);
   useAutoLoadToken();
 
   useEffect(() => {
@@ -187,6 +185,7 @@ const RemoveAmount = () => {
 
   async function maxUnstakeHandler() {
     if (!ocean || !singleLiquidityPos) return;
+    setCalculating(true)
     let max: IMaxUnstake | void;
     maxUnstake ? (max = maxUnstake) : (max = await getMaxUnstake());
     console.log("Max unstake is set at:", max);
@@ -218,6 +217,8 @@ const RemoveAmount = () => {
       }
     } catch (error) {
       console.error(error);
+    }finally{
+      setCalculating(false)
     }
   }
 
@@ -235,7 +236,7 @@ const RemoveAmount = () => {
       const txReceipt = await ocean.unstakeOcean(
         accountId,
         singleLiquidityPos.address,
-        token1.value.toFixed(18),
+        token1.value.dp(5).toString(),
         singleLiquidityPos.shares
       );
 
@@ -329,11 +330,11 @@ const RemoveAmount = () => {
                   </div>
                   <div>
                     <p id="sharesDisplay" className="text-sm text-type-400 whitespace-nowrap text-right">
-                      {Number(singleLiquidityPos?.shares) === 0
+                      {singleLiquidityPos? Number(singleLiquidityPos?.shares) === 0
                         ? "Shares: 0"
                         : Number(singleLiquidityPos?.shares) > 0.001
                         ? `Shares: ${toFixed5(singleLiquidityPos?.shares)}`
-                        : "Shares: < 0.001"}
+                        : "Shares: < 0.001" : ". . ."}
                     </p>
                     <div className="text-sm text-type-300 grid grid-flow-col justify-end gap-2">
                       <Button
@@ -383,7 +384,7 @@ const RemoveAmount = () => {
                     >
                       {token1.value.lt(new BigNumber(0.00001)) ? 0 : token1.value.toString() || 0}
                     </p>
-                    <p className="text-xs text-type-100">{singleLiquidityPos?.token2Info.symbol}</p>
+                    <p className="text-xs text-type-100">{singleLiquidityPos?.token1Info.symbol}</p>
                   </div>
                 </div>
               </div>
