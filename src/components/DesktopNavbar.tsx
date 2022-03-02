@@ -50,7 +50,7 @@ const DesktopNavbar = ({
         </div>
         <div className="grid grid-flow-col gap-4 items-center">
           <PendingTxsIndicator />
-          <div className="hidden md:block capitalize border border-type-500 text-type-200 rounded-md px-4 py-1 hm-box bg-black bg-opacity-75">
+          <div className="hidden md:block capitalize border border-gray-500 text-gray-200 rounded-md px-4 py-1 hm-box bg-black bg-opacity-75">
             <h3>{network}</h3>
           </div>
           <div className="hidden md:block">
@@ -58,7 +58,7 @@ const DesktopNavbar = ({
               id={`${accountId ? "d-view-txs-btn" : "d-wallet-button"}`}
               text={accountId ? truncateId() : buttonText}
               onClick={() => handleModalOrConnect()}
-              classes="hm-btn hm-btn-light hm-box border border-type-500"
+              classes="hm-btn hm-btn-light hm-box border border-gray-500"
             />
           </div>
         </div>

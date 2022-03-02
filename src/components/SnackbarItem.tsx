@@ -62,7 +62,7 @@ const SnackbarItem = ({ tx, setCurrentNot }: { tx: ITxDetails; setCurrentNot: Fu
         <div className="grid grid-flow-col gap-4 items-center">
           <IoCheckboxOutline size="24" className="text-city-blue" />
           <div>
-            {/* <p className="text-type-100 text-sm">{lastTx.txType}</p> */}
+            {/* <p className="text-gray-100 text-sm">{lastTx.txType}</p> */}
             <p>
               {tx.txType === "stake" && tx.token2.info
                 ? `Stake ${new BigNumber(tx.token1.value).dp(5).toString()} OCEAN in ${
@@ -76,7 +76,7 @@ const SnackbarItem = ({ tx, setCurrentNot }: { tx: ITxDetails; setCurrentNot: Fu
                     tx.token1.info?.symbol
                   } for ${new BigNumber(tx.token2.value).dp(5).toString()} ${tx.token2.info?.symbol}`}
             </p>
-            <p className="text-type-300 text-sm">
+            <p className="text-gray-300 text-sm">
               <a target="_blank" rel="noreferrer" href={url} className="hover:text-city-blue">
                 View on explorer
               </a>

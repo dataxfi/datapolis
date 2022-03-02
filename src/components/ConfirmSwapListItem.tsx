@@ -2,10 +2,10 @@ const ConfirmSwapListItem = ({name, value, valueClass}: {name: string, value: st
     return (
         <div id={`swapListItem-${name}`} className="flex justify-between mt-2">
             <div>
-                <p className="text-type-300 text-sm">{name}</p>
+                <p className="text-gray-300 text-sm">{name}</p>
             </div>
             <div>
-                <p id={`swapListValue-${name}`} className={"text-sm " + (valueClass ? valueClass:"text-type-100")}>{value}</p>
+                <p id={`swapListValue-${name}`} className={"text-sm " + (valueClass ? valueClass:"text-gray-100")}>{value}</p>
             </div>
         </div>
     )

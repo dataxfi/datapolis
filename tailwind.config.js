@@ -57,10 +57,10 @@ module.exports = {
         dataXstake: 'url("./assets/StakeX.jpeg")',
       },
       colors: {
-        primary: colors.coolGray,
+        primary: colors.gray,
         secondary: colors.indigo,
         tertiary: colors.sky,
-        type: colors.warmGray,
+        gray: colors.stone,
         background: colors.black,
         yellow: {
           DEFAULT: "#f3c429",

@@ -18,7 +18,7 @@ const TransactionDoneModal = ({
           id="transactionDoneModalCloseBtn"
             onClick={() => close()}
             size={28}
-            className="text-type-200"
+            className="text-gray-200"
             role="button"
           />
         </div>
@@ -27,7 +27,7 @@ const TransactionDoneModal = ({
           <BsCheckCircle size={56} className="text-city-blue" />
         </div>
         <div>
-          <p className="text-center text-type-100 text-lg">
+          <p className="text-center text-gray-100 text-lg">
             Transaction Processed
           </p>
           <p className="text-blue-400 text-center mt-1">

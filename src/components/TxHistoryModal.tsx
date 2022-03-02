@@ -144,7 +144,7 @@ function TxHistoryModal() {
               setShowTxHistoryModal(false);
             }}
             size={28}
-            className="text-type-200"
+            className="text-gray-200"
             role="button"
           />
         </div>

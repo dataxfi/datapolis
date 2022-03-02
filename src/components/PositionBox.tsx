@@ -3,7 +3,7 @@ const PositionBox = () => {
   return (
     <div>
       <div className="p-4 bg-primary-800 rounded-lg max-w-2xl mx-auto hm-box">
-        <p className="text-type-100 text-lg">Your position</p>
+        <p className="text-gray-100 text-lg">Your position</p>
         <div className="flex justify-between mt-4 items-center">
           <div className="grid grid-flow-col gap-4 items-center">
             <img
@@ -19,32 +19,32 @@ const PositionBox = () => {
             <p className="text-xl">KNC/ETH</p>
           </div>
           <div>
-            <p className="text-type-100 text-sm">
-              1.311 <span className="text-type-400">Pool tokens</span>{" "}
+            <p className="text-gray-100 text-sm">
+              1.311 <span className="text-gray-400">Pool tokens</span>{" "}
             </p>
           </div>
         </div>
         <div className="grid grid-cols-2 justify-between bg-primary-900 rounded-lg p-4 mt-6">
           <div>
-            <p className="text-type-100 text-sm">Your pool share</p>
+            <p className="text-gray-100 text-sm">Your pool share</p>
           </div>
           <div className="justify-self-end">
-            <p className="text-type-100 text-sm">100.0000000%</p>
+            <p className="text-gray-100 text-sm">100.0000000%</p>
           </div>
           <div>
-            <p className="text-type-100 text-sm">KNC</p>
+            <p className="text-gray-100 text-sm">KNC</p>
           </div>
           <div className="justify-self-end">
-            <p className="text-type-100 text-sm">
-              7.96503 <span className="text-type-400">KNC</span>
+            <p className="text-gray-100 text-sm">
+              7.96503 <span className="text-gray-400">KNC</span>
             </p>
           </div>
           <div>
-            <p className="text-type-100 text-sm">ETH</p>
+            <p className="text-gray-100 text-sm">ETH</p>
           </div>
           <div className="justify-self-end">
-            <p className="text-type-100 text-sm">
-              0.16099 <span className="text-type-400">ETH</span>
+            <p className="text-gray-100 text-sm">
+              0.16099 <span className="text-gray-400">ETH</span>
             </p>
           </div>
         </div>

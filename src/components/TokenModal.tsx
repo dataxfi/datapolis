@@ -65,14 +65,14 @@ const TokenModal = ({ close, onClick, otherToken }: { close: Function; onClick: 
     >
       <div className="p-2 bg-background border-primary-500 border rounded-lg hm-box mx-3">
         <div className="flex justify-between items-center">
-          <p className="mb-0 text-type-100 text-2xl pl-2">{text.T_SELECT_TOKEN}</p>
+          <p className="mb-0 text-gray-100 text-2xl pl-2">{text.T_SELECT_TOKEN}</p>
           <MdClose
             id="closeTokenModalBtn"
             role="button"
             onClick={() => {
               close();
             }}
-            className="text-type-100 text-2xl"
+            className="text-gray-100 text-2xl"
           />
         </div>
         <div className="mt-4">
@@ -81,7 +81,7 @@ const TokenModal = ({ close, onClick, otherToken }: { close: Function; onClick: 
             onChange={(e) => searchToken(e.target.value)}
             type="text"
             placeholder="Search token"
-            className="px-4 py-2 h-full w-full rounded-lg bg-primary-900 text-base outline-none focus:placeholder-type-200 placeholder-type-400"
+            className="px-4 py-2 h-full w-full rounded-lg bg-primary-900 text-base outline-none focus:placeholder-gray-200 placeholder-gray-400"
           />
         </div>
         {loading ? (

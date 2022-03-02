@@ -60,19 +60,19 @@ const ConfirmSwapModal = ({
       >
         <div className="py-8 px-4 md:px-8 bg-black bg-opacity-95 border rounded-lg hm-box mx-3 md:mx-auto">
           <div className="flex justify-between items-center">
-            <p className="text-type-300 text-xl">Confirm swap</p>
+            <p className="text-gray-300 text-xl">Confirm swap</p>
             <BsX id="closeConfrimSwapModalbtn" onClick={() => close()} role="button" size={28} />
           </div>
 
           <div className="mt-4">
             <ConfirmSwapItem img={token1.info.logoURI} value={token1.value.dp(5).toString()} name={token1.info.symbol} />
-            <BsArrowDown className="ml-2 my-2 text-type-300" size={24} />
+            <BsArrowDown className="ml-2 my-2 text-gray-300" size={24} />
             <ConfirmSwapItem img={token2.info.logoURI} value={token2.value.dp(5).toString()} name={token2.info.symbol} />
           </div>
 
           <div className="mt-6 flex justify-between">
-            <p className="text-type-400 text-sm">Exchange rate</p>
-            <p id="confirmSwapModalSwapRate" className="text-type-400 text-sm grid grid-flow-col items-center gap-2">
+            <p className="text-gray-400 text-sm">Exchange rate</p>
+            <p id="confirmSwapModalSwapRate" className="text-gray-400 text-sm grid grid-flow-col items-center gap-2">
               1 {token1?.symbol} = {postExchange.dp(5).toString()} {token2.info.symbol}
               <BsShuffle size={12} />
             </p>
@@ -89,7 +89,7 @@ const ConfirmSwapModal = ({
           </div>
 
           <div className="mt-4">
-            <p className="text-type-300 text-sm">
+            <p className="text-gray-300 text-sm">
               You will receive at least {minReceived.dp(5).toString()} {token2.info.symbol} or the transaction will revert.
             </p>
           </div>

@@ -24,7 +24,7 @@ const ConfirmModal = ({
               }}
               role="button"
               size="28"
-              className="text-type-200 text-right"
+              className="text-gray-200 text-right"
               id="closeConfrimModalBtn"
             />
           </div>
@@ -32,18 +32,18 @@ const ConfirmModal = ({
             <Loader size={48} />
           </div>
           <div className="text-center">
-            <p id={`confirmTxLength-${txs.length}`} className="text-type-100 text-lg mt-2">
+            <p id={`confirmTxLength-${txs.length}`} className="text-gray-100 text-lg mt-2">
               You will have to confirm 1 transaction
             </p>
             {txs.map((tx: string, index: number) => (
               <div id="confirmItem" key={`index${index}`} className="flex flex-row">
-                <p className="text-type-200  text-left mt-2 mr-2">{`${
+                <p className="text-gray-200  text-left mt-2 mr-2">{`${
                   index + 1
                 }.`}</p>
-                <p className="text-type-200  text-left mt-2">{tx}</p>
+                <p className="text-gray-200  text-left mt-2">{tx}</p>
               </div>
             ))}
-            <p className="mt-8 text-type-400 text-sm">
+            <p className="mt-8 text-gray-400 text-sm">
               Confirm this transaction in your wallet
             </p>
           </div>

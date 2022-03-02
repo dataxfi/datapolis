@@ -41,10 +41,10 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
               alt=""
               width="40px"
             />
-            <p className="text-type-100 text-sm md:text-lg">{`${token2Info.symbol}/${token1Info.symbol}`}</p>
+            <p className="text-gray-100 text-sm md:text-lg">{`${token2Info.symbol}/${token1Info.symbol}`}</p>
           </div>
           <div className="grid grid-flow-col gap-1 items-center">
-            <p className="hidden lg:block text-type-200 text-sm">Manage</p>
+            <p className="hidden lg:block text-gray-200 text-sm">Manage</p>
             {visible ? <BsChevronDown size={14} /> : <BsChevronUp size={14} />}
           </div>
         </div>
@@ -53,50 +53,50 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
             <div className="py-2 px-4 bg-black bg-opacity-70 rounded-lg">
               <div className="grid grid-cols-2 justify-between">
                 <div>
-                  <p id="totalSharesTitle" className="text-type-300 text-sm">
+                  <p id="totalSharesTitle" className="text-gray-300 text-sm">
                     Total Shares in Pool
                   </p>
                 </div>
                 <div className="justify-self-end">
-                  <p id="totalShares" className="text-type-100 text-sm ">
+                  <p id="totalShares" className="text-gray-100 text-sm ">
                     {toFixed5(totalPoolShares)}
                   </p>
                 </div>
                 <div>
-                  <p id="yourSharesTitle" className="text-type-300 text-sm">
+                  <p id="yourSharesTitle" className="text-gray-300 text-sm">
                     Your Shares in Pool
                   </p>
                 </div>
                 <div className="justify-self-end">
-                  <p id="yourShares" className="text-type-100 text-sm ">
+                  <p id="yourShares" className="text-gray-100 text-sm ">
                     {toFixed5(shares)}
                   </p>
                 </div>
                 <div>
-                  <p id="totalPooled1Title" className="text-type-300 text-sm">
+                  <p id="totalPooled1Title" className="text-gray-300 text-sm">
                     Total Pooled {token2Info.symbol}
                   </p>
                 </div>
                 <div id="totalPooled1" className="justify-self-end">
-                  <p className="text-type-100 text-sm ">{toFixed5(dtAmount)}</p>
+                  <p className="text-gray-100 text-sm ">{toFixed5(dtAmount)}</p>
                 </div>
                 <div>
-                  <p id="totalPooled2Title" className="text-type-300 text-sm">
+                  <p id="totalPooled2Title" className="text-gray-300 text-sm">
                     Total Pooled {token1Info.symbol}
                   </p>
                 </div>
                 <div className="justify-self-end">
-                  <p id="totalPooled2" className="text-type-100 text-sm ">
+                  <p id="totalPooled2" className="text-gray-100 text-sm ">
                     {toFixed5(oceanAmount)}
                   </p>
                 </div>
                 <div id="yourSharesPercTitle">
-                  <p id="yourSharesPerc" className="text-type-300 text-sm">
+                  <p id="yourSharesPerc" className="text-gray-300 text-sm">
                     Your pool share
                   </p>
                 </div>
                 <div className="justify-self-end">
-                  <p className="text-type-100 text-sm ">
+                  <p className="text-gray-100 text-sm ">
                     {Number(yourPoolSharePerc) >= 1
                       ? `${toFixed5(yourPoolSharePerc)} %`
                       : Number(yourPoolSharePerc) === 0

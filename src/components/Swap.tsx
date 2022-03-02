@@ -661,9 +661,9 @@ export default function Swap() {
                   }}
                 >
                   <div className="bg-black rounded-lg border bg-opacity-90 border-primary-500 p-2 w-full">
-                    <p className="text-type-100">Transaction settings</p>
+                    <p className="text-gray-100">Transaction settings</p>
                     <div className="mt-2">
-                      <p className="text-type-300 text-sm">Slippage tolerance</p>
+                      <p className="text-gray-300 text-sm">Slippage tolerance</p>
                       <div className="grid grid-flow-col gap-2 items-center">
                         <div className="flex justify-between focus:border-white bg-primary-700 rounded-lg items-center px-2 py-1">
                           <input
@@ -673,14 +673,14 @@ export default function Swap() {
                             value={slippage.dp(5).toString()}
                             className="text-lg bg-primary-700 outline-none rounded-l-lg w-32"
                           />
-                          <p className="text-type-200 text-lg">%</p>
+                          <p className="text-gray-200 text-lg">%</p>
                         </div>
                         <div>
                           <Button
                             id="autoSlippageBtn"
                             onClick={() => setSlippage(new BigNumber(1))}
                             text="Auto"
-                            classes="text-type-300 p-2 bg-primary-800 rounded-lg"
+                            classes="text-gray-300 p-2 bg-primary-800 rounded-lg"
                           />
                         </div>
                       </div>
@@ -737,7 +737,7 @@ export default function Swap() {
           />
 
           {token1?.info && token2?.info && postExchange.isNaN && postExchange.gt(0) ? (
-            <div className="my-4 p-2 modalSelectBg flex justify-between text-type-400 text-sm rounded-lg">
+            <div className="my-4 p-2 modalSelectBg flex justify-between text-gray-400 text-sm rounded-lg">
               <p>Exchange rate</p>
               <p>
                 1 {token1.info.symbol} = {postExchange.dp(5).toString()} {`${" "}${token2.info.symbol}`}

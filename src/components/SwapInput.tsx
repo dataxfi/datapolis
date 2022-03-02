@@ -77,18 +77,18 @@ const SwapInput = ({
               connectWalletOrShowlist();
             }}
           >
-            <p className="text-xs text-type-200">{title}</p>
+            <p className="text-xs text-gray-200">{title}</p>
             {value && tokensCleared.current ? (
-              <span className="text-sm sm:text-2xl text-type-200 font-bold grid grid-flow-col items-center gap-1 ">
+              <span className="text-sm sm:text-2xl text-gray-200 font-bold grid grid-flow-col items-center gap-1 ">
                 <span id={`selectedToken${pos}`} className="text-sm sm:text-lg">
                   {value.symbol}
                 </span>
-                <BsChevronDown className="text-type-200" size="16" />
+                <BsChevronDown className="text-gray-200" size="16" />
               </span>
             ) : (
               <p
                 id="selectTokenBtn"
-                className="text-xs text-type-100 border-type-300 border rounded-full px-2 py-1 mt-1 hover:bg-gray-600"
+                className="text-xs text-gray-100 border-gray-300 border rounded-full px-2 py-1 mt-1 hover:bg-gray-600"
               >
                 Select token
               </p>
@@ -113,13 +113,13 @@ const SwapInput = ({
                 onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
                 element={WrappedInput}
                 type="number"
-                className="h-full w-full rounded-lg bg-opacity-0 bg-white text-2xl outline-none overflow-ellipsis focus:placeholder-type-200 placeholder-type-400"
+                className="h-full w-full rounded-lg bg-opacity-0 bg-white text-2xl outline-none overflow-ellipsis focus:placeholder-gray-200 placeholder-gray-400"
                 placeholder="0.0"
                 value={Number(num) > 0 ? num : ""}
               />
               <div>
                 {balance ? (
-                  <p id={`token${pos}-balance`} className="text-sm text-type-400 whitespace-nowrap text-right">
+                  <p id={`token${pos}-balance`} className="text-sm text-gray-400 whitespace-nowrap text-right">
                     Balance: {balance.dp(3).toString()}
                   </p>
                 ) : (
@@ -127,12 +127,12 @@ const SwapInput = ({
                 )}
                 {/* {
                                 value ?
-                                <p className="text-type-300 text-sm text-right">
+                                <p className="text-gray-300 text-sm text-right">
                                 =$320.08
                                 </p> : <></>
                             } */}
                 {pos === 2 ? null : balance ? (
-                  <div className="text-sm text-type-300 grid grid-flow-col justify-end gap-2">
+                  <div className="text-sm text-gray-300 grid grid-flow-col justify-end gap-2">
                     <Button
                       id="maxTrade"
                       onClick={() => {
@@ -140,7 +140,7 @@ const SwapInput = ({
                       }}
                       text="Max"
                       classes={`${
-                        checksPass() ? "border-type-300 hover:bg-primary-600" : "text-type-600 border-type-600"
+                        checksPass() ? "border-gray-300 hover:bg-primary-600" : "text-gray-600 border-gray-600"
                       } px-2 py-0 border rounded-full text-xs`}
                       disabled={checksPass() ? false : true}
                     />
@@ -167,7 +167,7 @@ const SwapInput = ({
           </div>
 
           {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
-          {/* <input onChange={(e) => updateNum(e.target.value)} onWheel={ event => event.currentTarget.blur() } onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()} type="number" className="h-full w-full rounded-lg bg-primary-900 text-3xl px-2 outline-none focus:placeholder-type-200 placeholder-type-400" placeholder="0.0" value={num} /> */}
+          {/* <input onChange={(e) => updateNum(e.target.value)} onWheel={ event => event.currentTarget.blur() } onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()} type="number" className="h-full w-full rounded-lg bg-primary-900 text-3xl px-2 outline-none focus:placeholder-gray-200 placeholder-gray-400" placeholder="0.0" value={num} /> */}
         </div>
       </div>
       {showModal ? (

@@ -47,28 +47,28 @@ const StakeSelect = () => {
             >
               {token2?.info ? (
                 <div>
-                  <p className="text-type-100 text-xs">DataToken</p>
-                  <span className="text-type-200 font-bold grid grid-flow-col items-center gap-1">
+                  <p className="text-gray-100 text-xs">DataToken</p>
+                  <span className="text-gray-200 font-bold grid grid-flow-col items-center gap-1">
                     <span id="stakeToken" className="text-xs sm:text-lg">{token2.info.symbol}</span>
-                    <BsChevronDown className="text-type-200" size="16" />
+                    <BsChevronDown className="text-gray-200" size="16" />
                   </span>
                 </div>
               ) : (
-                <p className="text-xs text-type-100 border-type-300 border rounded-full px-2 py-1 mt-1 hover:bg-gray-400">Select token</p>
+                <p className="text-xs text-gray-100 border-gray-300 border rounded-full px-2 py-1 mt-1 hover:bg-gray-400">Select token</p>
               )}
             </div>
           </div>
           <div className="col-span-3 ml-4 mt-3 md:mt-0">
             {token2?.info ? (
               <div>
-                <p className="text-type-100 uppercase text-xs md:text-base">{token2.info.name}</p>
+                <p className="text-gray-100 uppercase text-xs md:text-base">{token2.info.name}</p>
                 <div className="grid grid-flow-col justify-start gap-4 text-sm">
                   <a
                     id="stakePoolLink"
                     href={config?.default.explorerUri + "/address/" + token2.info.pool}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-white grid grid-flow-col items-center gap-2 justify-start border-b border-type-300"
+                    className="text-white grid grid-flow-col items-center gap-2 justify-start border-b border-gray-300"
                   >
                     Pool <BsBoxArrowUpRight />{" "}
                   </a>
@@ -77,7 +77,7 @@ const StakeSelect = () => {
                     href={config?.default.explorerUri + "/address/" + token2.info.address}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-white grid grid-flow-col items-center gap-2 justify-start border-b border-type-300"
+                    className="text-white grid grid-flow-col items-center gap-2 justify-start border-b border-gray-300"
                   >
                     Token <BsBoxArrowUpRight />{" "}
                   </a>

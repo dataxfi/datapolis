@@ -14,7 +14,7 @@ export default function PendingTxsIndicator() {
       onClick={() => {
         if (setShowTxHistoryModal) setShowTxHistoryModal(true);
       }}
-      className="flex items-center capitalize border border-type-500 text-type-200 rounded-md pl-4 py-1 hm-box transition-all ease-in-out transform hover:bg-primary-400 hover:bg-opacity-20"
+      className="flex items-center capitalize border border-gray-500 text-gray-200 rounded-md pl-4 py-1 hm-box transition-all ease-in-out transform hover:bg-primary-400 hover:bg-opacity-20"
     >
       <div className="pr-3 flex flex-row items-center">
         {`${pendingTxs.length} Pending`}{" "}

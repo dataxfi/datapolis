@@ -338,8 +338,8 @@ const Stake = () => {
                     alt=""
                   />
                   <div>
-                    <p className="text-xs text-type-200">Token</p>
-                    <span className="xs:text-sm sm:text-2xl text-type-200 font-bold grid grid-flow-col items-center gap-1">
+                    <p className="text-xs text-gray-200">Token</p>
+                    <span className="xs:text-sm sm:text-2xl text-gray-200 font-bold grid grid-flow-col items-center gap-1">
                       <span className="text-sm sm:text-lg">OCEAN</span>
                     </span>
                   </div>
@@ -355,7 +355,7 @@ const Stake = () => {
                       onWheel={(event: any) => event.currentTarget.blur()}
                       onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
                       type="number"
-                      className={`w-full rounded-lg mr-1 bg-black bg-opacity-0 text-2xl px-2 outline-none focus:placeholder-type-200 placeholder-type-400 ${
+                      className={`w-full rounded-lg mr-1 bg-black bg-opacity-0 text-2xl px-2 outline-none focus:placeholder-gray-200 placeholder-gray-400 ${
                         token2 ? "text-white" : "text-gray-500"
                       }`}
                       placeholder="0.0"
@@ -363,11 +363,11 @@ const Stake = () => {
                       element={WrappedInput}
                     />
                     <div>
-                      <p id="oceanBalance" className="text-sm text-type-400 whitespace-nowrap text-right mb-1">
+                      <p id="oceanBalance" className="text-sm text-gray-400 whitespace-nowrap text-right mb-1">
                         Balance: {token1.balance ? token1.balance.dp(3).toString() : "-"}
                       </p>
 
-                      <div className="text-sm text-type-300 grid grid-flow-col justify-end gap-2">
+                      <div className="text-sm text-gray-300 grid grid-flow-col justify-end gap-2">
                         <Button
                           onClick={() => {
                             setMaxStake();
@@ -377,7 +377,7 @@ const Stake = () => {
                           classes={`px-2 py-0 lg:w-20 border rounded-full text-xs ${
                             token1.balance.isNaN() || token1.balance.eq(0) || !accountId || !token2.info
                               ? "text-gray-600 border-gray-600"
-                              : "border-type-300 hover:bg-primary-600"
+                              : "border-gray-300 hover:bg-primary-600"
                           }`}
                           disabled={token1.balance && accountId && token2.info ? false : true}
                         />
@@ -387,15 +387,15 @@ const Stake = () => {
                 </div>
               </div>
             </div>
-            <div className="flex border border-type-600 mt-4 rounded-lg p-2 w-full">
+            <div className="flex border border-gray-600 mt-4 rounded-lg p-2 w-full">
               <div className="my-1 mr-4">
-                <p className="text-type-300 text-xs">Swap Rate</p>
+                <p className="text-gray-300 text-xs">Swap Rate</p>
                 {token2.info && oceanToDt && dtToOcean && !loading ? (
                   <div id="swapRate">
-                    <p className="text-type-200 text-xs">
+                    <p className="text-gray-200 text-xs">
                       {toFixed5(oceanToDt)} OCEAN per {token2.info.symbol}
                     </p>
-                    <p className="text-type-200 text-xs">
+                    <p className="text-gray-200 text-xs">
                       {toFixed5(dtToOcean)} {token2.info.symbol} per OCEAN
                     </p>
                   </div>
@@ -404,11 +404,11 @@ const Stake = () => {
                 )}
               </div>
               <div className="my-1 mr-4">
-                <p className="text-type-300 text-xs">Pool liquidity</p>
+                <p className="text-gray-300 text-xs">Pool liquidity</p>
                 {token2.info && poolLiquidity && !loading ? (
                   <div id="poolLiquidity">
-                    <p className="text-type-200 text-xs">{toFixed5(poolLiquidity?.oceanAmount)} OCEAN</p>
-                    <p className="text-type-200 text-xs">
+                    <p className="text-gray-200 text-xs">{toFixed5(poolLiquidity?.oceanAmount)} OCEAN</p>
+                    <p className="text-gray-200 text-xs">
                       {toFixed5(poolLiquidity?.dtAmount)} {token2.info.symbol}
                     </p>
                   </div>
@@ -417,11 +417,11 @@ const Stake = () => {
                 )}
               </div>
               <div className="my-1">
-                <p className="text-type-300 text-xs">Your liquidity</p>
+                <p className="text-gray-300 text-xs">Your liquidity</p>
                 {token2.info && yourLiquidity && !loading ? (
                   <div id="yourLiquidity">
-                    <p className="text-type-200 text-xs">{yourShares.dp(5).toString()} Shares</p>
-                    <p className="text-type-200 text-xs">{yourLiquidity.dp(5).toString()} OCEAN</p>
+                    <p className="text-gray-200 text-xs">{yourShares.dp(5).toString()} Shares</p>
+                    <p className="text-gray-200 text-xs">{yourLiquidity.dp(5).toString()} OCEAN</p>
                   </div>
                 ) : (
                   <div> - </div>

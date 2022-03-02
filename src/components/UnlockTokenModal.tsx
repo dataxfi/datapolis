@@ -128,7 +128,7 @@ export default function UnlockTokenModal({
               setShowUnlockTokenModal(false);
               setLastTx({ ...lastTx, status: "Failure" });
             }}
-            className="text-type-100 text-2xl"
+            className="text-gray-100 text-2xl"
           />
         </div>
         <div className="pb-5">

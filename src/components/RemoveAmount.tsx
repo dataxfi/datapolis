@@ -293,7 +293,7 @@ const RemoveAmount = () => {
                     width="40px"
                   />
                   {singleLiquidityPos ? (
-                    <p className="text-type-100 text-sm md:text-lg">
+                    <p className="text-gray-100 text-sm md:text-lg">
                       {token2.info.symbol}/{token1.info.symbol}
                     </p>
                   ) : (
@@ -303,7 +303,7 @@ const RemoveAmount = () => {
               </div>
               <div className="md:grid md:grid-cols-5 modalSelectBg p-2 rounded">
                 <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center">
-                  <p className="text-type-100">Amount to unstake</p>
+                  <p className="text-gray-100">Amount to unstake</p>
                 </div>
                 <div className="col-span-3 flex justify-between mt-3 md:mt-0 bg-black bg-opacity-70 rounded-lg p-1">
                   <div className="flex w-full items-center">
@@ -317,7 +317,7 @@ const RemoveAmount = () => {
                         onWheel={(event: any) => event.currentTarget.blur()}
                         onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
                         type="number"
-                        className="h-full w-24 rounded-lg bg-black  focus:text-white bg-opacity-0 text-2xl px-1 outline-none focus:placeholder-type-200 placeholder-type-400 text-right"
+                        className="h-full w-24 rounded-lg bg-black  focus:text-white bg-opacity-0 text-2xl px-1 outline-none focus:placeholder-gray-200 placeholder-gray-400 text-right"
                         placeholder="0.00"
                         value={token1.percentage?.dp(2).toString()}
                         disabled={inputDisabled}
@@ -329,14 +329,14 @@ const RemoveAmount = () => {
                     </span>
                   </div>
                   <div>
-                    <p id="sharesDisplay" className="text-sm text-type-400 whitespace-nowrap text-right">
+                    <p id="sharesDisplay" className="text-sm text-gray-400 whitespace-nowrap text-right">
                       {singleLiquidityPos? Number(singleLiquidityPos?.shares) === 0
                         ? "Shares: 0"
                         : Number(singleLiquidityPos?.shares) > 0.001
                         ? `Shares: ${toFixed5(singleLiquidityPos?.shares)}`
                         : "Shares: < 0.001" : ". . ."}
                     </p>
-                    <div className="text-sm text-type-300 grid grid-flow-col justify-end gap-2">
+                    <div className="text-sm text-gray-300 grid grid-flow-col justify-end gap-2">
                       <Button
                         id="maxUnstakeBtn"
                         onClick={() => {
@@ -347,7 +347,7 @@ const RemoveAmount = () => {
                         classes={`px-2 lg:w-24 py-0 border  rounded-full text-xs ${
                           inputDisabled || Number(singleLiquidityPos?.shares) === 0
                             ? "text-gray-700 border-gray-700"
-                            : "hover:bg-primary-600 border-type-300"
+                            : "hover:bg-primary-600 border-gray-300"
                         }`}
                       />
                     </div>
@@ -365,7 +365,7 @@ const RemoveAmount = () => {
               </div>
               <div className="flex modalSelectBg p-2 rounded items-center justify-between lg:justify-around">
                 <div className="w-max h-full mr-4 flex">
-                  <p className="text-type-100">You will receive</p>
+                  <p className="text-gray-100">You will receive</p>
                 </div>
                 <div className="bg-trade-darkBlue grid grid-flow-col gap-2 p-2 rounded-lg">
                   <div>
@@ -380,11 +380,11 @@ const RemoveAmount = () => {
                       data-test-max-ocean={maxUnstake?.OCEAN.dp(5).toString()}
                       id="oceanToReceive"
                       title={token1.value.toString()}
-                      className="text-type-100 w-20 overflow-hidden overflow-ellipsis whitespace-nowrap"
+                      className="text-gray-100 w-20 overflow-hidden overflow-ellipsis whitespace-nowrap"
                     >
                       {token1.value.lt(new BigNumber(0.00001)) ? 0 : token1.value.toString() || 0}
                     </p>
-                    <p className="text-xs text-type-100">{singleLiquidityPos?.token1Info.symbol}</p>
+                    <p className="text-xs text-gray-100">{singleLiquidityPos?.token1Info.symbol}</p>
                   </div>
                 </div>
               </div>
