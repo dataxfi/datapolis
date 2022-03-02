@@ -37,7 +37,7 @@ const SwapInput = ({
   max: BigNumber;
 }) => {
   const [showModal, setShowModal] = useState(false);
-  const { accountId, handleConnect } = useContext(GlobalContext);
+  const { accountId, handleConnect, tokensCleared } = useContext(GlobalContext);
 
   const tokenSelected = (token: Record<any, any>) => {
     setToken(token, pos, true);
@@ -52,20 +52,17 @@ const SwapInput = ({
     }
   }
 
-  // useEffect(() => {
-  //   if (value) setToken(value, pos, false);
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [accountId]);
-
   function checksPass() {
     return accountId && otherToken && value && balance.gt(0.00001);
   }
+  console.log(tokensCleared.current);
+  
 
   return (
     <div id={`${pos}-swapInput`} className="mt-4 rounded-xl">
       <div className="md:grid md:grid-cols-5 bg-city-blue bg-opacity-30 rounded-xl p-1">
         <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center p-1">
-          {value ? (
+          {value && tokensCleared.current ? (
             <img src={value.logoURI} className="w-10 h-10 rounded-md" alt="" />
           ) : (
             <div className="w-10 h-10 rounded-md bg-background flex justify-center items-center text-3xl">
@@ -81,7 +78,7 @@ const SwapInput = ({
             }}
           >
             <p className="text-xs text-type-200">{title}</p>
-            {value ? (
+            {value && tokensCleared.current ? (
               <span className="text-sm sm:text-2xl text-type-200 font-bold grid grid-flow-col items-center gap-1 ">
                 <span id={`selectedToken${pos}`} className="text-sm sm:text-lg">
                   {value.symbol}

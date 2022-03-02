@@ -88,28 +88,6 @@ describe("Execute Standard Trades on Trade", () => {
     await stdTradeFlow("SAGKRI-94", "OCEAN", "max", 1);
   });
 
-  // it("Trade All but .1 DT to OCEAN", async () => {
-  //   try {
-  //     reloadOrContinue(lastTestPassed, page);
-  //     await setUpSwap(page, "SAGKRI-94", "OCEAN", "max");
-  //     let set = true;
-  //     await page.waitForSelector("#token1-balance");
-  //     while (await page.evaluate('Number(document.querySelector("#token1-balance").innerText) > 0.1')) {
-  //       if (set === true) {
-  //         await approveTransactions(metamask, page, 2);
-  //         await confirmAndCloseTxDoneModal(page);
-  //         await confirmTokensClearedAfterTrade(page);
-  //         set = false;
-  //       } else {
-  //         await maxUnstakeSAGKRI();
-  //       }
-  //     }
-  //     lastTestPassed = true;
-  //   } catch (error) {
-  //     lastTestPassed = false;
-  //     throw error;
-  //   }
-  // });
 });
 
 // Test priority

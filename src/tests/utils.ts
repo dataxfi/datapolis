@@ -18,7 +18,7 @@ export async function setupPuppBrowser() {
   let page: puppeteer.Page;
   let browser: puppeteer.Browser;
   try {
-    browser = await puppeteer.launch({ headless: false, timeout: 5000 });
+    browser = await puppeteer.launch({ headless: false, timeout: 8000 });
     page = await browser.newPage();
     await page.goto("http://localhost:3000/");
     return { page, browser };
@@ -64,7 +64,6 @@ export async function setupDappBrowser(acct2: boolean = false) {
       metamaskVersion: "v10.8.1",
       headless: false,
       timeout: 5000,
-      ignoreDefaultArgs: ["--disable-popup-blocking", "--disable-extensions"],
     });
     console.log(
       `Setting up metamask with creds: \n Password: ${process.env.REACT_APP_T_ACCT_PASS} \n Seed: ${process.env.REACT_APP_T_ACCT_SEED}`
@@ -270,12 +269,8 @@ export async function swapTokens(page: puppeteer.Page) {
   await page.waitForSelector("#swapTokensBtn");
   await page.click("#swapTokensBtn");
 
-  //check all inputs reset
-  await page.waitForSelector("#token1-input");
-  await page.waitForFunction('document.querySelector("#token1-input").value === ""', { timeout: 2000 });
-  await page.waitForFunction('document.querySelector("#token2-input").value === ""', { timeout: 2000 });
-  await page.waitForFunction('document.querySelector("#token1-perc-input").value === "0"', { timeout: 2000 });
-  await page.waitForTimeout(1000);
+  await page.waitForFunction(`document.querySelector("#token1-balance").innerText.includes("${t2Bal}")`);
+  await page.waitForFunction(`document.querySelector("#token2-balance").innerText.includes("${t1Bal}")`);
   expect(t1Bal).toBe(await getBalanceInDapp(page, 2));
   expect(t2Bal).toBe(await getBalanceInDapp(page, 1));
 }
@@ -307,24 +302,19 @@ export async function swapOrSelect(page: puppeteer.Page, t1Symbol: string, t2Sym
 
   console.log(t1Symbol, t2Symbol, currentT1, currentT2);
   if (currentT1 && currentT2 && t1Symbol === currentT2 && t2Symbol === currentT1) {
-    console.log("Swapping 1");
     await swapTokens(page);
     return;
   } else if (currentT1 && t2Symbol === currentT1) {
-    console.log("Swapping 2");
     await swapTokens(page);
   } else if (currentT2 && t1Symbol === currentT2) {
-    console.log("Swapping 3");
     await swapTokens(page);
   }
 
   if (!currentT1 || t1Symbol !== currentT1) {
-    console.log("Selecting 1");
     await selectToken(page, t1Symbol, 1);
   }
 
   if (!currentT2 || t2Symbol !== currentT2) {
-    console.log("Selecting 2");
     await selectToken(page, t2Symbol, 2);
   }
 
@@ -358,10 +348,10 @@ export async function approveTransactions(metamask: dappeteer.Dappeteer, page: p
 
 export async function clickMaxTrade(page: puppeteer.Page) {
   await page.bringToFront();
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout(10000);
   await page.waitForSelector("#maxTrade");
   await page.click("#maxTrade");
-  await page.waitForFunction('Number(document.querySelector("#token1-input").value) > 0', { timeout: 5000 });
+  await page.waitForFunction('Number(document.querySelector("#token1-input").value) > 0', { timeout: 8000 });
 }
 
 export async function typeAmount(
@@ -382,12 +372,12 @@ export async function typeAmount(
     await page.waitForFunction(
       `Number(document.querySelector("#token${otherPos}-input").value) !== "${currentInput}"`,
       {
-        timeout: 5000,
+        timeout: 8000,
       }
     );
   } else if (Number(amount) > 0) {
     await page.waitForFunction(`Number(document.querySelector("#token${otherPos}-input").value) > 0`, {
-      timeout: 5000,
+      timeout: 8000,
     });
     if (increment) await incrementUntilValid(page, amount, t1Symbol, t2Symbol, 1);
   }
@@ -423,6 +413,7 @@ export async function setUpSwap(
   await swapOrSelect(page, t1Symbol, t2Symbol);
 
   if (amount === "max") {
+    await page.waitForTimeout(3000);
     await clickMaxTrade(page);
   } else {
     await typeAmount(page, amount, inputLoc, t1Symbol, t2Symbol);
@@ -469,8 +460,6 @@ export async function setUpSwap(
 export async function getPercInDapp(page: puppeteer.Page) {
   return new BigNumber(await page.evaluate('document.querySelector("#token1-perc-input").value'));
 }
-
-
 
 export async function evaluateMax(page: puppeteer.Page, t1Bal: BigNumber): Promise<IMaxEval> {
   //get max values for each token
@@ -583,19 +572,6 @@ async function assertTo3(page: puppeteer.Page, truth: string | number, id: strin
   await page.waitForSelector(id);
   let dappBal = await getBalanceInDapp(page, pos);
   console.log(dappBal, truth);
-
-  if (updating && Number(toFixed3(dappBal)) !== Number(toFixed3(truth))) {
-    // no-touchy!!
-    await page.waitForFunction(
-      (id: string, truth: string) =>
-        //@ts-ignore
-        // prettier-ignore
-        document.querySelector(id).innerText.match(/\:\s(.*)/)[1].replace(/[,]/, "").match(/^-?\d+(?:\.\d{0,3})?/)[0] === truth,
-      {},
-      id,
-      truth
-    );
-  }
   expect(Number(toFixed3(dappBal))).toBeCloseTo(Number(toFixed3(truth)), 3);
 }
 
@@ -628,7 +604,6 @@ export function getAfterColon(value: string) {
   if (match) return match[1].replace(commas, "");
 }
 
-
 /**
  * Return balance for token entered from dapp
  * @param metamask
@@ -651,7 +626,6 @@ export async function getBalanceInDapp(page: puppeteer.Page, pos: BalancePos): P
   balance = Number(number);
   return balance;
 }
-
 
 /**
  * Gets the execute button text for assertions.
@@ -862,7 +836,7 @@ export async function inputUnstakeAmt(page: puppeteer.Page, unstakeAmt: string, 
 
   if (unstakeAmt === "max") {
     await page.waitForSelector("#maxUnstakeBtn");
-    await page.waitForFunction('document.querySelector("#maxUnstakeBtn[disabled]") === null')
+    await page.waitForFunction('document.querySelector("#maxUnstakeBtn[disabled]") === null');
     await page.click("#maxUnstakeBtn");
     await page.waitForSelector("#unstakeAmtInput");
     await page.waitForFunction('Number(document.querySelector("#unstakeAmtInput").value) > 0');
@@ -945,7 +919,7 @@ export async function switchAccounts(
   await metamask.switchAccount(acct);
   await page.bringToFront();
   if (signDisclaimer) {
-    await forceSignDisclaimer(metamask, page)
+    await forceSignDisclaimer(metamask, page);
   }
 }
 
@@ -1008,14 +982,15 @@ export async function confirmAndCloseTxDoneModal(page: puppeteer.Page, timeout: 
 export async function confirmTokensClearedAfterTrade(page: puppeteer.Page) {
   await page.bringToFront();
   await page.waitForFunction('document.querySelectorAll("#selectTokenBtn").length === 2');
-  await page.waitForTimeout(500);
 }
 
 export async function confirmInputClearedAfterStake(page: puppeteer.Page) {
   await page.waitForSelector("#executeStake");
-  await page.waitForFunction("document.querySelector('#executeStake').innerText === 'Select a Token'", {timeout:3000});
+  await page.waitForFunction("document.querySelector('#executeStake').innerText === 'Select a Token'", {
+    timeout: 3000,
+  });
   await page.waitForSelector("#stakeAmtInput");
-  await page.waitForFunction("document.querySelector('#stakeAmtInput').value === '0'", {timeout:3000});
+  await page.waitForFunction("document.querySelector('#stakeAmtInput').value === '0'", { timeout: 3000 });
 }
 
 export async function confirmInputClearedAfterUnstake(page: puppeteer.Page) {

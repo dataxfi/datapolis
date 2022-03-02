@@ -33,17 +33,9 @@ function TxHistoryModal() {
 
   useEffect(() => {
     if (tx1 && tx2 && tx3 && tx4 && tx5 && accountId && chainId) {
-      const newTxHistory: ITxHistory = {
-        ...txHistory,
-        [tx1.txDateId]: tx1,
-        [tx2.txDateId]: tx2,
-        [tx3.txDateId]: tx3,
-        [tx4.txDateId]: tx4,
-        [tx5.txDateId]: tx5,
-      };
-      setTxHistory(newTxHistory);
-      setLocalTxHistory({ txHistory: newTxHistory, accountId, chainId });
+      setNewTxHistory();
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tx1, tx2, tx3, tx4, tx5]);
 
@@ -85,6 +77,19 @@ function TxHistoryModal() {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [txHistory, pendingTxs, chainId, accountId, page, ocean]);
+
+  function setNewTxHistory() {
+    if (!accountId || !chainId) return;
+    const newTxHistory: ITxHistory = { ...txHistory };
+    const txs = [tx1, tx2, tx3, tx4, tx5];
+    txs.forEach((item) => {
+      if (item) {
+        newTxHistory[item.txDateId] = item;
+      }
+    });
+    setTxHistory(newTxHistory);
+    setLocalTxHistory({ txHistory: newTxHistory, accountId, chainId });
+  }
 
   function resetTxs() {
     setTx1(undefined);
@@ -135,7 +140,8 @@ function TxHistoryModal() {
           <h3>Recent Transactions</h3>
           <BsX
             onClick={() => {
-              if (setShowTxHistoryModal) setShowTxHistoryModal(false);
+              setNewTxHistory();
+              setShowTxHistoryModal(false);
             }}
             size={28}
             className="text-type-200"

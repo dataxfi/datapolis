@@ -35,7 +35,6 @@ export const INITIAL_TOKEN_STATE: IToken = {
 };
 export const GlobalContext = createContext<globalStates>({} as globalStates);
 
-
 export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }) => {
   const NETWORK = "mainnet";
   // const [state, dispatch]: [any, Function] = useReducer(AppReducer, initialState)
@@ -287,7 +286,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       const localSignature = localStorage.getItem(account ? account : "");
       if (localSignature && localSignature !== "pending") {
         console.log("Accounts changed to - ", accounts[0]);
-        console.log("Connected Accounts - ", JSON.stringify(accounts));
+        console.log("Connected Accounts - ", JSON.stringify(accounts));        
         setAccountId(accounts[0]);
         setButtonText(accounts.length && accounts[0] !== "" ? accounts[0] : CONNECT_TEXT);
         setDisclaimerSigned({ client: true, wallet: true });
@@ -306,6 +305,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
     provider.on("chainChanged", async (chainId: any) => {
       setToken1(INITIAL_TOKEN_STATE);
       setToken2(INITIAL_TOKEN_STATE);
+      setTokenResponse(undefined);
       setTxHistory(undefined);
       setPendingTxs([]);
       const parsedId = String(parseInt(chainId));

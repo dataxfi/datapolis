@@ -69,11 +69,9 @@ const SnackbarItem = ({ tx, setCurrentNot }: { tx: ITxDetails; setCurrentNot: Fu
                     tx.token2.info.symbol
                   }/OCEAN pool`
                 : tx.txType === "unstake" && tx.shares && tx.token2.info
-                ? `Unstake ${new BigNumber(tx.shares).dp(5).toString()} OCEAN from ${
-                    tx.token2.info.symbol
-                  }/OCEAN pool`
+                ? `Unstake ${new BigNumber(tx.shares).dp(5).toString()} OCEAN from ${tx.token2.info.symbol}/OCEAN pool`
                 : tx.txType === "approve"
-                ? `Unlock ${tx.token1.value} ${tx.token1.info?.symbol}`
+                ? `Unlock ${tx.token1.info?.symbol}`
                 : `Trade ${new BigNumber(tx.token1.value).dp(5).toString()} ${
                     tx.token1.info?.symbol
                   } for ${new BigNumber(tx.token2.value).dp(5).toString()} ${tx.token2.info?.symbol}`}

@@ -131,17 +131,15 @@ export default function UnlockTokenModal({
             className="text-type-100 text-2xl"
           />
         </div>
-        {approving === "pending" ? (
-          <div className="pb-5">
-            <BiLockAlt size="72px" className="text-city-blue" />{" "}
-          </div>
-        ) : approving === "approving" ? (
-          <div className="pb-5">
+        <div className="pb-5">
+          {approving === "pending" ? (
+            <BiLockAlt size="72px" className="text-city-blue" />
+          ) : approving === "approving" ? (
             <BiLockAlt size="72px" className="text-city-blue animate-bounce" />
-          </div>
-        ) : (
-          <BiLockOpenAlt size="72px" className="text-city-blue animate-bounce" />
-        )}
+          ) : (
+            <BiLockOpenAlt size="72px" className="text-city-blue animate-bounce" />
+          )}
+        </div>
         <h3 className="text-sm lg:text-2xl pb-5">Unlock {token1.info.symbol}</h3>
         <p className="text-sm lg:text-base text-center pb-5">
           DataX needs your permission to spend{" "}
