@@ -51,21 +51,21 @@ describe("User Interface Works as Expected", () => {
     expect(Number(balance)).toBeGreaterThan(0);
   });
 
-  it("Stake button is disabled when input = 0", async () => {
+  it("Unstake button is disabled when input = 0", async () => {
     await page.bringToFront()
     const btnText = await getExecuteButtonText(page, "unstake", "Enter");
     expect(btnText).toBe("Enter Amount to Remove");
     expect(await page.waitForSelector("#executeUnstake[disabled]", { timeout: 1500 })).toBeTruthy();
   });
 
-  it("Stake button is enabled when input is > 0", async () => {
+  it("Unstake button is enabled when input is > 0", async () => {
     const shares = await getSharesFromUnstake(page);
     const { input, receive } = await inputUnstakeAmt(page, "1", shares || "");
     expect(Number(input)).toBeGreaterThan(0);
     expect(Number(receive)).toBeGreaterThan(0);
     await page.waitForFunction("document.querySelector('#executeUnstake[disabled]') === null", { timeout: 1500 })
-    const btnText = await getExecuteButtonText(page, "unstake", "Withdrawal");
-    expect(btnText).toBe("Withdrawal");
+    const btnText = await getExecuteButtonText(page, "unstake", "Unlock");
+    expect(btnText).toBe("Unlock OCEAN");
   });
 
   // it("Stake button is disabled when input > balance", async () => {});

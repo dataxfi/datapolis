@@ -882,6 +882,7 @@ export async function approve(page: puppeteer.Page, selectAll: boolean = false, 
 
 export async function getSharesFromUnstake(page: puppeteer.Page) {
   await page.waitForSelector("#sharesDisplay");
+  await page.waitForFunction("document.querySelector('#sharesDisplay').innerText !== '. . .'")
   const sharesInnerText = await page.evaluate('document.querySelector("#sharesDisplay").innerText');
   return getAfterColon(sharesInnerText);
 }
