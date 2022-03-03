@@ -7,6 +7,7 @@ import { isOCEAN } from "./Swap";
 import errorMessages from "../utils/errorMessages";
 import { getAllowance } from "../hooks/useTokenList";
 import { ApprovalStates } from "../utils/types";
+import OutsideClickHandler from "react-outside-click-handler";
 export default function UnlockTokenModal({
   setToken,
   nextFunction,
@@ -119,55 +120,62 @@ export default function UnlockTokenModal({
       id="transactionDoneModal"
       className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 sm:max-w-sm w-full z-20 shadow"
     >
-      <div className="bg-black border items-center flex flex-col rounded-lg pb-8 pt-2 px-4 hm-box mx-3">
-        <div className="flex w-full  justify-end">
-          <MdClose
-            id="closeTokenModalBtn"
-            role="button"
-            onClick={() => {
-              setShowUnlockTokenModal(false);
-              setLastTx({ ...lastTx, status: "Failure" });
-            }}
-            className="text-gray-100 text-2xl"
-          />
-        </div>
-        <div className="pb-5">
-          {approving === "pending" ? (
-            <BiLockAlt size="72px" className="text-city-blue" />
-          ) : approving === "approving" ? (
-            <BiLockAlt size="72px" className="text-city-blue animate-bounce" />
-          ) : (
-            <BiLockOpenAlt size="72px" className="text-city-blue animate-bounce" />
-          )}
-        </div>
-        <h3 className="text-sm lg:text-2xl pb-5">Unlock {token1.info.symbol}</h3>
-        <p className="text-sm lg:text-base text-center pb-5">
-          DataX needs your permission to spend{" "}
-          {remove ? lastTx.shares?.dp(5).toString() : token1.value.dp(5).toString()}{" "}
-          {remove ? "shares" : token1.info.symbol}.
-        </p>
+      <OutsideClickHandler
+        onOutsideClick={() => {
+          setShowUnlockTokenModal(false);
+          setLastTx({ ...lastTx, status: "Failure" });
+        }}
+      >
+        <div className="bg-black border items-center flex flex-col rounded-lg pb-8 pt-2 px-4 hm-box mx-3">
+          <div className="flex w-full  justify-end">
+            <MdClose
+              id="closeTokenModalBtn"
+              role="button"
+              onClick={() => {
+                setShowUnlockTokenModal(false);
+                setLastTx({ ...lastTx, status: "Failure" });
+              }}
+              className="text-gray-100 text-2xl"
+            />
+          </div>
+          <div className="pb-5">
+            {approving === "pending" ? (
+              <BiLockAlt size="72px" className="text-city-blue" />
+            ) : approving === "approving" ? (
+              <BiLockAlt size="72px" className="text-city-blue animate-bounce" />
+            ) : (
+              <BiLockOpenAlt size="72px" className="text-city-blue animate-bounce" />
+            )}
+          </div>
+          <h3 className="text-sm lg:text-2xl pb-5">Unlock {token1.info.symbol}</h3>
+          <p className="text-sm lg:text-base text-center pb-5">
+            DataX needs your permission to spend{" "}
+            {remove ? lastTx.shares?.dp(5).toString() : token1.value.dp(5).toString()}{" "}
+            {remove ? "shares" : token1.info.symbol}.
+          </p>
 
-        <button
-          id="perm-unlock-btn"
-          onClick={() => {
-            unlockTokens("perm");
-          }}
-          className="w-full p-2 rounded-lg mb-2 bg-opacity-20 txButton"
-          disabled={approving === "approving" || pool || address ? true : false}
-        >
-          Unlock Permanently
-        </button>
-        <button
-          id="unlock-once-btn"
-          onClick={() => {
-            unlockTokens("once");
-          }}
-          disabled={approving === "approving" || pool || address ? true : false}
-          className="w-full p-2 rounded-lg mb-2 bg-opacity-20 txButton"
-        >
-          Unlock this time only
-        </button>
-      </div>
+          <button
+            id="perm-unlock-btn"
+            onClick={() => {
+              unlockTokens("perm");
+            }}
+            className="w-full p-2 rounded-lg mb-2 bg-opacity-20 txButton"
+            disabled={approving === "approving" || pool || address ? true : false}
+          >
+            Unlock Permanently
+          </button>
+          <button
+            id="unlock-once-btn"
+            onClick={() => {
+              unlockTokens("once");
+            }}
+            disabled={approving === "approving" || pool || address ? true : false}
+            className="w-full p-2 rounded-lg mb-2 bg-opacity-20 txButton"
+          >
+            Unlock this time only
+          </button>
+        </div>
+      </OutsideClickHandler>
     </div>
   ) : (
     <></>
