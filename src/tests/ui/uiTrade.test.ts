@@ -65,8 +65,10 @@ describe("Trade Platform User Interface Works as Expected", () => {
   //Trade
 
   it("Balance is same in dapp and MM", async () => {
+    await page.waitForTimeout(2500)
     acc1DapBalT1 = new BigNumber(await getBalanceInDapp(page, 1));
     acc1DapBalT2 = new BigNumber(await getBalanceInDapp(page, 2));
+
     expect(acc1DapBalT1.toNumber()).toBeCloseTo(acc1MMBalT1.toNumber());
     expect(acc1DapBalT2.toNumber()).toBeCloseTo(acc1MMBalT2.toNumber());
   });
@@ -82,12 +84,14 @@ describe("Trade Platform User Interface Works as Expected", () => {
 
   it("Should clear token modal and show disclaimer when switching to an unsigned account", async () => {
     await switchAccounts(metamask, page, 2, true);
+    await page.waitForTimeout(2500)
     expect(await page.waitForSelector("#selectToken1")).toBeDefined();
     expect(await page.waitForSelector("#selectToken2")).toBeDefined();
   });
 
   it("Balance should update when switching accounts", async () => {
     await switchAccounts(metamask, page, 1, false);
+    await page.waitForTimeout(2500)
     await swapOrSelect(page, "OCEAN", "SAGKRI-94");
     await switchAccounts(metamask, page, 2, false);
     await page.waitForTimeout(2500);
@@ -111,6 +115,7 @@ describe("Trade Platform User Interface Works as Expected", () => {
   it("Inputs and perc are all reset to 0 when token 1 or 2 changes", async () => {
     await selectToken(page, "DAZORC-13", 1);
     await awaitTokenSelect(page, "DAZORC-13", 1);
+    await page.waitForTimeout(2500);
     const { t1Input, t2Input } = await evaluateMax(page, acc2DapBalT1);
     expect(t1Input.toString()).toBe("0");
     expect(t2Input.toString()).toBe("0");
