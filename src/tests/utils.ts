@@ -857,7 +857,6 @@ export async function inputUnstakeAmt(page: puppeteer.Page, unstakeAmt: string, 
   return { receive, input };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function approve(page: puppeteer.Page, selectAll: boolean = false, version?: string): Promise<void> {
   await page.bringToFront();
   await page.reload();
