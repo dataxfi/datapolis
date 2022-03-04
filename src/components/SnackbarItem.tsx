@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { BsX } from "react-icons/bs";
 import { IoCheckboxOutline } from "react-icons/io5";
 import { GlobalContext } from "../context/GlobalState";
-import { getTxUrl } from "../utils/txHistoryUtils";
+import { getTxUrl } from "../hooks/useTxHistory";
 import BigNumber from "bignumber.js";
 import { ITxDetails } from "../utils/types";
 const SnackbarItem = ({ tx, setCurrentNot }: { tx: ITxDetails; setCurrentNot: Function }) => {

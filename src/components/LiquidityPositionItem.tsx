@@ -23,7 +23,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
         <div
           onClick={() => setVisible(!visible)}
           className={`flex justify-between p-2  ${visible ? "rounded-t-lg" : "rounded-lg mb-2"} ${
-            importPool ? "bg-city-blue opacity-25" : "modalSelectBg"
+            importPool ? "bg-city-blue bg-opacity-10" : "modalSelectBg"
           }  bg-opacity-75 select-none `}
           role="button"
         >
@@ -96,9 +96,9 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                 </div>
                 <div className="justify-self-end">
                   <p className="text-gray-100 text-sm ">
-                    {Number(yourPoolSharePerc) >= 1
+                  {yourPoolSharePerc?.gte(1)
                       ? `${yourPoolSharePerc?.dp(5).toString()} %`
-                      : Number(yourPoolSharePerc) === 0
+                      : yourPoolSharePerc?.eq(0)
                       ? "0"
                       : "< 0 %"}
                   </p>

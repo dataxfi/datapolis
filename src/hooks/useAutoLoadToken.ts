@@ -7,6 +7,7 @@ export default function useAutoLoadToken() {
   const { web3, chainId, setToken2, token1, setToken1, ocean, accountId } = useContext(GlobalContext);
 
   const url = useLocation();
+  //loads token information when url has pool address
   useEffect(() => {
     const queryParams = new URLSearchParams(url.search);
     const pool = queryParams.get("pool");

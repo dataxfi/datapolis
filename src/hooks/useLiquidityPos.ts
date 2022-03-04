@@ -15,7 +15,7 @@ export default function useLiquidityPos(
   const location = useLocation();
   const [loading, setLoading] = useState(false);
 
-  //imports pool from url query param
+  //sets all staked pools, sets singleLiquidityPos when there is a pool address in the url
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const pool = queryParams.get("pool");
@@ -136,8 +136,25 @@ export function setLocalPoolDataStorage(allStakedPools: ILiquidityPosition[], ch
  * @param chainId
  * @returns
  */
-export function getLocalPoolData(accountId: string, chainId: string | number) {
+export function getLocalPoolData(accountId: string, chainId: string | number): ILiquidityPosition[] | null {
   const lowerCaseId = accountId.toLowerCase();
   const pooldataString = localStorage.getItem(`allStakedPools@${chainId}@${lowerCaseId}`);
-  if (pooldataString) return JSON.parse(pooldataString);
+  if (!pooldataString) return null;
+  const poolData: ILiquidityPosition[] = JSON.parse(pooldataString);
+  return poolData.map((pool) => {
+    let { dtAmount, oceanAmount, totalPoolShares, yourPoolSharePerc, shares } = pool;
+    if (dtAmount) dtAmount = new BigNumber(dtAmount);
+    if (oceanAmount) oceanAmount = new BigNumber(oceanAmount);
+    if (totalPoolShares) totalPoolShares = new BigNumber(totalPoolShares);
+    if (yourPoolSharePerc) yourPoolSharePerc = new BigNumber(yourPoolSharePerc);
+    shares = new BigNumber(shares)
+    return {
+      ...pool,
+      dtAmount,
+      oceanAmount,
+      totalPoolShares,
+      yourPoolSharePerc,
+      shares
+    };
+  });
 }

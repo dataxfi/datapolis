@@ -55,9 +55,9 @@ export default function TxHistoryItem({
     if (tx.token1.info && tx.token2.info)
       switch (tx.txType) {
         case "stake":
-          return `Stake ${tx.token2.info.symbol}/OCEAN`;
+          return `Stake ${tx.token2.info.symbol}/${tx.token1.info.symbol}`;
         case "unstake":
-          return `Unstake ${tx.token2.info.symbol}/OCEAN`;
+          return `Unstake ${tx.token2.info.symbol}/${tx.token1.info.symbol}`;
         case "approve":
           return `Unlock ${tx.token1.info.symbol}`;
         default:
@@ -73,15 +73,7 @@ export default function TxHistoryItem({
       <div className="flex flex-row w-full justify-between">
         <div className="flex">
           <h4>{txItemTitle(txInstance)}: </h4>
-          <p
-            className={`ml-1 ${
-              txInstance.status === "Success"
-                ? "text-city-blue"
-                : txInstance.status === "Failure"
-                ? "text-red-600"
-                : "text-primary-400"
-            } `}
-          >
+          <p className={`ml-1 ${txInstance.status === "Success" ? "text-city-blue" : "text-primary-400"} `}>
             {txInstance.status}
           </p>
           {txInstance.status === "Success" || txInstance.status === "Failure" ? null : (
