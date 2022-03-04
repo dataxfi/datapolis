@@ -3,7 +3,6 @@ import { GlobalContext } from "../context/GlobalState";
 import { ILiquidityPosition } from "../utils/types";
 import { BsChevronDown, BsChevronUp } from "react-icons/bs";
 import { Link } from "react-router-dom";
-import { toFixed5 } from "../utils/equate";
 import useLiquidityPos from "../hooks/useLiquidityPos";
 function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: ILiquidityPosition; index: number }) {
   const { address, token1Info, token2Info, shares, dtAmount, oceanAmount, yourPoolSharePerc, totalPoolShares } =
@@ -59,7 +58,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                 </div>
                 <div className="justify-self-end">
                   <p id="totalShares" className="text-gray-100 text-sm ">
-                    {toFixed5(totalPoolShares)}
+                    {totalPoolShares?.dp(5).toString()}
                   </p>
                 </div>
                 <div>
@@ -69,7 +68,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                 </div>
                 <div className="justify-self-end">
                   <p id="yourShares" className="text-gray-100 text-sm ">
-                    {toFixed5(shares)}
+                    {shares?.dp(5).toString()}
                   </p>
                 </div>
                 <div>
@@ -78,7 +77,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                   </p>
                 </div>
                 <div id="totalPooled1" className="justify-self-end">
-                  <p className="text-gray-100 text-sm ">{toFixed5(dtAmount)}</p>
+                  <p className="text-gray-100 text-sm ">{dtAmount?.dp(5).toString()}</p>
                 </div>
                 <div>
                   <p id="totalPooled2Title" className="text-gray-300 text-sm">
@@ -87,7 +86,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                 </div>
                 <div className="justify-self-end">
                   <p id="totalPooled2" className="text-gray-100 text-sm ">
-                    {toFixed5(oceanAmount)}
+                    {oceanAmount?.dp(5).toString()}
                   </p>
                 </div>
                 <div id="yourSharesPercTitle">
@@ -98,7 +97,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                 <div className="justify-self-end">
                   <p className="text-gray-100 text-sm ">
                     {Number(yourPoolSharePerc) >= 1
-                      ? `${toFixed5(yourPoolSharePerc)} %`
+                      ? `${yourPoolSharePerc?.dp(5).toString()} %`
                       : Number(yourPoolSharePerc) === 0
                       ? "0"
                       : "< 0 %"}

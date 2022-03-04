@@ -8,8 +8,6 @@ import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
 import { Link } from "react-router-dom";
 import UserMessage from "./UserMessage";
-import { toFixed5 } from "../utils/equate";
-import { getLocalPoolData, updateSingleStakePool } from "../utils/stakedPoolsUtils";
 import errorMessages from "../utils/errorMessages";
 import useLiquidityPos from "../hooks/useLiquidityPos";
 import BigNumber from "bignumber.js";
@@ -38,7 +36,6 @@ const Stake = () => {
     setShowConfirmModal,
     showTxDone,
     setShowTxDone,
-    setAllStakedPools,
     notifications,
     setNotifications,
     setShowUnlockTokenModal,
@@ -51,16 +48,16 @@ const Stake = () => {
     lastTx,
     tokensCleared,
   } = useContext(GlobalContext);
-  const [dtToOcean, setDtToOcean] = useState<string | null>(null);
-  const [oceanToDt, setOceanToDt] = useState<string | null>(null);
-  const [recentTxHash, setRecentTxHash] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
-  const [userMessage, setUserMessage] = useState<IUserMessage | false>(false);
-  const [poolLiquidity, setPoolLiquidity] = useState<IPoolLiquidity | null>(null);
+  const [dtToOcean, setDtToOcean] = useState<BigNumber>(new BigNumber(""));
+  const [oceanToDt, setOceanToDt] = useState<BigNumber>(new BigNumber(""));
   const [yourLiquidity, setYourLiquidity] = useState<BigNumber>(new BigNumber(0));
   const [yourShares, setYourShares] = useState<BigNumber>(new BigNumber(0));
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
+  const [loading, setLoading] = useState(false);
+  const [userMessage, setUserMessage] = useState<IUserMessage | false>(false);
+  const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
+  const [poolLiquidity, setPoolLiquidity] = useState<IPoolLiquidity | null>(null);
+  const [recentTxHash, setRecentTxHash] = useState("");
   const [importPool, setImportPool] = useState<string>();
   
   //hooks
@@ -187,14 +184,7 @@ const Stake = () => {
         setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
         setOceanBalance();
         if (token2.info) {
-          const json = JSON.parse(getLocalPoolData(accountId, chainId) || "[]");
-          updateSingleStakePool({
-            ocean,
-            accountId,
-            localData: json,
-            poolAddress: token2.info.pool,
-            setAllStakedPools,
-          });
+          setImportPool(token2.info.pool)
         }
 
         setRecentTxHash(ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash);
@@ -286,8 +276,8 @@ const Stake = () => {
         ocean?.getTotalPoolShares(pool),
       ]);
       setYourShares(new BigNumber(myPoolShares));
-      setOceanToDt(res1);
-      setDtToOcean(res2);
+      setOceanToDt(new BigNumber(res1));
+      setDtToOcean(new BigNumber(res2));
 
       setYourLiquidity(new BigNumber(await ocean.getOceanRemovedforPoolShares(pool, myPoolShares)));
       const { dtAmount, oceanAmount } = await ocean.getTokensRemovedforPoolShares(pool, String(totalPoolShares));
@@ -390,13 +380,13 @@ const Stake = () => {
             <div className="flex border border-gray-600 mt-4 rounded-lg p-2 w-full">
               <div className="my-1 mr-4">
                 <p className="text-gray-300 text-xs">Swap Rate</p>
-                {token2.info && oceanToDt && dtToOcean && !loading ? (
+                {token2.info && oceanToDt.gt(0) && dtToOcean.gt(0) && !loading ? (
                   <div id="swapRate">
                     <p className="text-gray-200 text-xs">
-                      {toFixed5(oceanToDt)} OCEAN per {token2.info.symbol}
+                      {oceanToDt.dp(5).toString()} OCEAN per {token2.info.symbol}
                     </p>
                     <p className="text-gray-200 text-xs">
-                      {toFixed5(dtToOcean)} {token2.info.symbol} per OCEAN
+                      {dtToOcean.dp(5).toString()} {token2.info.symbol} per OCEAN
                     </p>
                   </div>
                 ) : (
@@ -407,9 +397,9 @@ const Stake = () => {
                 <p className="text-gray-300 text-xs">Pool liquidity</p>
                 {token2.info && poolLiquidity && !loading ? (
                   <div id="poolLiquidity">
-                    <p className="text-gray-200 text-xs">{toFixed5(poolLiquidity?.oceanAmount)} OCEAN</p>
+                    <p className="text-gray-200 text-xs">{poolLiquidity?.oceanAmount.dp(5).toString()} OCEAN</p>
                     <p className="text-gray-200 text-xs">
-                      {toFixed5(poolLiquidity?.dtAmount)} {token2.info.symbol}
+                      {poolLiquidity?.dtAmount.dp(5).toString()} {token2.info.symbol}
                     </p>
                   </div>
                 ) : (

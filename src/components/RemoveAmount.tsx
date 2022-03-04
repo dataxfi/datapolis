@@ -6,7 +6,6 @@ import Button from "./Button";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
 import UserMessage from "./UserMessage";
-import { toFixed5 } from "../utils/equate";
 import { MoonLoader, PulseLoader } from "react-spinners";
 import errorMessages from "../utils/errorMessages";
 import { DebounceInput } from "react-debounce-input";
@@ -165,7 +164,7 @@ const RemoveAmount = () => {
         if (percInput.gt(0) && percInput.lte(100)) setToken1({ ...token1, percentage: percInput });
 
         const userTotalStakedOcean: BigNumber = new BigNumber(
-          await ocean.getOceanRemovedforPoolShares(singleLiquidityPos.address, singleLiquidityPos.shares)
+          await ocean.getOceanRemovedforPoolShares(singleLiquidityPos.address, singleLiquidityPos.shares.toString())
         );
 
         console.log("Current user shares", singleLiquidityPos.shares);
@@ -209,7 +208,7 @@ const RemoveAmount = () => {
 
     try {
       const userTotalStakedOcean: BigNumber = new BigNumber(
-        await ocean.getOceanRemovedforPoolShares(singleLiquidityPos.address, singleLiquidityPos.shares)
+        await ocean.getOceanRemovedforPoolShares(singleLiquidityPos.address, singleLiquidityPos.shares.toString())
       );
 
       console.log("Total user shares in ocean", userTotalStakedOcean);
@@ -255,7 +254,7 @@ const RemoveAmount = () => {
         accountId,
         singleLiquidityPos.address,
         token1.value.dp(5).toString(),
-        singleLiquidityPos.shares
+        singleLiquidityPos.shares.toString()
       );
 
       if (txReceipt) {
@@ -263,7 +262,7 @@ const RemoveAmount = () => {
         setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
         if (singleLiquidityPos && preTxDetails.shares) {
           const newShares = new BigNumber(singleLiquidityPos.shares).minus(preTxDetails.shares);
-          setSingleLiquidityPos({ ...singleLiquidityPos, shares: newShares.toString() });
+          setSingleLiquidityPos({ ...singleLiquidityPos, shares: newShares });
         }
       } else {
         throw new Error("Didn't receive a receipt.");
@@ -352,7 +351,7 @@ const RemoveAmount = () => {
                         ? Number(singleLiquidityPos?.shares) === 0
                           ? "Shares: 0"
                           : Number(singleLiquidityPos?.shares) > 0.001
-                          ? `Shares: ${toFixed5(singleLiquidityPos?.shares)}`
+                          ? `Shares: ${singleLiquidityPos?.shares.dp(5).toString()}`
                           : "Shares: < 0.001"
                         : ". . ."}
                     </p>

@@ -1,17 +1,15 @@
 import { useContext, useEffect, useState } from "react";
-import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
+import { GlobalContext } from "../context/GlobalState";
 import LiquidityPositionItem from "./LiquidityPositionItem";
 import UserMessage from "./UserMessage";
-import { getLocalPoolData } from "../utils/stakedPoolsUtils";
 import TokenModal from "./TokenModal";
 import { MoonLoader } from "react-spinners";
 import { IUserMessage, ILiquidityPosition } from "../utils/types";
 import useLiquidityPos from "../hooks/useLiquidityPos";
 import { TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
-const LiquidityPosition = () => {
-  const { accountId, ocean, chainId, allStakedPools, setAllStakedPools, setToken1, setToken2 } =
-    useContext(GlobalContext);
-  const [noStakedPools, setNoStakedPools] = useState<boolean>(false);
+
+export default function LiquidityPosition() {
+  const { accountId, allStakedPools } = useContext(GlobalContext);
   const [userMessage, setUserMessage] = useState<string | IUserMessage | null>(
     "Dont see your tokens? Import a pool by name with the import button below."
   );
@@ -21,39 +19,16 @@ const LiquidityPosition = () => {
   useLiquidityPos(importPool, setImportPool);
 
   useEffect(() => {
-    try {
-      setToken1(INITIAL_TOKEN_STATE);
-      setToken2(INITIAL_TOKEN_STATE);
-
-      if (accountId) {
-        let localDataString: string | null = getLocalPoolData(accountId, String(chainId));
-        if (!ocean || !localDataString) return;
-        const localData: ILiquidityPosition[] = JSON.parse(localDataString);
-        setNoStakedPools(false);
-        console.log("Setting stake pool data from local.", localData);
-        setAllStakedPools(localData);
-        setUserMessage(null);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountId, ocean]);
-
-  useEffect(() => {
     if (!accountId) {
       setUserMessage("Connect your wallet to see staked oceans.");
       setMessageId("connectWalletMessage");
-    } else if (noStakedPools) {
-      setMessageId("noStakedPools");
-      setUserMessage("You have no stake in any pools.");
     } else if (accountId && !allStakedPools) {
       setMessageId("importMessage");
       setUserMessage("Dont see your tokens? Import a pool by name with the import button below.");
     } else if (accountId && allStakedPools) {
       setUserMessage(null);
     }
-  }, [noStakedPools, allStakedPools, accountId]);
+  }, [allStakedPools, accountId]);
 
   return (
     <div className="absolute w-full h-full top-0 bottom-0  py-16 lg:py-28 px-2">
@@ -119,6 +94,4 @@ const LiquidityPosition = () => {
       </div>
     </div>
   );
-};
-
-export default LiquidityPosition;
+}

@@ -1,8 +1,7 @@
 import { useContext } from "react";
-import { ReactComponent as XLogo } from "../assets/datax-x-logo.svg";
 import { GlobalContext } from "../context/GlobalState";
 
-const ConfirmSwapItem = ({ pos }: { pos: number }) => {
+const ConfirmSwapItem = ({ pos }: { pos: 1 | 2 }) => {
   const { token1, token2 } = useContext(GlobalContext);
 
   return (

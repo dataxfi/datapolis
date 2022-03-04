@@ -88,15 +88,15 @@ export interface ILiquidityPosition {
   token1Info: TokenInfo;
   token2Info: TokenInfo;
   //the amount of shares you own
-  shares: string;
+  shares: BigNumber;
   //total dt in pool
-  dtAmount?: string;
+  dtAmount?: BigNumber;
   //total ocean in pool
-  oceanAmount?: string;
+  oceanAmount?: BigNumber;
   //total shares in pool
-  totalPoolShares?: string;
+  totalPoolShares?: BigNumber;
   //you share percentage in pool
-  yourPoolSharePerc?: string;
+  yourPoolSharePerc?: BigNumber;
 }
 
 export type BalancePos = 1 | 2 | "stake";

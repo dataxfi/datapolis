@@ -1,5 +1,4 @@
 import { TokenInfo } from "@dataxfi/datax.js/dist/TokenList"
-import { ITokenDetails } from "../utils/types"
 
 const TokenItem = ({token, onClick}: {token: TokenInfo, onClick: Function}) => {
     return (
