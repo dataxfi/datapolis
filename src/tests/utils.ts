@@ -1,11 +1,20 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
-import { toFixed3 } from "../utils/equate";
 import BigNumber from "bignumber.js";
 BigNumber.config({ DECIMAL_PLACES: 18, ROUNDING_MODE: BigNumber.ROUND_DOWN, EXPONENTIAL_AT: 18 });
 import { IMaxEval, BalancePos, ITxType, LocalStorageMethods } from "../utils/types";
 export const testAcctId = "0x867A6D38D30C4731c85bF567444F8CF22885DfAd";
+
+function toFixed3(value: any): string {
+  if (!value) return "";
+  try {
+    return value.toString().match(/^-?\d+(?:\.\d{0,3})?/)[0];
+  } catch (error) {
+    console.error("Invalid Input, may be undefined", error);
+    return "Invalid Input, may be undefined";
+  }
+}
 
 export async function closeBrowser(browser: puppeteer.Browser) {
   try {

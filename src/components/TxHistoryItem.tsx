@@ -39,7 +39,7 @@ export default function TxHistoryItem({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tx]);
 
-  function exactTime(tx: any) {
+  function exactTime(tx: ITxDetails) {
     const stamp = new Date(Number(tx.txDateId));
     const hours24 = stamp.getHours();
     const amPm = hours24 > 12 ? "Pm" : "Am";

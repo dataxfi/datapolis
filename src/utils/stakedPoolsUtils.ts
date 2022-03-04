@@ -4,20 +4,6 @@ import { ILiquidityPosition } from "./types";
 
 
 /**
- *
- * @param setStakeFetchTimeout
- *
- * Sets a timeout of 5 minutes before updating stake pool information upon entering the liquidity positon page.
- */
-
-export function stakeFetchCooldown(setStakeFetchTimeout: Function) {
-  setStakeFetchTimeout(true);
-  setTimeout(() => {
-    setStakeFetchTimeout(false);
-  }, 300000);
-}
-
-/**
  * Timeout utility function for general purpose. Use this function if a timeout is needed to adhere to external request limitations, or any other needed use.
  *
  * @param ms
@@ -143,74 +129,6 @@ export async function getPoolInfoFromUserShares({
     token1: {...token1, tokenAddress: tokens[0]},
     token2: {...token2, tokenAddress: tokens[1]},
   };
-}
-
-/**
- * Gets all stake pool data for a parcticular accountId. Ocean instance already knows the current chain.
- *
- * @param accountId
- * current accountId
- * @param ocean
- * ocean instance set in global state
- * @returns <PoolData>[]
- */
-
-export async function getAllStakedPools({
-  accountId,
-  fromBlock,
-  ocean,
-  toBlock,
-}: {
-  accountId: string;
-  fromBlock: number;
-  ocean: any;
-  toBlock: number;
-}) {
-  try {
-    const poolList = await ocean.getAllStakedPools(
-      accountId,
-      fromBlock,
-      toBlock
-    );
-    if (!poolList || poolList.length === 0) return poolList;
-    console.log("Recieved response from oceean.allStakedPools", poolList);
-    const userPoolData: Promise<ILiquidityPosition>[] = poolList.map(
-      async ({
-        shares,
-        poolAddress,
-      }: {
-        shares: string;
-        poolAddress: string;
-      }) => {
-        const address = poolAddress.toLowerCase();
-        const {
-          totalPoolShares,
-          yourPoolSharePerc,
-          dtAmount,
-          oceanAmount,
-          token1,
-          token2,
-        } = await getPoolInfoFromUserShares({ ocean, poolAddress, shares });
-
-        return {
-          address,
-          token1,
-          token2,
-          shares,
-          dtAmount,
-          oceanAmount,
-          totalPoolShares,
-          yourPoolSharePerc,
-          accountId,
-        };
-      }
-    );
-    return userPoolData;
-  } catch (error: any) {
-    console.log("Caught Error in call to ocean.getAllStakedPools");
-    console.error(error);
-    throw new Error(error);
-  }
 }
 
 

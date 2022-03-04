@@ -10,7 +10,7 @@ const SnackbarItem = ({ tx, setCurrentNot }: { tx: ITxDetails; setCurrentNot: Fu
   const [opacity, setOpacity] = useState<string>("0");
   // const [progress, setProgress] = useState<string>("100");
   const [txDetails, setTxDetails] = useState<any>();
-  const [url, setUrl] = useState<any>();
+  const [url, setUrl] = useState<string>();
   const [cleanup, setCleanup] = useState(true);
 
   useEffect(() => {

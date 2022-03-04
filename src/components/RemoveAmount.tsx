@@ -6,7 +6,7 @@ import Button from "./Button";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
 import UserMessage from "./UserMessage";
-import { toFixed18, toFixed5 } from "../utils/equate";
+import { toFixed5 } from "../utils/equate";
 import { MoonLoader, PulseLoader } from "react-spinners";
 import errorMessages from "../utils/errorMessages";
 import { DebounceInput } from "react-debounce-input";
@@ -245,9 +245,9 @@ const RemoveAmount = () => {
 
     setShowConfirmModal(true);
     console.log(
-      `Unstaking from pool ${singleLiquidityPos.address}, ${toFixed18(
+      `Unstaking from pool ${singleLiquidityPos.address}, ${
         singleLiquidityPos.shares
-      )} shares for ${token1.value?.toFixed(5)} OCEAN`
+      } shares for ${token1.value?.toFixed(5)} OCEAN`
     );
 
     try {
@@ -332,7 +332,7 @@ const RemoveAmount = () => {
                         step="1"
                         debounceTimeout={500}
                         onChange={(e) => updateNum(e.target.value)}
-                        onWheel={(event: any) => event.currentTarget.blur()}
+                        onWheel={(event: React.MouseEvent<HTMLButtonElement>) => event.currentTarget.blur()}
                         onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
                         type="number"
                         className="h-full w-24 rounded-lg bg-black  focus:text-white bg-opacity-0 text-2xl px-1 outline-none focus:placeholder-gray-200 placeholder-gray-400 text-right"

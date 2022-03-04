@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import {GlobalContext, INITIAL_TOKEN_STATE} from "../context/GlobalState";
+import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
 import LiquidityPositionItem from "./LiquidityPositionItem";
 import UserMessage from "./UserMessage";
 import { getLocalPoolData } from "../utils/stakedPoolsUtils";
@@ -7,6 +7,7 @@ import TokenModal from "./TokenModal";
 import { MoonLoader } from "react-spinners";
 import { IUserMessage, ILiquidityPosition } from "../utils/types";
 import useLiquidityPos from "../hooks/useLiquidityPos";
+import { TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
 const LiquidityPosition = () => {
   const { accountId, ocean, chainId, allStakedPools, setAllStakedPools, setToken1, setToken2 } =
     useContext(GlobalContext);
@@ -25,15 +26,13 @@ const LiquidityPosition = () => {
       setToken2(INITIAL_TOKEN_STATE);
 
       if (accountId) {
-        let localData: any = getLocalPoolData(accountId, String(chainId));
-        if (!ocean) return;
-        if (localData && localData != null) {
-          localData = JSON.parse(localData);
-          setNoStakedPools(false);
-          console.log("Setting stake pool data from local.", localData);
-          setAllStakedPools(localData);
-          setUserMessage(null);
-        }
+        let localDataString: string | null = getLocalPoolData(accountId, String(chainId));
+        if (!ocean || !localDataString) return;
+        const localData: ILiquidityPosition[] = JSON.parse(localDataString);
+        setNoStakedPools(false);
+        console.log("Setting stake pool data from local.", localData);
+        setAllStakedPools(localData);
+        setUserMessage(null);
       }
     } catch (error) {
       console.error(error);
@@ -90,7 +89,7 @@ const LiquidityPosition = () => {
           )}
           {showModal ? (
             <TokenModal
-              onClick={(e: any) => {
+              onClick={(e: TokenInfo) => {
                 setShowModal(false);
                 setImportPool(e.pool.toLowerCase());
               }}

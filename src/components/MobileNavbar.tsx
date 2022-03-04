@@ -4,6 +4,7 @@ import { useState, useEffect, useContext } from "react";
 import { GlobalContext } from "../context/GlobalState";
 import Button from "./Button";
 import PendingTxsIndicator from "./PendingTxsIndicator";
+import { INavText } from "../utils/types";
 
 const MobileNavbar = ({
   links,
@@ -11,8 +12,8 @@ const MobileNavbar = ({
   network,
   handleModalOrConnect,
 }: {
-  links: Array<any>;
-  text: Record<any, any>;
+  links: Array<{ name: string, link: string }>;
+  text: INavText;
   wallet: string;
   truncateId: Function;
   network: string;

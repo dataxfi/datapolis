@@ -23,9 +23,10 @@ function CookiesModal() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setCookiesAllowed]);
 
-  function confirmOrDeny(e: any) {
+  function confirmOrDeny(e: React.MouseEvent<HTMLButtonElement>) {
     if(!setCookiesAllowed) return
-    if (e.target.id === "confirmCookies") {
+    const target = e.target as Element
+    if (target.id === "confirmCookies") {
       localStorage.setItem("cookiesAllowed", "true");
       setCookiesAllowed(true)
       acceptsCookiesGA()

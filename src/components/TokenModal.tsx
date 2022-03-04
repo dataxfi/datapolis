@@ -5,6 +5,7 @@ import Loader from "./Loader";
 import ReactList from "react-list";
 import { GlobalContext } from "../context/GlobalState";
 import useTokenList, { formatTokenArray } from "../hooks/useTokenList";
+import { TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
 
 const text = {
   T_SELECT_TOKEN: "Select a token",
@@ -43,7 +44,7 @@ const TokenModal = ({ close, onClick, otherToken }: { close: Function; onClick: 
     if (val && setTokenModalArray && tokenModalArray) {
       setTokenModalArray(
         tokenModalArray.filter(
-          (t: any) =>
+          (t: TokenInfo) =>
             t.name.toLowerCase().indexOf(val.toLowerCase()) >= 0 ||
             t.symbol.toLowerCase().indexOf(val.toLowerCase()) >= 0
         )

@@ -32,7 +32,7 @@ function DisclaimerModal() {
     if(!setShowDisclaimer || ! setDisclaimerSigned) return
     if ((!disclaimerSigned?.client || disclaimerSigned.client === "denied")&& handleSignature) {
       setDisclaimerSigned({ ...disclaimerSigned, client: true });
-      await handleSignature().then((res: any) => {
+      await handleSignature().then((res: string) => {
         console.log(res);
         
         if (!res) {

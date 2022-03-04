@@ -51,8 +51,8 @@ const Stake = () => {
     lastTx,
     tokensCleared,
   } = useContext(GlobalContext);
-  const [dtToOcean, setDtToOcean] = useState<any>(null);
-  const [oceanToDt, setOceanToDt] = useState<any>(null);
+  const [dtToOcean, setDtToOcean] = useState<string | null>(null);
+  const [oceanToDt, setOceanToDt] = useState<string | null>(null);
   const [recentTxHash, setRecentTxHash] = useState("");
   const [loading, setLoading] = useState(false);
   const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
@@ -352,7 +352,7 @@ const Stake = () => {
                       debounceTimeout={500}
                       value={token1.value?.toString() || ""}
                       onChange={(e) => updateNum(e.target.value)}
-                      onWheel={(event: any) => event.currentTarget.blur()}
+                      onWheel={(event: React.MouseEvent<HTMLButtonElement>) => event.currentTarget.blur()}
                       onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
                       type="number"
                       className={`w-full rounded-lg mr-1 bg-black bg-opacity-0 text-2xl px-2 outline-none focus:placeholder-gray-200 placeholder-gray-400 ${

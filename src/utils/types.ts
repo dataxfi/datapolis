@@ -18,6 +18,12 @@ export interface IBtnProps {
   id?: string;
 }
 
+export interface INavText {
+  T_SWAP: string;
+  T_STAKE: string;
+  T_CONNECT_WALLET: string;
+}
+
 export interface IMaxUnstake {
   OCEAN: BigNumber;
   shares: BigNumber;

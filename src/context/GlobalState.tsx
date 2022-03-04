@@ -191,7 +191,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
    * current localSignature value
    */
 
-  async function handleDisclaimer(account: string, localSignature: string | null): Promise<any> {
+  async function handleDisclaimer(account: string, localSignature: string | null): Promise<string | null> {
     account = account.toLowerCase();
     if (!localSignature || localSignature === "pending") {
       setShowDisclaimer(true);
@@ -281,7 +281,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
    */
 
   function setListeners(provider: any, web3: Web3) {
-    provider.on("accountsChanged", async (accounts: any) => {
+    provider.on("accountsChanged", async (accounts: string[]) => {
       let account = accounts[0] ? accounts[0].toLowerCase() : null;
       const localSignature = localStorage.getItem(account ? account : "");
       if (localSignature && localSignature !== "pending") {
@@ -302,7 +302,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
     });
 
     // Subscribe to chainId change
-    provider.on("chainChanged", async (chainId: any) => {
+    provider.on("chainChanged", async (chainId: string) => {
       setToken1(INITIAL_TOKEN_STATE);
       setToken2(INITIAL_TOKEN_STATE);
       setTokenResponse(undefined);
