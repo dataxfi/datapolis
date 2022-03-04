@@ -1,6 +1,6 @@
 {
-  "name": "datax-dapp",
-  "version": "0.1.1",
+  "name": "datapolis",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
     "@craco/craco": "^6.2.0",
