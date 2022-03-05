@@ -49,9 +49,9 @@ function App() {
         className={`w-full h-full ${
           bgOff ? "" :
           location === "/trade"
-            ? "absolute bg-dataXtrade bg-cover bg-top"
+            ? "lg:absolute lg:bg-dataXtrade lg:bg-cover lg:bg-top"
             : location !== "/"
-            ? "absolute bg-dataXstake bg-cover bg-left lg:bg-bottom"
+            ? "lg:absolute lg:bg-dataXstake lg:bg-cover lg:bg-bottom"
             : ""
         }`}
       >

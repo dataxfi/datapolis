@@ -107,7 +107,6 @@ const MobileNavbar = ({
             </div>
           </div>
 
-          <BGToggle mobile={true}/>
           {/* <MdClose
             onClick={() => setWalletBtnVis(false)}
             color="#ccc"
