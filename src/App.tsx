@@ -48,12 +48,11 @@ function App() {
     <div className="w-full h-full relative">
       <div
         className={`w-full h-full ${
-          bgOff
-            ? ""
-            : location === "/trade"
-            ? "absolute bg-dataXtrade bg-cover bg-top"
+          bgOff ? "" :
+          location === "/trade"
+            ? "lg:absolute lg:bg-dataXtrade lg:bg-cover lg:bg-top"
             : location !== "/"
-            ? "absolute bg-dataXstake bg-cover bg-left lg:bg-bottom"
+            ? "lg:absolute lg:bg-dataXstake lg:bg-cover lg:bg-bottom"
             : ""
         }`}
       >
