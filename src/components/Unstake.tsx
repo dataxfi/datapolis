@@ -17,7 +17,7 @@ import { getAllowance } from "../hooks/useTokenList";
 import { IMaxUnstake, ITxDetails, IUserMessage } from "../utils/types";
 import useAutoLoadToken from "../hooks/useAutoLoadToken";
 
-const RemoveAmount = () => {
+export default function  Unstake () {
   const {
     chainId,
     accountId,
@@ -107,9 +107,9 @@ const RemoveAmount = () => {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ocean, singleLiquidityPos, token1.info]);
+  }, [ocean, singleLiquidityPos, token1.info, token2.info, accountId]);
 
-  useEffect(() => {
+  useEffect(() => {    
     setInputDisabled(false);
     if (!ocean || !singleLiquidityPos || !token1.info || !token2.info) {
       setBtnDisabled(true);
@@ -137,7 +137,7 @@ const RemoveAmount = () => {
       setBtnText("Withdrawal");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token1.value, lastTx, singleLiquidityPos, maxUnstake, token1.allowance]);
+  }, [token1.value, lastTx, singleLiquidityPos, maxUnstake, token1.allowance, token1.info, token2.info, ocean]);
 
   const updateNum = async (val: string) => {
     setCalculating(true);
@@ -145,11 +145,15 @@ const RemoveAmount = () => {
     let max: IMaxUnstake | void;
 
     maxUnstake?.OCEAN.gt(0) ? (max = maxUnstake) : (max = await getMaxUnstake(getNewSignal()));
+    console.log(val, max.OCEAN.toString(), max.shares.toString());
+    
     try {
       if (max && max.OCEAN.gt(0) && max.shares.gt(0) && ocean && singleLiquidityPos) {
         let percInput: BigNumber = new BigNumber(val);
         setToken1({ ...token1, percentage: percInput });
         if (percInput.lte(0)) {
+          console.log("a");
+          
           setShares(new BigNumber(0));
           setToken1({ ...token1, value: new BigNumber(0), percentage: new BigNumber(0) });
           return;
@@ -157,6 +161,8 @@ const RemoveAmount = () => {
 
         if (percInput.gte(100)) {
           val = "100";
+          console.log("b");
+          
           percInput = new BigNumber(100);
           setToken1({ ...token1, percentage: new BigNumber(100) });
         }
@@ -167,12 +173,7 @@ const RemoveAmount = () => {
           await ocean.getOceanRemovedforPoolShares(singleLiquidityPos.address, singleLiquidityPos.shares.toString())
         );
 
-        console.log("Current user shares", singleLiquidityPos.shares);
-
-        const oceanFromPerc: BigNumber = userTotalStakedOcean.times(percInput).div(100);
-
-        console.log("Ocean received for total shares:", userTotalStakedOcean);
-        console.log("Ocean received from user input:", oceanFromPerc);
+        const oceanFromPerc: BigNumber =  userTotalStakedOcean.times(percInput).div(100);
 
         const sharesNeeded = new BigNumber(
           await ocean.getPoolSharesRequiredToUnstake(
@@ -181,14 +182,12 @@ const RemoveAmount = () => {
             oceanFromPerc.toFixed(18)
           )
         );
-
+        
         console.log("User shares from percentage", sharesNeeded);
-        if (maxUnstake?.OCEAN?.gt(oceanFromPerc)) {
-          console.log("User share input is less than max unstake");
+        if (max?.OCEAN?.gt(oceanFromPerc)) {
           setShares(sharesNeeded);
           setToken1({ ...token1, value: oceanFromPerc, percentage: new BigNumber(val) });
         } else {
-          console.log("User share input is greater than max unstake");
           setShares(max.shares);
           setToken1({ ...token1, value: max.OCEAN, percentage: max.OCEAN.div(userTotalStakedOcean).times(100) });
         }
@@ -516,4 +515,3 @@ const RemoveAmount = () => {
     </div>
   );
 };
-export default RemoveAmount;

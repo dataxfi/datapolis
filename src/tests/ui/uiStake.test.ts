@@ -22,7 +22,7 @@ describe("Stake Platform UI works as expected.", () => {
   let page: puppeteer.Page;
   let browser: puppeteer.Browser;
   let metamask: dappeteer.Dappeteer;
-  let acc1DapBal: BigNumber, acc1MMBal: BigNumber, acc2MMbal: BigNumber, acc2DapBal: BigNumber
+  let acc1DapBal: BigNumber, acc1MMBal: BigNumber, acc2MMbal: BigNumber, acc2DapBal: BigNumber;
 
   beforeAll(async () => {
     const tools = await setupDappBrowser(true);
@@ -99,15 +99,15 @@ describe("Stake Platform UI works as expected.", () => {
 
   it("Stake button is enabled when input is > 0", async () => {
     await inputStakeAmt(page, "1");
-    const text = await getExecuteButtonText(page, "stake", "Unlock OCEAN");
-    await page.waitForTimeout(1000)
-    // await page.waitForFunction('document.querySelector("#executeStake[disabled]") === null', { timeout: 1500 });
-    expect(text).toBe("Unlock OCEAN");
+    const text = await getExecuteButtonText(page, "stake", ["Unlock", "Stake"]);
+    await page.waitForTimeout(1000);
+    await page.waitForFunction('document.querySelector("#executeStake[disabled]") === null', { timeout: 1500 });
+    expect(text === "Unlock OCEAN" || text === "Stake").toBeTruthy();
   });
 
   it("Check transactions for less than .01 ocean are not allowed", async () => {
     await clearInput(page, "#stakeAmtInput");
-    await page.waitForTimeout(1000)
+    await page.waitForTimeout(1000);
     await inputStakeAmt(page, ".001");
     await page.waitForSelector("#executeStake[disabled]");
     const btnText = await getExecuteButtonText(page, "stake", "Minimum");
@@ -120,18 +120,17 @@ describe("Stake Platform UI works as expected.", () => {
   });
 
   it("OCEAN input should clear and balance should update when switching accounts", async () => {
-    acc1MMBal = new BigNumber(await getBalanceInMM(metamask, "OCEAN"))
+    acc1MMBal = new BigNumber(await getBalanceInMM(metamask, "OCEAN"));
     await switchAccounts(metamask, page, 2, true);
-    await page.waitForFunction('document.querySelector("#stakeAmtInput").value === "0"', {timeout: 5000}) ;
+    await page.waitForFunction('document.querySelector("#stakeAmtInput").value === "0"', { timeout: 5000 });
     acc2MMbal = new BigNumber(await getBalanceInMM(metamask, "OCEAN"));
-    expect(acc2MMbal.toNumber()).not.toBeCloseTo(acc1MMBal.toNumber())
+    expect(acc2MMbal.toNumber()).not.toBeCloseTo(acc1MMBal.toNumber());
     acc2DapBal = new BigNumber(await getBalanceInDapp(page, "stake"));
-    expect(acc2DapBal.toNumber()).not.toBeCloseTo(acc1DapBal.toNumber())
-    
-  })
+    expect(acc2DapBal.toNumber()).not.toBeCloseTo(acc1DapBal.toNumber());
+  });
 
   it("Balance should limit input when less than max stake", async () => {
-    await selectStakeToken(page, "SAGKRI-94")
+    await selectStakeToken(page, "SAGKRI-94");
     const input = await inputStakeAmt(page, "max");
     expect(Number(input)).toBeCloseTo(acc2MMbal.toNumber());
     expect(acc2DapBal.toNumber()).toBeCloseTo(acc2DapBal.toNumber());
