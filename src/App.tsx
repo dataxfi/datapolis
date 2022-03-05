@@ -4,7 +4,7 @@ import Swap from "./components/Swap";
 import Stake from "./components/Stake";
 import LiquidityPosition from "./components/LiquidityPosition";
 import CookiesModal from "./components/CookiesModal";
-import RemoveAmount from "./components/RemoveAmount";
+import Unstake from "./components/Unstake";
 import { useEffect, useContext } from "react";
 import { initializeGA } from "./context/Analytics";
 import UnsupportedNetwork from "./components/UnsupportedNetwork";
@@ -64,7 +64,7 @@ function App() {
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/trade" element={<Swap />} />
                 <Route path="/stake" element={<Stake />} />
-                <Route path="/stake/remove" element={<RemoveAmount />} />
+                <Route path="/stake/remove" element={<Unstake />} />
                 <Route path="/stake/list" element={<LiquidityPosition />} />
               </Routes>
             </Router>

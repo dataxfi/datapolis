@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { BsX } from "react-icons/bs";
 import OutsideClickHandler from "react-outside-click-handler";
 import { GlobalContext } from "../context/GlobalState";
-import { getLocalTxHistory, getTxUrl, setLocalTxHistory } from "../utils/txHistoryUtils";
+import { getLocalTxHistory, getTxUrl, setLocalTxHistory } from "../hooks/useTxHistory";
 import { ITxSelection, ITxHistory, ITxDetails } from "../utils/types";
 import TxHistoryItem from "./TxHistoryItem";
 

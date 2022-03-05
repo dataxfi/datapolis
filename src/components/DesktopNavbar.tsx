@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import Button from "./Button";
 import { GlobalContext } from "../context/GlobalState";
 import PendingTxsIndicator from "./PendingTxsIndicator";
+import { INavText } from "../utils/types";
 
 const DesktopNavbar = ({
   links,
@@ -11,8 +12,8 @@ const DesktopNavbar = ({
   network,
   handleModalOrConnect,
 }: {
-  links: Array<any>;
-  text: Record<any, any>;
+  links: Array<{ name: string, link: string }>;
+  text: INavText;
   wallet: string;
   truncateId: Function;
   network: string;

@@ -10,20 +10,16 @@ const ConfirmSwapModal = ({
   confirm,
   show,
   close,
-  token1,
-  token2,
   postExchange,
   slippage,
 }: {
   confirm: Function;
   show: boolean;
   close: Function;
-  token1: any;
-  token2: any;
-  postExchange: any;
+  postExchange: BigNumber;
   slippage: number | string;
 }) => {
-  const { ocean } = useContext(GlobalContext);
+  const { ocean, token1, token2 } = useContext(GlobalContext);
   const [swapFee, setswapFee] = useState<BigNumber>(new BigNumber(0));
   const [minReceived, setMinReceived] = useState<BigNumber>(new BigNumber(0));
 
@@ -41,7 +37,8 @@ const ConfirmSwapModal = ({
     if (show) {
       if (ocean && token1.info && token1.value.gt(0) && token2.info) {
         (async () => {
-          const pool = token1.info.symbol === "OCEAN" ? token2.info.pool : token1.info.pool;
+          const pool = token1.info?.symbol === "OCEAN" ? token2.info?.pool : token1.info?.pool;
+          if (!pool) return;
           const swapFee = new BigNumber(await ocean.calculateSwapFee(pool, token1.value.dp(5).toString()));
           setswapFee(swapFee);
         })();
@@ -70,44 +67,36 @@ const ConfirmSwapModal = ({
               <BsX id="closeConfrimSwapModalbtn" onClick={() => close()} role="button" size={28} />
             </div>
 
-            <div className="mt-4">
-              <ConfirmSwapItem
-                img={token1.info.logoURI}
-                value={token1.value.dp(5).toString()}
-                name={token1.info.symbol}
-              />
-              <BsArrowDown className="ml-2 my-2 text-gray-300" size={24} />
-              <ConfirmSwapItem
-                img={token2.info.logoURI}
-                value={token2.value.dp(5).toString()}
-                name={token2.info.symbol}
-              />
-            </div>
+          <div className="mt-4">
+            <ConfirmSwapItem pos={1} />
+            <BsArrowDown className="ml-2 my-2 text-gray-300" size={24} />
+            <ConfirmSwapItem pos={2} />
+          </div>
 
-            <div className="mt-6 flex justify-between">
-              <p className="text-gray-400 text-sm">Exchange rate</p>
-              <p id="confirmSwapModalSwapRate" className="text-gray-400 text-sm grid grid-flow-col items-center gap-2">
-                1 {token1?.symbol} = {postExchange.dp(5).toString()} {token2.info.symbol}
-                <BsShuffle size={12} />
-              </p>
-            </div>
+          <div className="mt-6 flex justify-between">
+            <p className="text-gray-400 text-sm">Exchange rate</p>
+            <p id="confirmSwapModalSwapRate" className="text-gray-400 text-sm grid grid-flow-col items-center gap-2">
+              1 {token1.info?.symbol} = {postExchange.dp(5).toString()} {token2.info?.symbol}
+              <BsShuffle size={12} />
+            </p>
+          </div>
 
-            <div className="mt-4">
-              {/* <ConfirmSwapListItem name="Route" value="ETH > KNC" /> */}
-              <ConfirmSwapListItem name="Minimum received" value={minReceived.dp(5).toString()} />
-              {/* <ConfirmSwapListItem name="Price impact" value="-0.62%" valueClass="text-green-500" /> */}
-              <ConfirmSwapListItem name="Swap fee" value={swapFee.dp(5).toString() + " " + token1.info.symbol} />
-              <ConfirmSwapListItem name="DataX fee" value="0" />
-              {/* <ConfirmSwapListItem name="DataX fee" value="0.000000006 ETH" /> */}
-              <ConfirmSwapListItem name="Slippage tolerance" value={slippage + "%"} />
-            </div>
+          <div className="mt-4">
+            {/* <ConfirmSwapListItem name="Route" value="ETH > KNC" /> */}
+            <ConfirmSwapListItem name="Minimum received" value={minReceived.dp(5).toString()} />
+            {/* <ConfirmSwapListItem name="Price impact" value="-0.62%" valueClass="text-green-500" /> */}
+            <ConfirmSwapListItem name="Swap fee" value={swapFee.dp(5).toString() + " " + token1.info?.symbol} />
+            <ConfirmSwapListItem name="DataX fee" value="0" />
+            {/* <ConfirmSwapListItem name="DataX fee" value="0.000000006 ETH" /> */}
+            <ConfirmSwapListItem name="Slippage tolerance" value={slippage + "%"} />
+          </div>
 
-            <div className="mt-4">
-              <p className="text-gray-300 text-sm">
-                You will receive at least {minReceived.dp(5).toString()} {token2.info.symbol} or the transaction will
-                revert.
-              </p>
-            </div>
+          <div className="mt-4">
+            <p className="text-gray-300 text-sm">
+              You will receive at least {minReceived.dp(5).toString()} {token2.info?.symbol} or the transaction will
+              revert.
+            </p>
+          </div>
 
             <div className="mt-4">
               <Button

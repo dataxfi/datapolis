@@ -800,8 +800,6 @@ export default function Swap() {
           if (preTxDetails) makeTheSwap(preTxDetails);
         }}
         show={showConfirmSwapModal}
-        token1={token1}
-        token2={token2}
         postExchange={postExchange}
         slippage={slippage.dp(0).toString()}
       />

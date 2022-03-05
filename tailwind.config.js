@@ -4,6 +4,7 @@ const colors = require("tailwindcss/colors");
 module.exports = {
   purge: ["./src/**/*.{js,jsx,ts,tsx}", "./public/index.html"],
   darkMode: false, // or 'media' or 'class',
+  mode: "jit",
   theme: {
     screens: {
       xs: "280px",
@@ -16,10 +17,9 @@ module.exports = {
     fontFamily: {
       sans: ["DM Sans", "Helvetica", "Arial", "sans-serif"],
       pollerOne: ['"Poller One"', "cursive"],
-      montserrat: ["'Montserrat'", "sans-serif"], 
+      montserrat: ["'Montserrat'", "sans-serif"],
       yantramanav: ["'Yantramanav'", "sans"],
-      grit: ["'Special Elite'", "Montserrat", "sans-serif"], 
-      spectral: ["'Spectral SC'", "Times New Roman", "Times", "serif"]
+      spectral: ["'Spectral SC'", "Times New Roman", "Times", "serif"],
     },
     backgroundSize: {
       auto: "auto",
@@ -31,8 +31,8 @@ module.exports = {
       xs: "50px",
     },
     extend: {
-      border:{
-        6: "6px"
+      border: {
+        6: "6px",
       },
       spacing: {
         "1px": "1px",
@@ -46,9 +46,9 @@ module.exports = {
         103: "28rem",
         104: "29rem",
         105: "30rem",
-        107: "32rem", 
-        109: "34rem", 
-        111: "36rem,"
+        107: "32rem",
+        109: "34rem",
+        111: "36rem,",
       },
       backgroundImage: {
         dataXgif: 'url("./assets/DataX-X-Fold.gif")',
@@ -76,7 +76,7 @@ module.exports = {
         city: {
           blue: "#3a7bbf",
           darkBlue: "#222222",
-        }
+        },
       },
     },
   },

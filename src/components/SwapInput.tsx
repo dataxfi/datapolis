@@ -8,6 +8,7 @@ import Button from "./Button";
 import BigNumber from "bignumber.js";
 import WrappedInput from "./WrappedInput";
 import { ReactComponent as XLogo } from "../assets/datax-x-logo.svg";
+import { TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
 
 const SwapInput = ({
   title,
@@ -24,7 +25,7 @@ const SwapInput = ({
   max,
 }: {
   title: string;
-  value: Record<any, any> | null;
+  value: TokenInfo | null;
   pos: number;
   setToken: Function;
   num: string;
@@ -39,7 +40,7 @@ const SwapInput = ({
   const [showModal, setShowModal] = useState(false);
   const { accountId, handleConnect, tokensCleared } = useContext(GlobalContext);
 
-  const tokenSelected = (token: Record<any, any>) => {
+  const tokenSelected = (token: TokenInfo) => {
     setToken(token, pos, true);
     setShowModal(false);
   };
@@ -109,7 +110,7 @@ const SwapInput = ({
                 onChange={(e) => {
                   updateNum(e.target.value);
                 }}
-                onWheel={(event: any) => event.currentTarget.blur()}
+                onWheel={(event: React.MouseEvent<HTMLInputElement>) => event.currentTarget.blur()}
                 onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
                 element={WrappedInput}
                 type="number"

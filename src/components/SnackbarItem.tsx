@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { BsX } from "react-icons/bs";
 import { IoCheckboxOutline } from "react-icons/io5";
 import { GlobalContext } from "../context/GlobalState";
-import { getTxUrl } from "../utils/txHistoryUtils";
+import { getTxUrl } from "../hooks/useTxHistory";
 import BigNumber from "bignumber.js";
 import { ITxDetails } from "../utils/types";
 const SnackbarItem = ({ tx, setCurrentNot }: { tx: ITxDetails; setCurrentNot: Function }) => {
@@ -10,7 +10,7 @@ const SnackbarItem = ({ tx, setCurrentNot }: { tx: ITxDetails; setCurrentNot: Fu
   const [opacity, setOpacity] = useState<string>("0");
   // const [progress, setProgress] = useState<string>("100");
   const [txDetails, setTxDetails] = useState<any>();
-  const [url, setUrl] = useState<any>();
+  const [url, setUrl] = useState<string>();
   const [cleanup, setCleanup] = useState(true);
 
   useEffect(() => {

@@ -1,4 +1,6 @@
-const TokenItem = ({token, onClick}: {token: Record<any, any>, onClick: Function}) => {
+import { TokenInfo } from "@dataxfi/datax.js/dist/TokenList"
+
+const TokenItem = ({token, onClick}: {token: TokenInfo, onClick: Function}) => {
     return (
         <div id={`${token.symbol}-btn`} onClick={() => onClick(token)} className="px-2 py-1.5 hover:bg-gray-200 hover:bg-opacity-20 rounded-lg cursor-pointer">
             <div className="grid grid-flow-col justify-start gap-2 items-center">

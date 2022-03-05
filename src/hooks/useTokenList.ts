@@ -82,7 +82,7 @@ export async function getToken(
 
 export function formatTokenArray(
   tokenResponse: { tokens: TokenInfo[] },
-  otherToken: any,
+  otherToken: string,
   location: string
 ): TokenInfo[] {
   let tokenList: TokenInfo[] = tokenResponse.tokens;

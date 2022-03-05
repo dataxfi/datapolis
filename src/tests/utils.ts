@@ -1,11 +1,20 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
-import { toFixed3 } from "../utils/equate";
 import BigNumber from "bignumber.js";
 BigNumber.config({ DECIMAL_PLACES: 18, ROUNDING_MODE: BigNumber.ROUND_DOWN, EXPONENTIAL_AT: 18 });
 import { IMaxEval, BalancePos, ITxType, LocalStorageMethods } from "../utils/types";
 export const testAcctId = "0x867A6D38D30C4731c85bF567444F8CF22885DfAd";
+
+function toFixed3(value: any): string {
+  if (!value) return "";
+  try {
+    return value.toString().match(/^-?\d+(?:\.\d{0,3})?/)[0];
+  } catch (error) {
+    console.error("Invalid Input, may be undefined", error);
+    return "Invalid Input, may be undefined";
+  }
+}
 
 export async function closeBrowser(browser: puppeteer.Browser) {
   try {
@@ -635,27 +644,35 @@ export async function getBalanceInDapp(page: puppeteer.Page, pos: BalancePos): P
  * @returns
  */
 
-export async function getExecuteButtonText(page: puppeteer.Page, txType: ITxType, text?: string) {
+export async function getExecuteButtonText(page: puppeteer.Page, txType: ITxType, text?: string | string[]) {
   switch (txType) {
     case "stake":
       await page.waitForSelector("#executeStake");
-      if (text)
+      if (text && !Array.isArray(text)) {
         await page.waitForFunction(`document.querySelector("#executeStake").innerText.includes("${text}")`, {
-          timeout: 1250,
+          timeout: 2500,
         });
+      } else if (text && Array.isArray(text)) {
+        await page.waitForFunction(
+          ` document.querySelector("#executeStake").innerText.includes("${text[0]}") || document.querySelector("#executeStake").innerText.includes("${text[1]}")`,
+          {
+            timeout: 2500,
+          }
+        );
+      }
       return await page.evaluate('document.querySelector("#executeStake").innerText');
     case "unstake":
       await page.waitForSelector("#executeUnstake");
       if (text)
         await page.waitForFunction(`document.querySelector("#executeUnstake").innerText.includes("${text}")`, {
-          timeout: 1250,
+          timeout: 2500,
         });
       return await page.evaluate('document.querySelector("#executeUnstake").innerText');
     default:
       await page.waitForSelector("#executeTradeBtn");
       if (text)
         await page.waitForFunction(`document.querySelector("#executeTradeBtn").innerText.includes("${text}")`, {
-          timeout: 1250,
+          timeout: 2500,
         });
       return await page.evaluate('document.querySelector("#executeTradeBtn").innerText');
   }
@@ -881,7 +898,7 @@ export async function approve(page: puppeteer.Page, selectAll: boolean = false, 
 
 export async function getSharesFromUnstake(page: puppeteer.Page) {
   await page.waitForSelector("#sharesDisplay");
-  await page.waitForFunction("document.querySelector('#sharesDisplay').innerText !== '. . .'")
+  await page.waitForFunction("document.querySelector('#sharesDisplay').innerText !== '. . .'");
   const sharesInnerText = await page.evaluate('document.querySelector("#sharesDisplay").innerText');
   return getAfterColon(sharesInnerText);
 }

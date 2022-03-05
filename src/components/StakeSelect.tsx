@@ -4,13 +4,14 @@ import { BsChevronDown, BsBoxArrowUpRight } from "react-icons/bs";
 import { GlobalContext } from "../context/GlobalState";
 import {ReactComponent as XLogo} from "../assets/datax-x-logo.svg"
 import BigNumber from 'bignumber.js'
+import { TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
 
 const StakeSelect = () => {
   const { config, accountId, handleConnect, token1, setToken1, token2, setToken2 } = useContext(GlobalContext);
 
   const [showModal, setShowModal] = useState(false);
 
-  const tokenSelected = (info: any) => {
+  const tokenSelected = (info: TokenInfo) => {
     setToken1({...token1, value: new BigNumber(0)})
     setToken2({...token2, info});
     setShowModal(false); 
