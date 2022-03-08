@@ -22,14 +22,14 @@ export default function TokenSelect({
 }: {
   setToken: React.Dispatch<React.SetStateAction<IToken>>;
   token: IToken;
-  pos: number;
+  pos: 1 | 2;
   updateNum: Function;
   otherToken: string;
   onPerc?: Function;
   max: BigNumber;
 }) {
   const [showModal, setShowModal] = useState(false);
-  const { accountId, handleConnect, tokensCleared, location, config } = useContext(GlobalContext);
+  const { accountId, handleConnect, tokensCleared, location, config, ocean } = useContext(GlobalContext);
 
   const [title, setTitle] = useState<TokenSelectTitles>();
 
@@ -40,13 +40,21 @@ export default function TokenSelect({
       } else {
         setTitle("You are buying");
       }
+    } else if (location === "/stake/remove") {
+      setTitle("You will receive");
     } else {
-      setTitle("Token");
+      if (pos === 1) {
+        setTitle("You are spending");
+      } else {
+        setTitle("Pool");
+      }
     }
   }, [location, setTitle, pos]);
 
-  const tokenSelected = (info: TokenInfo) => {
-    if (setToken) setToken({ ...INITIAL_TOKEN_STATE, info });
+  const tokenSelected = async (info: TokenInfo) => {
+    if (!ocean || !accountId) return;
+    const balance = new BigNumber(await ocean?.getBalance(info.address, accountId));
+    if (setToken) setToken({ ...INITIAL_TOKEN_STATE, info, balance });
     setShowModal(false);
   };
 
@@ -202,7 +210,7 @@ export default function TokenSelect({
         )}
       </div>
       {showModal ? (
-        <TokenModal onClick={tokenSelected} close={() => setShowModal(false)} otherToken={otherToken} />
+        <TokenModal onClick={tokenSelected} close={() => setShowModal(false)} otherToken={otherToken} pos={pos} />
       ) : (
         <></>
       )}

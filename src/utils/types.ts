@@ -1,12 +1,11 @@
 import BigNumber from "bignumber.js";
 import { TokenDetails } from "@dataxfi/datax.js/dist/Ocean";
 import { TransactionReceipt } from "web3-core";
-import { Config, Ocean} from "@dataxfi/datax.js";
-import { TList, TokenInfo } from "@dataxfi/datax.js/dist/TokenList"
+import { Config, Ocean } from "@dataxfi/datax.js";
+import { TList, TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
 import Web3 from "web3";
 import Web3Modal from "web3modal";
 import Watcher from "@dataxfi/datax.js/dist/Watcher";
-
 
 export type ApprovalStates = "approved" | "approving" | "pending";
 
@@ -44,7 +43,7 @@ export interface IToken {
   allowance?: BigNumber;
 }
 
-export type TokenSelectTitles = "You are buying" | "You are selling" | "Token"
+export type TokenSelectTitles = "You are buying" | "You are selling" | "Pool" | "You are spending" | "You will receive";
 
 export interface IMaxExchange {
   maxBuy: BigNumber;
@@ -65,9 +64,8 @@ export interface IUserMessage {
   link?: string | { href: string; desc: string } | null;
   type: string;
   alert?: any;
-  newTx?: ITxDetails
+  newTx?: ITxDetails;
 }
-
 
 export interface IMaxEval {
   t1Max: BigNumber;
@@ -124,7 +122,6 @@ export interface ITxDetails {
   txReceipt?: TransactionReceipt;
 }
 
-
 export interface ITxHistory {
   [txDateId: string]: ITxDetails;
 }
@@ -137,7 +134,6 @@ export interface IDisclaimerSigned {
   client: boolean | null | "denied";
   wallet: boolean | null | "denied";
 }
-
 
 export interface globalStates {
   ocean?: Ocean;
@@ -161,16 +157,20 @@ export interface globalStates {
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   allStakedPools?: ILiquidityPosition[];
   setAllStakedPools: React.Dispatch<React.SetStateAction<ILiquidityPosition[] | undefined>>;
-  tokenModalArray?: TokenInfo[];
-  setTokenModalArray: React.Dispatch<React.SetStateAction<TokenInfo[] | undefined>>;
-  tokenResponse?: TList;
-  setTokenResponse: React.Dispatch<React.SetStateAction<TList | undefined>>;
+  datatokens?: TokenInfo[];
+  setDatatokens: React.Dispatch<React.SetStateAction<TokenInfo[] | undefined>>;
+  ERC20Tokens?: TokenInfo[];
+  setERC20Tokens: React.Dispatch<React.SetStateAction<TokenInfo[] | undefined>>;
+  dtTokenResponse?: TList;
+  setDtTokenResponse: React.Dispatch<React.SetStateAction<TList | undefined>>;
+  ERC20TokenResponse?: TList;
+  setERC20TokenResponse: React.Dispatch<React.SetStateAction<TList | undefined>>;
   singleLiquidityPos?: ILiquidityPosition;
   setSingleLiquidityPos: React.Dispatch<React.SetStateAction<ILiquidityPosition | undefined>>;
   txHistory?: ITxHistory;
   setTxHistory: React.Dispatch<React.SetStateAction<ITxHistory | undefined>>;
-  lastTx? : ITxDetails
-  setLastTx : React.Dispatch<React.SetStateAction<ITxDetails | undefined>>
+  lastTx?: ITxDetails;
+  setLastTx: React.Dispatch<React.SetStateAction<ITxDetails | undefined>>;
   pendingTxs: string[];
   setPendingTxs: React.Dispatch<React.SetStateAction<string[]>>;
   showSnackbar: boolean;
@@ -197,6 +197,5 @@ export interface globalStates {
   setToken1: React.Dispatch<React.SetStateAction<IToken>>;
   token2: IToken;
   setToken2: React.Dispatch<React.SetStateAction<IToken>>;
-  tokensCleared: React.MutableRefObject<boolean> , 
+  tokensCleared: React.MutableRefObject<boolean>;
 }
-

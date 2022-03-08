@@ -16,6 +16,7 @@ import UnlockTokenModal from "./UnlockTokenModal";
 import { getAllowance } from "../hooks/useTokenList";
 import { IMaxUnstake, ITxDetails, IUserMessage } from "../utils/types";
 import useAutoLoadToken from "../hooks/useAutoLoadToken";
+import TokenSelect from "./TokenSelect";
 
 export default function  Unstake () {
   const {
@@ -92,6 +93,8 @@ export default function  Unstake () {
   }
 
   useEffect(() => {
+    console.log(token1, token2);
+    
     if (ocean && singleLiquidityPos && accountId && token1.info && token2.info) {
       getMaxUnstake(getNewSignal())
         .then((res: IMaxUnstake | void) => {
@@ -290,7 +293,7 @@ export default function  Unstake () {
     <div className="absolute top-0 w-full h-full">
       {!accountId ? (
         <UserMessage message="Connect your wallet to continue." pulse={false} container={true} timeout={null} />
-      ) : token2.info && token1.info ? (
+      ) : token2.info ? (
         <div className="flex w-full h-full items-center pt-16 px-2">
           <div id="removeStakeModal" className="w-107 mx-auto">
             <div className="mx-auto bg-black opacity-90 w-full rounded-lg p-3 hm-box">
@@ -310,7 +313,7 @@ export default function  Unstake () {
                   />
                   {singleLiquidityPos ? (
                     <p className="text-gray-100 text-sm md:text-lg">
-                      {token2.info.symbol}/{token1.info.symbol}
+                      {token2.info.symbol}/OCEAN
                     </p>
                   ) : (
                     <PulseLoader color="white" size="4px" margin="5px" />
@@ -379,7 +382,18 @@ export default function  Unstake () {
                   )}
                 </div>
               </div>
-              <div className="flex modalSelectBg p-2 rounded items-center justify-between lg:justify-around">
+
+              <TokenSelect
+              max={maxUnstake.OCEAN}
+              otherToken={token2.info.symbol}
+              pos={1}
+              setToken={setToken1}
+              token={token1}
+              updateNum={updateNum}
+              
+              
+              />
+              {/* <div className="flex modalSelectBg p-2 rounded items-center justify-between lg:justify-around">
                 <div className="w-max h-full mr-4 flex">
                   <p className="text-gray-100">You will receive</p>
                 </div>
@@ -403,7 +417,7 @@ export default function  Unstake () {
                     <p className="text-xs text-gray-100">{singleLiquidityPos?.token1Info.symbol}</p>
                   </div>
                 </div>
-              </div>
+              </div> */}
               <div className="flex mt-4">
                 {/* <div className="bg-gradient"></div> */}
                 <Button

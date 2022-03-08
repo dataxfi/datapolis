@@ -19,17 +19,11 @@ export default function useWatchLocation() {
   } = useContext(GlobalContext);
   const currentLocation = useLocation();
   const lastLocation = useRef(currentLocation);
+  
   useEffect(() => {
     setLocation(currentLocation.pathname);
-    if (
-      currentLocation.pathname === "/trade" ||
-      (lastLocation.current.pathname === "/trade" && currentLocation.pathname === "/stake")
-    ) {
-      if (currentLocation.pathname === "/trade") {
-        setToken1(INITIAL_TOKEN_STATE);
-      }
-      setToken2(INITIAL_TOKEN_STATE);
-    }
+    setToken1(INITIAL_TOKEN_STATE);
+    setToken2(INITIAL_TOKEN_STATE);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentLocation]);
 

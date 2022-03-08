@@ -82,14 +82,17 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   //Stake pool sync timeout
   const [stakeFetchTimeout, setStakeFetchTimeout] = useState<boolean>(false);
 
-  //tokenModalArray to be rendered in token modal
-  const [tokenModalArray, setTokenModalArray] = useState<TokenInfo[]>();
+  //tokens to be rendered in token modal
+  const [datatokens, setDatatokens] = useState<TokenInfo[]>();
+  //datatokens to be rendered in token modal
+  const [ERC20Tokens, setERC20Tokens] = useState<TokenInfo[]>();
   //current token pair to be traded, staked, etc
   const [token1, setToken1] = useState<IToken>(INITIAL_TOKEN_STATE);
   const [token2, setToken2] = useState<IToken>(INITIAL_TOKEN_STATE);
 
-  //response from token fetch operation
-  const [tokenResponse, setTokenResponse] = useState<TList>();
+  //response from token fetch operations
+  const [ERC20TokenResponse, setERC20TokenResponse] = useState<TList>();
+  const [dtTokenResponse, setDtTokenResponse] = useState<TList>();
 
   const [buttonText, setButtonText] = useState<string>(CONNECT_TEXT);
 
@@ -286,7 +289,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       const localSignature = localStorage.getItem(account ? account : "");
       if (localSignature && localSignature !== "pending") {
         console.log("Accounts changed to - ", accounts[0]);
-        console.log("Connected Accounts - ", JSON.stringify(accounts));        
+        console.log("Connected Accounts - ", JSON.stringify(accounts));
         setAccountId(accounts[0]);
         setButtonText(accounts.length && accounts[0] !== "" ? accounts[0] : CONNECT_TEXT);
         setDisclaimerSigned({ client: true, wallet: true });
@@ -305,7 +308,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
     provider.on("chainChanged", async (chainId: string) => {
       setToken1(INITIAL_TOKEN_STATE);
       setToken2(INITIAL_TOKEN_STATE);
-      setTokenResponse(undefined);
+      setDtTokenResponse(undefined);
       setTxHistory(undefined);
       setPendingTxs([]);
       const parsedId = String(parseInt(chainId));
@@ -355,10 +358,14 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setLoading,
         allStakedPools,
         setAllStakedPools,
-        tokenModalArray,
-        setTokenModalArray,
-        tokenResponse,
-        setTokenResponse,
+        datatokens,
+        setDatatokens,
+        ERC20Tokens,
+        setERC20Tokens,
+        ERC20TokenResponse,
+        setERC20TokenResponse,
+        dtTokenResponse,
+        setDtTokenResponse,
         singleLiquidityPos,
         setSingleLiquidityPos,
         txHistory,

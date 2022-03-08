@@ -4,6 +4,7 @@ import { Ocean, TokenList } from "@dataxfi/datax.js";
 // import { TokenList as TList } from "@uniswap/token-lists";
 import { TList, TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
 import Web3 from "web3";
+import axios from "axios";
 export default function useTokenList({
   otherToken,
   setLoading,
@@ -13,38 +14,50 @@ export default function useTokenList({
   setLoading?: Function;
   setError?: Function;
 }) {
-  const { location, chainId, web3, setTokenResponse, tokenResponse, setTokenModalArray, accountId } =
-    useContext(GlobalContext);
+  const {
+    location,
+    chainId,
+    web3,
+    setDtTokenResponse,
+    dtTokenResponse,
+    setDatatokens,
+    accountId,
+    setERC20TokenResponse,
+    setERC20Tokens,
+    ERC20TokenResponse,
+  } = useContext(GlobalContext);
 
   useEffect(() => {
-    setTokenResponse(undefined);
+    setDtTokenResponse(undefined);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
 
   const initialChain = useRef(chainId);
   useEffect(() => {
     if (chainId !== initialChain.current) {
-      setTokenModalArray(undefined);
-      setTokenResponse(undefined);
+      setDatatokens(undefined);
+      setDtTokenResponse(undefined);
+      setERC20TokenResponse(undefined);
+      setERC20Tokens(undefined);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chainId, setTokenModalArray, setTokenResponse]);
+  }, [chainId, setDatatokens, setDtTokenResponse]);
 
   useEffect(() => {
-    if (accountId && !tokenResponse && web3 && chainId) {
+    if (accountId && !dtTokenResponse && web3 && chainId) {
       if (setLoading) setLoading(true);
-      getTokenList(web3, chainId)
+      getDtTokenList(web3, chainId)
         .then((res) => {
           if (res) {
-            setTokenResponse(res);
-            console.log("Token List Response:", res);
+            setDtTokenResponse(res);
+            console.log("Datatoken Token List Response:", res);
             //@ts-ignore
             const formattedList = formatTokenArray(res, otherToken, location);
-            setTokenModalArray(formattedList);
+            setDatatokens(formattedList);
           }
         })
         .catch((err: Error) => {
-          if (err) setTokenResponse(undefined);
+          if (err) setDtTokenResponse(undefined);
           console.error("An error occurred while fetching the token list.", err);
           if (setError) setError(true);
         })
@@ -53,10 +66,19 @@ export default function useTokenList({
         });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location, otherToken, tokenResponse, web3, chainId]);
-} 
+  }, [location, otherToken, dtTokenResponse, web3, chainId]);
 
-async function getTokenList(web3: Web3, chainId: number): Promise<TList> {
+  useEffect(() => {
+    if (!ERC20TokenResponse)
+      getERC20TokenList().then((list) => {
+        console.log("Token List Response", list);
+        setERC20TokenResponse(list);
+        setERC20Tokens(list.tokens);
+      });
+  }, [location, otherToken, ERC20TokenResponse, web3, chainId]);
+}
+
+async function getDtTokenList(web3: Web3, chainId: number): Promise<TList> {
   const tokenList: TokenList = new TokenList(
     web3,
     "4",
@@ -67,13 +89,19 @@ async function getTokenList(web3: Web3, chainId: number): Promise<TList> {
   return await tokenList.fetchPreparedTokenList(chainId ? chainId : 4);
 }
 
+async function getERC20TokenList(): Promise<TList> {
+  return await (
+    await axios.get("https://wispy-bird-88a7.uniswap.workers.dev/?url=http://tokens.1inch.eth.link")
+  ).data;
+}
+
 export async function getToken(
   web3: Web3,
   chainId: number,
   address: string,
   addressType: "pool" | "reserve"
 ): Promise<TokenInfo | undefined> {
-  const tokenList = await getTokenList(web3, chainId);
+  const tokenList = await getDtTokenList(web3, chainId);
   if (addressType === "pool") {
     return tokenList.tokens.find((token) => token.pool.toLowerCase() === address.toLowerCase());
   }
@@ -81,12 +109,12 @@ export async function getToken(
 }
 
 export function formatTokenArray(
-  tokenResponse: { tokens: TokenInfo[] },
+  dtTokenResponse: { tokens: TokenInfo[] },
   otherToken: string,
   location: string
 ): TokenInfo[] {
-  let tokenList: TokenInfo[] = tokenResponse.tokens;
-  tokenList = tokenResponse.tokens.filter((t) => t.symbol !== otherToken);
+  let tokenList: TokenInfo[] = dtTokenResponse.tokens;
+  tokenList = dtTokenResponse.tokens.filter((t) => t.symbol !== otherToken);
 
   if (tokenList.length > 0) {
     //@ts-ignore
