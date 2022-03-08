@@ -19,7 +19,7 @@ const MobileNavbar = ({
   network: string;
   handleModalOrConnect: Function;
 }) => {
-  const { accountId } = useContext(GlobalContext);
+  const { accountId, bgOff } = useContext(GlobalContext);
   const [menuVisible, setMenuVisible] = useState(false);
   const [walletBtnVis, setWalletBtnVis] = useState(false);
 
@@ -40,7 +40,7 @@ const MobileNavbar = ({
 
   return (
     <header id="mobileNavbar" className="flex flex-col">
-      <div className="flex lg:hidden bg-black bg-opacity-75 justify-between items-center py-2 border-gray-800 pr-4">
+      <div className={`flex lg:hidden bg-black ${bgOff? "bg-opacity-0": "bg-opacity-75"}  justify-between items-center py-2 border-gray-800 pr-4`}>
         <div className="flex flex-row justify-start ml-4">
           <Link to={"/"} className="lg:w-auto font-spectral text-3xl">
             Datapolis
@@ -90,7 +90,7 @@ const MobileNavbar = ({
           walletBtnVis ? "" : "translate-y-12"
         } transition duration-1000 z-10`}
       >
-        <div className="flex flex-row w-full justify-between px-3">
+        <div className="flex flex-row w-full justify-between px-3 items-center">
           <div className="flex flex-row justify-center align-middle  w-full ">
             <div className={`flex flex-row bg-primary-900 ${accountId ? "pl-2" : ""}  pr-1 py-1 rounded-lg`}>
               {" "}

@@ -19,13 +19,13 @@ const DesktopNavbar = ({
   network: string;
   handleModalOrConnect: Function;
 }) => {
-  const { accountId, buttonText } = useContext(GlobalContext);
+  const { accountId, buttonText, bgOff } = useContext(GlobalContext);
 
   
   return (
     <header
       id="desktopNavBar"
-      className="lg:flex flex-col bg-black bg-opacity-25 justify-between items-center p-2 border-gray-800 hidden"
+      className={`lg:flex flex-col bg-black ${bgOff? "bg-opacity-0" : "bg-opacity-25"} justify-between items-center p-2 border-gray-800 hidden`}
     >
       <div className="flex justify-between w-full pl-4 pr-2">
         <div className="grid grid-flow-col gap-8 items-center  ">
