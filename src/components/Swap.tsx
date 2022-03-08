@@ -1,4 +1,4 @@
-import SwapInput from "./SwapInput";
+import TokenSelect from "./TokenSelect";
 import { IoSwapVertical } from "react-icons/io5";
 import { MdTune } from "react-icons/md";
 import { useState, useContext, useEffect } from "react";
@@ -14,14 +14,7 @@ import BigNumber from "bignumber.js";
 import UnlockTokenModal from "./UnlockTokenModal";
 import { getAllowance } from "../hooks/useTokenList";
 import { IMaxExchange, IBtnProps, ITxDetails } from "../utils/types";
-import { TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
 import { Ocean } from "@dataxfi/datax.js";
-
-const text = {
-  T_SWAP: "Trade",
-  T_SWAP_FROM: "You are selling",
-  T_SWAP_TO: "You are buying",
-};
 
 const INITIAL_MAX_EXCHANGE: IMaxExchange = {
   maxBuy: new BigNumber(0),
@@ -297,14 +290,6 @@ export default function Swap() {
     if (!ocean || !accountId) return;
     return new BigNumber(await ocean.getBalance(address, accountId));
   }
-
-  const setToken = async (info: TokenInfo, pos: number) => {
-    if (pos === 1) {
-      setToken1({ ...token1, info });
-    } else if (pos === 2) {
-      setToken2({ ...token2, info });
-    }
-  };
 
   async function swapTokens() {
     setToken1({ ...token2, info: token2.info });
@@ -637,7 +622,7 @@ export default function Swap() {
     }
   }
 
-  return  (
+  return (
     <div className="w-full h-full absolute top-0">
       <div id="swapModal" className="flex mt-6 w-full h-full items-center justify-center">
         <div className="lg:w-107 lg:mx-auto sm:mx-4 mx-3 bg-black bg-opacity-80 rounded-lg p-3 hm-box">
@@ -692,18 +677,13 @@ export default function Swap() {
               <></>
             )}
           </div>
-          <SwapInput
+          <TokenSelect
+            setToken={setToken1}
+            token={token1}
             max={maxExchange.maxSell}
-            perc={token1.percentage}
             onPerc={onPercToken1}
             otherToken={token2?.info ? token2.info.symbol : ""}
-            num={token1.value.dp(5).toString()}
-            value={token1.info}
-            balance={token1.balance}
-            title={text.T_SWAP_FROM}
             pos={1}
-            setToken={setToken}
-            loading={token1.loading}
             updateNum={dbUpdateToken1}
           />
           <div className="px-4 relative mt-6 mb-10">
@@ -721,18 +701,12 @@ export default function Swap() {
               )}
             </div>
           </div>
-          <SwapInput
-            perc={new BigNumber(0)}
-            onPerc={() => {}}
+          <TokenSelect
+            setToken={setToken2}
+            token={token2}
             max={maxExchange.maxBuy}
             otherToken={token1.info ? token1.info.symbol : ""}
-            num={typeof token2?.value === "string" ? token2.value : token2.value.dp(5).toString()}
-            value={token2.info}
-            balance={token2.balance}
-            title={text.T_SWAP_TO}
             pos={2}
-            setToken={setToken}
-            loading={token2.loading}
             updateNum={dbUpdateToken2}
           />
 
@@ -780,7 +754,7 @@ export default function Swap() {
           </div>
         </div>
       </div>
-      <UnlockTokenModal setToken={setToken1} nextFunction={() => setShowConfirmSwapModal(true)} />
+      <UnlockTokenModal nextFunction={() => setShowConfirmSwapModal(true)} />
       <ConfirmSwapModal
         close={() => setShowConfirmSwapModal(false)}
         confirm={() => {

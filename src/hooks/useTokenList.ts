@@ -54,7 +54,7 @@ export default function useTokenList({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location, otherToken, tokenResponse, web3, chainId]);
-}
+} 
 
 async function getTokenList(web3: Web3, chainId: number): Promise<TList> {
   const tokenList: TokenList = new TokenList(
@@ -86,16 +86,16 @@ export function formatTokenArray(
   location: string
 ): TokenInfo[] {
   let tokenList: TokenInfo[] = tokenResponse.tokens;
-  if (location === "/trade") {
-    tokenList = tokenResponse.tokens.filter((t) => t.symbol !== otherToken);
-  } else {
-    tokenList = tokenResponse.tokens.filter((t) => t.symbol !== otherToken && t.pool);
-  }
+  tokenList = tokenResponse.tokens.filter((t) => t.symbol !== otherToken);
+
   if (tokenList.length > 0) {
     //@ts-ignore
     const oceanToken: ITokenInfo = tokenList.pop();
     tokenList.splice(0, 0, oceanToken);
   }
+
+  console.log(otherToken, tokenList);
+
   return tokenList;
 }
 

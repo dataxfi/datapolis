@@ -462,7 +462,6 @@ export default function  Unstake () {
 
       {singleLiquidityPos ? (
         <UnlockTokenModal
-          setToken={setToken1}
           nextFunction={() => {
             if (setShowConfirmModal) setShowConfirmModal(true);
             if (!accountId) return;
@@ -479,7 +478,6 @@ export default function  Unstake () {
             setLastTx(preTxDetails);
             handleUnstake(preTxDetails);
           }}
-          remove={true}
         />
       ) : (
         <></>

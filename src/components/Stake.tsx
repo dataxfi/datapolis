@@ -1,5 +1,4 @@
 import { AiOutlinePlus } from "react-icons/ai";
-import StakeSelect from "./StakeSelect";
 import { useState, useContext, useEffect } from "react";
 import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
 import { MoonLoader } from "react-spinners";
@@ -19,6 +18,7 @@ import { getAllowance } from "../hooks/useTokenList";
 import { IPoolLiquidity, IBtnProps } from "../utils/types";
 import { isOCEAN } from "./Swap";
 import useAutoLoadToken from "../hooks/useAutoLoadToken";
+import TokenSelect from "./TokenSelect";
 
 const INITIAL_BUTTON_STATE = {
   text: "Connect wallet",
@@ -26,7 +26,7 @@ const INITIAL_BUTTON_STATE = {
   disabled: false,
 };
 
-const Stake = () => {
+export default function Stake () {
   const {
     ocean,
     accountId,
@@ -59,7 +59,7 @@ const Stake = () => {
   const [poolLiquidity, setPoolLiquidity] = useState<IPoolLiquidity | null>(null);
   const [recentTxHash, setRecentTxHash] = useState("");
   const [importPool, setImportPool] = useState<string>();
-  
+
   //hooks
   useLiquidityPos(importPool, setImportPool);
   useAutoLoadToken();
@@ -184,7 +184,7 @@ const Stake = () => {
         setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
         setOceanBalance();
         if (token2.info) {
-          setImportPool(token2.info.pool)
+          setImportPool(token2.info.pool);
         }
 
         setRecentTxHash(ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash);
@@ -309,7 +309,14 @@ const Stake = () => {
                 <UserMessage message={userMessage.message} pulse={true} container={false} timeout={null} />
               ) : null}
             </div>
-            <StakeSelect />
+            <TokenSelect
+              max={maxStakeAmt}
+              otherToken={"OCEAN"}
+              pos={2}
+              setToken={setToken2}
+              token={token2}
+              updateNum={()=>{}}
+            />
             <div className="px-4 relative mt-6 mb-10">
               <div className="rounded-full border-black border-4 absolute -top-7 bg-trade-darkBlue w-12 h-12 flex items-center justify-center swap-center">
                 {loading ? (
@@ -319,64 +326,16 @@ const Stake = () => {
                 )}
               </div>
             </div>
-            <div className="modalSelectBg p-2 rounded-lg">
-              <div className="md:grid md:grid-cols-5">
-                <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center">
-                  <img
-                    src="https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY"
-                    className="w-10 h-10 rounded-md"
-                    alt=""
-                  />
-                  <div>
-                    <p className="text-xs text-gray-200">Token</p>
-                    <span className="xs:text-sm sm:text-2xl text-gray-200 font-bold grid grid-flow-col items-center gap-1">
-                      <span className="text-sm sm:text-lg">OCEAN</span>
-                    </span>
-                  </div>
-                </div>
-                <div className="col-span-3 mt-3 md:mt-0 bg-black bg-opacity-70 rounded-lg p-1">
-                  <div className="flex justify-between items-center">
-                    {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
-                    <DebounceInput
-                      id="stakeAmtInput"
-                      debounceTimeout={500}
-                      value={token1.value?.toString() || ""}
-                      onChange={(e) => updateNum(e.target.value)}
-                      onWheel={(event: React.MouseEvent<HTMLButtonElement>) => event.currentTarget.blur()}
-                      onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
-                      type="number"
-                      className={`w-full rounded-lg mr-1 bg-black bg-opacity-0 text-2xl px-2 outline-none focus:placeholder-gray-200 placeholder-gray-400 ${
-                        token2 ? "text-white" : "text-gray-500"
-                      }`}
-                      placeholder="0.0"
-                      disabled={!token2}
-                      element={WrappedInput}
-                    />
-                    <div>
-                      <p id="oceanBalance" className="text-sm text-gray-400 whitespace-nowrap text-right mb-1">
-                        Balance: {token1.balance ? token1.balance.dp(3).toString() : "-"}
-                      </p>
-
-                      <div className="text-sm text-gray-300 grid grid-flow-col justify-end gap-2">
-                        <Button
-                          onClick={() => {
-                            setMaxStake();
-                          }}
-                          id="maxStake"
-                          text="Max Stake"
-                          classes={`px-2 py-0 lg:w-20 border rounded-full text-xs ${
-                            token1.balance.isNaN() || token1.balance.eq(0) || !accountId || !token2.info
-                              ? "text-gray-600 border-gray-600"
-                              : "border-gray-300 hover:bg-primary-600"
-                          }`}
-                          disabled={token1.balance && accountId && token2.info ? false : true}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <TokenSelect
+              max={maxStakeAmt}
+              otherToken={""}
+              pos={1}
+              setToken={setToken1}
+              token={token1}
+              updateNum={(num: string) => {                
+                updateNum(num);
+              }}
+            />
             <div className="flex border border-gray-600 mt-4 rounded-lg p-2 w-full">
               <div className="my-1 mr-4">
                 <p className="text-gray-300 text-xs">Swap Rate</p>
@@ -466,7 +425,6 @@ const Stake = () => {
       </div>
 
       <UnlockTokenModal
-        setToken={setToken1}
         nextFunction={() => {
           setShowConfirmModal(true);
           if (!accountId) return;
@@ -478,6 +436,7 @@ const Stake = () => {
             txDateId: Date.now().toString(),
             txType: "stake",
           };
+          setLastTx(preTxDetails)
           executeStake(preTxDetails);
         }}
       />
@@ -513,4 +472,3 @@ const Stake = () => {
   );
 };
 
-export default Stake;

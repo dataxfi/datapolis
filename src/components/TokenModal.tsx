@@ -1,5 +1,5 @@
 import { MdClose } from "react-icons/md";
-import TokenItem from "./TokenItem";
+import TokenModalItem from "./TokenModalItem";
 import { useEffect, useState, useContext, useRef } from "react";
 import Loader from "./Loader";
 import ReactList from "react-list";
@@ -13,10 +13,12 @@ const text = {
 };
 
 const TokenModal = ({ close, onClick, otherToken }: { close: Function; onClick: Function; otherToken: string }) => {
-  const { tokenModalArray, setTokenModalArray, tokenResponse, location, chainId, accountId } =
+  const { tokenModalArray, setTokenModalArray, tokenResponse, location, chainId, accountId} =
     useContext(GlobalContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+
+  
 
   useTokenList({ otherToken, setLoading, setError });
 
@@ -37,7 +39,7 @@ const TokenModal = ({ close, onClick, otherToken }: { close: Function; onClick: 
   }, [tokenResponse, tokenModalArray]);
 
   const tokenRenderer = (idx: number, key: string | number) => {
-    if (tokenModalArray) return <TokenItem onClick={onClick} key={key} token={tokenModalArray[idx]} />;
+    if (tokenModalArray) return <TokenModalItem onClick={onClick} key={key} token={tokenModalArray[idx]} />;
     return <></>;
   };
 

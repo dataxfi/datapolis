@@ -8,15 +8,7 @@ import errorMessages from "../utils/errorMessages";
 import { getAllowance } from "../hooks/useTokenList";
 import { ApprovalStates } from "../utils/types";
 import OutsideClickHandler from "react-outside-click-handler";
-export default function UnlockTokenModal({
-  setToken,
-  nextFunction,
-  remove,
-}: {
-  setToken: Function;
-  nextFunction: Function;
-  remove?: boolean;
-}) {
+export default function UnlockTokenModal({ nextFunction }: { nextFunction: Function; }) {
   const {
     accountId,
     config,
@@ -29,11 +21,13 @@ export default function UnlockTokenModal({
     token1,
     token2,
     setLastTx,
+    setToken1,
+    location,
   } = useContext(GlobalContext);
   const [approving, setApproving] = useState<ApprovalStates>("pending");
   const [pool, setPool] = useState<string | null>(null);
   const [address, setAddress] = useState<string | null>(null);
-
+  const remove = "/stake/remove"
   // Set up the interval.
   useEffect(() => {
     let delay: number | null = 1500;
@@ -81,10 +75,10 @@ export default function UnlockTokenModal({
         let txReceipt;
         if (amount === "perm") {
           txReceipt = await ocean.approve(address, pool, new BigNumber(18e10).toString(), accountId);
-          setToken({ ...token1, allowance: new BigNumber(18e10) });
+          setToken1({ ...token1, allowance: new BigNumber(18e10) });
         } else {
           txReceipt = await ocean.approve(address, pool, token1.value.plus(0.001).toString(), accountId);
-          setToken({ ...token1, allowance: token1.value.plus(0.001) });
+          setToken1({ ...token1, allowance: token1.value.plus(0.001) });
         }
 
         if (lastTx?.txType === "approve") {
@@ -150,8 +144,8 @@ export default function UnlockTokenModal({
           <h3 className="text-sm lg:text-2xl pb-5">Unlock {token1.info.symbol}</h3>
           <p className="text-sm lg:text-base text-center pb-5">
             DataX needs your permission to spend{" "}
-            {remove ? lastTx.shares?.dp(5).toString() : token1.value.dp(5).toString()}{" "}
-            {remove ? "shares" : token1.info.symbol}.
+            {location === remove ? lastTx.shares?.dp(5).toString() : token1.value.dp(5).toString()}{" "}
+            {location === remove ? "shares" : token1.info.symbol}.
           </p>
 
           <button

@@ -44,6 +44,8 @@ export interface IToken {
   allowance?: BigNumber;
 }
 
+export type TokenSelectTitles = "You are buying" | "You are selling" | "Token"
+
 export interface IMaxExchange {
   maxBuy: BigNumber;
   maxSell: BigNumber;
