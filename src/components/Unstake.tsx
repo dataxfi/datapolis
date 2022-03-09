@@ -390,8 +390,6 @@ export default function  Unstake () {
               setToken={setToken1}
               token={token1}
               updateNum={updateNum}
-              
-              
               />
               {/* <div className="flex modalSelectBg p-2 rounded items-center justify-between lg:justify-around">
                 <div className="w-max h-full mr-4 flex">

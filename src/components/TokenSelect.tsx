@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BsBoxArrowUpRight, BsChevronDown } from "react-icons/bs";
 import TokenModal from "./TokenModal";
 import { DebounceInput } from "react-debounce-input";
@@ -18,20 +18,26 @@ export default function TokenSelect({
   updateNum,
   otherToken,
   onPerc = () => {},
+  onMax = () => {},
   max,
 }: {
   setToken: React.Dispatch<React.SetStateAction<IToken>>;
   token: IToken;
   pos: 1 | 2;
-  updateNum: Function;
+  updateNum?: Function;
   otherToken: string;
   onPerc?: Function;
+  onMax?: Function;
   max: BigNumber;
 }) {
   const [showModal, setShowModal] = useState(false);
   const { accountId, handleConnect, tokensCleared, location, config, ocean } = useContext(GlobalContext);
-
+  const enabled = useRef(false);
   const [title, setTitle] = useState<TokenSelectTitles>();
+
+  useEffect(() => {
+    if (accountId  && max.gt(0)) enabled.current = true;
+  });
 
   useEffect(() => {
     if (location === "/trade") {
@@ -66,9 +72,7 @@ export default function TokenSelect({
     }
   }
 
-  function checksPass() {
-    return accountId && otherToken && token?.value && token.balance.gt(0.00001);
-  }
+  console.log(enabled.current);
 
   return (
     <div id={`${pos}-swapInput`} className="mt-4 rounded-xl">
@@ -151,7 +155,7 @@ export default function TokenSelect({
                   disabled={token?.loading || location === "/stake/remove"}
                   debounceTimeout={500}
                   onChange={(e) => {
-                    updateNum(e.target.value);
+                    if (updateNum) updateNum(e.target.value);
                   }}
                   onWheel={(event: React.MouseEvent<HTMLInputElement>) => event.currentTarget.blur()}
                   onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
@@ -169,18 +173,20 @@ export default function TokenSelect({
                   ) : (
                     <></>
                   )}
-                  {pos === 2 ? null : token?.balance ? (
+                  {pos === 2 || location === "/stake/remove" ? null : token?.balance ? (
                     <div className="text-sm text-gray-300 grid grid-flow-col justify-end gap-2">
                       <Button
-                        id="maxTrade"
+                        id="maxBtn"
                         onClick={() => {
-                          if (checksPass()) onPerc(100);
+                          console.log(enabled.current);
+
+                          if (enabled.current) onMax();
                         }}
                         text="Max"
                         classes={`${
-                          checksPass() ? "border-gray-300 hover:bg-primary-600" : "text-gray-600 border-gray-600"
+                          enabled.current ? "border-gray-300 hover:bg-primary-600" : "text-gray-600 border-gray-600"
                         } px-2 py-0 border rounded-full text-xs`}
-                        disabled={checksPass() ? false : true}
+                        disabled={enabled.current ? false : true}
                       />
                       <DebounceInput
                         id={`token${pos}-perc-input`}
@@ -188,13 +194,13 @@ export default function TokenSelect({
                         type="number"
                         debounceTimeout={500}
                         onChange={(e) => {
-                          if (checksPass()) onPerc(e.target.value);
+                          if (enabled.current) onPerc(e.target.value);
                         }}
                         className={`text-xs ${
-                          checksPass() ? "modalSelectBg bg-opacity-25" : "bg-primary-500 bg-opacity-25 text-primary-600"
+                          enabled.current ? "modalSelectBg bg-opacity-25" : "bg-primary-500 bg-opacity-25 text-primary-600"
                         }   py-1 rounded px-1 w-12 outline-none`}
                         placeholder="%"
-                        disabled={checksPass() ? false : true}
+                        disabled={enabled.current ? false : true}
                       />
                     </div>
                   ) : (

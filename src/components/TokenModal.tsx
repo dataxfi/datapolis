@@ -8,7 +8,7 @@ import useTokenList, { formatTokenArray } from "../hooks/useTokenList";
 import OutsideClickHandler from "react-outside-click-handler";
 import { TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
 
-const TokenModal = ({
+export default function TokenModal({
   close,
   onClick,
   otherToken,
@@ -18,7 +18,7 @@ const TokenModal = ({
   onClick: Function;
   otherToken: string;
   pos?: 1 | 2;
-}) => {
+}) {
   const {
     datatokens,
     setDatatokens,
@@ -33,12 +33,63 @@ const TokenModal = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [showDtks, setShowDtks] = useState<boolean>(true);
-
+  const [commons, setCommons] = useState<TokenInfo[]>([
+    {
+      pool: "adfa",
+      address: "0x006BeA43Baa3f7A6f765F14f10A1a1b08334EF45",
+      chainId: 1,
+      name: "Stox",
+      symbol: "STX",
+      decimals: 18,
+      logoURI: "https://tokens.1inch.io/0x006bea43baa3f7a6f765f14f10a1a1b08334ef45.png",
+    },
+    {
+      pool: "adfa",
+      address: "0x006BeA43Baa3f7A6f765F14f10A1a1b08334EF45",
+      chainId: 1,
+      name: "Stox",
+      symbol: "STX",
+      decimals: 18,
+      logoURI: "https://tokens.1inch.io/0x006bea43baa3f7a6f765f14f10a1a1b08334ef45.png",
+    },
+    {
+      pool: "adfa",
+      address: "0x006BeA43Baa3f7A6f765F14f10A1a1b08334EF45",
+      chainId: 1,
+      name: "Stox",
+      symbol: "STX",
+      decimals: 18,
+      logoURI: "https://tokens.1inch.io/0x006bea43baa3f7a6f765f14f10a1a1b08334ef45.png",
+    },
+    {
+      pool: "adfa",
+      address: "0x006BeA43Baa3f7A6f765F14f10A1a1b08334EF45",
+      chainId: 1,
+      name: "Stox",
+      symbol: "STX",
+      decimals: 18,
+      logoURI: "https://tokens.1inch.io/0x006bea43baa3f7a6f765f14f10a1a1b08334ef45.png",
+    },
+    {
+      pool: "adfa",
+      address: "0x006BeA43Baa3f7A6f765F14f10A1a1b08334EF45",
+      chainId: 1,
+      name: "Stox",
+      symbol: "STX",
+      decimals: 18,
+      logoURI: "https://tokens.1inch.io/0x006bea43baa3f7a6f765f14f10a1a1b08334ef45.png",
+    },
+    {
+      pool: "adfa",
+      address: "0x006BeA43Baa3f7A6f765F14f10A1a1b08334EF45",
+      chainId: 1,
+      name: "Stox",
+      symbol: "STX",
+      decimals: 18,
+      logoURI: "https://tokens.1inch.io/0x006bea43baa3f7a6f765f14f10a1a1b08334ef45.png",
+    },
+  ]);
   useTokenList({ otherToken, setLoading, setError });
-
-  useEffect(() => {
-    console.log(pos, location);
-  }, [pos, location]);
 
   const initialChain = useRef(chainId);
   useEffect(() => {
@@ -92,14 +143,14 @@ const TokenModal = ({
   return (
     <div
       id="tokenModal"
-      className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 w-full sm:max-w-xs"
+      className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 w-full sm:max-w-sm"
     >
       <OutsideClickHandler
         onOutsideClick={() => {
           close();
         }}
       >
-        <div className="p-2 bg-background border-primary-500 border rounded-lg hm-box mx-3">
+        <div className="p-2 bg-background border-primary-500 border rounded-lg hm-box mx-3 max-h-109 overflow-hidden">
           <div className="flex justify-between items-center">
             <p className="mb-0 text-gray-100 text-xl pl-2">Select a token</p>
             <MdClose
@@ -111,7 +162,16 @@ const TokenModal = ({
               className="text-gray-100 text-2xl"
             />
           </div>
-          {location === "/stake" && pos === 2 || location === "/stake/list" ? (
+          <div className="mt-2">
+            <input
+              id="tokenSearch"
+              onChange={(e) => searchToken(e.target.value)}
+              type="text"
+              placeholder="Search token"
+              className="px-4 py-2 h-full w-full rounded-lg bg-primary-900 text-base outline-none focus:placeholder-gray-200 placeholder-gray-400"
+            />
+          </div>
+          {(location === "/stake" && pos === 2) || location === "/stake/list" ? (
             <></>
           ) : (
             <div className="w-full px-2 mt-2">
@@ -133,15 +193,6 @@ const TokenModal = ({
               </button>
             </div>
           )}
-          <div className="mt-2">
-            <input
-              id="tokenSearch"
-              onChange={(e) => searchToken(e.target.value)}
-              type="text"
-              placeholder="Search token"
-              className="px-4 py-2 h-full w-full rounded-lg bg-primary-900 text-base outline-none focus:placeholder-gray-200 placeholder-gray-400"
-            />
-          </div>
           {loading ? (
             loader
           ) : error ? (
@@ -153,9 +204,33 @@ const TokenModal = ({
               <ReactList itemRenderer={tokenRenderer} length={datatokens ? datatokens.length : 0} type="simple" />
             </div>
           ) : ERC20Tokens && !showDtks ? (
-            <div className="mt-4 hm-hide-scrollbar overflow-y-scroll" style={{ maxHeight: "60vh" }} id="tokenList">
-              <ReactList itemRenderer={tokenRenderer} length={ERC20Tokens ? ERC20Tokens.length : 0} type="simple" />
-            </div>
+            <>
+              <div className="flex flex-col mt-2">
+                <p>Common</p>
+                <hr className="py-1" />
+              </div>
+              <ul className="flex flex-wrap w-full">
+                {commons.map((token, index) => (
+                  <li
+                    key={`common${index}`}
+                    className="rounded mx-1 my-1 py-2px bg-city-blue bg-opacity-25 hover:bg-opacity-40"
+                  >
+                    <button
+                      className="flex  px-2 items-center"
+                      onClick={() => {
+                        onClick(token);
+                      }}
+                    >
+                      <img src={token.logoURI} className="rounded-lg w-5 h-5 mr-1" alt="" loading="lazy" />
+                      <p>{token.symbol}</p>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-4 hm-hide-scrollbar overflow-y-scroll" style={{ maxHeight: "60vh" }} id="tokenList">
+                <ReactList itemRenderer={tokenRenderer} length={ERC20Tokens ? ERC20Tokens.length : 0} type="simple" />
+              </div>
+            </>
           ) : (
             loader
           )}
@@ -163,6 +238,4 @@ const TokenModal = ({
       </OutsideClickHandler>
     </div>
   );
-};
-
-export default TokenModal;
+}

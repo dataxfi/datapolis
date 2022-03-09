@@ -10,8 +10,6 @@ import UserMessage from "./UserMessage";
 import errorMessages from "../utils/errorMessages";
 import useLiquidityPos from "../hooks/useLiquidityPos";
 import BigNumber from "bignumber.js";
-import { DebounceInput } from "react-debounce-input";
-import WrappedInput from "./WrappedInput";
 import UnlockTokenModal from "./UnlockTokenModal";
 import { IToken, ITxDetails, IUserMessage } from "../utils/types";
 import { getAllowance } from "../hooks/useTokenList";
@@ -26,7 +24,7 @@ const INITIAL_BUTTON_STATE = {
   disabled: false,
 };
 
-export default function Stake () {
+export default function Stake() {
   const {
     ocean,
     accountId,
@@ -315,7 +313,7 @@ export default function Stake () {
               pos={2}
               setToken={setToken2}
               token={token2}
-              updateNum={()=>{}}
+              updateNum={() => {}}
             />
             <div className="px-4 relative mt-6 mb-10">
               <div className="rounded-full border-black border-4 absolute -top-7 bg-trade-darkBlue w-12 h-12 flex items-center justify-center swap-center">
@@ -332,9 +330,10 @@ export default function Stake () {
               pos={1}
               setToken={setToken1}
               token={token1}
-              updateNum={(num: string) => {                
+              updateNum={(num: string) => {
                 updateNum(num);
               }}
+              onMax={setMaxStake}
             />
             <div className="flex border border-gray-600 mt-4 rounded-lg p-2 w-full">
               <div className="my-1 mr-4">
@@ -436,7 +435,7 @@ export default function Stake () {
             txDateId: Date.now().toString(),
             txType: "stake",
           };
-          setLastTx(preTxDetails)
+          setLastTx(preTxDetails);
           executeStake(preTxDetails);
         }}
       />
@@ -470,5 +469,4 @@ export default function Stake () {
       {/* <PositionBox />  */}
     </div>
   );
-};
-
+}

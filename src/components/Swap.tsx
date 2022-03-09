@@ -682,6 +682,7 @@ export default function Swap() {
             token={token1}
             max={maxExchange.maxSell}
             onPerc={onPercToken1}
+            onMax={() => onPercToken1('100')}
             otherToken={token2?.info ? token2.info.symbol : ""}
             pos={1}
             updateNum={dbUpdateToken1}
