@@ -56,8 +56,8 @@ function DisclaimerModal() {
   }
 
   return (
-    <div id="disclaimer-modal" className="absolute w-full h-full max-h-full z-10 overflow-hidden py-18">
-      <div className="h-102 md:h-full max-w-2xl m-auto bg-black bg-opacity-80 w-full rounded-lg p-4 hm-box flex flex-col xs:p-1 sm:p-4 md:px-10 py-4">
+    <div id="disclaimer-modal" className="absolute w-full h-full max-h-full z-10 overflow-hidden py-18 px-4">
+      <div className="h-102 md:h-full max-w-2xl m-auto bg-black bg-opacity-80 w-full rounded-lg hm-box flex flex-col p-1 sm:p-4 md:px-10 py-4">
         <h2 className="md:text-2xl text-xl self-center mb-2">Disclaimer</h2>
         <div className="h-3/5 lg:h-full overflow-scroll md:overflow-auto w-full p-2 bg-primary-900 rounded">
           <p className="whitespace-pre-wrap p-2 text-xs md:text-sm">{Disclaimer()}</p>
