@@ -10,6 +10,7 @@ import WrappedInput from "./WrappedInput";
 import { ReactComponent as XLogo } from "../assets/datax-x-logo.svg";
 import { TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
 import { IToken, TokenSelectTitles } from "../utils/types";
+import MaxToolTip from "./MaxToolTip";
 
 export default function TokenSelect({
   setToken,
@@ -174,7 +175,8 @@ export default function TokenSelect({
                     <></>
                   )}
                   {pos === 2 || location === "/stake/remove" ? null : token?.balance ? (
-                    <div className="text-sm text-gray-300 grid grid-flow-col justify-end gap-2">
+                    <div className="text-sm text-gray-300 grid grid-flow-col justify-end gap-2 items-center">
+                      <MaxToolTip/>
                       <Button
                         id="maxBtn"
                         onClick={() => {
