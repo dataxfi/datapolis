@@ -148,7 +148,7 @@ export default function TokenSelect({
                   data-test-max={max.dp(5).toString()}
                   max={max}
                   step="any"
-                  disabled={token?.loading}
+                  disabled={token?.loading || location === "/stake/remove"}
                   debounceTimeout={500}
                   onChange={(e) => {
                     updateNum(e.target.value);
