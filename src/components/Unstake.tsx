@@ -38,6 +38,7 @@ export default function  Unstake () {
     setLastTx,
     lastTx,
     setSingleLiquidityPos,
+    showUnlockTokenModal
   } = useContext(GlobalContext);
   const [recentTxHash, setRecentTxHash] = useState("");
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
@@ -392,31 +393,6 @@ export default function  Unstake () {
               token={token1}
               updateNum={updateNum}
               />
-              {/* <div className="flex modalSelectBg p-2 rounded items-center justify-between lg:justify-around">
-                <div className="w-max h-full mr-4 flex">
-                  <p className="text-gray-100">You will receive</p>
-                </div>
-                <div className="bg-trade-darkBlue grid grid-flow-col gap-2 p-2 rounded-lg">
-                  <div>
-                    <img
-                      src="https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY"
-                      className="w-12 rounded-lg"
-                      alt=""
-                    />
-                  </div>
-                  <div>
-                    <p
-                      data-test-max-ocean={maxUnstake?.OCEAN.dp(5).toString()}
-                      id="oceanToReceive"
-                      title={token1.value.toString()}
-                      className="text-gray-100 w-20 overflow-hidden overflow-ellipsis whitespace-nowrap"
-                    >
-                      {token1.value.lt(new BigNumber(0.00001)) ? 0 : token1.value.toString() || 0}
-                    </p>
-                    <p className="text-xs text-gray-100">{singleLiquidityPos?.token1Info.symbol}</p>
-                  </div>
-                </div>
-              </div> */}
               <div className="flex mt-4">
                 {/* <div className="bg-gradient"></div> */}
                 <Button
@@ -473,7 +449,7 @@ export default function  Unstake () {
         <></>
       )}
 
-      {singleLiquidityPos ? (
+      {singleLiquidityPos && showUnlockTokenModal ? (
         <UnlockTokenModal
           nextFunction={() => {
             if (setShowConfirmModal) setShowConfirmModal(true);

@@ -45,6 +45,7 @@ export default function Stake() {
     setLastTx,
     lastTx,
     tokensCleared,
+    showUnlockTokenModal
   } = useContext(GlobalContext);
   const [dtToOcean, setDtToOcean] = useState<BigNumber>(new BigNumber(""));
   const [oceanToDt, setOceanToDt] = useState<BigNumber>(new BigNumber(""));
@@ -423,7 +424,7 @@ export default function Stake() {
         </div>
       </div>
 
-      <UnlockTokenModal
+      {showUnlockTokenModal? <UnlockTokenModal
         nextFunction={() => {
           setShowConfirmModal(true);
           if (!accountId) return;
@@ -439,7 +440,9 @@ export default function Stake() {
           executeStake(preTxDetails);
         }}
       />
+ :<></>}
 
+      
       <ConfirmModal
         show={showConfirmModal ? showConfirmModal : false}
         close={() => {

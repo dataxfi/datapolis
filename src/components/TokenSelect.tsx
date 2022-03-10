@@ -32,12 +32,19 @@ export default function TokenSelect({
 }) {
   const [showModal, setShowModal] = useState(false);
   const { accountId, handleConnect, tokensCleared, location, config, ocean } = useContext(GlobalContext);
-  const enabled = useRef(false);
+  const [enabled, setEndabled] = useState(false);
   const [title, setTitle] = useState<TokenSelectTitles>();
 
   useEffect(() => {
-    if (accountId  && max.gt(0)) enabled.current = true;
-  });
+    console.log(accountId && max.gt(0) && token.balance.gt(0), token);
+
+    if (accountId && max.gt(0) && token.balance.gt(0)) {
+      setEndabled(true);
+    } else {
+      setEndabled(false);
+    }
+    console.log(enabled);
+  }, [token, max, accountId]);
 
   useEffect(() => {
     if (location === "/trade") {
@@ -50,9 +57,9 @@ export default function TokenSelect({
       setTitle("You will receive");
     } else {
       if (pos === 1) {
-        setTitle("You are spending");
+        setTitle("You are staking");
       } else {
-        setTitle("Pool");
+        setTitle("Datatoken pool");
       }
     }
   }, [location, setTitle, pos]);
@@ -71,8 +78,6 @@ export default function TokenSelect({
       if (handleConnect) handleConnect();
     }
   }
-
-  console.log(enabled.current);
 
   return (
     <div id={`${pos}-swapInput`} className="mt-4 rounded-xl">
@@ -178,15 +183,15 @@ export default function TokenSelect({
                       <Button
                         id="maxBtn"
                         onClick={() => {
-                          console.log(enabled.current);
+                          console.log(enabled);
 
-                          if (enabled.current) onMax();
+                          if (enabled) onMax();
                         }}
                         text="Max"
                         classes={`${
-                          enabled.current ? "border-gray-300 hover:bg-primary-600" : "text-gray-600 border-gray-600"
+                          enabled ? "border-gray-300 hover:bg-primary-600" : "text-gray-600 border-gray-600"
                         } px-2 py-0 border rounded-full text-xs`}
-                        disabled={enabled.current ? false : true}
+                        disabled={enabled ? false : true}
                       />
                       <DebounceInput
                         id={`token${pos}-perc-input`}
@@ -194,13 +199,13 @@ export default function TokenSelect({
                         type="number"
                         debounceTimeout={500}
                         onChange={(e) => {
-                          if (enabled.current) onPerc(e.target.value);
+                          if (enabled) onPerc(e.target.value);
                         }}
                         className={`text-xs ${
-                          enabled.current ? "modalSelectBg bg-opacity-25" : "bg-primary-500 bg-opacity-25 text-primary-600"
+                          enabled ? "modalSelectBg bg-opacity-25" : "bg-primary-500 bg-opacity-25 text-primary-600"
                         }   py-1 rounded px-1 w-12 outline-none`}
                         placeholder="%"
-                        disabled={enabled.current ? false : true}
+                        disabled={enabled ? false : true}
                       />
                     </div>
                   ) : (

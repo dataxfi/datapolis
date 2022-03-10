@@ -26,7 +26,7 @@ export interface IPoolLiquidity {
   oceanAmount: BigNumber;
 }
 
-export type TokenSelectTitles = "You are buying" | "You are selling" | "Pool" | "You are spending" | "You will receive";
+export type TokenSelectTitles = "You are buying" | "You are selling" | "Datatoken pool" | "You are staking" | "You will receive";
 
 export interface IUserMessage {
   message?: any;

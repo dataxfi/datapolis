@@ -44,6 +44,7 @@ export default function Swap() {
     setLastTx,
     lastTx,
     tokensCleared,
+    showUnlockTokenModal
   } = useContext(GlobalContext);
   const [showSettings, setShowSettings] = useState(false);
   const [showConfirmSwapModal, setShowConfirmSwapModal] = useState(false);
@@ -153,7 +154,6 @@ export default function Swap() {
     setExactToken(1);
   }
 
-  // fromToken needs to be removed from this function (its always true)
   function updateValueFromPercentage(value: string) {
     // max case is handled in onPerc for token1
     let perc = new BigNumber(value);
@@ -578,7 +578,8 @@ export default function Swap() {
           </div>
         </div>
       </div>
-      <UnlockTokenModal nextFunction={() => setShowConfirmSwapModal(true)} />
+      {showUnlockTokenModal ? <UnlockTokenModal nextFunction={() => setShowConfirmSwapModal(true)} /> : <></>}
+
       <ConfirmSwapModal
         close={() => setShowConfirmSwapModal(false)}
         confirm={() => {

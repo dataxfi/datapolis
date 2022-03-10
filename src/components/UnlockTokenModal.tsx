@@ -12,7 +12,6 @@ export default function UnlockTokenModal({ nextFunction }: { nextFunction: Funct
     accountId,
     config,
     ocean,
-    showUnlockTokenModal,
     setShowUnlockTokenModal,
     notifications,
     setNotifications,
@@ -108,7 +107,7 @@ export default function UnlockTokenModal({ nextFunction }: { nextFunction: Funct
     }
   }
 
-  return showUnlockTokenModal && token1.info && lastTx ? (
+  return token1.info && lastTx ? (
     <div
       id="transactionDoneModal"
       className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 sm:max-w-sm w-full z-20 shadow"
