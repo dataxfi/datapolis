@@ -13,8 +13,8 @@ import { MoonLoader } from "react-spinners";
 import BigNumber from "bignumber.js";
 import UnlockTokenModal from "./UnlockTokenModal";
 import { getAllowance } from "../hooks/useTokenList";
-import { IMaxExchange, IBtnProps, ITxDetails } from "../utils/types";
-import { Ocean } from "@dataxfi/datax.js";
+import { IBtnProps, ITxDetails } from "../utils/types";
+import { Ocean, IMaxExchange } from "@dataxfi/datax.js";
 
 const INITIAL_MAX_EXCHANGE: IMaxExchange = {
   maxBuy: new BigNumber(0),
@@ -22,10 +22,6 @@ const INITIAL_MAX_EXCHANGE: IMaxExchange = {
   maxPercent: new BigNumber(0),
   postExchange: new BigNumber(0),
 };
-
-export function isOCEAN(tokenAddress: string, ocean: Ocean) {
-  return tokenAddress.toLowerCase() === ocean.config.default.oceanTokenAddress.toLowerCase();
-}
 
 export default function Swap() {
   const {
@@ -74,7 +70,7 @@ export default function Swap() {
       updateBalance(token1.info.address)
         .then((balance) => {
           if (!balance) return;
-          if (token1.info && token2.info && isOCEAN(token1.info.address, ocean)) {
+          if (token1.info && token2.info && ocean.isOCEAN(token1.info.address)) {
             getAllowance(token1.info.address, accountId, token2.info.pool, ocean).then((res) => {
               setToken1({
                 ...token1,
@@ -84,7 +80,7 @@ export default function Swap() {
                 percentage: new BigNumber(0),
               });
             });
-          } else if (token1.info && token2.info && isOCEAN(token2.info.address, ocean)) {
+          } else if (token1.info && token2.info && ocean.isOCEAN(token2.info.address)) {
             getAllowance(token1.info.address, accountId, token1.info.pool, ocean).then((res) => {
               setToken1({
                 ...token1,
@@ -116,7 +112,11 @@ export default function Swap() {
           setMaxExchange(INITIAL_MAX_EXCHANGE);
           console.log(balance?.toString());
 
-          getMaxExchange(signal, balance)
+          let updatedToken1;
+          balance ? (updatedToken1 = { ...token1, balance }) : (updatedToken1 = token1);
+
+          ocean
+            .getMaxExchange(updatedToken1, token2, signal)
             .then((res: IMaxExchange | void) => {
               if (res) {
                 setMaxExchange(res);
@@ -141,150 +141,6 @@ export default function Swap() {
     return () => controller.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token1.info, token2.info, ocean, accountId]);
-
-  async function getMaxExchange(signal?: AbortSignal, token1Balance?: BigNumber | null): Promise<IMaxExchange> {
-    const balance = token1Balance ? token1Balance : token1?.balance;
-    return new Promise<IMaxExchange>(async (resolve, reject) => {
-      signal?.addEventListener("abort", (e) => {
-        reject(new Error("aborted"));
-      });
-
-      if (balance.lt(0.00001)) {
-        console.log("REsolveing 0");
-
-        resolve({
-          maxPercent: new BigNumber(100),
-          maxSell: new BigNumber(0),
-          maxBuy: new BigNumber(0),
-          postExchange: new BigNumber(0),
-        });
-      }
-
-      let maxBuy: BigNumber;
-      let maxSell: BigNumber;
-      let maxPercent: BigNumber;
-      try {
-        if (
-          ocean &&
-          token1?.info &&
-          token2?.info &&
-          !isOCEAN(token1.info.address, ocean) &&
-          !isOCEAN(token2.info.address, ocean)
-        ) {
-          // try {
-          // } catch (error) {}
-          maxSell = new BigNumber(await ocean?.getMaxExchange(token1.info.pool)).dp(0);
-          console.log("Max Sell", maxSell.toString());
-
-          let DtReceivedForMaxSell: BigNumber = new BigNumber(
-            await ocean?.getDtReceivedForExactDt(maxSell.toString(), token1.info.pool, token2.info.pool)
-          );
-          console.log("Dt Received for max sell", DtReceivedForMaxSell.toString());
-          const oceanNeededForSellResponse = await ocean?.getOceanNeeded(token1.info.pool, maxSell.toString());
-          const oceanNeededForMaxSell = new BigNumber(oceanNeededForSellResponse || 0);
-
-          maxBuy = new BigNumber(await ocean?.getMaxExchange(token2.info.pool)).dp(0);
-          console.log("Max Buy", maxBuy.toString());
-          const oceanNeededForBuyResponse = await ocean?.getOceanNeeded(token2.info.pool, maxBuy.toString());
-          const oceanNeededForMaxBuy = new BigNumber(oceanNeededForBuyResponse || 0);
-
-          console.log(
-            `Ocean needed for max sell: ${oceanNeededForMaxSell} \n Ocean Needed for max buy: ${oceanNeededForMaxBuy}`
-          );
-
-          let DtNeededForMaxBuy: BigNumber;
-          //limited by buy token
-          if (oceanNeededForMaxSell.gt(oceanNeededForMaxBuy)) {
-            // If the ocean needed for the maxSell is greater than the ocean needed for the max buy, then the maxSell can be left as is
-            // and the maxBuy is set to the the DT received for the max sell
-            DtNeededForMaxBuy = new BigNumber(
-              await ocean?.getDtNeededForExactDt(maxBuy.toString(), token1.info.pool, token2.info.pool)
-            );
-            maxSell = DtNeededForMaxBuy;
-          } else {
-            // If the ocean needed for the maxSell is less than the ocean needed for the max buy, then the maxSell needs to be set
-            // to the Dt needed for the maxBuy, and the max buy can stay as is
-            // limited by sell token
-            maxBuy = DtReceivedForMaxSell;
-          }
-        } else if (ocean && token1?.info && token2?.info && isOCEAN(token2.info.address, ocean)) {
-          // DT to OCEAN
-          // Max sell is the max amount of DT that can be traded
-          maxSell = new BigNumber(await ocean?.getMaxExchange(token1.info.pool));
-          maxSell = new BigNumber(maxSell || 0);
-          // console.log("Exact max sell:", maxSell.toString());
-          // Max buy is the amount of OCEAN bought from max sell
-          maxBuy = new BigNumber(await calculateExchange(true, maxSell));
-        } else if (ocean && token1?.info && token2?.info) {
-          // OCEAN to DT
-          // Max buy is the max amount of DT that can be traded
-          maxBuy = new BigNumber(await ocean?.getMaxExchange(token2.info.pool));
-          maxBuy = new BigNumber(maxBuy || 0);
-          // console.log("Exact max buy:", maxBuy.toString());
-          if (maxBuy.minus(maxBuy.dp(0)).gte(0.05)) {
-            maxBuy = maxBuy.dp(0);
-          } else {
-            maxBuy = maxBuy.minus(0.05);
-          }
-          //Max sell is the amount of OCEAN sold for maxBuy
-          maxSell = await calculateExchange(false, maxBuy);
-          // console.log("Max Sell:", maxSell.toString());
-        } else {
-          maxPercent = new BigNumber(100);
-          maxBuy = new BigNumber(18e10);
-          maxSell = new BigNumber(18e10);
-        }
-
-        //Max percent is the percent of the max sell out of token 1 balance
-        //if balance is 0 max percent should be 0
-        if (balance?.eq(0)) {
-          maxPercent = new BigNumber(0);
-        } else {
-          // console.log("Max Sell:", maxSell.toString());
-          maxPercent = maxSell.div(balance).multipliedBy(100);
-        }
-
-        //if maxPercent is greater than 100, max buy and sell is determined by the balance of token1
-        // console.log("Max percent", Number(maxPercent));
-
-        if (maxPercent.gt(100)) {
-          maxPercent = new BigNumber(100);
-          if (balance?.dp(5).gt(0.00001)) {
-            maxSell = balance.dp(5);
-            maxBuy = await calculateExchange(true, maxSell);
-          }
-        }
-
-        const postExchange = maxBuy.div(maxSell);
-
-        const maxExchange: IMaxExchange = {
-          maxPercent,
-          maxBuy: maxBuy.dp(5),
-          maxSell: maxSell.dp(5),
-          postExchange,
-        };
-        console.log(
-          "Max Buy:",
-          maxBuy.toString(),
-          "Max Sell:",
-          maxSell.toString(),
-          "Max Percent:",
-          maxPercent.toString()
-        );
-
-        resolve(maxExchange);
-      } catch (error) {
-        console.error(error);
-      }
-      //This is here to not restict the user from attempting a trade if the max exchange could not be determined.
-      resolve({
-        maxPercent: new BigNumber(100),
-        maxBuy: new BigNumber(18e10),
-        maxSell: new BigNumber(18e10),
-        postExchange: new BigNumber(0.01234),
-      });
-    });
-  }
 
   async function updateBalance(address: string) {
     if (!ocean || !accountId) return;
@@ -316,16 +172,16 @@ export default function Swap() {
   }
 
   async function updateOtherTokenValue(from: boolean, inputAmount: BigNumber) {
-    if (token1?.info && token2?.info) {
+    if (token1?.info && token2?.info && ocean) {
       if (from) {
         setToken2({ ...token2, loading: true });
-        let exchange = await calculateExchange(from, inputAmount);
+        let exchange = await ocean.calculateExchange(from, inputAmount, token1, token2);
         setPostExchange(exchange.div(inputAmount));
         setToken2({ ...token2, value: exchange, loading: false });
         setExactToken(1);
       } else {
         setToken1({ ...token1, loading: true });
-        let exchange = await calculateExchange(from, inputAmount);
+        let exchange = await ocean.calculateExchange(from, inputAmount, token1, token2);
         console.log(inputAmount.toString(), exchange.toString());
 
         setPostExchange(inputAmount.div(exchange));
@@ -335,55 +191,13 @@ export default function Swap() {
     }
   }
 
-  // This is easily testable, if we someone writes tests for this in the future, it'll be great
-  async function calculateExchange(from: boolean, amount: BigNumber): Promise<BigNumber> {
-    if (!ocean) return new BigNumber(0);
-    try {
-      if (amount.isNaN() || amount.eq(0)) {
-        return new BigNumber(0);
-      }
-      // OCEAN to DT where amount is either from sell or buy input
-      if (token1?.info && token2?.info && isOCEAN(token1.info.address, ocean)) {
-        if (from) {
-          return new BigNumber(await ocean.getDtReceived(token2.info.pool, amount.dp(18).toString()));
-        } else {
-          return new BigNumber(await ocean.getOceanNeeded(token2.info.pool, amount.dp(18).toString()));
-        }
-      }
-
-      // DT to OCEAN where amount is either from sell or buy input
-      if (token1?.info && token2?.info && isOCEAN(token2.info.address, ocean)) {
-        if (from) {
-          return new BigNumber(await ocean.getOceanReceived(token1.info.pool, amount.dp(18).toString()));
-        } else {
-          return new BigNumber(await ocean.getDtNeeded(token1.info.pool, amount.dp(18).toString()));
-        }
-      }
-
-      // DT to DT where amount is either from sell or buy input
-      if (from && token1?.info && token2?.info) {
-        return new BigNumber(
-          await ocean.getDtReceivedForExactDt(amount.dp(18).toString(), token1.info.pool, token2.info.pool)
-        );
-      } else if (token1?.info && token2?.info) {
-        return new BigNumber(
-          await ocean.getDtNeededForExactDt(amount.dp(18).toString(), token1.info.pool, token2.info.pool)
-        );
-      }
-    } catch (error) {
-      console.error(error);
-      return new BigNumber(0);
-    }
-    return new BigNumber(0);
-  }
-
   async function makeTheSwap(preTxDetails: ITxDetails) {
     let txReceipt = null;
 
     let decSlippage = slippage.div(100).dp(5);
     if (!chainId || !token2.info || !token1.info || !accountId || !ocean || !config) return;
     try {
-      if (isOCEAN(token1.info.address, ocean)) {
+      if (ocean.isOCEAN(token1.info.address)) {
         if (exactToken === 1) {
           console.log("exact ocean to dt");
           // console.log(accountId, token2.info.pool.toString(), token2.value.toString(), token1.value.toString());
@@ -404,7 +218,7 @@ export default function Swap() {
             decSlippage.toString()
           );
         }
-      } else if (isOCEAN(token2.info.address, ocean)) {
+      } else if (ocean.isOCEAN(token2.info.address)) {
         if (exactToken === 1) {
           console.log("exact dt to ocean");
           // console.log(accountId, token1.info.pool, token2.value.toString(), token1.value.toString());
@@ -513,8 +327,8 @@ export default function Swap() {
         });
       } else if (
         ocean &&
-        ((isOCEAN(token1.info.address, ocean) && token1.value.lt(0.01)) ||
-          (isOCEAN(token2.info.address, ocean) && token2.value.lt(0.01)))
+        ((ocean.isOCEAN(token1.info.address) && token1.value.lt(0.01)) ||
+          (ocean.isOCEAN(token2.info.address) && token2.value.lt(0.01)))
       ) {
         setBtnProps({
           text: `Minimum trade is .01 OCEAN`,
@@ -545,13 +359,16 @@ export default function Swap() {
   }
 
   async function dbUpdateToken1(value: string) {
+    if (!ocean) return;
     const bnVal = new BigNumber(value);
     //Setting state here allows for max to be persisted in the input
     setToken1({ ...token1, value: bnVal });
     if (token1?.info && token2?.info) {
       let exchangeLimit = INITIAL_MAX_EXCHANGE;
 
-      maxExchange.maxSell.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await getMaxExchange());
+      maxExchange.maxSell.gt(0)
+        ? (exchangeLimit = maxExchange)
+        : (exchangeLimit = await ocean.getMaxExchange(token1, token2));
 
       const { maxSell, maxBuy, maxPercent } = exchangeLimit;
 
@@ -574,12 +391,15 @@ export default function Swap() {
   }
 
   async function onPercToken1(val: string) {
+    if (!ocean) return;
     setPercLoading(true);
     if (val === "") val = "0";
     let bnVal = new BigNumber(val);
     let exchangeLimit = INITIAL_MAX_EXCHANGE;
 
-    maxExchange.maxPercent.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await getMaxExchange());
+    maxExchange.maxPercent.gt(0)
+      ? (exchangeLimit = maxExchange)
+      : (exchangeLimit = await ocean.getMaxExchange(token1, token2));
 
     console.log(exchangeLimit);
 
@@ -600,13 +420,16 @@ export default function Swap() {
   }
 
   async function dbUpdateToken2(value: string) {
+    if (!ocean) return;
     const bnVal = new BigNumber(value);
     //Setting state here allows for max to be persisted in the input
     setToken2({ ...token2, value: bnVal });
     if (token1?.info && token2?.info) {
       let exchangeLimit;
 
-      maxExchange.maxBuy.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await getMaxExchange());
+      maxExchange.maxBuy.gt(0)
+        ? (exchangeLimit = maxExchange)
+        : (exchangeLimit = await ocean.getMaxExchange(token1, token2));
       const { maxBuy, maxSell } = exchangeLimit;
 
       if (bnVal.gt(maxBuy) && token1.balance.gte(0.00001)) {
@@ -682,7 +505,7 @@ export default function Swap() {
             token={token1}
             max={maxExchange.maxSell}
             onPerc={onPercToken1}
-            onMax={() => onPercToken1('100')}
+            onMax={() => onPercToken1("100")}
             otherToken={token2?.info ? token2.info.symbol : ""}
             pos={1}
             updateNum={dbUpdateToken1}

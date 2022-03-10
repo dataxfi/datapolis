@@ -11,12 +11,12 @@ import errorMessages from "../utils/errorMessages";
 import useLiquidityPos from "../hooks/useLiquidityPos";
 import BigNumber from "bignumber.js";
 import UnlockTokenModal from "./UnlockTokenModal";
-import { IToken, ITxDetails, IUserMessage } from "../utils/types";
+import { ITxDetails, IUserMessage } from "../utils/types";
 import { getAllowance } from "../hooks/useTokenList";
 import { IPoolLiquidity, IBtnProps } from "../utils/types";
-import { isOCEAN } from "./Swap";
 import useAutoLoadToken from "../hooks/useAutoLoadToken";
 import TokenSelect from "./TokenSelect";
+import { IToken } from "@dataxfi/datax.js";
 
 const INITIAL_BUTTON_STATE = {
   text: "Connect wallet",
@@ -64,7 +64,7 @@ export default function Stake() {
 
   useEffect(() => {
     if (!chainId || !web3 || !ocean || !accountId || !tokensCleared.current) return;
-    if (token2.info && !isOCEAN(token2.info.address, ocean)) {
+    if (token2.info && !ocean.isOCEAN(token2.info.address)) {
       updateToken(token2);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

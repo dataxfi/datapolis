@@ -1,6 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { isOCEAN } from "../components/Swap";
 import { GlobalContext } from "../context/GlobalState";
 import { ILiquidityPosition } from "../utils/types";
 import { getToken } from "./useTokenList";
@@ -22,14 +21,13 @@ export default function useLiquidityPos(
 
     if (web3 && ocean && accountId && chainId) {
       let dtPool: string | null = pool;
-      // if (token1.info && token2.info && (isOCEAN(token1.info.address, ocean) || isOCEAN(token2.info?.address, ocean)))
       if (
         dtPool === null &&
         token1.info &&
         token2.info &&
-        (isOCEAN(token1.info.address, ocean) || isOCEAN(token2.info?.address, ocean))
+        (ocean.isOCEAN(token1.info.address) || ocean.isOCEAN(token2.info?.address))
       )
-        isOCEAN(token1.info.address, ocean) ? (dtPool = token1.info.pool) : (dtPool = token2.info.pool);
+        ocean.isOCEAN(token1.info.address) ? (dtPool = token1.info.pool) : (dtPool = token2.info.pool);
 
       const localStoragePoolData = getLocalPoolData(accountId, chainId);
 

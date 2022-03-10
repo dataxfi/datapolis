@@ -3,7 +3,6 @@ import { GlobalContext } from "../context/GlobalState";
 import { BiLockAlt, BiLockOpenAlt } from "react-icons/bi";
 import { MdClose } from "react-icons/md";
 import BigNumber from "bignumber.js";
-import { isOCEAN } from "./Swap";
 import errorMessages from "../utils/errorMessages";
 import { getAllowance } from "../hooks/useTokenList";
 import { ApprovalStates } from "../utils/types";
@@ -58,10 +57,10 @@ export default function UnlockTokenModal({ nextFunction }: { nextFunction: Funct
       let pool: string = "";
       let address: string = "";
 
-      if (token1.info && token2.info && isOCEAN(token1.info.address, ocean)) {
+      if (token1.info && token2.info && ocean.isOCEAN(token1.info.address)) {
         pool = token2.info.pool;
         address = token1.info.address;
-      } else if (token1.info && token2.info && isOCEAN(token2.info.address, ocean)) {
+      } else if (token1.info && token2.info && ocean.isOCEAN(token2.info.address)) {
         pool = token1.info.pool;
         address = token1.info.address;
       } else if (token1.info) {

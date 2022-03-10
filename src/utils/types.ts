@@ -1,11 +1,9 @@
 import BigNumber from "bignumber.js";
-import { TokenDetails } from "@dataxfi/datax.js/dist/Ocean";
+import { ITList, ITokenInfo, IToken } from "@dataxfi/datax.js";
 import { TransactionReceipt } from "web3-core";
-import { Config, Ocean } from "@dataxfi/datax.js";
-import { TList, TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
+import { Config, Ocean, Watcher } from "@dataxfi/datax.js";
 import Web3 from "web3";
 import Web3Modal from "web3modal";
-import Watcher from "@dataxfi/datax.js/dist/Watcher";
 
 export type ApprovalStates = "approved" | "approving" | "pending";
 
@@ -23,41 +21,12 @@ export interface INavText {
   T_CONNECT_WALLET: string;
 }
 
-export interface IMaxUnstake {
-  OCEAN: BigNumber;
-  shares: BigNumber;
-  userPerc: BigNumber;
-}
-
 export interface IPoolLiquidity {
   dtAmount: BigNumber;
   oceanAmount: BigNumber;
 }
 
-export interface IToken {
-  balance: BigNumber;
-  value: BigNumber;
-  info: TokenInfo | null;
-  loading: boolean;
-  percentage: BigNumber;
-  allowance?: BigNumber;
-}
-
 export type TokenSelectTitles = "You are buying" | "You are selling" | "Pool" | "You are spending" | "You will receive";
-
-export interface IMaxExchange {
-  maxBuy: BigNumber;
-  maxSell: BigNumber;
-  maxPercent: BigNumber;
-  postExchange: BigNumber;
-}
-
-export interface ITokenValues {
-  t1Val: string;
-  t2Val: string;
-  t1BN: BigNumber;
-  t2BN: BigNumber;
-}
 
 export interface IUserMessage {
   message?: any;
@@ -74,19 +43,15 @@ export interface IMaxEval {
   t2Input: BigNumber;
   limit: "max" | "bal";
 }
-
-export interface ITokenDetails extends TokenDetails {
-  tokenAddress: string;
-}
-
+//maybe delete?
 export interface ILiquidityPosition {
   //user wallet ID (hash)
   accountId: string;
   //pool address
   address: string;
   //tokens in pool
-  token1Info: TokenInfo;
-  token2Info: TokenInfo;
+  token1Info: ITokenInfo;
+  token2Info: ITokenInfo;
   //the amount of shares you own
   shares: BigNumber;
   //total dt in pool
@@ -105,7 +70,7 @@ export type LocalStorageMethods = "get" | "set" | "clear" | "remove" | "key" | "
 
 // export interface ITxTokenDetails {
 //   balance: string;
-//   info: TokenInfo;
+//   info: ITokenInfo;
 //   percentage: string;
 //   value: string;
 // }
@@ -157,14 +122,14 @@ export interface globalStates {
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   allStakedPools?: ILiquidityPosition[];
   setAllStakedPools: React.Dispatch<React.SetStateAction<ILiquidityPosition[] | undefined>>;
-  datatokens?: TokenInfo[];
-  setDatatokens: React.Dispatch<React.SetStateAction<TokenInfo[] | undefined>>;
-  ERC20Tokens?: TokenInfo[];
-  setERC20Tokens: React.Dispatch<React.SetStateAction<TokenInfo[] | undefined>>;
-  dtTokenResponse?: TList;
-  setDtTokenResponse: React.Dispatch<React.SetStateAction<TList | undefined>>;
-  ERC20TokenResponse?: TList;
-  setERC20TokenResponse: React.Dispatch<React.SetStateAction<TList | undefined>>;
+  datatokens?: ITokenInfo[];
+  setDatatokens: React.Dispatch<React.SetStateAction<ITokenInfo[] | undefined>>;
+  ERC20Tokens?: ITokenInfo[];
+  setERC20Tokens: React.Dispatch<React.SetStateAction<ITokenInfo[] | undefined>>;
+  dtTokenResponse?: ITList;
+  setDtTokenResponse: React.Dispatch<React.SetStateAction<ITList | undefined>>;
+  ERC20TokenResponse?: ITList;
+  setERC20TokenResponse: React.Dispatch<React.SetStateAction<ITList | undefined>>;
   singleLiquidityPos?: ILiquidityPosition;
   setSingleLiquidityPos: React.Dispatch<React.SetStateAction<ILiquidityPosition | undefined>>;
   txHistory?: ITxHistory;
