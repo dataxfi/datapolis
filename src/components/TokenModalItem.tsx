@@ -1,4 +1,4 @@
-import { TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
+import { ITokenInfo } from "@dataxfi/datax.js";
 import { BsArrowRight } from "react-icons/bs";
 export default function TokenModalItem({
   token,
@@ -7,7 +7,7 @@ export default function TokenModalItem({
   setShow,
 }: {
   dtks?: boolean;
-  token: TokenInfo;
+  token: ITokenInfo;
   onClick: Function;
   setShow?: React.Dispatch<React.SetStateAction<boolean>>;
 }) {

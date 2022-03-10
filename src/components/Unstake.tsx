@@ -14,9 +14,10 @@ import BigNumber from "bignumber.js";
 import WrappedInput from "./WrappedInput";
 import UnlockTokenModal from "./UnlockTokenModal";
 import { getAllowance } from "../hooks/useTokenList";
-import { IMaxUnstake, ITxDetails, IUserMessage } from "../utils/types";
+import {  ITxDetails, IUserMessage } from "../utils/types";
 import useAutoLoadToken from "../hooks/useAutoLoadToken";
 import TokenSelect from "./TokenSelect";
+import { IMaxUnstake } from "@dataxfi/datax.js";
 
 export default function  Unstake () {
   const {

@@ -14,7 +14,7 @@ import BigNumber from "bignumber.js";
 import UnlockTokenModal from "./UnlockTokenModal";
 import { getAllowance } from "../hooks/useTokenList";
 import { IBtnProps, ITxDetails } from "../utils/types";
-import { Ocean, IMaxExchange } from "@dataxfi/datax.js";
+import { IMaxExchange } from "@dataxfi/datax.js";
 
 const INITIAL_MAX_EXCHANGE: IMaxExchange = {
   maxBuy: new BigNumber(0),

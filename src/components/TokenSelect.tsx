@@ -8,8 +8,8 @@ import Button from "./Button";
 import BigNumber from "bignumber.js";
 import WrappedInput from "./WrappedInput";
 import { ReactComponent as XLogo } from "../assets/datax-x-logo.svg";
-import { TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
-import { IToken, TokenSelectTitles } from "../utils/types";
+import { IToken, ITokenInfo } from "@dataxfi/datax.js";
+import { TokenSelectTitles } from "../utils/types";
 
 export default function TokenSelect({
   setToken,
@@ -57,7 +57,7 @@ export default function TokenSelect({
     }
   }, [location, setTitle, pos]);
 
-  const tokenSelected = async (info: TokenInfo) => {
+  const tokenSelected = async (info: ITokenInfo) => {
     if (!ocean || !accountId) return;
     const balance = new BigNumber(await ocean?.getBalance(info.address, accountId));
     if (setToken) setToken({ ...INITIAL_TOKEN_STATE, info, balance });

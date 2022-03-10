@@ -6,7 +6,7 @@ import TokenModal from "./TokenModal";
 import { MoonLoader } from "react-spinners";
 import { IUserMessage, ILiquidityPosition } from "../utils/types";
 import useLiquidityPos from "../hooks/useLiquidityPos";
-import { TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
+import { ITokenInfo } from "@dataxfi/datax.js";
 
 export default function LiquidityPosition() {
   const { accountId, allStakedPools } = useContext(GlobalContext);
@@ -64,7 +64,7 @@ export default function LiquidityPosition() {
           )}
           {showModal ? (
             <TokenModal
-              onClick={(e: TokenInfo) => {
+              onClick={(e: ITokenInfo) => {
                 setShowModal(false);
                 setImportPool(e.pool.toLowerCase());
               }}

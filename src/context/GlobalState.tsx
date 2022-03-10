@@ -17,13 +17,13 @@ import {
   IDisclaimerSigned,
   globalStates,
   ILiquidityPosition,
-  IToken,
+
   ITxHistory,
   IUserMessage,
   ITxDetails,
 } from "../utils/types";
 import BigNumber from "bignumber.js";
-import { TList, TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
+import {   IToken,ITList, ITokenInfo } from "@dataxfi/datax.js";
 
 const CONNECT_TEXT = "Connect Wallet";
 export const INITIAL_TOKEN_STATE: IToken = {
@@ -83,16 +83,16 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [stakeFetchTimeout, setStakeFetchTimeout] = useState<boolean>(false);
 
   //tokens to be rendered in token modal
-  const [datatokens, setDatatokens] = useState<TokenInfo[]>();
+  const [datatokens, setDatatokens] = useState<ITokenInfo[]>();
   //datatokens to be rendered in token modal
-  const [ERC20Tokens, setERC20Tokens] = useState<TokenInfo[]>();
+  const [ERC20Tokens, setERC20Tokens] = useState<ITokenInfo[]>();
   //current token pair to be traded, staked, etc
   const [token1, setToken1] = useState<IToken>(INITIAL_TOKEN_STATE);
   const [token2, setToken2] = useState<IToken>(INITIAL_TOKEN_STATE);
 
   //response from token fetch operations
-  const [ERC20TokenResponse, setERC20TokenResponse] = useState<TList>();
-  const [dtTokenResponse, setDtTokenResponse] = useState<TList>();
+  const [ERC20TokenResponse, setERC20TokenResponse] = useState<ITList>();
+  const [dtTokenResponse, setDtTokenResponse] = useState<ITList>();
 
   const [buttonText, setButtonText] = useState<string>(CONNECT_TEXT);
 

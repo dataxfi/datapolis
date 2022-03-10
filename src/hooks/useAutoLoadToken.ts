@@ -2,9 +2,8 @@ import { useContext, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
 import { getToken } from "./useTokenList";
-import BigNumber from "bignumber.js";
 export default function useAutoLoadToken() {
-  const { web3, chainId, setToken2, token1, setToken1, ocean, accountId } = useContext(GlobalContext);
+  const { web3, chainId, setToken2, token1, ocean, accountId } = useContext(GlobalContext);
 
   const url = useLocation();
   //loads token information when url has pool address

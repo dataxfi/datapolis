@@ -2,7 +2,7 @@ import { useContext, useEffect, useRef } from "react";
 import { GlobalContext } from "../context/GlobalState";
 import { Ocean, TokenList } from "@dataxfi/datax.js";
 // import { TokenList as TList } from "@uniswap/token-lists";
-import { TList, TokenInfo } from "@dataxfi/datax.js/dist/TokenList";
+import { ITList, ITokenInfo } from "@dataxfi/datax.js";
 import Web3 from "web3";
 import axios from "axios";
 export default function useTokenList({
@@ -75,10 +75,11 @@ export default function useTokenList({
         setERC20TokenResponse(list);
         setERC20Tokens(list.tokens);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location, otherToken, ERC20TokenResponse, web3, chainId]);
 }
 
-async function getDtTokenList(web3: Web3, chainId: number): Promise<TList> {
+async function getDtTokenList(web3: Web3, chainId: number): Promise<ITList> {
   const tokenList: TokenList = new TokenList(
     web3,
     "4",
@@ -89,7 +90,7 @@ async function getDtTokenList(web3: Web3, chainId: number): Promise<TList> {
   return await tokenList.fetchPreparedTokenList(chainId ? chainId : 4);
 }
 
-async function getERC20TokenList(): Promise<TList> {
+async function getERC20TokenList(): Promise<ITList> {
   return await (
     await axios.get("https://wispy-bird-88a7.uniswap.workers.dev/?url=http://tokens.1inch.eth.link")
   ).data;
@@ -100,7 +101,7 @@ export async function getToken(
   chainId: number,
   address: string,
   addressType: "pool" | "reserve"
-): Promise<TokenInfo | undefined> {
+): Promise<ITokenInfo | undefined> {
   const tokenList = await getDtTokenList(web3, chainId);
   if (addressType === "pool") {
     return tokenList.tokens.find((token) => token.pool.toLowerCase() === address.toLowerCase());
@@ -109,11 +110,11 @@ export async function getToken(
 }
 
 export function formatTokenArray(
-  dtTokenResponse: { tokens: TokenInfo[] },
+  dtTokenResponse: { tokens: ITokenInfo[] },
   otherToken: string,
   location: string
-): TokenInfo[] {
-  let tokenList: TokenInfo[] = dtTokenResponse.tokens;
+): ITokenInfo[] {
+  let tokenList: ITokenInfo[] = dtTokenResponse.tokens;
   tokenList = dtTokenResponse.tokens.filter((t) => t.symbol !== otherToken);
 
   if (tokenList.length > 0) {
