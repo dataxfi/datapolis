@@ -7,7 +7,6 @@ import { GlobalContext } from "../context/GlobalState";
 import useTokenList, { formatTokenArray } from "../hooks/useTokenList";
 import OutsideClickHandler from "react-outside-click-handler";
 import { ITokenInfo } from "@dataxfi/datax.js";
-import DatasetDescription from "./DatasetDescription";
 
 export default function TokenModal({
   close,
@@ -258,7 +257,6 @@ export default function TokenModal({
             </div>
           </OutsideClickHandler>
         </div>
-        <DatasetDescription show={showDescModal} setShow={setShowDescModal} />
       </div>
     </>
   );
