@@ -21,6 +21,7 @@ import {
   ITxHistory,
   IUserMessage,
   ITxDetails,
+  ISnackbarItem,
 } from "../utils/types";
 import BigNumber from "bignumber.js";
 import {   IToken,ITList, ITokenInfo } from "@dataxfi/datax.js";
@@ -66,6 +67,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
   //Transaction and tx modal states
   const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
+  const [snackbarItem, setSnackbarItem] = useState<ISnackbarItem>()
+
   const [showTxHistoryModal, setShowTxHistoryModal] = useState<boolean>(false);
   //all transaction history
   const [txHistory, setTxHistory] = useState<ITxHistory>();
@@ -95,8 +98,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [dtTokenResponse, setDtTokenResponse] = useState<ITList>();
 
   const [buttonText, setButtonText] = useState<string>(CONNECT_TEXT);
-
-  const [notifications, setNotifications] = useState<IUserMessage[]>([]);
 
   const [showUnlockTokenModal, setShowUnlockTokenModal] = useState<boolean>(false);
 
@@ -347,6 +348,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         network: NETWORK,
         config,
         unsupportedNet,
+        tokensCleared,
         handleSignature,
         cookiesAllowed,
         setCookiesAllowed,
@@ -386,8 +388,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setShowTxDone,
         stakeFetchTimeout,
         setStakeFetchTimeout,
-        notifications,
-        setNotifications,
         showUnlockTokenModal,
         setShowUnlockTokenModal,
         location,
@@ -398,7 +398,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setToken1,
         token2,
         setToken2,
-        tokensCleared,
+        snackbarItem, 
+        setSnackbarItem
       }}
     >
       {children}

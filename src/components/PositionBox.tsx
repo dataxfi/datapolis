@@ -1,56 +1,99 @@
+import { useContext, useEffect, useState } from "react";
+import { GlobalContext } from "../context/GlobalState";
+import BigNumber from "bignumber.js";
+import { IPoolLiquidity } from "../utils/types";
+import { IToken } from "@dataxfi/datax.js";
 
-const PositionBox = () => {
+export default function PositionBox({
+  loading,
+  setLoading,
+}: {
+  loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  const [dtToOcean, setDtToOcean] = useState<BigNumber>(new BigNumber(""));
+  const [oceanToDt, setOceanToDt] = useState<BigNumber>(new BigNumber(""));
+  const [yourLiquidity, setYourLiquidity] = useState<BigNumber>(new BigNumber(0));
+  const [yourShares, setYourShares] = useState<BigNumber>(new BigNumber(0));
+  const [poolLiquidity, setPoolLiquidity] = useState<IPoolLiquidity | null>(null);
+  const { token2, chainId, web3, ocean, accountId, tokensCleared, setToken2 } = useContext(GlobalContext);
+
+  useEffect(() => {
+    if (!chainId || !web3 || !ocean || !accountId || !tokensCleared.current) return;
+    if (token2.info && !ocean.isOCEAN(token2.info.address)) {
+      updateToken(token2);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ocean, chainId, web3, ocean, accountId, token2.info, tokensCleared]);
+
+  async function updateToken(token: IToken) {
+    if (!accountId || !ocean) return;
+    try {
+      if (!token.info?.pool) throw new Error("Pool attribute is missing from token.");
+      setLoading(true);
+      const { pool } = token.info;
+      setToken2(token);
+      const [res1, res2, myPoolShares, totalPoolShares] = await Promise.all([
+        ocean?.getOceanPerDt(pool),
+        ocean?.getDtPerOcean(pool),
+        ocean?.getMyPoolSharesForPool(pool, accountId),
+        ocean?.getTotalPoolShares(pool),
+      ]);
+      setYourShares(new BigNumber(myPoolShares));
+      setOceanToDt(new BigNumber(res1));
+      setDtToOcean(new BigNumber(res2));
+
+      setYourLiquidity(new BigNumber(await ocean.getOceanRemovedforPoolShares(pool, myPoolShares)));
+      const { dtAmount, oceanAmount } = await ocean.getTokensRemovedforPoolShares(pool, String(totalPoolShares));
+      setPoolLiquidity({ dtAmount: new BigNumber(dtAmount), oceanAmount: new BigNumber(oceanAmount) });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
-    <div>
-      <div className="p-4 bg-primary-800 rounded-lg max-w-2xl mx-auto hm-box">
-        <p className="text-gray-100 text-lg">Your position</p>
-        <div className="flex justify-between mt-4 items-center">
-          <div className="grid grid-flow-col gap-4 items-center">
-            <img
-              src="http://via.placeholder.com/80x80"
-              className="w-10 h-10 rounded-lg"
-              alt=""
-            />
-            <img
-              src="http://via.placeholder.com/80x80"
-              className="w-10 h-10 rounded-lg"
-              alt=""
-            />
-            <p className="text-xl">KNC/ETH</p>
-          </div>
-          <div>
-            <p className="text-gray-100 text-sm">
-              1.311 <span className="text-gray-400">Pool tokens</span>{" "}
+    <div className="flex border border-gray-600 mt-4 rounded-lg p-2 w-full">
+      <div className="my-1 mr-4">
+        <p className="text-gray-300 text-xs">Swap Rate</p>
+        {token2.info && oceanToDt.gt(0) && dtToOcean.gt(0) && !loading ? (
+          <div id="swapRate">
+            <p className="text-gray-200 text-xs">
+              {oceanToDt.dp(5).toString()} OCEAN per {token2.info.symbol}
+            </p>
+            <p className="text-gray-200 text-xs">
+              {dtToOcean.dp(5).toString()} {token2.info.symbol} per OCEAN
             </p>
           </div>
-        </div>
-        <div className="grid grid-cols-2 justify-between bg-primary-900 rounded-lg p-4 mt-6">
-          <div>
-            <p className="text-gray-100 text-sm">Your pool share</p>
-          </div>
-          <div className="justify-self-end">
-            <p className="text-gray-100 text-sm">100.0000000%</p>
-          </div>
-          <div>
-            <p className="text-gray-100 text-sm">KNC</p>
-          </div>
-          <div className="justify-self-end">
-            <p className="text-gray-100 text-sm">
-              7.96503 <span className="text-gray-400">KNC</span>
+        ) : (
+          <div> - </div>
+        )}
+      </div>
+      <div className="my-1 mr-4">
+        <p className="text-gray-300 text-xs">Pool liquidity</p>
+        {token2.info && poolLiquidity && !loading ? (
+          <div id="poolLiquidity">
+            <p className="text-gray-200 text-xs">{poolLiquidity?.oceanAmount.dp(5).toString()} OCEAN</p>
+            <p className="text-gray-200 text-xs">
+              {poolLiquidity?.dtAmount.dp(5).toString()} {token2.info.symbol}
             </p>
           </div>
-          <div>
-            <p className="text-gray-100 text-sm">ETH</p>
+        ) : (
+          <div> - </div>
+        )}
+      </div>
+      <div className="my-1">
+        <p className="text-gray-300 text-xs">Your liquidity</p>
+        {token2.info && yourLiquidity && !loading ? (
+          <div id="yourLiquidity">
+            <p className="text-gray-200 text-xs">{yourShares.dp(5).toString()} Shares</p>
+            <p className="text-gray-200 text-xs">{yourLiquidity.dp(5).toString()} OCEAN</p>
           </div>
-          <div className="justify-self-end">
-            <p className="text-gray-100 text-sm">
-              0.16099 <span className="text-gray-400">ETH</span>
-            </p>
-          </div>
-        </div>
+        ) : (
+          <div> - </div>
+        )}
       </div>
     </div>
-  )
+  );
 }
-
-export default PositionBox

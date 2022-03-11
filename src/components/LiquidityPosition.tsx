@@ -51,8 +51,6 @@ export default function LiquidityPosition() {
                 message={userMessage}
                 pulse={false}
                 container={false}
-                timeout={null}
-                className="bg-opacity-60"
               />
             </div>
           ) : (

@@ -8,7 +8,6 @@ import OutsideClickHandler from "react-outside-click-handler";
 import ConfirmSwapModal from "./ConfirmSwapModal";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
-import errorMessages from "../utils/errorMessages";
 import { MoonLoader } from "react-spinners";
 import BigNumber from "bignumber.js";
 import UnlockTokenModal from "./UnlockTokenModal";
@@ -34,8 +33,6 @@ export default function Swap() {
     setShowConfirmModal,
     showTxDone,
     setShowTxDone,
-    notifications,
-    setNotifications,
     setShowUnlockTokenModal,
     token1,
     setToken1,
@@ -44,7 +41,8 @@ export default function Swap() {
     setLastTx,
     lastTx,
     tokensCleared,
-    showUnlockTokenModal
+    showUnlockTokenModal,
+    setSnackbarItem,
   } = useContext(GlobalContext);
   const [showSettings, setShowSettings] = useState(false);
   const [showConfirmSwapModal, setShowConfirmSwapModal] = useState(false);
@@ -276,24 +274,11 @@ export default function Swap() {
         setLastTxUrl(config.default.explorerUri + "/tx/" + txReceipt.transactionHash);
         setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
         setPostExchange(new BigNumber(0));
-      } else {
-        throw new Error("Didn't receive a receipt.");
       }
     } catch (error: any) {
-      console.log("DataX Caught an Error for Transaction:", lastTx?.txDateId);
+      console.log("DataX Caught an Error for Transaction:", lastTx?.txDateId);      
       setLastTx({ ...preTxDetails, status: "Failure" });
-
-      if (setShowConfirmModal) setShowConfirmModal(false);
-      const allNotifications = notifications;
-      allNotifications.push({
-        type: "alert",
-        alert: {
-          message: errorMessages(error),
-          link: null,
-          type: "alert",
-        },
-      });
-      setNotifications([...allNotifications]);
+      setSnackbarItem({ type: "error", message: error.error.message, error });
     }
   }
 

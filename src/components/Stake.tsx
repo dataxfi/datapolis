@@ -6,17 +6,15 @@ import Button from "./Button";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
 import { Link } from "react-router-dom";
-import UserMessage from "./UserMessage";
-import errorMessages from "../utils/errorMessages";
 import useLiquidityPos from "../hooks/useLiquidityPos";
 import BigNumber from "bignumber.js";
 import UnlockTokenModal from "./UnlockTokenModal";
-import { ITxDetails, IUserMessage } from "../utils/types";
+import { ITxDetails } from "../utils/types";
 import { getAllowance } from "../hooks/useTokenList";
-import { IPoolLiquidity, IBtnProps } from "../utils/types";
+import { IBtnProps } from "../utils/types";
 import useAutoLoadToken from "../hooks/useAutoLoadToken";
 import TokenSelect from "./TokenSelect";
-import { IToken } from "@dataxfi/datax.js";
+import PositionBox from "./PositionBox";
 
 const INITIAL_BUTTON_STATE = {
   text: "Connect wallet",
@@ -34,42 +32,27 @@ export default function Stake() {
     setShowConfirmModal,
     showTxDone,
     setShowTxDone,
-    notifications,
-    setNotifications,
     setShowUnlockTokenModal,
     token2,
     setToken2,
     token1,
     setToken1,
-    web3,
     setLastTx,
     lastTx,
     tokensCleared,
-    showUnlockTokenModal
+    showUnlockTokenModal,
+    setSnackbarItem
   } = useContext(GlobalContext);
-  const [dtToOcean, setDtToOcean] = useState<BigNumber>(new BigNumber(""));
-  const [oceanToDt, setOceanToDt] = useState<BigNumber>(new BigNumber(""));
-  const [yourLiquidity, setYourLiquidity] = useState<BigNumber>(new BigNumber(0));
-  const [yourShares, setYourShares] = useState<BigNumber>(new BigNumber(0));
+
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
   const [loading, setLoading] = useState(false);
-  const [userMessage, setUserMessage] = useState<IUserMessage | false>(false);
   const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
-  const [poolLiquidity, setPoolLiquidity] = useState<IPoolLiquidity | null>(null);
   const [recentTxHash, setRecentTxHash] = useState("");
   const [importPool, setImportPool] = useState<string>();
 
   //hooks
   useLiquidityPos(importPool, setImportPool);
   useAutoLoadToken();
-
-  useEffect(() => {
-    if (!chainId || !web3 || !ocean || !accountId || !tokensCleared.current) return;
-    if (token2.info && !ocean.isOCEAN(token2.info.address)) {
-      updateToken(token2);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ocean, chainId, web3, ocean, accountId, token2.info, tokensCleared]);
 
   useEffect(() => {
     if (token1.info && token2.info && tokensCleared.current) {
@@ -193,21 +176,10 @@ export default function Stake() {
       }
     } catch (error: any) {
       setLastTx({ ...preTxDetails, status: "Failure" });
-      console.error(error);
-      if (notifications) {
-        const allNotifications = notifications;
-        allNotifications.push({
-          type: "alert",
-          alert: {
-            message: errorMessages(error),
-            link: null,
-            type: "alert",
-          },
-        });
-        setNotifications([...allNotifications]);
-      }
       setShowConfirmModal(false);
+      setSnackbarItem({ type: "error", message: error.message });
       setToken1({ ...token1, value: new BigNumber(0) });
+
     } finally {
       setLoading(false);
       getMaxAndAllowance();
@@ -261,33 +233,6 @@ export default function Stake() {
     }
   }
 
-  async function updateToken(token: IToken) {
-    if (!accountId || !ocean) return;
-    try {
-      if (!token.info?.pool) throw new Error("Pool attribute is missing from token.");
-      setLoading(true);
-      const { pool } = token.info;
-      setToken2(token);
-      const [res1, res2, myPoolShares, totalPoolShares] = await Promise.all([
-        ocean?.getOceanPerDt(pool),
-        ocean?.getDtPerOcean(pool),
-        ocean?.getMyPoolSharesForPool(pool, accountId),
-        ocean?.getTotalPoolShares(pool),
-      ]);
-      setYourShares(new BigNumber(myPoolShares));
-      setOceanToDt(new BigNumber(res1));
-      setDtToOcean(new BigNumber(res2));
-
-      setYourLiquidity(new BigNumber(await ocean.getOceanRemovedforPoolShares(pool, myPoolShares)));
-      const { dtAmount, oceanAmount } = await ocean.getTokensRemovedforPoolShares(pool, String(totalPoolShares));
-      setPoolLiquidity({ dtAmount: new BigNumber(dtAmount), oceanAmount: new BigNumber(oceanAmount) });
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   return (
     <div className="w-full h-full absolute top-0">
       <div className="flex h-full w-full items-center justify-center">
@@ -296,18 +241,6 @@ export default function Stake() {
             id="stakeModal"
             className="lg:w-107 lg:mx-auto sm:mx-4 mx-3 bg-black bg-opacity-90 rounded-lg p-3 hm-box"
           >
-            <div className="flex justify-between">
-              {userMessage && userMessage.type === "error" ? (
-                <UserMessage
-                  message={userMessage.message}
-                  pulse={true}
-                  container={false}
-                  timeout={{ showState: setUserMessage, time: 5000 }}
-                />
-              ) : userMessage && userMessage.type === "message" ? (
-                <UserMessage message={userMessage.message} pulse={true} container={false} timeout={null} />
-              ) : null}
-            </div>
             <TokenSelect
               max={maxStakeAmt}
               otherToken={"OCEAN"}
@@ -336,47 +269,7 @@ export default function Stake() {
               }}
               onMax={setMaxStake}
             />
-            <div className="flex border border-gray-600 mt-4 rounded-lg p-2 w-full">
-              <div className="my-1 mr-4">
-                <p className="text-gray-300 text-xs">Swap Rate</p>
-                {token2.info && oceanToDt.gt(0) && dtToOcean.gt(0) && !loading ? (
-                  <div id="swapRate">
-                    <p className="text-gray-200 text-xs">
-                      {oceanToDt.dp(5).toString()} OCEAN per {token2.info.symbol}
-                    </p>
-                    <p className="text-gray-200 text-xs">
-                      {dtToOcean.dp(5).toString()} {token2.info.symbol} per OCEAN
-                    </p>
-                  </div>
-                ) : (
-                  <div> - </div>
-                )}
-              </div>
-              <div className="my-1 mr-4">
-                <p className="text-gray-300 text-xs">Pool liquidity</p>
-                {token2.info && poolLiquidity && !loading ? (
-                  <div id="poolLiquidity">
-                    <p className="text-gray-200 text-xs">{poolLiquidity?.oceanAmount.dp(5).toString()} OCEAN</p>
-                    <p className="text-gray-200 text-xs">
-                      {poolLiquidity?.dtAmount.dp(5).toString()} {token2.info.symbol}
-                    </p>
-                  </div>
-                ) : (
-                  <div> - </div>
-                )}
-              </div>
-              <div className="my-1">
-                <p className="text-gray-300 text-xs">Your liquidity</p>
-                {token2.info && yourLiquidity && !loading ? (
-                  <div id="yourLiquidity">
-                    <p className="text-gray-200 text-xs">{yourShares.dp(5).toString()} Shares</p>
-                    <p className="text-gray-200 text-xs">{yourLiquidity.dp(5).toString()} OCEAN</p>
-                  </div>
-                ) : (
-                  <div> - </div>
-                )}
-              </div>
-            </div>
+            <PositionBox loading={loading} setLoading={setLoading} />
             <Button
               id="executeStake"
               text={btnProps.text}
@@ -424,25 +317,27 @@ export default function Stake() {
         </div>
       </div>
 
-      {showUnlockTokenModal? <UnlockTokenModal
-        nextFunction={() => {
-          setShowConfirmModal(true);
-          if (!accountId) return;
-          const preTxDetails: ITxDetails = {
-            accountId,
-            status: "Pending",
-            token1,
-            token2,
-            txDateId: Date.now().toString(),
-            txType: "stake",
-          };
-          setLastTx(preTxDetails);
-          executeStake(preTxDetails);
-        }}
-      />
- :<></>}
+      {showUnlockTokenModal ? (
+        <UnlockTokenModal
+          nextFunction={() => {
+            setShowConfirmModal(true);
+            if (!accountId) return;
+            const preTxDetails: ITxDetails = {
+              accountId,
+              status: "Pending",
+              token1,
+              token2,
+              txDateId: Date.now().toString(),
+              txType: "stake",
+            };
+            setLastTx(preTxDetails);
+            executeStake(preTxDetails);
+          }}
+        />
+      ) : (
+        <></>
+      )}
 
-      
       <ConfirmModal
         show={showConfirmModal ? showConfirmModal : false}
         close={() => {
@@ -460,16 +355,6 @@ export default function Stake() {
           setToken1({ ...token1, value: new BigNumber(0) });
         }}
       />
-
-      {userMessage && userMessage.type === "alert" ? (
-        <UserMessage
-          message={userMessage}
-          pulse={false}
-          container={false}
-          timeout={{ showState: setUserMessage, time: 5000 }}
-        />
-      ) : null}
-      {/* <PositionBox />  */}
     </div>
   );
 }

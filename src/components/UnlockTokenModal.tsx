@@ -3,18 +3,16 @@ import { GlobalContext } from "../context/GlobalState";
 import { BiLockAlt, BiLockOpenAlt } from "react-icons/bi";
 import { MdClose } from "react-icons/md";
 import BigNumber from "bignumber.js";
-import errorMessages from "../utils/errorMessages";
 import { getAllowance } from "../hooks/useTokenList";
 import { ApprovalStates } from "../utils/types";
 import OutsideClickHandler from "react-outside-click-handler";
-export default function UnlockTokenModal({ nextFunction }: { nextFunction: Function; }) {
+export default function UnlockTokenModal({ nextFunction }: { nextFunction: Function }) {
   const {
     accountId,
     config,
     ocean,
     setShowUnlockTokenModal,
-    notifications,
-    setNotifications,
+    setSnackbarItem,
     lastTx,
     token1,
     token2,
@@ -25,7 +23,7 @@ export default function UnlockTokenModal({ nextFunction }: { nextFunction: Funct
   const [approving, setApproving] = useState<ApprovalStates>("pending");
   const [pool, setPool] = useState<string | null>(null);
   const [address, setAddress] = useState<string | null>(null);
-  const remove = "/stake/remove"
+  const remove = "/stake/remove";
   // Set up the interval.
   useEffect(() => {
     let delay: number | null = 1500;
@@ -86,22 +84,10 @@ export default function UnlockTokenModal({ nextFunction }: { nextFunction: Funct
         setApproving("approved");
         setPool(pool);
         setAddress(address);
-      } catch (error) {
-        if (lastTx?.txType === "approve") {
-          setLastTx({ ...lastTx, status: "Failure" });
-        }
-        console.error(error);
-        setApproving("pending");
-        const allNotifications = notifications;
-        allNotifications.push({
-          type: "alert",
-          alert: {
-            message: errorMessages(error),
-            link: null,
-            type: "alert",
-          },
-        });
-        setNotifications([...allNotifications]);
+      } catch (error: any) {
+        if(lastTx)
+        setLastTx({ ...lastTx, status: "Failure" });
+        setSnackbarItem({ type: "error", message: error.error.message, error });
         setShowUnlockTokenModal(false);
       }
     }

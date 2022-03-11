@@ -8,13 +8,13 @@ export default function useTxHistory() {
     txHistory,
     pendingTxs,
     setPendingTxs,
-    notifications,
-    setNotifications,
     accountId,
     chainId,
     watcher,
     setTxHistory,
     lastTx,
+    setSnackbarItem, 
+    setShowConfirmModal
   } = useContext(GlobalContext);
 
   //initializes transaction history from local storage
@@ -57,9 +57,7 @@ export default function useTxHistory() {
           addHistory();
           break;
         case "Indexing":
-          const allNotifications = notifications;
-          allNotifications.push({ type: "tx", newTx: lastTx });
-          setNotifications([...allNotifications]);
+          setSnackbarItem({ type: "tx", newTx: lastTx });
           newTxs = pendingTxs.filter((item) => item !== txDateId);
           addHistory();
           break;
@@ -70,6 +68,7 @@ export default function useTxHistory() {
           setTxHistory({ ...newTxHistory });
           setLocalTxHistory({ txHistory: newTxHistory, accountId, chainId });
           newTxs = pendingTxs.filter((item) => item !== txDateId);
+          setShowConfirmModal(false)
           break;
         default:
           newTxs = pendingTxs.filter((item) => item !== txDateId);

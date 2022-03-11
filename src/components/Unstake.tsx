@@ -7,7 +7,6 @@ import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
 import UserMessage from "./UserMessage";
 import { MoonLoader, PulseLoader } from "react-spinners";
-import errorMessages from "../utils/errorMessages";
 import { DebounceInput } from "react-debounce-input";
 import useLiquidityPos from "../hooks/useLiquidityPos";
 import BigNumber from "bignumber.js";
@@ -29,8 +28,6 @@ export default function  Unstake () {
     setShowConfirmModal,
     showTxDone,
     setShowTxDone,
-    notifications,
-    setNotifications,
     setShowUnlockTokenModal,
     token1,
     token2,
@@ -38,13 +35,13 @@ export default function  Unstake () {
     setLastTx,
     lastTx,
     setSingleLiquidityPos,
-    showUnlockTokenModal
+    showUnlockTokenModal,
+    setSnackbarItem
   } = useContext(GlobalContext);
   const [recentTxHash, setRecentTxHash] = useState("");
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
   const [btnText, setBtnText] = useState("Enter Amount to Remove");
   const [inputDisabled, setInputDisabled] = useState(false);
-  const [userMessage, setUserMessage] = useState<IUserMessage | null>();
   const [shares, setShares] = useState<BigNumber>(new BigNumber(0));
   const [calculating, setCalculating] = useState<boolean>(false);
   //Max possible amount of OCEAN to remove
@@ -273,17 +270,7 @@ export default function  Unstake () {
       }
     } catch (error: any) {
       setLastTx({ ...preTxDetails, status: "Failure" });
-      console.error(error);
-      const allNotifications = notifications;
-      allNotifications.push({
-        type: "alert",
-        alert: {
-          message: errorMessages(error),
-          link: null,
-          type: "alert",
-        },
-      });
-      setNotifications([...allNotifications]);
+      setSnackbarItem({ type: "error", message: error.message });
       setShowConfirmModal(false);
       setShowTxDone(false);
     }
@@ -294,7 +281,7 @@ export default function  Unstake () {
   return (
     <div className="absolute top-0 w-full h-full">
       {!accountId ? (
-        <UserMessage message="Connect your wallet to continue." pulse={false} container={true} timeout={null} />
+        <UserMessage message="Connect your wallet to continue." pulse={false} container={true} />
       ) : token2.info ? (
         <div className="flex w-full h-full items-center pt-16 px-2">
           <div id="removeStakeModal" className="w-107 mx-auto">
@@ -490,15 +477,6 @@ export default function  Unstake () {
           if (setShowTxDone) setShowTxDone(false);
         }}
       />
-
-      {userMessage ? (
-        <UserMessage
-          message={userMessage}
-          pulse={false}
-          container={false}
-          timeout={{ showState: setUserMessage, time: 5000 }}
-        />
-      ) : null}
     </div>
   );
 };

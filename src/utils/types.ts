@@ -26,7 +26,12 @@ export interface IPoolLiquidity {
   oceanAmount: BigNumber;
 }
 
-export type TokenSelectTitles = "You are buying" | "You are selling" | "Datatoken pool" | "You are staking" | "You will receive";
+export type TokenSelectTitles =
+  | "You are buying"
+  | "You are selling"
+  | "Datatoken pool"
+  | "You are staking"
+  | "You will receive";
 
 export interface IUserMessage {
   message?: any;
@@ -34,6 +39,13 @@ export interface IUserMessage {
   type: string;
   alert?: any;
   newTx?: ITxDetails;
+}
+
+export interface ISnackbarItem {
+  message?: string;
+  type: "alert" | "error" | "tx";
+  newTx?: ITxDetails;
+  error?: { code: number; message: string; error: any };
 }
 
 export interface IMaxEval {
@@ -67,13 +79,6 @@ export interface ILiquidityPosition {
 export type BalancePos = 1 | 2 | "stake";
 export type ITxType = "trade" | "stake" | "unstake" | "approve";
 export type LocalStorageMethods = "get" | "set" | "clear" | "remove" | "key" | "length";
-
-// export interface ITxTokenDetails {
-//   balance: string;
-//   info: ITokenInfo;
-//   percentage: string;
-//   value: string;
-// }
 
 export interface ITxDetails {
   accountId: string;
@@ -150,8 +155,6 @@ export interface globalStates {
   setShowTxDone: React.Dispatch<React.SetStateAction<boolean>>;
   stakeFetchTimeout: boolean;
   setStakeFetchTimeout: React.Dispatch<React.SetStateAction<boolean>>;
-  notifications: IUserMessage[];
-  setNotifications: React.Dispatch<React.SetStateAction<IUserMessage[]>>;
   showUnlockTokenModal: boolean;
   setShowUnlockTokenModal: React.Dispatch<React.SetStateAction<boolean>>;
   location: string;
@@ -163,4 +166,6 @@ export interface globalStates {
   token2: IToken;
   setToken2: React.Dispatch<React.SetStateAction<IToken>>;
   tokensCleared: React.MutableRefObject<boolean>;
+  snackbarItem?: ISnackbarItem;
+  setSnackbarItem: React.Dispatch<React.SetStateAction<ISnackbarItem | undefined>>;
 }
