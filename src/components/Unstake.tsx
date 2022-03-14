@@ -17,8 +17,9 @@ import {  ITxDetails, IUserMessage } from "../utils/types";
 import useAutoLoadToken from "../hooks/useAutoLoadToken";
 import TokenSelect from "./TokenSelect";
 import { IMaxUnstake } from "@dataxfi/datax.js";
+import MaxToolTip from "./MaxToolTip";
 
-export default function  Unstake () {
+export default function Unstake() {
   const {
     chainId,
     accountId,
@@ -93,7 +94,7 @@ export default function  Unstake () {
 
   useEffect(() => {
     console.log(token1, token2);
-    
+
     if (ocean && singleLiquidityPos && accountId && token1.info && token2.info) {
       getMaxUnstake(getNewSignal())
         .then((res: IMaxUnstake | void) => {
@@ -111,7 +112,7 @@ export default function  Unstake () {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ocean, singleLiquidityPos, token1.info, token2.info, accountId]);
 
-  useEffect(() => {    
+  useEffect(() => {
     setInputDisabled(false);
     if (!ocean || !singleLiquidityPos || !token1.info || !token2.info) {
       setBtnDisabled(true);
@@ -148,14 +149,14 @@ export default function  Unstake () {
 
     maxUnstake?.OCEAN.gt(0) ? (max = maxUnstake) : (max = await getMaxUnstake(getNewSignal()));
     console.log(val, max.OCEAN.toString(), max.shares.toString());
-    
+
     try {
       if (max && max.OCEAN.gt(0) && max.shares.gt(0) && ocean && singleLiquidityPos) {
         let percInput: BigNumber = new BigNumber(val);
         setToken1({ ...token1, percentage: percInput });
         if (percInput.lte(0)) {
           console.log("a");
-          
+
           setShares(new BigNumber(0));
           setToken1({ ...token1, value: new BigNumber(0), percentage: new BigNumber(0) });
           return;
@@ -164,7 +165,7 @@ export default function  Unstake () {
         if (percInput.gte(100)) {
           val = "100";
           console.log("b");
-          
+
           percInput = new BigNumber(100);
           setToken1({ ...token1, percentage: new BigNumber(100) });
         }
@@ -175,7 +176,7 @@ export default function  Unstake () {
           await ocean.getOceanRemovedforPoolShares(singleLiquidityPos.address, singleLiquidityPos.shares.toString())
         );
 
-        const oceanFromPerc: BigNumber =  userTotalStakedOcean.times(percInput).div(100);
+        const oceanFromPerc: BigNumber = userTotalStakedOcean.times(percInput).div(100);
 
         const sharesNeeded = new BigNumber(
           await ocean.getPoolSharesRequiredToUnstake(
@@ -184,7 +185,7 @@ export default function  Unstake () {
             oceanFromPerc.toFixed(18)
           )
         );
-        
+
         console.log("User shares from percentage", sharesNeeded);
         if (max?.OCEAN?.gt(oceanFromPerc)) {
           setShares(sharesNeeded);
@@ -201,7 +202,7 @@ export default function  Unstake () {
     }
   };
 
-  async function maxUnstakeHandler() {    
+  async function maxUnstakeHandler() {
     if (!ocean || !singleLiquidityPos) return;
     setCalculating(true);
     let max: IMaxUnstake | void = maxUnstake?.OCEAN.gt(0) ? maxUnstake : await getMaxUnstake(getNewSignal());
@@ -301,9 +302,7 @@ export default function  Unstake () {
                     width="40px"
                   />
                   {singleLiquidityPos ? (
-                    <p className="text-gray-100 text-sm md:text-lg">
-                      {token2.info.symbol}/OCEAN
-                    </p>
+                    <p className="text-gray-100 text-sm md:text-lg">{token2.info.symbol}/OCEAN</p>
                   ) : (
                     <PulseLoader color="white" size="4px" margin="5px" />
                   )}
@@ -347,6 +346,7 @@ export default function  Unstake () {
                         : ". . ."}
                     </p>
                     <div className="text-sm text-gray-300 grid grid-flow-col justify-end gap-2">
+                      <MaxToolTip />
                       <Button
                         id="maxUnstakeBtn"
                         onClick={() => {
@@ -373,12 +373,12 @@ export default function  Unstake () {
               </div>
 
               <TokenSelect
-              max={maxUnstake.OCEAN}
-              otherToken={token2.info.symbol}
-              pos={1}
-              setToken={setToken1}
-              token={token1}
-              updateNum={updateNum}
+                max={maxUnstake.OCEAN}
+                otherToken={token2.info.symbol}
+                pos={1}
+                setToken={setToken1}
+                token={token1}
+                updateNum={updateNum}
               />
               <div className="flex mt-4">
                 {/* <div className="bg-gradient"></div> */}
@@ -479,4 +479,4 @@ export default function  Unstake () {
       />
     </div>
   );
-};
+}
