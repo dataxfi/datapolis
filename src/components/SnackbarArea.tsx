@@ -31,8 +31,6 @@ export default function SnackbarArea() {
   }, [ocean, accountId, currentNot]);
 
   useEffect(() => {
-    console.log(!!txDetails , !!currentNot?.error,  !!cleanup);
-    
     if ((txDetails || currentNot?.error) && cleanup) {
       display();
     }
@@ -47,7 +45,7 @@ export default function SnackbarArea() {
   function errorMessage(currentNot: any) {
     if (currentNot.error.error.code === 4001) {
       console.log("smoogle");
-      
+
       return "User rejected transaction";
     } else {
       return currentNot.message;
@@ -57,7 +55,7 @@ export default function SnackbarArea() {
   function display() {
     //default render time is 6 seconds
     console.log("foogle");
-    
+
     setTimeout(() => {
       setOpacity("100");
     }, 500);

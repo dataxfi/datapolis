@@ -5,11 +5,13 @@ export default function TokenModalItem({
   onClick,
   dtks = false,
   setShow,
+  setDescToken,
 }: {
   dtks?: boolean;
   token: ITokenInfo;
   onClick: Function;
   setShow?: React.Dispatch<React.SetStateAction<boolean>>;
+  setDescToken?: React.Dispatch<React.SetStateAction<ITokenInfo | undefined>>;
 }) {
   return (
     <div
@@ -30,6 +32,8 @@ export default function TokenModalItem({
         {dtks ? (
           <button
             onClick={() => {
+              const no0xAddress = token.address.substring(2);
+              if (setDescToken) setDescToken(token);
               if (setShow) setShow(true);
             }}
             className="p-2 rounded hover:bg-white hover:bg-opacity-25"

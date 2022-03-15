@@ -7,6 +7,7 @@ import { GlobalContext } from "../context/GlobalState";
 import useTokenList, { formatTokenArray } from "../hooks/useTokenList";
 import OutsideClickHandler from "react-outside-click-handler";
 import { ITokenInfo } from "@dataxfi/datax.js";
+import DatasetDescription from "./DatasetDescription";
 
 export default function TokenModal({
   close,
@@ -71,25 +72,8 @@ export default function TokenModal({
       decimals: 18,
       logoURI: "https://tokens.1inch.io/0x006bea43baa3f7a6f765f14f10a1a1b08334ef45.png",
     },
-    {
-      pool: "adfa",
-      address: "0x006BeA43Baa3f7A6f765F14f10A1a1b08334EF45",
-      chainId: 1,
-      name: "Stox",
-      symbol: "STX",
-      decimals: 18,
-      logoURI: "https://tokens.1inch.io/0x006bea43baa3f7a6f765f14f10a1a1b08334ef45.png",
-    },
-    {
-      pool: "adfa",
-      address: "0x006BeA43Baa3f7A6f765F14f10A1a1b08334EF45",
-      chainId: 1,
-      name: "Stox",
-      symbol: "STX",
-      decimals: 18,
-      logoURI: "https://tokens.1inch.io/0x006bea43baa3f7a6f765f14f10a1a1b08334ef45.png",
-    },
   ]);
+  const [descToken, setDescToken] = useState<ITokenInfo>();
   useTokenList({ otherToken, setLoading, setError });
 
   useEffect(() => {
@@ -97,6 +81,12 @@ export default function TokenModal({
       setShowDescModal(false);
     }
   }, [showDtks]);
+
+  useEffect(() => {
+    if (!showDescModal) {
+      setDescToken(undefined);
+    }
+  }, [showDescModal]);
 
   const initialChain = useRef(chainId);
   useEffect(() => {
@@ -117,7 +107,14 @@ export default function TokenModal({
   const tokenRenderer = (idx: number, key: string | number) => {
     if (datatokens && showDtks)
       return (
-        <TokenModalItem setShow={setShowDescModal} dtks={true} onClick={onClick} key={key} token={datatokens[idx]} />
+        <TokenModalItem
+          setShow={setShowDescModal}
+          dtks={true}
+          onClick={onClick}
+          key={key}
+          token={datatokens[idx]}
+          setDescToken={setDescToken}
+        />
       );
     if (ERC20Tokens && !showDtks) return <TokenModalItem onClick={onClick} key={key} token={ERC20Tokens[idx]} />;
     return <></>;
@@ -152,17 +149,21 @@ export default function TokenModal({
 
   return (
     <>
-      <div
-        id="tokenModal"
-        className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 w-full sm:max-w-sm"
+      <OutsideClickHandler
+        onOutsideClick={() => {
+          close();
+        }}
       >
-        <div className="relative">
-          <OutsideClickHandler
-            onOutsideClick={() => {
-              close();
-            }}
-          >
-            <div className="p-2 bg-background border-primary-500 border rounded-lg hm-box mx-3 max-h-109 overflow-hidden">
+        <div
+          id="tokenModal"
+          className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  z-30 w-full sm:max-w-sm"
+        >
+          <div className="hm-box relative w-full h-109 overflow-hidden bg-background border-primary-500 border rounded-lg">
+            <div
+              className={`transition-transform transform left-0 ${
+                showDescModal ? "-translate-x-full duration-200" : "duration-500"
+              } p-2 h-109 absolute w-[384px] z-30`}
+            >
               <div className="flex justify-between items-center">
                 <p className="mb-0 text-gray-100 text-xl pl-2">Select a token</p>
                 <MdClose
@@ -255,9 +256,10 @@ export default function TokenModal({
                 loader
               )}
             </div>
-          </OutsideClickHandler>
+            <DatasetDescription setShow={setShowDescModal} show={showDescModal} token={descToken} />
+          </div>
         </div>
-      </div>
+      </OutsideClickHandler>
     </>
   );
 }

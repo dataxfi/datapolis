@@ -37,14 +37,11 @@ export default function TokenSelect({
   const [title, setTitle] = useState<TokenSelectTitles>();
 
   useEffect(() => {
-    console.log(accountId && max.gt(0) && token.balance.gt(0), token);
-
     if (accountId && max.gt(0) && token.balance.gt(0)) {
       setEndabled(true);
     } else {
       setEndabled(false);
     }
-    console.log(enabled);
   }, [token, max, accountId]);
 
   useEffect(() => {

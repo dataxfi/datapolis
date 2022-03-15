@@ -11,7 +11,7 @@ export default function MaxToolTip() {
   const exchangeToolTip = "The max exchange for a token pair is the lesser value of half the reserve for either token.";
 
   return (
-    <div className="relative group z-20">
+    <div className="relative group z-10">
       <MdInfoOutline className="w-3" />
       <div className="absolute border rounded bg-trade-darkBlue bottom-50 left-4 w-max max-w-[200px] p-2 hidden group-hover:block">
         <p>{location === "/trade" ? exchangeToolTip : location === "/stake" ? stakeToolTip : unstakeToolTip}</p>
