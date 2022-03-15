@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.reactMarkDown {
+  @apply bg-trade-blue bg-opacity-20 rounded-lg p-2 my-2
+}
+
+.reactMarkDown ul {
+  @apply my-2 list-disc list-outside p-2 bg-trade-blue bg-opacity-30 rounded;
+} 
+
+.reactMarkDown ul li {
+  @apply ml-8 list-item ;
+  text-align: -webkit-match-parent;
+}
+
+.reactMarkDown a {
+  @apply text-city-blue;
+}
+.reactMarkDown h3 {
+  @apply text-blue-300 text-xl my-0;
+}
+
+.reactMarkDown p {
+  @apply my-1
+}

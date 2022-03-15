@@ -34,7 +34,6 @@ export default function TokenModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [showDtks, setShowDtks] = useState<boolean>(true);
-  const [showDescModal, setShowDescModal] = useState<boolean>(false);
   const [commons, setCommons] = useState<ITokenInfo[]>([
     {
       pool: "adfa",
@@ -73,20 +72,7 @@ export default function TokenModal({
       logoURI: "https://tokens.1inch.io/0x006bea43baa3f7a6f765f14f10a1a1b08334ef45.png",
     },
   ]);
-  const [descToken, setDescToken] = useState<ITokenInfo>();
   useTokenList({ otherToken, setLoading, setError });
-
-  useEffect(() => {
-    if (!showDtks) {
-      setShowDescModal(false);
-    }
-  }, [showDtks]);
-
-  useEffect(() => {
-    if (!showDescModal) {
-      setDescToken(undefined);
-    }
-  }, [showDescModal]);
 
   const initialChain = useRef(chainId);
   useEffect(() => {
@@ -108,12 +94,10 @@ export default function TokenModal({
     if (datatokens && showDtks)
       return (
         <TokenModalItem
-          setShow={setShowDescModal}
           dtks={true}
           onClick={onClick}
           key={key}
           token={datatokens[idx]}
-          setDescToken={setDescToken}
         />
       );
     if (ERC20Tokens && !showDtks) return <TokenModalItem onClick={onClick} key={key} token={ERC20Tokens[idx]} />;
@@ -158,12 +142,7 @@ export default function TokenModal({
           id="tokenModal"
           className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  z-30 w-full sm:max-w-sm"
         >
-          <div className="hm-box relative w-full h-109 overflow-hidden bg-background border-primary-500 border rounded-lg">
-            <div
-              className={`transition-transform transform left-0 ${
-                showDescModal ? "-translate-x-full duration-200" : "duration-500"
-              } p-2 h-109 absolute w-[384px] z-30`}
-            >
+          <div className="hm-box flex flex-col p-2 w-full h-109 bg-background border-primary-500 border rounded-lg">
               <div className="flex justify-between items-center">
                 <p className="mb-0 text-gray-100 text-xl pl-2">Select a token</p>
                 <MdClose
@@ -213,9 +192,12 @@ export default function TokenModal({
                   There was an error loading the tokens
                 </div>
               ) : datatokens && showDtks ? (
-                <div className="mt-4 hm-hide-scrollbar overflow-y-scroll" style={{ maxHeight: "60vh" }} id="tokenList">
-                  <ReactList itemRenderer={tokenRenderer} length={datatokens ? datatokens.length : 0} type="simple" />
-                </div>
+                  <div
+                    className="hm-hide-scrollbar overflow-y-scroll mt-2 bg-trade-darkBlue rounded-lg border border-gray-700"
+                    id="tokenList"
+                  >
+                    <ReactList itemRenderer={tokenRenderer} length={datatokens ? datatokens.length : 0} type="simple" />
+                  </div>
               ) : ERC20Tokens && !showDtks ? (
                 <>
                   <div className="flex flex-col mt-2">
@@ -241,8 +223,7 @@ export default function TokenModal({
                     ))}
                   </ul>
                   <div
-                    className="mt-4 hm-hide-scrollbar overflow-y-scroll"
-                    style={{ maxHeight: "60vh" }}
+                    className="mt-2 hm-hide-scrollbar overflow-y-scroll bg-trade-darkBlue rounded-lg border border-gray-700"
                     id="tokenList"
                   >
                     <ReactList
@@ -255,8 +236,6 @@ export default function TokenModal({
               ) : (
                 loader
               )}
-            </div>
-            <DatasetDescription setShow={setShowDescModal} show={showDescModal} token={descToken} />
           </div>
         </div>
       </OutsideClickHandler>

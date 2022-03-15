@@ -15,6 +15,7 @@ import { IBtnProps } from "../utils/types";
 import useAutoLoadToken from "../hooks/useAutoLoadToken";
 import TokenSelect from "./TokenSelect";
 import PositionBox from "./PositionBox";
+import DatasetDescription from "./DatasetDescription";
 
 const INITIAL_BUTTON_STATE = {
   text: "Connect wallet",
@@ -41,7 +42,7 @@ export default function Stake() {
     lastTx,
     tokensCleared,
     showUnlockTokenModal,
-    setSnackbarItem
+    setSnackbarItem,
   } = useContext(GlobalContext);
 
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
@@ -179,7 +180,6 @@ export default function Stake() {
       setShowConfirmModal(false);
       setSnackbarItem({ type: "error", message: error.message });
       setToken1({ ...token1, value: new BigNumber(0) });
-
     } finally {
       setLoading(false);
       getMaxAndAllowance();
@@ -234,127 +234,134 @@ export default function Stake() {
   }
 
   return (
-    <div className="w-full h-full absolute top-0">
-      <div className="flex h-full w-full items-center justify-center">
-        <div>
-          <div
-            id="stakeModal"
-            className="lg:w-107 lg:mx-auto sm:mx-4 mx-3 bg-black bg-opacity-90 rounded-lg p-3 hm-box"
-          >
-            <TokenSelect
-              max={maxStakeAmt}
-              otherToken={"OCEAN"}
-              pos={2}
-              setToken={setToken2}
-              token={token2}
-              updateNum={() => {}}
-            />
-            <div className="px-4 relative mt-6 mb-10">
-              <div className="rounded-full border-black border-4 absolute -top-7 bg-trade-darkBlue w-12 h-12 flex items-center justify-center swap-center">
-                {loading ? (
-                  <MoonLoader size={25} color={"white"} />
-                ) : (
-                  <AiOutlinePlus size="30" className="text-gray-300" />
-                )}
+    <>
+      <DatasetDescription />
+      <div
+        className={`absolute top-1/2 left-1/2 transition-transform transform duration-500 ${
+          token2.info ? "translate-x-[10%]" : "-translate-x-1/2"
+        } -translate-y-1/2 `}
+      >
+        <div className="flex h-full w-full items-center justify-center">
+          <div>
+            <div
+              id="stakeModal"
+              className="lg:w-107 lg:mx-auto sm:mx-4 mx-3 bg-black bg-opacity-90 rounded-lg p-3 hm-box"
+            >
+              <TokenSelect
+                max={maxStakeAmt}
+                otherToken={"OCEAN"}
+                pos={2}
+                setToken={setToken2}
+                token={token2}
+                updateNum={() => {}}
+              />
+              <div className="px-4 relative mt-6 mb-10">
+                <div className="rounded-full border-black border-4 absolute -top-7 bg-trade-darkBlue w-12 h-12 flex items-center justify-center swap-center">
+                  {loading ? (
+                    <MoonLoader size={25} color={"white"} />
+                  ) : (
+                    <AiOutlinePlus size="30" className="text-gray-300" />
+                  )}
+                </div>
               </div>
-            </div>
-            <TokenSelect
-              max={maxStakeAmt}
-              otherToken={""}
-              pos={1}
-              setToken={setToken1}
-              token={token1}
-              updateNum={(num: string) => {
-                updateNum(num);
-              }}
-              onMax={setMaxStake}
-            />
-            <PositionBox loading={loading} setLoading={setLoading} />
-            <Button
-              id="executeStake"
-              text={btnProps.text}
-              onClick={() => {
-                if (btnProps.text === "Connect wallet" || !accountId) {
-                  handleConnect();
-                } else {
-                  if (token1.allowance?.lt(token1.value)) {
-                    const preTxDetails: ITxDetails = {
-                      accountId,
-                      status: "Pending",
-                      token1,
-                      token2,
-                      txDateId: Date.now().toString(),
-                      txType: "approve",
-                    };
-                    console.log(token1);
-                    setLastTx(preTxDetails);
-                    setShowUnlockTokenModal(true);
+              <TokenSelect
+                max={maxStakeAmt}
+                otherToken={""}
+                pos={1}
+                setToken={setToken1}
+                token={token1}
+                updateNum={(num: string) => {
+                  updateNum(num);
+                }}
+                onMax={setMaxStake}
+              />
+              <PositionBox loading={loading} setLoading={setLoading} />
+              <Button
+                id="executeStake"
+                text={btnProps.text}
+                onClick={() => {
+                  if (btnProps.text === "Connect wallet" || !accountId) {
+                    handleConnect();
                   } else {
-                    setShowConfirmModal(true);
-                    const preTxDetails: ITxDetails = {
-                      accountId,
-                      status: "Pending",
-                      token1,
-                      token2,
-                      txDateId: Date.now().toString(),
-                      txType: "stake",
-                    };
+                    if (token1.allowance?.lt(token1.value)) {
+                      const preTxDetails: ITxDetails = {
+                        accountId,
+                        status: "Pending",
+                        token1,
+                        token2,
+                        txDateId: Date.now().toString(),
+                        txType: "approve",
+                      };
+                      console.log(token1);
+                      setLastTx(preTxDetails);
+                      setShowUnlockTokenModal(true);
+                    } else {
+                      setShowConfirmModal(true);
+                      const preTxDetails: ITxDetails = {
+                        accountId,
+                        status: "Pending",
+                        token1,
+                        token2,
+                        txDateId: Date.now().toString(),
+                        txType: "stake",
+                      };
 
-                    setLastTx(preTxDetails);
-                    executeStake(preTxDetails);
+                      setLastTx(preTxDetails);
+                      executeStake(preTxDetails);
+                    }
                   }
-                }
-              }}
-              classes="p-2 rounded-lg w-full mt-4 txButton"
-              disabled={btnProps.disabled}
-            />
-          </div>
-          <div className="pt-3 pl-6 lg:pl-3">
-            <Link id="lpLink" to="/stake/list" className="text-gray-300 hover:text-gray-100 transition-colors">
-              View your stake positions {">"}
-            </Link>
+                }}
+                classes="p-2 rounded-lg w-full mt-4 txButton"
+                disabled={btnProps.disabled}
+              />
+            </div>
+            <div className="pt-3 pl-6 lg:pl-3">
+              <Link id="lpLink" to="/stake/list" className="text-gray-300 hover:text-gray-100 transition-colors">
+                View your stake positions {">"}
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
 
-      {showUnlockTokenModal ? (
-        <UnlockTokenModal
-          nextFunction={() => {
-            setShowConfirmModal(true);
-            if (!accountId) return;
-            const preTxDetails: ITxDetails = {
-              accountId,
-              status: "Pending",
-              token1,
-              token2,
-              txDateId: Date.now().toString(),
-              txType: "stake",
-            };
-            setLastTx(preTxDetails);
-            executeStake(preTxDetails);
+        {showUnlockTokenModal ? (
+          <UnlockTokenModal
+            nextFunction={() => {
+              setShowConfirmModal(true);
+              if (!accountId) return;
+              const preTxDetails: ITxDetails = {
+                accountId,
+                status: "Pending",
+                token1,
+                token2,
+                txDateId: Date.now().toString(),
+                txType: "stake",
+              };
+              setLastTx(preTxDetails);
+              executeStake(preTxDetails);
+            }}
+          />
+        ) : (
+          <></>
+        )}
+
+        <ConfirmModal
+          show={showConfirmModal ? showConfirmModal : false}
+          close={() => {
+            setShowConfirmModal(false);
+          }}
+          txs={token2.info ? [`Stake ${token1.value?.toString()} OCEAN in ${token2.info.symbol} pool`] : []}
+        />
+
+        <TransactionDoneModal
+          show={showTxDone ? showTxDone : false}
+          txHash={recentTxHash}
+          close={() => {
+            setShowTxDone(false);
+            setToken2(INITIAL_TOKEN_STATE);
+            setToken1({ ...token1, value: new BigNumber(0) });
           }}
         />
-      ) : (
-        <></>
-      )}
-
-      <ConfirmModal
-        show={showConfirmModal ? showConfirmModal : false}
-        close={() => {
-          setShowConfirmModal(false);
-        }}
-        txs={token2.info ? [`Stake ${token1.value?.toString()} OCEAN in ${token2.info.symbol} pool`] : []}
-      />
-
-      <TransactionDoneModal
-        show={showTxDone ? showTxDone : false}
-        txHash={recentTxHash}
-        close={() => {
-          setShowTxDone(false);
-          setToken2(INITIAL_TOKEN_STATE);
-          setToken1({ ...token1, value: new BigNumber(0) });
-        }}
-      />
-    </div>
+      </div>
+    </>
   );
 }

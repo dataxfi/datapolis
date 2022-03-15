@@ -96,6 +96,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   //response from token fetch operations
   const [ERC20TokenResponse, setERC20TokenResponse] = useState<ITList>();
   const [dtTokenResponse, setDtTokenResponse] = useState<ITList>();
+  const [showDescModal, setShowDescModal] = useState<boolean>(false);
 
   const [buttonText, setButtonText] = useState<string>(CONNECT_TEXT);
 
@@ -399,7 +400,9 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         token2,
         setToken2,
         snackbarItem, 
-        setSnackbarItem
+        setSnackbarItem,
+        showDescModal, 
+        setShowDescModal
       }}
     >
       {children}

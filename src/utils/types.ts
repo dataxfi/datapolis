@@ -168,4 +168,6 @@ export interface globalStates {
   tokensCleared: React.MutableRefObject<boolean>;
   snackbarItem?: ISnackbarItem;
   setSnackbarItem: React.Dispatch<React.SetStateAction<ISnackbarItem | undefined>>;
+  showDescModal: boolean;
+  setShowDescModal: React.Dispatch<React.SetStateAction<boolean>>;
 }

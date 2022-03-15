@@ -1,28 +1,31 @@
-import { ITokenInfo } from "@dataxfi/datax.js";
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
-import { BsArrowLeft } from "react-icons/bs";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { GlobalContext } from "../context/GlobalState";
 import Loader from "./Loader";
-
-export default function DatasetDescription({
-  show,
-  setShow,
-  token,
-}: {
-  show: boolean;
-  setShow: React.Dispatch<React.SetStateAction<boolean>>;
-  token: ITokenInfo | undefined;
-}) {
+//@ts-ignore
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+//@ts-ignore
+import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import style from "../markdown.module.css";
+import { BsBoxArrowUpRight } from "react-icons/bs";
+export default function DatasetDescription({}: {}) {
   const [response, setResponse] = useState<any>();
   const [description, setDescription] = useState<string>();
-  const { setSnackbarItem, ocean } = useContext(GlobalContext);
+  const [name, setName] = useState<string>();
+  const [dateCreated, setDateCreate] = useState<string>();
+  const [author, setAuthor] = useState<string>();
+  const [did, setDID] = useState<string>();
+  const { setSnackbarItem, ocean, token2 } = useContext(GlobalContext);
+
   useEffect(() => {
-    if (token && show)
+    if (token2.info)
       try {
         axios
-          .get(`https://aquarius.oceanprotocol.com/api/v1/aquarius/assets/ddo/did:op:${token.address.substring(2)}`)
+          .get(
+            `https://aquarius.oceanprotocol.com/api/v1/aquarius/assets/ddo/did:op:${token2.info.address.substring(2)}`
+          )
           .then(setResponse);
       } catch (error) {
         console.error(error);
@@ -32,82 +35,95 @@ export default function DatasetDescription({
           message: "Could not retreive description for dataset. 1",
         });
       }
-  }, [token]);
+  }, [token2.info]);
 
   useEffect(() => {
-    console.log(response);
-    if (response && show && token)
-      try {
-        const desc = response.data.service.find((el: any) => el.type === "metadata").attributes.additionalInformation
-          .description;
-
-        console.log(desc);
-        setDescription(desc);
-      } catch (error) {
-        setSnackbarItem({
-          type: "error",
-          error: { code: 0, error: error, message: "Could not retreive description for dataset." },
-          message: "Could not retreive description for dataset. 2",
-        });
-      }
+    try {
+      setDID(response.data.id);
+      const metadata = response.data.service.find((el: any) => el.type === "metadata");
+      setName(metadata.attributes.main.name);
+      setAuthor(metadata.attributes.main.author);
+      setDateCreate(metadata.attributes.main.dateCreated);
+      const desc = metadata.attributes.additionalInformation.description;
+      setDescription(desc);
+    } catch (error) {
+      setSnackbarItem({
+        type: "error",
+        error: { code: 0, error: error, message: "Could not retreive description for dataset." },
+        message: "Could not retreive description for dataset. 2",
+      });
+    }
   }, [response]);
 
-  const prettyH3 = ({ node, props }: { node: any; props: any }) => <h3 className="text-xl mb-2" {...props}></h3>;
-
   return (
-    <div
-      className={`transition-transform transform left-0 
-      ${show ? "duration-500" : "duration-200 translate-x-full"} p-2 h-109 absolute w-[384px] z-30 bg-black`}
-    >
-      <div className="w-full flex flex-col h-full">
-        <button
-          onClick={() => {
-            setShow(false);
-          }}
-          className="px-2 rounded hover:bg-white hover:bg-opacity-25 w-10 h-10"
-        >
-          <BsArrowLeft className="h-6 w-6" />
-        </button>
-
-        <div className="overflow-y-scroll h-full w-full whitespace-pre-wrap">
-          <h3 className="text-2xl">{token?.name}</h3>
-          <h4 className="text-primary-600">{token?.symbol}</h4>
-          <hr className="mb-4" />
-          <h4 className="text-xl mb-2">Description</h4>
+    <div className={`absolute top-1/2 -translate-y-1/2 w-1/3 items-center -left-1/3 transition-transform transform duration-500 ${token2.info? "translate-x-[150%]" : ""}`}>
+      <div className="flex flex-col max-h-[750px] bg-black bg-opacity-90 rounded-lg p-4">
+        <div className="overflow-y-scroll h-1/4 hm-hide-scrollbar w-full whitespace-pre-wrap">
+          {name ? (
+            <>
+              <div className="flex justify-between ">
+                <h3 className="text-blue-300 text-2xl">{name}</h3>
+              </div>
+              <div className="my-2 bg-gray-500 h-1px w-full" />
+            </>
+          ) : (
+            <></>
+          )}
+          {token2.info ? (
+            <>
+              <div className="flex justify-between">
+                <div>
+                  <h3 className="text-blue-300 text-xl">{token2.info?.name}</h3>
+                  <h4 className="text-primary-600">{token2.info?.symbol}</h4>
+                </div>
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center w-full justify-end">
+                    <a
+                      href={ocean?.config.default.explorerUri + "/address/" + token2.info?.pool}
+                      target="_blank"
+                      className="text-xl hover:text-gray-400 flex items-center mr-4"
+                    >
+                      Pool <BsBoxArrowUpRight className="text-base" />
+                    </a>
+                    <a
+                      href={ocean?.config.default.explorerUri + "/address/" + token2.info?.address}
+                      target="_blank"
+                      className="text-xl hover:text-gray-400 flex items-center"
+                    >
+                      Token <BsBoxArrowUpRight className="text-base" />{" "}
+                    </a>
+                  </div>
+                  {dateCreated ? <p className="text-gray-600">Created: {dateCreated}</p> : <></>}
+                </div>
+              </div>
+              <div className="my-2 bg-gray-500 h-1px w-full" />
+            </>
+          ) : (
+            <></>
+          )}
+          <h4 className="text-blue-300  text-xl mb-2">Description</h4>
           {description ? (
             <>
               <ReactMarkdown
+                className={style.reactMarkDown}
+                remarkPlugins={[remarkGfm]}
                 components={{
-                  //@ts-ignore
-                  ul: ({ node, props }: { node: any; props: any }) => {
-                    console.log(node.children);
-                    return (
-                      <ul className="my-1 flex flex-col" {...props}>
-                        {node.children.value}
-                      </ul>
+                  code({ node, inline, className, children, ...props }) {
+                    const match = /language-(\w+)/.exec(className || "");
+                    return !inline && match ? (
+                      <SyntaxHighlighter
+                        children={String(children).replace(/\n$/, "")}
+                        style={atomDark}
+                        language={match[1]}
+                        PreTag="div"
+                        {...props}
+                      />
+                    ) : (
+                      <code className={className} {...props}>
+                        {children}
+                      </code>
                     );
                   },
-                  //@ts-ignore
-                  // li: ({ node, props }: { node: any; props: any }) => {
-                  //   console.log(node.children);
-                  //   return (
-                  //     <li className="my-1 flex flex-col" {...props}>
-                  //       {node.children.value}
-                  //     </li>
-                  //   );
-                  // },
-                  //@ts-ignore
-                  h3: ({ node, props }: { node: any; props: any }) => (
-                    <h3 className="text-xl my-1" {...props}>
-                      {node.children[0].value}
-                    </h3>
-                  ),
-                  //@ts-ignore
-                  p: ({ node, props }: { node: any; props: any }) => (
-                    <h1 className="my-1" {...props}>
-                      {node.children[0].value}
-                    </h1>
-                  ),
                 }}
               >
                 {description}
@@ -118,22 +134,24 @@ export default function DatasetDescription({
               <Loader size={48} />
             </div>
           )}
-          <h4 className="my-2 text-xl">Pool Address</h4>
-          <a
-            href={ocean?.config.default.explorerUri + "/address/" + token?.pool}
-            target="_blank"
-            className="text-sm hover:text-gray-400"
-          >
-            {token?.pool}
-          </a>
-          <h4 className="my-2 text-xl">Token Address</h4>
-          <a
-            href={ocean?.config.default.explorerUri + "/address/" + token?.address}
-            target="_blank"
-            className="text-sm hover:text-gray-400"
-          >
-            {token?.address}
-          </a>
+
+          {token2.info ? (
+            <>
+              {author ? (
+                <p className="text-blue-300 test-sm">
+                  Author: <span className="text-white">{author}</span>{" "}
+                </p>
+              ) : (
+                <></>
+              )}{" "}
+              <p className="text-blue-300 test-sm">
+                DID: {"\t"}
+                <span className="text-sm text-white">{did ? did : ""}</span>
+              </p>
+            </>
+          ) : (
+            <></>
+          )}
         </div>
       </div>
     </div>

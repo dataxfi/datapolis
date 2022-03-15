@@ -14,6 +14,7 @@ import UnlockTokenModal from "./UnlockTokenModal";
 import { getAllowance } from "../hooks/useTokenList";
 import { IBtnProps, ITxDetails } from "../utils/types";
 import { IMaxExchange } from "@dataxfi/datax.js";
+import DatasetDescription from "./DatasetDescription";
 
 const INITIAL_MAX_EXCHANGE: IMaxExchange = {
   maxBuy: new BigNumber(0),
@@ -276,7 +277,7 @@ export default function Swap() {
         setPostExchange(new BigNumber(0));
       }
     } catch (error: any) {
-      console.log("DataX Caught an Error for Transaction:", lastTx?.txDateId);      
+      console.log("DataX Caught an Error for Transaction:", lastTx?.txDateId);
       setLastTx({ ...preTxDetails, status: "Failure" });
       setSnackbarItem({ type: "error", message: error.error.message, error });
     }
@@ -431,179 +432,185 @@ export default function Swap() {
   }
 
   return (
-    <div className="w-full h-full absolute top-0">
-      <div id="swapModal" className="flex mt-6 w-full h-full items-center justify-center">
-        <div className="lg:w-107 lg:mx-auto sm:mx-4 mx-3 bg-black bg-opacity-80 rounded-lg p-3 hm-box">
-          <div className="flex justify-between relative">
-            {/* <p className="text-xl">{text.T_SWAP}</p> */}
-            <div className="grid grid-flow-col gap-2 items-center">
-              <div
-                id="tradeSettingsBtn"
-                onClick={() => setShowSettings(true)}
-                className="hover:bg-primary-700 px-1.5 py-1.5 rounded-lg"
-                role="button"
-              >
-                <MdTune size="24" />
-              </div>
-            </div>
-            {showSettings ? (
-              <div id="settingsModal" className="absolute top-0 left-0 max-w-sm">
-                <OutsideClickHandler
-                  onOutsideClick={() => {
-                    setShowSettings(false);
-                  }}
+    <>
+      <DatasetDescription />
+      <div
+        className={`absolute top-1/2 left-1/2 transition-transform transform duration-500 ${
+          token2.info ? "" : "-translate-x-1/2"
+        } -translate-y-1/2 `}
+      >
+        <div className="flex mt-6 w-full h-full items-center justify-center">
+          <div id="swapModal" className="lg:w-107 sm:mx-4 mx-3 bg-black bg-opacity-90 rounded-lg p-3 hm-box">
+            <div className="flex justify-between relative">
+              <div className="grid grid-flow-col gap-2 items-center">
+                <div
+                  id="tradeSettingsBtn"
+                  onClick={() => setShowSettings(true)}
+                  className="hover:bg-primary-700 px-1.5 py-1.5 rounded-lg"
+                  role="button"
                 >
-                  <div className="bg-black rounded-lg border bg-opacity-90 border-primary-500 p-2 w-full">
-                    <p className="text-gray-100">Transaction settings</p>
-                    <div className="mt-2">
-                      <p className="text-gray-300 text-sm">Slippage tolerance</p>
-                      <div className="grid grid-flow-col gap-2 items-center">
-                        <div className="flex justify-between focus:border-white bg-primary-700 rounded-lg items-center px-2 py-1">
-                          <input
-                            id="slippageInput"
-                            type="number"
-                            onChange={(e) => setSlippage(new BigNumber(e.target.value))}
-                            value={slippage.dp(5).toString()}
-                            className="text-lg bg-primary-700 outline-none rounded-l-lg w-32"
-                          />
-                          <p className="text-gray-200 text-lg">%</p>
-                        </div>
-                        <div>
-                          <Button
-                            id="autoSlippageBtn"
-                            onClick={() => setSlippage(new BigNumber(1))}
-                            text="Auto"
-                            classes="text-gray-300 p-2 bg-primary-800 rounded-lg"
-                          />
+                  <MdTune size="24" />
+                </div>
+              </div>
+              {showSettings ? (
+                <div id="settingsModal" className="absolute top-0 left-0 max-w-sm">
+                  <OutsideClickHandler
+                    onOutsideClick={() => {
+                      setShowSettings(false);
+                    }}
+                  >
+                    <div className="bg-black rounded-lg border bg-opacity-90 border-primary-500 p-2 w-full">
+                      <p className="text-gray-100">Transaction settings</p>
+                      <div className="mt-2">
+                        <p className="text-gray-300 text-sm">Slippage tolerance</p>
+                        <div className="grid grid-flow-col gap-2 items-center">
+                          <div className="flex justify-between focus:border-white bg-primary-700 rounded-lg items-center px-2 py-1">
+                            <input
+                              id="slippageInput"
+                              type="number"
+                              onChange={(e) => setSlippage(new BigNumber(e.target.value))}
+                              value={slippage.dp(5).toString()}
+                              className="text-lg bg-primary-700 outline-none rounded-l-lg w-32"
+                            />
+                            <p className="text-gray-200 text-lg">%</p>
+                          </div>
+                          <div>
+                            <Button
+                              id="autoSlippageBtn"
+                              onClick={() => setSlippage(new BigNumber(1))}
+                              text="Auto"
+                              classes="text-gray-300 p-2 bg-primary-800 rounded-lg"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </OutsideClickHandler>
+                  </OutsideClickHandler>
+                </div>
+              ) : (
+                <></>
+              )}
+            </div>
+            <TokenSelect
+              setToken={setToken1}
+              token={token1}
+              max={maxExchange.maxSell}
+              onPerc={onPercToken1}
+              onMax={() => onPercToken1("100")}
+              otherToken={token2?.info ? token2.info.symbol : ""}
+              pos={1}
+              updateNum={dbUpdateToken1}
+            />
+            <div className="px-4 relative mt-6 mb-10">
+              <div
+                id="swapTokensBtn"
+                onClick={swapTokens}
+                role="button"
+                tabIndex={0}
+                className="rounded-full border-black bg-opacity-100 border-4 absolute -top-7 bg-trade-darkBlue hover:bg-gray-600 transition-colors duration-200 w-12 h-12 flex swap-center items-center justify-center"
+              >
+                {token2?.loading || token1?.loading || percLoading ? (
+                  <MoonLoader size={25} color={"white"} />
+                ) : (
+                  <IoSwapVertical size="30" className="text-gray-300" />
+                )}
+              </div>
+            </div>
+            <TokenSelect
+              setToken={setToken2}
+              token={token2}
+              max={maxExchange.maxBuy}
+              otherToken={token1.info ? token1.info.symbol : ""}
+              pos={2}
+              updateNum={dbUpdateToken2}
+            />
+
+            {token1?.info && token2?.info && postExchange.isNaN && postExchange.gt(0) ? (
+              <div className="my-4 p-2 modalSelectBg flex justify-between text-gray-400 text-sm rounded-lg">
+                <p>Exchange rate</p>
+                <p>
+                  1 {token1.info.symbol} = {postExchange.dp(5).toString()} {`${" "}${token2.info.symbol}`}
+                </p>
               </div>
             ) : (
               <></>
             )}
-          </div>
-          <TokenSelect
-            setToken={setToken1}
-            token={token1}
-            max={maxExchange.maxSell}
-            onPerc={onPercToken1}
-            onMax={() => onPercToken1("100")}
-            otherToken={token2?.info ? token2.info.symbol : ""}
-            pos={1}
-            updateNum={dbUpdateToken1}
-          />
-          <div className="px-4 relative mt-6 mb-10">
-            <div
-              id="swapTokensBtn"
-              onClick={swapTokens}
-              role="button"
-              tabIndex={0}
-              className="rounded-full border-black bg-opacity-100 border-4 absolute -top-7 bg-trade-darkBlue hover:bg-gray-600 transition-colors duration-200 w-12 h-12 flex swap-center items-center justify-center"
-            >
-              {token2?.loading || token1?.loading || percLoading ? (
-                <MoonLoader size={25} color={"white"} />
-              ) : (
-                <IoSwapVertical size="30" className="text-gray-300" />
-              )}
-            </div>
-          </div>
-          <TokenSelect
-            setToken={setToken2}
-            token={token2}
-            max={maxExchange.maxBuy}
-            otherToken={token1.info ? token1.info.symbol : ""}
-            pos={2}
-            updateNum={dbUpdateToken2}
-          />
 
-          {token1?.info && token2?.info && postExchange.isNaN && postExchange.gt(0) ? (
-            <div className="my-4 p-2 modalSelectBg flex justify-between text-gray-400 text-sm rounded-lg">
-              <p>Exchange rate</p>
-              <p>
-                1 {token1.info.symbol} = {postExchange.dp(5).toString()} {`${" "}${token2.info.symbol}`}
-              </p>
+            <div className="mt-4">
+              <Button
+                id="executeTradeBtn"
+                text={btnProps.text}
+                onClick={() => {
+                  switch (btnProps.text) {
+                    case "Connect Wallet":
+                      if (handleConnect) handleConnect();
+                      break;
+                    case `Unlock ${token1?.info ? token1.info.symbol : ""}`:
+                      if (!accountId || !slippage) return;
+                      setLastTx({
+                        accountId,
+                        status: "Pending",
+                        token1,
+                        token2,
+                        txDateId: Date.now().toString(),
+                        txType: "approve",
+                        slippage,
+                      });
+                      setShowUnlockTokenModal(true);
+                      break;
+                    default:
+                      setShowConfirmSwapModal(true);
+                      break;
+                  }
+                }}
+                classes={"p-2 rounded-lg w-full txButton"}
+                disabled={btnProps.disabled}
+              />
             </div>
-          ) : (
-            <></>
-          )}
-
-          <div className="mt-4">
-            <Button
-              id="executeTradeBtn"
-              text={btnProps.text}
-              onClick={() => {
-                switch (btnProps.text) {
-                  case "Connect Wallet":
-                    if (handleConnect) handleConnect();
-                    break;
-                  case `Unlock ${token1?.info ? token1.info.symbol : ""}`:
-                    if (!accountId || !slippage) return;
-                    setLastTx({
-                      accountId,
-                      status: "Pending",
-                      token1,
-                      token2,
-                      txDateId: Date.now().toString(),
-                      txType: "approve",
-                      slippage,
-                    });
-                    setShowUnlockTokenModal(true);
-                    break;
-                  default:
-                    setShowConfirmSwapModal(true);
-                    break;
-                }
-              }}
-              classes={"p-2 rounded-lg w-full txButton"}
-              disabled={btnProps.disabled}
-            />
           </div>
         </div>
-      </div>
-      {showUnlockTokenModal ? <UnlockTokenModal nextFunction={() => setShowConfirmSwapModal(true)} /> : <></>}
+        {showUnlockTokenModal ? <UnlockTokenModal nextFunction={() => setShowConfirmSwapModal(true)} /> : <></>}
 
-      <ConfirmSwapModal
-        close={() => setShowConfirmSwapModal(false)}
-        confirm={() => {
-          setShowConfirmSwapModal(false);
-          setShowConfirmModal(true);
-          if (!accountId || !slippage) return;
-          const preTxDetails: ITxDetails = {
-            accountId,
-            status: "Pending",
-            token1,
-            token2,
-            txDateId: Date.now().toString(),
-            txType: "trade",
-            slippage,
-          };
-          setLastTx(preTxDetails);
-          if (preTxDetails) makeTheSwap(preTxDetails);
-        }}
-        show={showConfirmSwapModal}
-        postExchange={postExchange}
-        slippage={slippage.dp(0).toString()}
-      />
-      <ConfirmModal
-        show={showConfirmModal ? showConfirmModal : false}
-        close={() => {
-          setShowConfirmModal(false);
-        }}
-        txs={[
-          `Swap ${token1.value.dp(5)} ${token1.info?.symbol} for ${token2.value.dp(5)} 
+        <ConfirmSwapModal
+          close={() => setShowConfirmSwapModal(false)}
+          confirm={() => {
+            setShowConfirmSwapModal(false);
+            setShowConfirmModal(true);
+            if (!accountId || !slippage) return;
+            const preTxDetails: ITxDetails = {
+              accountId,
+              status: "Pending",
+              token1,
+              token2,
+              txDateId: Date.now().toString(),
+              txType: "trade",
+              slippage,
+            };
+            setLastTx(preTxDetails);
+            if (preTxDetails) makeTheSwap(preTxDetails);
+          }}
+          show={showConfirmSwapModal}
+          postExchange={postExchange}
+          slippage={slippage.dp(0).toString()}
+        />
+        <ConfirmModal
+          show={showConfirmModal ? showConfirmModal : false}
+          close={() => {
+            setShowConfirmModal(false);
+          }}
+          txs={[
+            `Swap ${token1.value.dp(5)} ${token1.info?.symbol} for ${token2.value.dp(5)} 
       ${token2.info?.symbol}`,
-        ]}
-      />
-      <TransactionDoneModal
-        show={showTxDone ? showTxDone : false}
-        txHash={lastTxUrl}
-        close={() => {
-          if (setShowTxDone) setShowTxDone(false);
-        }}
-      />
-    </div>
+          ]}
+        />
+        <TransactionDoneModal
+          show={showTxDone ? showTxDone : false}
+          txHash={lastTxUrl}
+          close={() => {
+            if (setShowTxDone) setShowTxDone(false);
+          }}
+        />
+      </div>
+    </>
   );
 }
