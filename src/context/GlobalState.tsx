@@ -226,8 +226,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         // This is required to do wallet-specific functions
         const ocean = new Ocean(web3, String(_chainId));
         setOcean(ocean);
-        console.log("chainID - ", chainId);
-        console.log("Pre chainID - ", _chainId);
+        // console.log("chainID - ", chainId);
+        // console.log("Pre chainID - ", _chainId);
         const config = new Config(web3, String(_chainId));
         setConfig(config);
         console.log(config);
@@ -313,6 +313,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       setTxHistory(undefined);
       setERC20TokenResponse(undefined);
       setERC20Tokens(undefined);
+      setShowDescModal(false)
       setPendingTxs([]);
       const parsedId = String(parseInt(chainId));
       console.log(chainId);

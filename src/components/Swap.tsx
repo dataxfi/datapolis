@@ -44,7 +44,7 @@ export default function Swap() {
     tokensCleared,
     showUnlockTokenModal,
     setSnackbarItem,
-    showDescModal
+    showDescModal,
   } = useContext(GlobalContext);
   const [showSettings, setShowSettings] = useState(false);
   const [showConfirmSwapModal, setShowConfirmSwapModal] = useState(false);
@@ -67,76 +67,80 @@ export default function Swap() {
   let controller = new AbortController();
   useEffect(() => {
     if (!tokensCleared.current) return;
-    if (token1.info && token2.info && accountId && ocean) {
-      updateBalance(token1.info.address)
-        .then((balance) => {
-          if (!balance) return;
-          if (token1.info && token2.info && ocean.isOCEAN(token1.info.address)) {
-            getAllowance(token1.info.address, accountId, token2.info.pool || "", ocean).then((res) => {
-              setToken1({
-                ...token1,
-                allowance: new BigNumber(res),
-                balance,
-                value: new BigNumber(0),
-                percentage: new BigNumber(0),
+    try {
+      if (token1.info && token2.info && accountId && ocean) {
+        updateBalance(token1.info.address)
+          .then((balance) => {
+            if (!balance) return;
+            if (token1.info && token2.info && ocean.isOCEAN(token1.info.address)) {
+              getAllowance(token1.info.address, accountId, token2.info.pool || "", ocean).then((res) => {
+                setToken1({
+                  ...token1,
+                  allowance: new BigNumber(res),
+                  balance,
+                  value: new BigNumber(0),
+                  percentage: new BigNumber(0),
+                });
               });
-            });
-          } else if (token1.info && token2.info && ocean.isOCEAN(token2.info.address)) {
-            getAllowance(token1.info.address, accountId, token1.info.pool || "", ocean).then((res) => {
-              setToken1({
-                ...token1,
-                allowance: new BigNumber(res),
-                balance,
-                value: new BigNumber(0),
-                percentage: new BigNumber(0),
+            } else if (token1.info && token2.info && ocean.isOCEAN(token2.info.address)) {
+              getAllowance(token1.info.address, accountId, token1.info.pool || "", ocean).then((res) => {
+                setToken1({
+                  ...token1,
+                  allowance: new BigNumber(res),
+                  balance,
+                  value: new BigNumber(0),
+                  percentage: new BigNumber(0),
+                });
               });
-            });
-          } else if (token1.info) {
-            getAllowance(token1.info.address, accountId, config?.default.routerAddress, ocean).then((res) => {
-              setToken1({
-                ...token1,
-                allowance: new BigNumber(res),
-                balance,
-                value: new BigNumber(0),
-                percentage: new BigNumber(0),
+            } else if (token1.info) {
+              getAllowance(token1.info.address, accountId, config?.default.routerAddress, ocean).then((res) => {
+                setToken1({
+                  ...token1,
+                  allowance: new BigNumber(res),
+                  balance,
+                  value: new BigNumber(0),
+                  percentage: new BigNumber(0),
+                });
               });
-            });
-          }
+            }
 
-          return balance;
-        })
-        .then((balance) => {
-          controller.abort();
-          // eslint-disable-next-line react-hooks/exhaustive-deps
-          controller = new AbortController();
-          const signal = controller.signal;
-          setMaxExchange(INITIAL_MAX_EXCHANGE);
-          console.log(balance?.toString());
+            return balance;
+          })
+          .then((balance) => {
+            controller.abort();
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+            controller = new AbortController();
+            const signal = controller.signal;
+            setMaxExchange(INITIAL_MAX_EXCHANGE);
+            // console.log(balance?.toString());
 
-          let updatedToken1;
-          balance ? (updatedToken1 = { ...token1, balance }) : (updatedToken1 = token1);
+            let updatedToken1;
+            balance ? (updatedToken1 = { ...token1, balance }) : (updatedToken1 = token1);
 
-          ocean
-            .getMaxExchange(updatedToken1, token2, signal)
-            .then((res: IMaxExchange | void) => {
-              if (res) {
-                setMaxExchange(res);
-              }
-            })
-            .catch(console.error);
-        });
-    }
+            ocean
+              .getMaxExchange(updatedToken1, token2, signal)
+              .then((res: IMaxExchange | void) => {
+                if (res) {
+                  setMaxExchange(res);
+                }
+              })
+              .catch(console.error);
+          });
 
-    if (token2.info) {
-      updateBalance(token2.info.address).then((balance) => {
-        if (balance) setToken2({ ...token2, balance, value: new BigNumber(0) });
-      });
-    }
+        if (token2.info) {
+          updateBalance(token2.info.address).then((balance) => {
+            if (balance) setToken2({ ...token2, balance, value: new BigNumber(0) });
+          });
+        }
 
-    if (token1.info && !token2.info) {
-      updateBalance(token1.info.address).then((balance) => {
-        if (balance) setToken1({ ...token1, balance, value: new BigNumber(0) });
-      });
+        if (token1.info && !token2.info) {
+          updateBalance(token1.info.address).then((balance) => {
+            if (balance) setToken1({ ...token1, balance, value: new BigNumber(0) });
+          });
+        }
+      }
+    } catch (error) {
+      console.error(error)
     }
 
     return () => controller.abort();
