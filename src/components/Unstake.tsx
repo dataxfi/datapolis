@@ -13,7 +13,7 @@ import BigNumber from "bignumber.js";
 import WrappedInput from "./WrappedInput";
 import UnlockTokenModal from "./UnlockTokenModal";
 import { getAllowance } from "../hooks/useTokenList";
-import {  ITxDetails, IUserMessage } from "../utils/types";
+import {  ITxDetails } from "../utils/types";
 import useAutoLoadToken from "../hooks/useAutoLoadToken";
 import TokenSelect from "./TokenSelect";
 import { IMaxUnstake } from "@dataxfi/datax.js";
@@ -105,7 +105,7 @@ export default function Unstake() {
         })
         .catch(console.error);
 
-      getAllowance(token1.info.address, accountId, token2.info.pool, ocean).then((res) => {
+      getAllowance(token1.info.address, accountId, token2.info.pool || "", ocean).then((res) => {
         setToken1({ ...token1, allowance: new BigNumber(res) });
       });
     }

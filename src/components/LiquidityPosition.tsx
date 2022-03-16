@@ -64,7 +64,7 @@ export default function LiquidityPosition() {
             <TokenModal
               onClick={(e: ITokenInfo) => {
                 setShowModal(false);
-                setImportPool(e.pool.toLowerCase());
+                setImportPool(e.pool?.toLowerCase());
               }}
               close={() => setShowModal(false)}
               otherToken="OCEAN"

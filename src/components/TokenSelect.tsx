@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { BsBoxArrowUpRight, BsChevronDown } from "react-icons/bs";
 import TokenModal from "./TokenModal";
 import { DebounceInput } from "react-debounce-input";
@@ -35,7 +35,7 @@ export default function TokenSelect({
   const { accountId, handleConnect, tokensCleared, location, config, ocean } = useContext(GlobalContext);
   const [enabled, setEndabled] = useState(false);
   const [title, setTitle] = useState<TokenSelectTitles>();
-
+  
   useEffect(() => {
     if (accountId && max.gt(0) && token.balance.gt(0)) {
       setEndabled(true);

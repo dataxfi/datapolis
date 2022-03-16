@@ -1,5 +1,6 @@
 import { ITokenInfo } from "@dataxfi/datax.js";
-import { BsArrowRight } from "react-icons/bs";
+import {  useState } from "react";
+import {  BsSlashCircle } from "react-icons/bs";
 export default function TokenModalItem({
   token,
   onClick,
@@ -10,6 +11,8 @@ export default function TokenModalItem({
   onClick: Function;
   setShow?: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+  const [imagFailed, setImageFailed] = useState(false);
+
   return (
     <div
       id={`${token.symbol}-btn`}
@@ -17,7 +20,19 @@ export default function TokenModalItem({
     >
       <div onClick={() => onClick(token)} className="flex justify-start w-full items-center">
         <div className="mr-2">
-          <img src={token.logoURI} className="rounded-lg w-8 h-8" alt="" loading="lazy" />
+          {imagFailed ? (
+            <BsSlashCircle className="w-8 h-8 text-gray-600"/>
+          ) : (
+            <img
+              src={token.logoURI}
+              onError={() => {
+                setImageFailed(true);
+              }}
+              className="rounded-lg w-8 h-8"
+              alt=""
+              loading="lazy"
+            />
+          )}
         </div>
 
         <div>

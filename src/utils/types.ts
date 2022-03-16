@@ -1,5 +1,6 @@
 import BigNumber from "bignumber.js";
 import { ITList, ITokenInfo, IToken } from "@dataxfi/datax.js";
+import { TokenInfo as TInfo } from "@uniswap/token-lists";
 import { TransactionReceipt } from "web3-core";
 import { Config, Ocean, Watcher } from "@dataxfi/datax.js";
 import Web3 from "web3";
@@ -105,12 +106,15 @@ export interface IDisclaimerSigned {
   wallet: boolean | null | "denied";
 }
 
+export type supportedChains = "1" | "4" | "137" | "56" | "1285" | "246"
+
+
 export interface globalStates {
   ocean?: Ocean;
   handleConnect: Function;
   buttonText: string;
   accountId?: string;
-  chainId?: number;
+  chainId?: supportedChains;
   provider?: Web3Modal;
   web3?: Web3;
   network: string;

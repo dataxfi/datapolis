@@ -10,7 +10,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import style from "../markdown.module.css";
 import { BsBoxArrowUpRight } from "react-icons/bs";
-export default function DatasetDescription({}: {}) {
+export default function DatasetDescription() {
   const [response, setResponse] = useState<any>();
   const [description, setDescription] = useState<string>();
   const [name, setName] = useState<string>();
@@ -32,31 +32,37 @@ export default function DatasetDescription({}: {}) {
         setSnackbarItem({
           type: "error",
           error: { code: 0, error: error, message: "Could not retreive description for dataset." },
-          message: "Could not retreive description for dataset. 1",
+          message: "Could not retreive metadata for dataset.",
         });
       }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token2.info]);
 
   useEffect(() => {
     try {
       setDID(response.data.id);
-      const metadata = response.data.service.find((el: any) => el.type === "metadata");
-      setName(metadata.attributes.main.name);
-      setAuthor(metadata.attributes.main.author);
-      setDateCreate(metadata.attributes.main.dateCreated);
-      const desc = metadata.attributes.additionalInformation.description;
+      const metadata = response.data.service.find((el: any) => el.type === "metadata").attributes;
+      setName(metadata.main.name);
+      setAuthor(metadata.main.author);
+      setDateCreate(metadata.main.dateCreated);
+      const desc = metadata.additionalInformation.description;
       setDescription(desc);
     } catch (error) {
       setSnackbarItem({
         type: "error",
         error: { code: 0, error: error, message: "Could not retreive description for dataset." },
-        message: "Could not retreive description for dataset. 2",
+        message: "Could not set metadata for dataset.",
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [response]);
 
   return (
-    <div className={`absolute top-1/2 -translate-y-1/2 w-1/3 items-center -left-1/3 transition-transform transform duration-500 ${token2.info? "translate-x-[150%]" : ""}`}>
+    <div
+      className={`absolute top-1/2 -translate-y-1/2 w-1/3 items-center -left-1/3 transition-transform transform duration-500 ${
+        token2.info ? "translate-x-[150%]" : ""
+      }`}
+    >
       <div className="flex flex-col max-h-[750px] bg-black bg-opacity-90 rounded-lg p-4">
         <div className="overflow-y-scroll h-1/4 hm-hide-scrollbar w-full whitespace-pre-wrap">
           {name ? (
@@ -79,6 +85,7 @@ export default function DatasetDescription({}: {}) {
                 <div className="flex flex-col items-end">
                   <div className="flex items-center w-full justify-end">
                     <a
+                      rel="noreferrer"
                       href={ocean?.config.default.explorerUri + "/address/" + token2.info?.pool}
                       target="_blank"
                       className="text-xl hover:text-gray-400 flex items-center mr-4"
@@ -86,6 +93,7 @@ export default function DatasetDescription({}: {}) {
                       Pool <BsBoxArrowUpRight className="text-base" />
                     </a>
                     <a
+                      rel="noreferrer"
                       href={ocean?.config.default.explorerUri + "/address/" + token2.info?.address}
                       target="_blank"
                       className="text-xl hover:text-gray-400 flex items-center"

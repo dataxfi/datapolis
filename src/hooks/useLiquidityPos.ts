@@ -27,7 +27,7 @@ export default function useLiquidityPos(
         token2.info &&
         (ocean.isOCEAN(token1.info.address) || ocean.isOCEAN(token2.info?.address))
       )
-        ocean.isOCEAN(token1.info.address) ? (dtPool = token1.info.pool) : (dtPool = token2.info.pool);
+        ocean.isOCEAN(token1.info.address) ? (dtPool = token1.info.pool || "") : (dtPool = token2.info.pool || "");
 
       const localStoragePoolData = getLocalPoolData(accountId, chainId);
 

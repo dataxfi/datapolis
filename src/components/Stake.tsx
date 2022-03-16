@@ -113,7 +113,7 @@ export default function Stake() {
 
   async function getMaxStakeAmt() {
     if (token2.info && ocean)
-      return new BigNumber(await ocean.getMaxStakeAmount(token2.info.pool, ocean.config.default.oceanTokenAddress)).dp(
+      return new BigNumber(await ocean.getMaxStakeAmount(token2.info.pool || "", ocean.config.default.oceanTokenAddress)).dp(
         5
       );
   }
@@ -142,7 +142,7 @@ export default function Stake() {
       })
       .then(() => {
         if (token2.info && accountId && chainId && ocean)
-          getAllowance(ocean.config.default.oceanTokenAddress, accountId, token2.info.pool, ocean).then(async (res) => {
+          getAllowance(ocean.config.default.oceanTokenAddress, accountId, token2.info.pool  || "", ocean).then(async (res) => {
             if (!token1.info) return;
             const balance = new BigNumber(await ocean.getBalance(token1.info.address, accountId));
             setToken1({
@@ -161,7 +161,7 @@ export default function Stake() {
     try {
       setLoading(true);
       console.log(accountId, token2?.info?.pool, token1.value?.toString());
-      const txReceipt = await ocean.stakeOcean(accountId, token2.info.pool, token1.value?.toString());
+      const txReceipt = await ocean.stakeOcean(accountId, token2.info.pool || "", token1.value?.toString());
 
       if (txReceipt) {
         setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
@@ -193,7 +193,7 @@ export default function Stake() {
     if (maxStakeAmt.gt(0)) {
       maxStake = maxStakeAmt;
     } else {
-      maxStake = new BigNumber(await ocean.getMaxStakeAmount(token2.info.pool, ocean.config.default.oceanTokenAddress));
+      maxStake = new BigNumber(await ocean.getMaxStakeAmount(token2.info.pool || "", ocean.config.default.oceanTokenAddress));
     }
     console.log("Max Stake Amount - ", maxStake.toFixed(18));
     if (maxStake.isNaN()) {

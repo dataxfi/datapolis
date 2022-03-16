@@ -19,9 +19,9 @@ import {
   ILiquidityPosition,
 
   ITxHistory,
-  IUserMessage,
   ITxDetails,
   ISnackbarItem,
+  supportedChains,
 } from "../utils/types";
 import BigNumber from "bignumber.js";
 import {   IToken,ITList, ITokenInfo } from "@dataxfi/datax.js";
@@ -43,7 +43,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   // essential states for connection to web3, user wallet, ocean operations, and DataX configurations
   const [web3Modal, setWeb3Modal] = useState<Core>();
   const [accountId, setAccountId] = useState<string>();
-  const [chainId, setChainId] = useState<number>();
+  const [chainId, setChainId] = useState<supportedChains>();
   const [provider, setProvider] = useState<Web3Modal>();
   const [web3, setWeb3] = useState<Web3>();
   const [ocean, setOcean] = useState<Ocean>();
@@ -221,8 +221,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       const localSignature = localStorage.getItem(account ? account : "");
 
       if (localSignature && localSignature !== "pending") {
-        let _chainId = parseInt(String(await web3.eth.getChainId()));
-        setChainId(_chainId);
+        let _chainId = String(await web3.eth.getChainId())
+        setChainId(_chainId as supportedChains);
 
         // This is required to do wallet-specific functions
         const ocean = new Ocean(web3, String(_chainId));
@@ -307,16 +307,18 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
     });
 
     // Subscribe to chainId change
-    provider.on("chainChanged", async (chainId: string) => {
+    provider.on("chainChanged", async (chainId: supportedChains) => {
       setToken1(INITIAL_TOKEN_STATE);
       setToken2(INITIAL_TOKEN_STATE);
       setDtTokenResponse(undefined);
       setTxHistory(undefined);
+      setERC20TokenResponse(undefined)
+      setERC20Tokens(undefined)
       setPendingTxs([]);
       const parsedId = String(parseInt(chainId));
       console.log(chainId);
       console.log("Chain changed to ", parsedId);
-      setChainId(parseInt(chainId));
+      setChainId(chainId);
       const config = new Config(web3, parsedId);
       console.log("Config for new chain:");
       setConfig(config);

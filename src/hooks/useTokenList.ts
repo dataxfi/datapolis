@@ -1,10 +1,11 @@
 import { useContext, useEffect, useRef } from "react";
 import { GlobalContext } from "../context/GlobalState";
-import { Ocean, TokenList } from "@dataxfi/datax.js";
+import { Config, Ocean, TokenList } from "@dataxfi/datax.js";
 // import { TokenList as TList } from "@uniswap/token-lists";
 import { ITList, ITokenInfo } from "@dataxfi/datax.js";
 import Web3 from "web3";
 import axios from "axios";
+import { supportedChains } from "../utils/types";
 export default function useTokenList({
   otherToken,
   setLoading,
@@ -25,6 +26,7 @@ export default function useTokenList({
     setERC20TokenResponse,
     setERC20Tokens,
     ERC20TokenResponse,
+    config,
   } = useContext(GlobalContext);
 
   useEffect(() => {
@@ -69,17 +71,19 @@ export default function useTokenList({
   }, [location, otherToken, dtTokenResponse, web3, chainId]);
 
   useEffect(() => {
-    if (!ERC20TokenResponse)
-      getERC20TokenList().then((list) => {
+    if (!ERC20TokenResponse && config && chainId)
+      getERC20TokenList(config, chainId).then((list) => {
         console.log("Token List Response", list);
-        setERC20TokenResponse(list);
-        setERC20Tokens(list.tokens);
+        setERC20TokenResponse({ ...list, tokens: list.tokens.splice(0,0, oceanTokens[chainId]) });
+        chainId === "4"
+          ? setERC20Tokens(list as unknown as ITokenInfo[])
+          : setERC20Tokens(list.tokens.filter((token) => String(token.chainId) === chainId));
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location, otherToken, ERC20TokenResponse, web3, chainId]);
 }
 
-async function getDtTokenList(web3: Web3, chainId: number): Promise<ITList> {
+async function getDtTokenList(web3: Web3, chainId: supportedChains): Promise<ITList> {
   const tokenList: TokenList = new TokenList(
     web3,
     "4",
@@ -87,24 +91,24 @@ async function getDtTokenList(web3: Web3, chainId: number): Promise<ITList> {
     process.env.REACT_APP_PINATA_KEY || ""
   );
 
-  return await tokenList.fetchPreparedTokenList(chainId ? chainId : 4);
+  return await tokenList.fetchPreparedTokenList(chainId ? Number(chainId) : 4);
 }
 
-async function getERC20TokenList(): Promise<ITList> {
+async function getERC20TokenList(config: Config, chainId: supportedChains): Promise<ITList> {
   return await (
-    await axios.get("https://wispy-bird-88a7.uniswap.workers.dev/?url=http://tokens.1inch.eth.link")
+    await axios.get(config.custom[chainId].tokenList)
   ).data;
 }
 
 export async function getToken(
   web3: Web3,
-  chainId: number,
+  chainId: supportedChains,
   address: string,
   addressType: "pool" | "reserve"
 ): Promise<ITokenInfo | undefined> {
   const tokenList = await getDtTokenList(web3, chainId);
   if (addressType === "pool") {
-    return tokenList.tokens.find((token) => token.pool.toLowerCase() === address.toLowerCase());
+    return tokenList.tokens.find((token) => token.pool?.toLowerCase() === address.toLowerCase());
   }
   return tokenList.tokens.find((token) => token.address.toLowerCase() === address.toLowerCase());
 }
@@ -133,3 +137,95 @@ export async function getAllowance(tokenAddress: string, accountId: string, rout
   console.log("Allowance:", allowance);
   return allowance;
 }
+
+export const commonTokens = {
+  "1": [
+    "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+    "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+    "0x967da4048cD07aB37855c090aAF366e4ce1b9F48",
+  ],
+  "4": [
+    "0x8967bcf84170c91b0d24d4302c2376283b0b3a07",
+    "0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735",
+    "0xF9bA5210F91D0474bd1e1DcDAeC4C58E359AaD85",
+    "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+  ],
+  "56": [
+    "0xdce07662ca8ebc241316a15b611c89711414dd1a",
+    "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
+    "0x55d398326f99059fF775485246999027B3197955",
+  ],
+  "137": [
+    "0x282d8efCe846A88B159800bd4130ad77443Fa1A1",
+    "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+    "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
+  ],
+  "246": [
+    "0x593122aae80a6fc3183b2ac0c4ab3336debee528",
+    "0x984E5dF7E6ed5450f0df08628F9EC4EB33d0f2b0",
+    "0x387f7D8D3360588a9A0B417F6C5DaAe64450942e",
+  ],
+  "1285": [
+    "0x99C409E5f62E4bd2AC142f17caFb6810B8F0BAAE",
+    "0x98878B06940aE243284CA214f92Bb71a2b032B8A",
+    "0x6bD193Ee6D2104F14F94E2cA6efefae561A4334B",
+  ],
+};
+
+const oceanTokens = {
+  "1": {
+    chainId: 1,
+    address: "0x967da4048cD07aB37855c090aAF366e4ce1b9F48",
+    symbol: "OCEAN",
+    name: "Ocean Token",
+    decimals: 18,
+    logoURI: "https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY",
+    tags: ["oceantoken"],
+  },
+  "4": {
+    chainId: 4,
+    address: "0x8967bcf84170c91b0d24d4302c2376283b0b3a07",
+    symbol: "OCEAN",
+    name: "Ocean Token",
+    decimals: 18,
+    logoURI: "https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY",
+    tags: ["oceantoken"],
+  },
+  "56": {
+    chainId: 56,
+    address: "0xdce07662ca8ebc241316a15b611c89711414dd1a",
+    symbol: "OCEAN",
+    name: "Ocean Token",
+    decimals: 18,
+    logoURI: "https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY",
+    tags: ["oceantoken"],
+  },
+  "137": {
+    chainId: 137,
+    address: "0x282d8efCe846A88B159800bd4130ad77443Fa1A1",
+    symbol: "OCEAN",
+    name: "Ocean Token",
+    decimals: 18,
+    logoURI: "https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY",
+    tags: ["oceantoken"],
+  },
+  "246": {
+    chainId: 246,
+    address: "0x593122aae80a6fc3183b2ac0c4ab3336debee528",
+    symbol: "OCEAN",
+    name: "Ocean Token",
+    decimals: 18,
+    logoURI: "https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY",
+    tags: ["oceantoken"],
+  },
+  "1285": {
+    chainId: 1285,
+    address: "0x99C409E5f62E4bd2AC142f17caFb6810B8F0BAAE",
+    symbol: "OCEAN",
+    name: "Ocean Token",
+    decimals: 18,
+    logoURI: "https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY",
+    tags: ["oceantoken"],
+  },
+};

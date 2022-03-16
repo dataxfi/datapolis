@@ -71,7 +71,7 @@ export default function Swap() {
         .then((balance) => {
           if (!balance) return;
           if (token1.info && token2.info && ocean.isOCEAN(token1.info.address)) {
-            getAllowance(token1.info.address, accountId, token2.info.pool, ocean).then((res) => {
+            getAllowance(token1.info.address, accountId, token2.info.pool || "", ocean).then((res) => {
               setToken1({
                 ...token1,
                 allowance: new BigNumber(res),
@@ -81,7 +81,7 @@ export default function Swap() {
               });
             });
           } else if (token1.info && token2.info && ocean.isOCEAN(token2.info.address)) {
-            getAllowance(token1.info.address, accountId, token1.info.pool, ocean).then((res) => {
+            getAllowance(token1.info.address, accountId, token1.info.pool || "", ocean).then((res) => {
               setToken1({
                 ...token1,
                 allowance: new BigNumber(res),
@@ -202,7 +202,7 @@ export default function Swap() {
           // console.log(accountId, token2.info.pool.toString(), token2.value.toString(), token1.value.toString());
           txReceipt = await ocean.swapExactOceanToDt(
             accountId,
-            token2.info.pool,
+            token2.info.pool || "",
             token2.value.dp(5).toString(),
             token1.value.dp(5).toString(),
             decSlippage.toString()
@@ -211,7 +211,7 @@ export default function Swap() {
           console.log("ocean to exact dt");
           txReceipt = await ocean.swapExactOceanToDt(
             accountId,
-            token2.info.pool,
+            token2.info.pool || "",
             token2.value.dp(5).toString(),
             token1.value.dp(5).toString(),
             decSlippage.toString()
@@ -223,7 +223,7 @@ export default function Swap() {
           // console.log(accountId, token1.info.pool, token2.value.toString(), token1.value.toString());
           txReceipt = await ocean.swapExactDtToOcean(
             accountId,
-            token1.info.pool,
+            token1.info.pool || "",
             token2.value.dp(5).toString(),
             token1.value.dp(5).toString(),
             decSlippage.toString()
@@ -234,7 +234,7 @@ export default function Swap() {
           // console.log(accountId, token1.info.pool, token2.value.toString(), token1.value.toString());
           txReceipt = await ocean.swapExactDtToOcean(
             accountId,
-            token1.info.pool,
+            token1.info.pool || "",
             token2.value.dp(5).toString(),
             token1.value.dp(5).toString(),
             decSlippage.toString()
@@ -250,8 +250,8 @@ export default function Swap() {
             token2.info.address,
             token2.value.dp(5).toString(),
             token1.value.dp(5).toString(),
-            token1.info.pool,
-            token2.info.pool,
+            token1.info.pool || "",
+            token2.info.pool || "",
             config.default.routerAddress,
             decSlippage.toString()
           );
@@ -264,8 +264,8 @@ export default function Swap() {
             token2.info.address,
             token2.value.dp(5).toString(),
             token1.value.dp(5).toString(),
-            token1.info.pool,
-            token2.info.pool,
+            token1.info.pool || "",
+            token2.info.pool || "",
             config.default.routerAddress,
             decSlippage.toString()
           );

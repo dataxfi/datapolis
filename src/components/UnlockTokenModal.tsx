@@ -55,10 +55,10 @@ export default function UnlockTokenModal({ nextFunction }: { nextFunction: Funct
       let address: string = "";
 
       if (token1.info && token2.info && ocean.isOCEAN(token1.info.address)) {
-        pool = token2.info.pool;
+        pool = token2.info.pool || "";
         address = token1.info.address;
       } else if (token1.info && token2.info && ocean.isOCEAN(token2.info.address)) {
-        pool = token1.info.pool;
+        pool = token1.info.pool || "";
         address = token1.info.address;
       } else if (token1.info) {
         pool = config?.default.routerAddress;
