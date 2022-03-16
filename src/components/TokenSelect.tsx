@@ -11,7 +11,6 @@ import { ReactComponent as XLogo } from "../assets/datax-x-logo.svg";
 import { IToken, ITokenInfo } from "@dataxfi/datax.js";
 import { TokenSelectTitles } from "../utils/types";
 import MaxToolTip from "./MaxToolTip";
-import axios from "axios";
 
 export default function TokenSelect({
   setToken,

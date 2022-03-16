@@ -16,10 +16,11 @@ export default function useWatchLocation() {
     token1,
     setToken2,
     location,
+    setT2DIDResponse,
   } = useContext(GlobalContext);
   const currentLocation = useLocation();
   const lastLocation = useRef(currentLocation);
-  
+
   useEffect(() => {
     setLocation(currentLocation.pathname);
     setToken1(INITIAL_TOKEN_STATE);
@@ -69,11 +70,16 @@ export default function useWatchLocation() {
       } else if (location === "/trade") {
         setToken1(INITIAL_TOKEN_STATE);
         setToken2(INITIAL_TOKEN_STATE);
+        setT2DIDResponse(undefined);
       } else if (location === "/stake") {
         setToken2(INITIAL_TOKEN_STATE);
         setToken1({ ...token1, value: new BigNumber(0) });
       }
     }
+    
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastTx]);
+  useEffect(() => {
+    console.log(token2);
+  }, [token2]);
 }

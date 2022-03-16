@@ -51,8 +51,8 @@ export default function DatasetDescription() {
 
   return (
     <div
-      className={`absolute top-1/2 -translate-y-1/2 items-center w-full -left-full 2lg:w-1/3 2lg:-left-1/3 transition-transform transform duration-500 px-2 ${
-        showDescModal && description ? "translate-x-full 2lg:translate-x-[150%]" : ""
+      className={`absolute top-1/2 max-w-[550px] -translate-y-1/2 items-center w-full -left-full 2lg:w-1/3 2lg:-left-1/3 transition-transform transform duration-500 px-2 ${
+        showDescModal && t2DIDResponse && token2.info ? "translate-x-full 2lg:translate-x-[150%]" : ""
       }`}
     >
       <div className="flex flex-col max-h-[750px] bg-black bg-opacity-90 rounded-lg p-4">
