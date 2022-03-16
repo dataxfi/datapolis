@@ -242,7 +242,7 @@ export default function Stake() {
     <>
       <DatasetDescription />
       <div
-        className={`absolute top-1/2 left-1/2 transition-transform transform duration-500 ${
+        className={`absolute w-full max-w-[32rem] top-1/2 left-1/2 transition-transform transform duration-500 ${
           showDescModal ? "translate-x-[10%]" : "-translate-x-1/2"
         } -translate-y-1/2 `}
       >

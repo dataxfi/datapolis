@@ -57,7 +57,7 @@ export default function DatasetDescription() {
         showDescModal && description ? "translate-x-[150%]" : ""
       }`}
     >
-      <div className="flex flex-col h-[750px] max-h-[750px] bg-black bg-opacity-90 rounded-lg p-4">
+      <div className="flex flex-col max-h-[750px] bg-black bg-opacity-90 rounded-lg p-4">
         {description ? (
           <>
             {" "}
@@ -65,11 +65,11 @@ export default function DatasetDescription() {
               onClick={() => {
                 setShowDescModal(false);
               }}
-              className="p-2 hover:bg-white hover:bg-opacity-25"
+              className="w-6 h-6 pl-1 hover:bg-white hover:bg-opacity-25 rounded"
             >
               <BsArrowLeft />
             </button>
-            <div className="overflow-y-scroll h-1/4 hm-hide-scrollbar w-full whitespace-pre-wrap">
+            <div className="overflow-y-scroll h-full hm-hide-scrollbar w-full whitespace-pre-wrap">
               {name ? (
                 <>
                   <div className="flex justify-between ">
