@@ -23,5 +23,5 @@
 }
 
 .reactMarkDown p {
-  @apply my-1 h-full
+  @apply my-1 text-sm md:text-base
 }

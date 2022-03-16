@@ -9,7 +9,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 //@ts-ignore
 import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import style from "../markdown.module.css";
-import { BsArrowLeft, BsBoxArrowUpRight } from "react-icons/bs";
+import { BsArrowLeft, BsArrowRight, BsBoxArrowUpRight } from "react-icons/bs";
 export default function DatasetDescription() {
   const [description, setDescription] = useState<string>();
   const [name, setName] = useState<string>();
@@ -30,9 +30,8 @@ export default function DatasetDescription() {
   }, [showDescModal]);
 
   useEffect(() => {
-    
     if (t2DIDResponse)
-    try {
+      try {
         console.log(t2DIDResponse);
         setDID(t2DIDResponse.data.id);
         const metadata = t2DIDResponse.data.service.find((el: any) => el.type === "metadata").attributes;
@@ -60,20 +59,30 @@ export default function DatasetDescription() {
       <div className="flex flex-col max-h-[750px] bg-black bg-opacity-90 rounded-lg p-4">
         {description ? (
           <>
-            {" "}
-            <button
-              onClick={() => {
-                setShowDescModal(false);
-              }}
-              className="w-6 h-6 pl-1 hover:bg-white hover:bg-opacity-25 rounded"
-            >
-              <BsArrowLeft />
-            </button>
+            <div className="flex justify-between">
+              <button
+                onClick={() => {
+                  setShowDescModal(false);
+                }}
+                className="w-6 h-6 pl-1 invisible 2lg:visible hover:bg-white hover:bg-opacity-25 rounded"
+              >
+                <BsArrowLeft />
+              </button>
+              <button
+                onClick={() => {
+                  setShowDescModal(false);
+                }}
+                className="w-6 h-6 pl-1 visibile 2lg:invisible hover:bg-white hover:bg-opacity-25 rounded"
+              >
+                <BsArrowRight />
+              </button>
+            </div>
+
             <div className="overflow-y-scroll h-full hm-hide-scrollbar w-full whitespace-pre-wrap">
               {name ? (
                 <>
                   <div className="flex justify-between ">
-                    <h3 className="text-blue-300 text-2xl">{name}</h3>
+                    <h3 className="text-blue-300 text-lg md:text-2xl">{name}</h3>
                   </div>
                   <div className="my-2 bg-gray-500 h-1px w-full" />
                 </>
@@ -84,29 +93,33 @@ export default function DatasetDescription() {
                 <>
                   <div className="flex justify-between">
                     <div>
-                      <h3 className="text-blue-300 text-xl">{token2.info?.name}</h3>
-                      <h4 className="text-primary-600">{token2.info?.symbol}</h4>
+                      <h3 className="text-blue-300 md:text-xl text-sm">{token2.info?.name}</h3>
+                      <h4 className="text-primary-600 text-sm">{token2.info?.symbol}</h4>
                     </div>
                     <div className="flex flex-col items-end">
-                      <div className="flex items-center w-full justify-end">
+                      <div className="flex items-center w-full justify-end text-sm md:text-base">
                         <a
                           rel="noreferrer"
                           href={ocean?.config.default.explorerUri + "/address/" + token2.info?.pool}
                           target="_blank"
-                          className="text-xl hover:text-gray-400 flex items-center mr-4"
+                          className="hover:text-gray-400 flex items-center mr-4"
                         >
-                          Pool <BsBoxArrowUpRight className="text-base" />
+                          Pool <BsBoxArrowUpRight className="text-xs md:text-sm" />
                         </a>
                         <a
                           rel="noreferrer"
                           href={ocean?.config.default.explorerUri + "/address/" + token2.info?.address}
                           target="_blank"
-                          className="text-xl hover:text-gray-400 flex items-center"
+                          className="hover:text-gray-400 flex items-center"
                         >
-                          Token <BsBoxArrowUpRight className="text-base" />{" "}
+                          Token <BsBoxArrowUpRight className="text-xs md:text-sm" />{" "}
                         </a>
                       </div>
-                      {dateCreated ? <p className="text-gray-600">Created: {dateCreated}</p> : <></>}
+                      {dateCreated ? (
+                        <p className="text-xs md:text-base text-gray-600 text-right">Created: {dateCreated}</p>
+                      ) : (
+                        <></>
+                      )}
                     </div>
                   </div>
                   <div className="my-2 bg-gray-500 h-1px w-full" />
@@ -116,7 +129,7 @@ export default function DatasetDescription() {
               )}
               {description ? (
                 <>
-                  <h4 className="text-blue-300  text-xl mb-2">Description</h4>
+                  <h4 className="text-blue-300  text-base md:text-xl mb-2">Description</h4>
                   <ReactMarkdown
                     className={style.reactMarkDown}
                     remarkPlugins={[remarkGfm]}
@@ -157,7 +170,7 @@ export default function DatasetDescription() {
                   )}{" "}
                   <p className="text-blue-300 test-sm">
                     DID: {"\t"}
-                    <span className="text-sm text-white">{did ? did : ""}</span>
+                    <span className="text-xs md:text-sm text-white">{did ? did : ""}</span>
                   </p>
                 </>
               ) : (
