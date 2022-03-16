@@ -16,6 +16,7 @@ import useAutoLoadToken from "../hooks/useAutoLoadToken";
 import TokenSelect from "./TokenSelect";
 import PositionBox from "./PositionBox";
 import DatasetDescription from "./DatasetDescription";
+import ViewDescBtn from "./ViewDescButton";
 
 const INITIAL_BUTTON_STATE = {
   text: "Connect wallet",
@@ -243,7 +244,7 @@ export default function Stake() {
       <DatasetDescription />
       <div
         className={`absolute w-full max-w-[32rem] top-1/2 left-1/2 transition-transform transform duration-500 ${
-          showDescModal ? "translate-x-[10%]" : "-translate-x-1/2"
+          showDescModal ? "translate-x-full 2lg:translate-x-[10%]" : "-translate-x-1/2"
         } -translate-y-1/2 `}
       >
         <div className="flex h-full w-full items-center justify-center">
@@ -320,7 +321,8 @@ export default function Stake() {
                 disabled={btnProps.disabled}
               />
             </div>
-            <div className="pt-3 pl-6 lg:pl-3">
+            <div className=" flex justify-between">
+              <ViewDescBtn />
               <Link id="lpLink" to="/stake/list" className="text-gray-300 hover:text-gray-100 transition-colors">
                 View your stake positions {">"}
               </Link>
