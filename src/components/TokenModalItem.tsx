@@ -4,9 +4,7 @@ import {  BsSlashCircle } from "react-icons/bs";
 export default function TokenModalItem({
   token,
   onClick,
-  dtks = false,
 }: {
-  dtks?: boolean;
   token: ITokenInfo;
   onClick: Function;
   setShow?: React.Dispatch<React.SetStateAction<boolean>>;

@@ -17,14 +17,13 @@ import {
   IDisclaimerSigned,
   globalStates,
   ILiquidityPosition,
-
   ITxHistory,
   ITxDetails,
   ISnackbarItem,
   supportedChains,
 } from "../utils/types";
 import BigNumber from "bignumber.js";
-import {   IToken,ITList, ITokenInfo } from "@dataxfi/datax.js";
+import { IToken, ITList, ITokenInfo } from "@dataxfi/datax.js";
 
 const CONNECT_TEXT = "Connect Wallet";
 export const INITIAL_TOKEN_STATE: IToken = {
@@ -67,7 +66,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
   //Transaction and tx modal states
   const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
-  const [snackbarItem, setSnackbarItem] = useState<ISnackbarItem>()
+  const [snackbarItem, setSnackbarItem] = useState<ISnackbarItem>();
 
   const [showTxHistoryModal, setShowTxHistoryModal] = useState<boolean>(false);
   //all transaction history
@@ -97,7 +96,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [ERC20TokenResponse, setERC20TokenResponse] = useState<ITList>();
   const [dtTokenResponse, setDtTokenResponse] = useState<ITList>();
   const [showDescModal, setShowDescModal] = useState<boolean>(false);
-
+  const [t2DIDResponse, setT2DIDResponse] = useState<any>();
   const [buttonText, setButtonText] = useState<string>(CONNECT_TEXT);
 
   const [showUnlockTokenModal, setShowUnlockTokenModal] = useState<boolean>(false);
@@ -212,8 +211,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       const provider = await web3Modal?.connect();
       setProvider(provider);
       const web3 = new Web3(provider);
-      console.log("Web3");
-      console.log(web3);
+      // console.log("Web3");
+      // console.log(web3);
       setWeb3(web3);
 
       let accounts = await web3.eth.getAccounts();
@@ -221,7 +220,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       const localSignature = localStorage.getItem(account ? account : "");
 
       if (localSignature && localSignature !== "pending") {
-        let _chainId = String(await web3.eth.getChainId())
+        let _chainId = String(await web3.eth.getChainId());
         setChainId(_chainId as supportedChains);
 
         // This is required to do wallet-specific functions
@@ -263,8 +262,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setUnsupportedNet(true);
       } else {
         setUnsupportedNet(false);
-        console.log("Account Id - ", accountId);
-        console.log("Pre Account Id - ", account);
+        // console.log("Account Id - ", accountId);
+        // console.log("Pre Account Id - ", account);
         //account is null when chain changes to prevent switching to an unsigned account
         setAccountId(account);
         setButtonText(account || CONNECT_TEXT);
@@ -290,8 +289,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       let account = accounts[0] ? accounts[0].toLowerCase() : null;
       const localSignature = localStorage.getItem(account ? account : "");
       if (localSignature && localSignature !== "pending") {
-        console.log("Accounts changed to - ", accounts[0]);
-        console.log("Connected Accounts - ", JSON.stringify(accounts));
+        // console.log("Accounts changed to - ", accounts[0]);
+        // console.log("Connected Accounts - ", JSON.stringify(accounts));
         setAccountId(accounts[0]);
         setButtonText(accounts.length && accounts[0] !== "" ? accounts[0] : CONNECT_TEXT);
         setDisclaimerSigned({ client: true, wallet: true });
@@ -312,15 +311,15 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       setToken2(INITIAL_TOKEN_STATE);
       setDtTokenResponse(undefined);
       setTxHistory(undefined);
-      setERC20TokenResponse(undefined)
-      setERC20Tokens(undefined)
+      setERC20TokenResponse(undefined);
+      setERC20Tokens(undefined);
       setPendingTxs([]);
       const parsedId = String(parseInt(chainId));
       console.log(chainId);
-      console.log("Chain changed to ", parsedId);
+      // console.log("Chain changed to ", parsedId);
       setChainId(chainId);
       const config = new Config(web3, parsedId);
-      console.log("Config for new chain:");
+      // console.log("Config for new chain:");
       setConfig(config);
       setOcean(new Ocean(web3, String(parseInt(chainId))));
       isSupportedChain(config, parsedId, undefined);
@@ -401,10 +400,12 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setToken1,
         token2,
         setToken2,
-        snackbarItem, 
+        snackbarItem,
         setSnackbarItem,
-        showDescModal, 
-        setShowDescModal
+        showDescModal,
+        setShowDescModal,
+        t2DIDResponse,
+        setT2DIDResponse,
       }}
     >
       {children}

@@ -66,7 +66,7 @@ export default function TokenModal({
 
   const tokenRenderer = (idx: number, key: string | number) => {
     if (datatokens && showDtks)
-      return <TokenModalItem dtks={true} onClick={onClick} key={key} token={datatokens[idx]} />;
+      return <TokenModalItem  onClick={onClick} key={key} token={datatokens[idx]} />;
     if (ERC20Tokens && !showDtks)
       return <TokenModalItem onClick={onClick} key={key} token={ERC20Tokens[idx] as ITokenInfo} />;
     return <></>;
@@ -94,7 +94,7 @@ export default function TokenModal({
   };
 
   const loader = (
-    <div id="tokenLoadingAni" className="flex justify-center my-4">
+    <div id="tokenLoadingAni" className="flex h-full justify-center my-4">
       <Loader size={40} />
     </div>
   );
@@ -161,7 +161,7 @@ export default function TokenModal({
               </div>
             ) : datatokens && showDtks ? (
               <div
-                className="hm-hide-scrollbar overflow-y-scroll mt-2 bg-trade-darkBlue rounded-lg border border-gray-700"
+                className="hm-hide-scrollbar h-full overflow-y-scroll mt-2 bg-trade-darkBlue rounded-lg border border-gray-700"
                 id="tokenList"
               >
                 <ReactList itemRenderer={tokenRenderer} length={datatokens ? datatokens.length : 0} type="simple" />

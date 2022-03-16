@@ -43,6 +43,7 @@ export default function Stake() {
     tokensCleared,
     showUnlockTokenModal,
     setSnackbarItem,
+    showDescModal,
   } = useContext(GlobalContext);
 
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
@@ -113,9 +114,9 @@ export default function Stake() {
 
   async function getMaxStakeAmt() {
     if (token2.info && ocean)
-      return new BigNumber(await ocean.getMaxStakeAmount(token2.info.pool || "", ocean.config.default.oceanTokenAddress)).dp(
-        5
-      );
+      return new BigNumber(
+        await ocean.getMaxStakeAmount(token2.info.pool || "", ocean.config.default.oceanTokenAddress)
+      ).dp(5);
   }
 
   async function setOceanBalance() {
@@ -142,16 +143,18 @@ export default function Stake() {
       })
       .then(() => {
         if (token2.info && accountId && chainId && ocean)
-          getAllowance(ocean.config.default.oceanTokenAddress, accountId, token2.info.pool  || "", ocean).then(async (res) => {
-            if (!token1.info) return;
-            const balance = new BigNumber(await ocean.getBalance(token1.info.address, accountId));
-            setToken1({
-              ...token1,
-              allowance: new BigNumber(res),
-              balance,
-              value: new BigNumber(0),
-            });
-          });
+          getAllowance(ocean.config.default.oceanTokenAddress, accountId, token2.info.pool || "", ocean).then(
+            async (res) => {
+              if (!token1.info) return;
+              const balance = new BigNumber(await ocean.getBalance(token1.info.address, accountId));
+              setToken1({
+                ...token1,
+                allowance: new BigNumber(res),
+                balance,
+                value: new BigNumber(0),
+              });
+            }
+          );
       })
       .catch(console.error);
   }
@@ -193,7 +196,9 @@ export default function Stake() {
     if (maxStakeAmt.gt(0)) {
       maxStake = maxStakeAmt;
     } else {
-      maxStake = new BigNumber(await ocean.getMaxStakeAmount(token2.info.pool || "", ocean.config.default.oceanTokenAddress));
+      maxStake = new BigNumber(
+        await ocean.getMaxStakeAmount(token2.info.pool || "", ocean.config.default.oceanTokenAddress)
+      );
     }
     console.log("Max Stake Amount - ", maxStake.toFixed(18));
     if (maxStake.isNaN()) {
@@ -238,7 +243,7 @@ export default function Stake() {
       <DatasetDescription />
       <div
         className={`absolute top-1/2 left-1/2 transition-transform transform duration-500 ${
-          token2.info ? "translate-x-[10%]" : "-translate-x-1/2"
+          showDescModal ? "translate-x-[10%]" : "-translate-x-1/2"
         } -translate-y-1/2 `}
       >
         <div className="flex h-full w-full items-center justify-center">

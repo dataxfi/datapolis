@@ -11,6 +11,7 @@ import { ReactComponent as XLogo } from "../assets/datax-x-logo.svg";
 import { IToken, ITokenInfo } from "@dataxfi/datax.js";
 import { TokenSelectTitles } from "../utils/types";
 import MaxToolTip from "./MaxToolTip";
+import axios from "axios";
 
 export default function TokenSelect({
   setToken,
@@ -32,10 +33,20 @@ export default function TokenSelect({
   max: BigNumber;
 }) {
   const [showModal, setShowModal] = useState(false);
-  const { accountId, handleConnect, tokensCleared, location, config, ocean } = useContext(GlobalContext);
+  const {
+    accountId,
+    handleConnect,
+    tokensCleared,
+    location,
+    config,
+    ocean,
+    setShowDescModal,
+    setSnackbarItem,
+    setT2DIDResponse,
+  } = useContext(GlobalContext);
   const [enabled, setEndabled] = useState(false);
   const [title, setTitle] = useState<TokenSelectTitles>();
-  
+
   useEffect(() => {
     if (accountId && max.gt(0) && token.balance.gt(0)) {
       setEndabled(true);
@@ -178,7 +189,7 @@ export default function TokenSelect({
                   )}
                   {pos === 2 || location === "/stake/remove" ? null : token?.balance ? (
                     <div className="text-sm text-gray-300 grid grid-flow-col justify-end gap-2 items-center">
-                      <MaxToolTip/>
+                      <MaxToolTip />
                       <Button
                         id="maxBtn"
                         onClick={() => {

@@ -27,6 +27,9 @@ export default function useTokenList({
     setERC20Tokens,
     ERC20TokenResponse,
     config,
+    setT2DIDResponse,
+    setShowDescModal,
+    token2,
   } = useContext(GlobalContext);
 
   useEffect(() => {
@@ -52,7 +55,7 @@ export default function useTokenList({
         .then((res) => {
           if (res) {
             setDtTokenResponse(res);
-            console.log("Datatoken Token List Response:", res);
+            // console.log("Datatoken Token List Response:", res);
             //@ts-ignore
             const formattedList = formatTokenArray(res, otherToken, location);
             setDatatokens(formattedList);
@@ -72,13 +75,34 @@ export default function useTokenList({
 
   useEffect(() => {
     if (!ERC20TokenResponse && config && chainId)
-      getERC20TokenList(config, chainId).then((list) => {
-        console.log("Token List Response", list);
-        setERC20TokenResponse({ ...list, tokens: list.tokens.splice(0,0, oceanTokens[chainId]) });
-        chainId === "4"
-          ? setERC20Tokens(list as unknown as ITokenInfo[])
-          : setERC20Tokens(list.tokens.filter((token) => String(token.chainId) === chainId));
-      });
+      try {
+        getERC20TokenList(config, chainId).then((list) => {
+          console.log("Token List Response", list);
+          switch (chainId) {
+            case "4":
+              setERC20TokenResponse({ tokens: list as unknown as ITokenInfo[] } as ITList);
+              setERC20Tokens(list as unknown as ITokenInfo[]);
+              break;
+            case "137":
+              setERC20TokenResponse(list);
+              setERC20Tokens(list.tokens);
+              break;
+
+            default:
+              const tokens = [
+                oceanTokens[chainId],
+                ...list.tokens.filter((token) => String(token.chainId) === chainId),
+              ];
+              console.log(tokens);
+              setERC20Tokens(tokens);
+              setERC20TokenResponse({ ...list, tokens });
+              // setERC20Tokens(list.tokens.filter((token) => String(token.chainId) === chainId));
+              break;
+          }
+        });
+      } catch (error) {
+        console.error(error);
+      }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location, otherToken, ERC20TokenResponse, web3, chainId]);
 }
@@ -126,15 +150,12 @@ export function formatTokenArray(
     const oceanToken: ITokenInfo = tokenList.pop();
     tokenList.splice(0, 0, oceanToken);
   }
-
-  console.log(otherToken, tokenList);
-
   return tokenList;
 }
 
 export async function getAllowance(tokenAddress: string, accountId: string, router: string, ocean: Ocean) {
   const allowance = await ocean.getAllowance(tokenAddress, accountId, router);
-  console.log("Allowance:", allowance);
+  // console.log("Allowance:", allowance);
   return allowance;
 }
 

@@ -44,6 +44,7 @@ export default function Swap() {
     tokensCleared,
     showUnlockTokenModal,
     setSnackbarItem,
+    showDescModal
   } = useContext(GlobalContext);
   const [showSettings, setShowSettings] = useState(false);
   const [showConfirmSwapModal, setShowConfirmSwapModal] = useState(false);
@@ -436,7 +437,7 @@ export default function Swap() {
       <DatasetDescription />
       <div
         className={`absolute top-1/2 left-1/2 transition-transform transform duration-500 ${
-          token2.info ? "" : "-translate-x-1/2"
+          showDescModal ? "" : "-translate-x-1/2"
         } -translate-y-1/2 `}
       >
         <div className="flex mt-6 w-full h-full items-center justify-center">

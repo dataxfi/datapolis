@@ -106,8 +106,7 @@ export interface IDisclaimerSigned {
   wallet: boolean | null | "denied";
 }
 
-export type supportedChains = "1" | "4" | "137" | "56" | "1285" | "246"
-
+export type supportedChains = "1" | "4" | "137" | "56" | "1285" | "246";
 
 export interface globalStates {
   ocean?: Ocean;
@@ -174,4 +173,6 @@ export interface globalStates {
   setSnackbarItem: React.Dispatch<React.SetStateAction<ISnackbarItem | undefined>>;
   showDescModal: boolean;
   setShowDescModal: React.Dispatch<React.SetStateAction<boolean>>;
+  t2DIDResponse: any;
+  setT2DIDResponse: React.Dispatch<React.SetStateAction<any>>;
 }
