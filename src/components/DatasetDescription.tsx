@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -23,8 +22,8 @@ export default function DatasetDescription() {
   useEffect(() => {
     if (!showDescModal) {
       setTimeout(() => {
-        setT2DIDResponse(undefined);
-        setDescription(undefined);
+        if (t2DIDResponse) setT2DIDResponse(undefined);
+        if (description) setDescription(undefined);
       }, 1000);
     }
   }, [showDescModal]);

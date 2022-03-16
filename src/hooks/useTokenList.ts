@@ -27,9 +27,6 @@ export default function useTokenList({
     setERC20Tokens,
     ERC20TokenResponse,
     config,
-    setT2DIDResponse,
-    setShowDescModal,
-    token2,
   } = useContext(GlobalContext);
 
   useEffect(() => {
@@ -74,7 +71,7 @@ export default function useTokenList({
   }, [location, otherToken, dtTokenResponse, web3, chainId]);
 
   useEffect(() => {
-    if (!ERC20TokenResponse && config && chainId)
+    if (!ERC20TokenResponse && chainId && config?.custom[chainId])
       try {
         getERC20TokenList(config, chainId).then((list) => {
           console.log("Token List Response", list);
@@ -104,7 +101,7 @@ export default function useTokenList({
         console.error(error);
       }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location, otherToken, ERC20TokenResponse, web3, chainId]);
+  }, [location, otherToken, ERC20TokenResponse, web3, chainId, config]);
 }
 
 async function getDtTokenList(web3: Web3, chainId: supportedChains): Promise<ITList> {

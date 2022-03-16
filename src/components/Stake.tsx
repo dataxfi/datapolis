@@ -248,10 +248,10 @@ export default function Stake() {
         } -translate-y-1/2 `}
       >
         <div className="flex h-full w-full items-center justify-center">
-          <div>
+          <div className="lg:mx-auto sm:mx-4 mx-3">
             <div
               id="stakeModal"
-              className="lg:w-107 lg:mx-auto sm:mx-4 mx-3 bg-black bg-opacity-90 rounded-lg p-3 hm-box"
+              className="lg:w-107  bg-black bg-opacity-90 rounded-lg p-3 hm-box"
             >
               <TokenSelect
                 max={maxStakeAmt}
@@ -324,7 +324,7 @@ export default function Stake() {
             <div className=" flex justify-between">
               <ViewDescBtn />
               <Link id="lpLink" to="/stake/list" className="text-gray-300 hover:text-gray-100 transition-colors">
-                View your stake positions {">"}
+                Your stake positions {">"}
               </Link>
             </div>
           </div>

@@ -4,11 +4,11 @@ import { useContext, useEffect } from "react";
 import { GlobalContext } from "../context/GlobalState";
 
 export default function useTokenDesc() {
-  const { token2, setShowDescModal, setT2DIDResponse, location, showDescModal } = useContext(GlobalContext);
+  const { token2, setShowDescModal, setT2DIDResponse, location } = useContext(GlobalContext);
 
   useEffect(() => {
-    const isStakeORTrade = location === "/stake" || location === "/trade";
-    if (token2.info && isStakeORTrade)
+    // const isStakeORTrade = location === "/stake" || location === "/trade";
+    if (token2.info?.address)
     getDID(setT2DIDResponse, setShowDescModal, token2)
      
   }, [token2.info?.address, location]);
@@ -24,7 +24,7 @@ export async function getDID(setT2DIDResponse:React.Dispatch<any>, setShowDescMo
   .then(() => {
     setShowDescModal(true);
   })
-  .catch((error) => {
+  .catch(() => {
     setShowDescModal(false);
   });
 }

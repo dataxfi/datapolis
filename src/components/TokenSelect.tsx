@@ -40,9 +40,6 @@ export default function TokenSelect({
     location,
     config,
     ocean,
-    setShowDescModal,
-    setSnackbarItem,
-    setT2DIDResponse,
   } = useContext(GlobalContext);
   const [enabled, setEndabled] = useState(false);
   const [title, setTitle] = useState<TokenSelectTitles>();

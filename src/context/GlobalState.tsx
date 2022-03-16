@@ -131,21 +131,23 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   // intitialize web3modal to use to connect to provider
   useEffect(() => {
     async function init() {
-      const web3Modal = new Web3Modal({
-        network: "mainnet", // optional
-        cacheProvider: true, // optional
-        theme: "dark",
-        providerOptions: {
-          walletconnect: {
-            package: WalletConnectProvider, // required
-            options: {
-              infuraId: process.env.REACT_APP_INFURA_ID, // required
+      try {
+        const web3Modal = new Web3Modal({
+          network: "mainnet", // optional
+          theme: "dark",
+          providerOptions: {
+            walletconnect: {
+              package: WalletConnectProvider, // required
+              options: {
+                infuraId: process.env.REACT_APP_INFURA_ID, // required
+              },
             },
-          },
-        }, // required
-      });
-
-      setWeb3Modal(web3Modal);
+          }, // required
+        });        
+        setWeb3Modal(web3Modal);
+      } catch (error) {
+        console.log(error);
+      }
     }
 
     init();
@@ -313,7 +315,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       setTxHistory(undefined);
       setERC20TokenResponse(undefined);
       setERC20Tokens(undefined);
-      setShowDescModal(false)
+      setShowDescModal(false);
       setPendingTxs([]);
       const parsedId = String(parseInt(chainId));
       console.log(chainId);
