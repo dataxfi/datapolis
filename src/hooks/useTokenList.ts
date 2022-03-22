@@ -239,7 +239,7 @@ const oceanTokens = {
   },
   "1285": {
     chainId: 1285,
-    address: "0x99C409E5f62E4bd2AC142f17caFb6810B8F0BAAE",
+    address: "0x99c409e5f62e4bd2ac142f17cafb6810b8f0baae",
     symbol: "OCEAN",
     name: "Ocean Token",
     decimals: 18,
