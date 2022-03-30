@@ -3,7 +3,7 @@ import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
 import { setupDappBrowser, setupDataX, closeBrowser, acceptCookies, navToTradeXFromLanding } from "../utils";
 import BigNumber from "bignumber.js";
-describe("Trade Platform User Interface Works as Expected", () => {
+describe("Datatoken previews should work as expected", () => {
   jest.setTimeout(300000);
   let page: puppeteer.Page;
   let browser: puppeteer.Browser;

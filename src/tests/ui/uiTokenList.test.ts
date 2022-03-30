@@ -22,7 +22,7 @@ import {
   navToTradeXFromLanding,
 } from "../utils";
 import BigNumber from "bignumber.js";
-describe("Trade Platform User Interface Works as Expected", () => {
+describe("Token modal should present datatokens and other ERC20 tokens as expected", () => {
   jest.setTimeout(300000);
   let page: puppeteer.Page;
   let browser: puppeteer.Browser;
