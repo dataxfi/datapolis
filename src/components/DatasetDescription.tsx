@@ -16,8 +16,7 @@ export default function DatasetDescription() {
   const [author, setAuthor] = useState<string>();
   const [did, setDID] = useState<string>();
 
-  const { setSnackbarItem, ocean, token2, showDescModal, setShowDescModal, t2DIDResponse, setT2DIDResponse } =
-    useContext(GlobalContext);
+  const { setSnackbarItem, ocean, token2, showDescModal, setShowDescModal, t2DIDResponse, setT2DIDResponse } = useContext(GlobalContext);
 
   useEffect(() => {
     if (!showDescModal) {
@@ -51,6 +50,7 @@ export default function DatasetDescription() {
 
   return (
     <div
+      id={`${showDescModal && t2DIDResponse && token2.info ? "dataset-desc-vis" : "dataset-desc-invis"}`}
       className={`absolute top-1/2 max-w-[550px] -translate-y-1/2 items-center w-full -left-full 2lg:w-1/3 2lg:-left-1/3 transition-transform transform duration-500 px-2 ${
         showDescModal && t2DIDResponse && token2.info ? "translate-x-full 2lg:translate-x-[150%]" : ""
       }`}
@@ -60,6 +60,7 @@ export default function DatasetDescription() {
           <>
             <div className="flex justify-between">
               <button
+                id="datasetBackBtn"
                 onClick={() => {
                   setShowDescModal(false);
                 }}
@@ -68,6 +69,7 @@ export default function DatasetDescription() {
                 <BsArrowLeft />
               </button>
               <button
+                id="datasetBackBtn"
                 onClick={() => {
                   setShowDescModal(false);
                 }}
@@ -114,11 +116,7 @@ export default function DatasetDescription() {
                           Token <BsBoxArrowUpRight className="text-xs md:text-sm" />{" "}
                         </a>
                       </div>
-                      {dateCreated ? (
-                        <p className="text-xs md:text-base text-gray-600 text-right">Created: {dateCreated}</p>
-                      ) : (
-                        <></>
-                      )}
+                      {dateCreated ? <p className="text-xs md:text-base text-gray-600 text-right">Created: {dateCreated}</p> : <></>}
                     </div>
                   </div>
                   <div className="my-2 bg-gray-500 h-1px w-full" />
@@ -136,13 +134,7 @@ export default function DatasetDescription() {
                       code({ node, inline, className, children, ...props }) {
                         const match = /language-(\w+)/.exec(className || "");
                         return !inline && match ? (
-                          <SyntaxHighlighter
-                            children={String(children).replace(/\n$/, "")}
-                            style={atomDark}
-                            language={match[1]}
-                            PreTag="div"
-                            {...props}
-                          />
+                          <SyntaxHighlighter children={String(children).replace(/\n$/, "")} style={atomDark} language={match[1]} PreTag="div" {...props} />
                         ) : (
                           <code className={className} {...props}>
                             {children}

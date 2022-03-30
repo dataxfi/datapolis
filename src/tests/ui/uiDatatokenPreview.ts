@@ -27,24 +27,48 @@ describe("Datatoken previews should work as expected", () => {
   });
 
   it("Should open datatoken preview when selecting a datatoken", async () => {
-    //open token modal
     //select datatoken for token 2
-    //wait a moment for transition
+    //open token modal
+    const selectToken2 = await page.waitForSelector("#selectToken2");
+    await selectToken2?.click();
+    //select datatoken
+    const tokenModal = await page.waitForSelector("#tokenModal", { timeout: 3000 });
+    expect(tokenModal).toBeDefined();
+    const ARCCOR20 = await page.waitForSelector("#ARCCOR-20-btn", { timeout: 3000 });
+    expect(ARCCOR20).toBeDefined;
+    ARCCOR20?.click();
+    //check datatoken populates field
+    await page.waitForTimeout(500);
+    const selectedToken1 = await page.waitForSelector("#selectedToken1");
+    const innerText = await selectedToken1?.getProperty("innerText");
+    expect(innerText).toBe("ARCCOR-20");
     //ensure token preview opens
+    const datasetPreviewModal = await page.waitForSelector("#dataset-desc-vis");
+    expect(datasetPreviewModal).toBeDefined();
   });
   it("Should be able to close preview with back button", async () => {
     //press back button
-    //wait a moment for transition
-    //ensure modal closes (beware it doesnt unrender, check for it in viewport)
+    const backBtn = await page.waitForSelector("#datasetBackBtn");
+    await backBtn?.click();
+    //ensure modal closes (beware it doesnt unrender, check for it in viewport
+    const invisModal = await page.waitForSelector("#dataset-desc-invis");
+    expect(invisModal).toBeDefined();
   });
   it("Should be able to open preview with preview dataset button", async () => {
     //press preview dataset button
-    //wait a moment for transition
+    const previewDatasetButton = await page.waitForSelector("#viewDescButton");
+    await previewDatasetButton?.click();
     //ensure preview appears
+    const datasetPreviewModal = await page.waitForSelector("#dataset-desc-vis");
+    expect(datasetPreviewModal).toBeDefined();
   });
   it("Should be able to close preview with preview dataset button", async () => {
     //press preview dataset button
-    //wait a moment for transition
+    const previewDatasetButton = await page.waitForSelector("#viewDescButton");
+    await previewDatasetButton?.click();
     //ensure preview dissapears
+    //ensure modal closes (beware it doesnt unrender, check for it in viewport
+    const invisModal = await page.waitForSelector("#dataset-desc-invis");
+    expect(invisModal).toBeDefined();
   });
 });
