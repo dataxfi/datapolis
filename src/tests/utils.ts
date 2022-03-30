@@ -74,9 +74,7 @@ export async function setupDappBrowser(acct2: boolean = false) {
       headless: false,
       timeout: 5000,
     });
-    console.log(
-      `Setting up metamask with creds: \n Password: ${process.env.REACT_APP_T_ACCT_PASS} \n Seed: ${process.env.REACT_APP_T_ACCT_SEED}`
-    );
+    console.log(`Setting up metamask with creds: \n Password: ${process.env.REACT_APP_T_ACCT_PASS} \n Seed: ${process.env.REACT_APP_T_ACCT_SEED}`);
 
     metamask = await dappeteer.setupMetamask(browser, {
       seed: process.env.REACT_APP_T_ACCT_SEED,
@@ -105,12 +103,7 @@ export async function quickConnectWallet(page: puppeteer.Page) {
   await page.click("#d-wallet-button");
 }
 
-export async function setupDataX(
-  page: puppeteer.Page,
-  metamask: dappeteer.Dappeteer,
-  network: string,
-  mobile: boolean
-) {
+export async function setupDataX(page: puppeteer.Page, metamask: dappeteer.Dappeteer, network: string, mobile: boolean) {
   expect(page).toBeDefined();
   mobile ? await page.setViewport({ width: 360, height: 740 }) : await page.setViewport({ width: 1039, height: 913 });
   await metamask.switchNetwork(network);
@@ -140,25 +133,40 @@ export async function setupDataX(
  * @param symbol - DT symbol
  */
 
-export async function importTokens(metamask: dappeteer.Dappeteer, symbol?: string) {
+export async function importTokens(metamask: dappeteer.Dappeteer, symbol?: string, chainId: number = 4) {
+  //rinkeby
   const ocean = "0x8967BCF84170c91B0d24D4302C2376283b0B3a07";
   const sagkri = "0x1d0c4f1dc8058a5395b097de76d3cd8804ef6bb4";
   const dazorc = "0x8d2da54a1691fd7bd1cd0a242d922109b0616c68";
   const zeasea = "0xcf6823cf19855696d49c261e926dce2719875c3d";
+  //polygon
+  const matic = "0x867A6D38D30C4731c85bF567444F8CF22885DfAd";
+  const mOcean = "0x282d8efCe846A88B159800bd4130ad77443Fa1A1";
   await clearMMPopup(metamask);
-  switch (symbol) {
-    case "SAGKRI-94":
-      await metamask.addToken(sagkri);
-      break;
-    case "DAZORC-13":
-      await metamask.addToken(dazorc);
-      break;
-    case "ZEASEA-66":
-      await metamask.addToken(zeasea);
-      break;
-    default:
-      await metamask.addToken(ocean);
-      break;
+  if (chainId === 4) {
+    switch (symbol) {
+      case "SAGKRI-94":
+        await metamask.addToken(sagkri);
+        break;
+      case "DAZORC-13":
+        await metamask.addToken(dazorc);
+        break;
+      case "ZEASEA-66":
+        await metamask.addToken(zeasea);
+        break;
+      default:
+        await metamask.addToken(ocean);
+        break;
+    }
+  } else if (chainId === 137) {
+    switch (symbol) {
+      case "mOCEAN":
+        await metamask.addToken(mOcean);
+        break;
+      default:
+        await metamask.addToken(matic);
+        break;
+    }
   }
   await metamask.page.waitForSelector(".asset-breadcrumb");
   await metamask.page.click(".asset-breadcrumb");
@@ -187,15 +195,7 @@ export async function clearMMPopup(metamask: dappeteer.Dappeteer) {
  *
  */
 
-export async function useXPath(
-  page: puppeteer.Page,
-  el: string,
-  elText: string,
-  contains: boolean,
-  dt?: boolean,
-  sibling?: "prev" | "next",
-  metamask?: dappeteer.Dappeteer
-) {
+export async function useXPath(page: puppeteer.Page, el: string, elText: string, contains: boolean, dt?: boolean, sibling?: "prev" | "next", metamask?: dappeteer.Dappeteer) {
   //might be better to use * instead of el in the future, to ensure this works even if the element changes
   //if( (page instanceof puppeteer.Page) === false ) page === page.page
   const xpath = contains ? `//${el}[contains(text(),'${elText}')]` : `//${el}[text()='${elText}']`;
@@ -363,14 +363,7 @@ export async function clickMaxTrade(page: puppeteer.Page) {
   await page.waitForFunction('Number(document.querySelector("#token1-input").value) > 0', { timeout: 8000 });
 }
 
-export async function typeAmount(
-  page: puppeteer.Page,
-  amount: string,
-  pos: number,
-  t1Symbol: string,
-  t2Symbol: string,
-  increment: boolean = true
-) {
+export async function typeAmount(page: puppeteer.Page, amount: string, pos: number, t1Symbol: string, t2Symbol: string, increment: boolean = true) {
   const otherPos = pos === 1 ? 2 : 1;
   const currentInput = await page.evaluate(`document.querySelector("#token${otherPos}-input").value`);
   await page.waitForSelector(`#token${pos}-input`);
@@ -378,12 +371,9 @@ export async function typeAmount(
   await page.waitForTimeout(500);
   await page.type(`#token${pos}-input`, amount);
   if (Number(currentInput) > 0) {
-    await page.waitForFunction(
-      `Number(document.querySelector("#token${otherPos}-input").value) !== "${currentInput}"`,
-      {
-        timeout: 8000,
-      }
-    );
+    await page.waitForFunction(`Number(document.querySelector("#token${otherPos}-input").value) !== "${currentInput}"`, {
+      timeout: 8000,
+    });
   } else if (Number(amount) > 0) {
     await page.waitForFunction(`Number(document.querySelector("#token${otherPos}-input").value) > 0`, {
       timeout: 8000,
@@ -409,14 +399,7 @@ export async function typeAmount(
  *
  */
 
-export async function setUpSwap(
-  page: puppeteer.Page,
-  metamask: dappeteer.Dappeteer,
-  t1Symbol: string,
-  t2Symbol: string,
-  amount: string,
-  inputLoc: number = 1
-): Promise<void> {
+export async function setUpSwap(page: puppeteer.Page, metamask: dappeteer.Dappeteer, t1Symbol: string, t2Symbol: string, amount: string, inputLoc: number = 1): Promise<void> {
   await page.bringToFront();
 
   await swapOrSelect(page, t1Symbol, t2Symbol);
@@ -460,9 +443,7 @@ export async function setUpSwap(
     await page.waitForFunction('Number(document.querySelector("#token1-perc-input").value) > 0', { timeout: 3000 });
     perc = await getPercInDapp(page);
     expect(perc.toNumber()).toBeGreaterThan(0);
-    percApprox.gt(100)
-      ? expect(perc.toString()).toEqual("100")
-      : expect(Number(perc)).toBeCloseTo(percApprox.toNumber());
+    percApprox.gt(100) ? expect(perc.toString()).toEqual("100") : expect(Number(perc)).toBeCloseTo(percApprox.toNumber());
   }
 }
 
@@ -474,12 +455,8 @@ export async function evaluateMax(page: puppeteer.Page, t1Bal: BigNumber): Promi
   //get max values for each token
   await page.waitForSelector("[data-test-max]");
   await page.waitForSelector("[data-test-max]");
-  const t1Max: BigNumber = new BigNumber(
-    await page.evaluate('document.querySelectorAll("[data-test-max]")[0].getAttribute("data-test-max")')
-  );
-  const t2Max: BigNumber = new BigNumber(
-    await page.evaluate('document.querySelectorAll("[data-test-max]")[1].getAttribute("data-test-max")')
-  );
+  const t1Max: BigNumber = new BigNumber(await page.evaluate('document.querySelectorAll("[data-test-max]")[0].getAttribute("data-test-max")'));
+  const t2Max: BigNumber = new BigNumber(await page.evaluate('document.querySelectorAll("[data-test-max]")[1].getAttribute("data-test-max")'));
 
   //get values in each input field
   let t1Input: BigNumber = new BigNumber(await page.evaluate('document.querySelector("#token1-input").value'));
@@ -505,13 +482,7 @@ export async function evaluateMax(page: puppeteer.Page, t1Bal: BigNumber): Promi
   };
 }
 
-export async function incrementUntilValid(
-  page: puppeteer.Page,
-  amount: string,
-  t1Symbol: string,
-  t2Symbol: string,
-  inputPos: number
-) {
+export async function incrementUntilValid(page: puppeteer.Page, amount: string, t1Symbol: string, t2Symbol: string, inputPos: number) {
   let t1val = new BigNumber(await page.evaluate('document.querySelector("#token1-input").value'));
   let t2val = new BigNumber(await page.evaluate('document.querySelector("#token2-input").value'));
   let amountBN = new BigNumber(amount);
@@ -551,13 +522,7 @@ export async function clearInput(page: puppeteer.Page, elID: string) {
  * @param t1Symbol - optionally change t1Symbol, defaults to "OCEAN"
  */
 
-export async function checkBalance(
-  page: puppeteer.Page,
-  metamask: dappeteer.Dappeteer,
-  updating: boolean = false,
-  t2Symbol?: string,
-  t1Symbol: string = "OCEAN"
-) {
+export async function checkBalance(page: puppeteer.Page, metamask: dappeteer.Dappeteer, updating: boolean = false, t2Symbol?: string, t1Symbol: string = "OCEAN") {
   const t1Bal = await getBalanceInMM(metamask, t1Symbol);
   //@ts-ignore
   await assertTo3(page, t1Bal, "token1-balance", 1, updating);
@@ -591,7 +556,7 @@ async function assertTo3(page: puppeteer.Page, truth: string | number, id: strin
  * @return string of balance
  */
 
-export async function getBalanceInMM(metamask: dappeteer.Dappeteer, symbol: string): Promise<string> {
+export async function getBalanceInMM(metamask: dappeteer.Dappeteer, symbol: string, chainId:number = 4): Promise<string> {
   await metamask.page.bringToFront();
   const assets: puppeteer.JSHandle | undefined = await useXPath(metamask.page, "button", "Assets", false);
   //@ts-ignore
@@ -678,12 +643,7 @@ export async function getExecuteButtonText(page: puppeteer.Page, txType: ITxType
   }
 }
 
-export async function executeTransaction(
-  page: puppeteer.Page,
-  metamask: dappeteer.Dappeteer,
-  txType: ITxType,
-  unlock: "perm" | "once" = "once"
-) {
+export async function executeTransaction(page: puppeteer.Page, metamask: dappeteer.Dappeteer, txType: ITxType, unlock: "perm" | "once" = "once") {
   await page.bringToFront();
   let btnHandle: puppeteer.JSHandle | null;
   switch (txType) {
@@ -865,8 +825,7 @@ export async function inputUnstakeAmt(page: puppeteer.Page, unstakeAmt: string, 
     await page.waitForSelector("#unstakeAmtInput");
     await page.type("#unstakeAmtInput", unstakeAmt, { delay: 150 });
     await page.waitForSelector("#oceanToReceive");
-    if (Number(shares) > 0)
-      await page.waitForFunction('Number(document.querySelector("#oceanToReceive").innerText) > 0');
+    if (Number(shares) > 0) await page.waitForFunction('Number(document.querySelector("#oceanToReceive").innerText) > 0');
     receive = await page.evaluate('Number(document.querySelector("#oceanToReceive").innerText)');
     input = await page.evaluate('document.querySelector("#unstakeAmtInput").value');
   }
@@ -912,9 +871,7 @@ export async function getSharesFromUnstake(page: puppeteer.Page) {
 
 export async function awaitUpdateShares(page: puppeteer.Page, initialShares: BigNumber) {
   console.log(initialShares);
-  await page.waitForFunction(
-    `!document.querySelector("#sharesDisplay").innerText.includes("${initialShares.dp(5).toString()}")`
-  );
+  await page.waitForFunction(`!document.querySelector("#sharesDisplay").innerText.includes("${initialShares.dp(5).toString()}")`);
   return (await getSharesFromUnstake(page)) || "";
 }
 
@@ -927,12 +884,7 @@ export async function awaitUpdateShares(page: puppeteer.Page, initialShares: Big
  * @param signDisclaimer Will sign the disclaimer in metamask if true is supplied.
  */
 
-export async function switchAccounts(
-  metamask: dappeteer.Dappeteer,
-  page: puppeteer.Page,
-  acct: number,
-  signDisclaimer: boolean
-) {
+export async function switchAccounts(metamask: dappeteer.Dappeteer, page: puppeteer.Page, acct: number, signDisclaimer: boolean) {
   await metamask.switchAccount(acct);
   await page.bringToFront();
   if (signDisclaimer) {
@@ -1027,17 +979,12 @@ export async function reloadOrContinue(lastTestPassed: Boolean, page: puppeteer.
 }
 
 //get method not fully functional
-export async function useLocalStorage(
-  page: puppeteer.Page,
-  method: LocalStorageMethods,
-  data?: { key?: string; value?: string; index?: number }
-) {
+export async function useLocalStorage(page: puppeteer.Page, method: LocalStorageMethods, data?: { key?: string; value?: string; index?: number }) {
   console.log(data);
 
   switch (method) {
     case "get":
-      if (data)
-        return await page.evaluate((data, testAcctId) => window.localStorage.getItem(data.key || ""), data, testAcctId);
+      if (data) return await page.evaluate((data, testAcctId) => window.localStorage.getItem(data.key || ""), data, testAcctId);
       break;
     case "set":
       if (data) await page.evaluate((data) => window.localStorage.setItem(data.key || "", data.value || ""), data);
@@ -1065,12 +1012,7 @@ export async function importStakeInfo(page: puppeteer.Page, pool: string) {
 }
 
 //not yet tested
-export async function hoarder(
-  browser: puppeteer.Browser,
-  metamask: dappeteer.Dappeteer,
-  dumpAcct: string,
-  accounts: number
-) {
+export async function hoarder(browser: puppeteer.Browser, metamask: dappeteer.Dappeteer, dumpAcct: string, accounts: number) {
   const context = browser.defaultBrowserContext();
   context.overridePermissions(metamask.page.url(), ["clipboard-read"]);
   const oceanFaucet = await browser.newPage();
