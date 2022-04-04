@@ -187,7 +187,7 @@ function TxHistoryModal() {
                       <p
                         className={`ml-1 ${
                           tx.status === "Success"
-                            ? "text-green-400"
+                            ? "text-city-blue"
                             : tx.status === "Failure"
                             ? "text-red-600"
                             : "text-primary-400"
@@ -207,7 +207,7 @@ function TxHistoryModal() {
                       target="_blank"
                       rel="noreferrer"
                       className={
-                        tx.txLink.includes("/tx/") ? "text-green-400" : ""
+                        tx.txLink.includes("/tx/") ? "text-city-blue" : ""
                       }
                     >
                       <BsBoxArrowUpRight />

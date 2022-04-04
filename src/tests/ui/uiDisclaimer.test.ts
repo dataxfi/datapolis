@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@chainsafe/dappeteer";
 import "regenerator-runtime/runtime";
-import { closeBrowser, navToTradeXFromLanding, quickConnectWallet, setupDappBrowser, signDisclaimerRecursive } from "../utils";
+import { closeBrowser, navToTradeXFromLanding, quickConnectWallet, setupDappBrowser, forceSignDisclaimer } from "../utils";
 
 describe("Setup web3 and connect to wallet", () => {
   jest.setTimeout(300000);
@@ -46,7 +46,7 @@ describe("Setup web3 and connect to wallet", () => {
     await page.click("#sign-disclaimer-btn");
 
    
-    await signDisclaimerRecursive(metamask, page)
+    await forceSignDisclaimer(metamask, page)
     await page.bringToFront();
 
     //Check wallet address in is the button

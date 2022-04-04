@@ -110,6 +110,9 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [showUnlockTokenModal, setShowUnlockTokenModal] = useState<boolean>(false);
 
   const [location, setLocation] = useState<string>("/");
+
+  const [bgOff, setBgOff] = useState(false);
+
   // remove all pending signatures to instantiate disclaimer flow upon user reconnection
   useEffect(() => {
     for (let i = 0; i < localStorage.length; i++) {
@@ -117,12 +120,15 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       const value = localStorage.getItem(key || "");
       if (value === "pending") localStorage.removeItem(key || "");
     }
+
+    const bgPref = localStorage.getItem("bgPref");
+    if (bgPref) setBgOff(JSON.parse(bgPref));
   }, []);
 
   // recall handle connect if the provider is set but there is no account id
   // essential for disclaimer flow
   useEffect(() => {
-    if (provider && !accountId && disclaimerSigned.wallet !== "denied" && disclaimerSigned.client !=="denied") {
+    if (provider && !accountId && disclaimerSigned.wallet !== "denied" && disclaimerSigned.client !== "denied") {
       handleConnect();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -153,7 +159,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   }, [web3, chainId]);
 
   /**
-  *
+   *
    * Handles wallet side disclaimer signature.
    *
    * @param account
@@ -161,10 +167,10 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
    * @returns
    * signature hash from wallet
    */
-  async function handleSignature() {    
-    if(!web3) return 
+  async function handleSignature() {
+    if (!web3) return;
     let accounts = await web3.eth.getAccounts();
-    const account = accounts[0].toLowerCase()
+    const account = accounts[0].toLowerCase();
 
     try {
       localStorage.setItem(account, "pending");
@@ -172,7 +178,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setShowDisclaimer(false);
       });
       console.log(signature);
-      
+
       localStorage.setItem(account, signature);
       setDisclaimerSigned({ ...disclaimerSigned, wallet: true });
       return signature;
@@ -181,7 +187,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       localStorage.removeItem(account);
       deniedSignatureGA();
     }
-    return false
+    return false;
   }
 
   /**
@@ -390,6 +396,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setShowUnlockTokenModal,
         location,
         setLocation,
+        bgOff,
+        setBgOff,
       }}
     >
       {children}

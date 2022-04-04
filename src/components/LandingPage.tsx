@@ -2,6 +2,7 @@ import { FaAngleDoubleRight } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { FaBook } from "react-icons/fa";
 import SocialLinkIcons from "./SocialLinkIcons";
+import BuiltWDataX from "./BuiltWDataX";
 
 export default function LandingPage() {
   return (
@@ -48,6 +49,9 @@ export default function LandingPage() {
             <FaAngleDoubleRight className="ml-2" />
           </Link>
         </ul>
+        <div className="w-full absolute bottom-0 pl-4 pb-2">
+          <BuiltWDataX />
+        </div>
       </div>
     </div>
   );

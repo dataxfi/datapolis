@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { BsCheckCircle, BsX } from "react-icons/bs";
+import { IoCheckboxOutline } from "react-icons/io5";
 import { GlobalContext } from "../context/GlobalState";
 import { getTxUrl, conformTx } from "../utils/txHistoryUtils";
 import BigNumber from 'bignumber.js'
@@ -59,11 +60,11 @@ const SnackbarItem = ({
   if (!txDetails) return null;
   return (
     <div
-      className={`max-w-xs w-full mx-auto bg-black bg-opacity-90 rounded-lgm p-1 lg:p-4 transition-opacity ease-in-out opacity-${opacity} duration-500`}
+      className={`max-w-xs w-full mx-auto bg-black bg-opacity-90 rounded-lg p-1 lg:p-4 transition-opacity ease-in-out opacity-${opacity} duration-500`}
     >
       <div className="flex justify-between items-start">
         <div className="grid grid-flow-col gap-4 items-center">
-          <BsCheckCircle size="24" className="text-green-400" />
+          <IoCheckboxOutline size="24" className="text-city-blue" />
           <div>
             {/* <p className="text-type-100 text-sm">{lastTx.txType}</p> */}
             <p>
@@ -82,7 +83,7 @@ const SnackbarItem = ({
                 target="_blank"
                 rel="noreferrer"
                 href={url}
-                className="hover:text-green-400"
+                className="hover:text-city-blue"
               >
                 View on explorer
               </a>

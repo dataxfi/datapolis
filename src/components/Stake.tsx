@@ -8,7 +8,6 @@ import Button, { IBtnProps } from "./Button";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import getTokenList, { getAllowance, TokenInfo } from "../utils/tokenUtils";
 import UserMessageModal, { userMessage } from "./UserMessageModal";
 import { toFixed5 } from "../utils/equate";
 import { addTxHistory, deleteRecentTxs } from "../utils/txHistoryUtils";
@@ -24,6 +23,7 @@ import UnlockTokenModal from "./UnlockTokenModal";
 import { IToken } from "./Swap";
 import useWatchLocation from "../hooks/useWatchLocation";
 import Footer from "./Footer";
+import useTokenList, { getAllowance, TokenInfo } from "../hooks/useTokenList";
 const text = {
   T_STAKE: "Stake",
   T_SELECT_TOKEN: "Select token",
@@ -110,6 +110,7 @@ const Stake = () => {
   useTxModalToggler(txReceipt, setTxReceipt);
   useCurrentPool(poolAddress, setPoolAddress);
   useWatchLocation();
+  // useTokenList("OCEAN", ()=>{})
 
   async function getMaxStakeAmt() {
     if (token)
@@ -177,17 +178,7 @@ const Stake = () => {
   useEffect(() => {
     setToken(null);
     setOceanValToStake(new BigNumber(0));
-    getTokenList({
-      chainId,
-      web3,
-      setTokenResponse,
-      setCurrentTokens,
-      accountId,
-      otherToken: oceanToken.info.symbol,
-    });
-
     setOceanBalance();
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId, ocean, chainId]);
 

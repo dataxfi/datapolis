@@ -3,7 +3,6 @@ import { BsArrowDown } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { GlobalContext, bgLoadingStates, removeBgLoadingState } from "../context/GlobalState";
-import getTokenList, { getAllowance } from "../utils/tokenUtils";
 import Button from "./Button";
 import ConfirmModal from "./ConfirmModal";
 import TransactionDoneModal from "./TransactionDoneModal";
@@ -21,6 +20,7 @@ import WrappedInput from "./WrappedInput";
 import UnlockTokenModal from "./UnlockTokenModal";
 import useWatchLocation from "../hooks/useWatchLocation";
 import Footer from "./Footer";
+import useTokenList, { getAllowance } from "../hooks/useTokenList";
 
 interface IMaxUnstake {
   OCEAN: BigNumber;
@@ -153,30 +153,10 @@ const RemoveAmount = () => {
   }, [bgLoading.length, sharesToRemove, pendingUnstakeTx, currentStakePool, maxUnstake]);
 
   useEffect(() => {
-    const otherToken = "OCEAN";
-    getTokenList({
-      chainId,
-      web3,
-      setTokenResponse,
-      accountId,
-      otherToken,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chainId, accountId]);
-
-  useEffect(() => {
     accountId ? setNoWallet(false) : setNoWallet(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId, chainId, sharesToRemove]);
 
-  const navigate = useNavigate();
-  const [initialRender, setInitialRender] = useState(true);
-  useEffect(() => {
-    console.log(currentStakePool);
-    
-    // if (!initialRender) navigate("/stake/list");
-    // setInitialRender(false);
-  }, [accountId]);
 
   const updateNum = async (val: string) => {
     let max: IMaxUnstake | void;
@@ -433,12 +413,17 @@ const RemoveAmount = () => {
                         onClick={() => {
                           maxUnstakeHandler();
                         }}
-                        disabled={Number(currentStakePool.shares) === 0 || bgLoading.includes(bgLoadingStates.singlePoolData) ||
+                        disabled={
+                          Number(currentStakePool.shares) === 0 ||
+                          bgLoading.includes(bgLoadingStates.singlePoolData) ||
                           bgLoading.includes(bgLoadingStates.maxUnstake) ||
-                          bgLoading.includes(bgLoadingStates.calcTrade)}
+                          bgLoading.includes(bgLoadingStates.calcTrade)
+                        }
                         text="Max Unstake"
                         classes={`px-2 lg:w-24 py-0 border  rounded-full text-xs ${
-                          inputDisabled || Number(currentStakePool.shares) === 0 || bgLoading.includes(bgLoadingStates.singlePoolData) ||
+                          inputDisabled ||
+                          Number(currentStakePool.shares) === 0 ||
+                          bgLoading.includes(bgLoadingStates.singlePoolData) ||
                           bgLoading.includes(bgLoadingStates.maxUnstake) ||
                           bgLoading.includes(bgLoadingStates.calcTrade)
                             ? "text-gray-700 border-gray-700"

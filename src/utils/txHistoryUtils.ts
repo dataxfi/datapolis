@@ -1,4 +1,4 @@
-import { TokenInfo } from "./tokenUtils";
+import { TokenInfo } from "../hooks/useTokenList";
 import { TransactionReceipt } from "web3-core";
 import Web3 from "web3";
 import Watcher from "@dataxfi/datax.js/dist/Watcher";

@@ -3,7 +3,7 @@ import { GlobalContext } from "../context/GlobalState";
 import SnackbarItem from "./SnackbarItem";
 import UserMessageModal from "./UserMessageModal";
 
-export default function NotificationArea() {
+export default function SnackbarArea() {
   const { notifications } = useContext(GlobalContext);
   const [currentNot, setCurrentNot] = useState<any>(null);
 

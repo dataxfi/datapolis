@@ -5,7 +5,7 @@ import { MdClose } from "react-icons/md";
 import BigNumber from "bignumber.js";
 import { getTokenVal, isOCEAN, IToken } from "./Swap";
 import errorMessages from "../utils/errorMessages";
-import { getAllowance } from "../utils/tokenUtils";
+import { getAllowance } from "../hooks/useTokenList";
 export type approvalStates = "approved" | "approving" | "pending";
 
 export default function UnlockTokenModal({
@@ -27,6 +27,7 @@ export default function UnlockTokenModal({
   const [t1BN, setT1BN] = useState<BigNumber>(new BigNumber(0));
   const [pool, setPool] = useState<string | null>(null);
   const [address, setAddress] = useState<string | null>(null);
+
   useEffect(() => {
     const { t1BN } = getTokenVal(token1, token1);
     setT1BN(t1BN);
@@ -76,11 +77,12 @@ export default function UnlockTokenModal({
         address = token1.info.address;
       }
 
-      setPool(pool);
-      setAddress(address);
+
 
       try {
         const { t1BN } = getTokenVal(token1);
+        console.log("Setting approving");
+
         setApproving("approving");
         if (amount === "perm") {
           await ocean.approve(address, pool, new BigNumber(18e10).toString(), accountId);
@@ -89,10 +91,15 @@ export default function UnlockTokenModal({
           await ocean.approve(address, pool, t1BN.plus(0.001).toString(), accountId);
           remove ? setToken(t1BN.plus(0.001)) : setToken({ ...token1, allowance: t1BN.plus(0.001) });
         }
+        console.log("Setting approved");
         setApproving("approved");
+        setPool(pool);
+        setAddress(address);
       } catch (error) {
         console.error(error);
         setApproving("pending");
+        console.log("Setting pending");
+
         const allNotifications = notifications;
         allNotifications.push({
           type: "alert",
@@ -126,14 +133,14 @@ export default function UnlockTokenModal({
         </div>
         {approving === "pending" ? (
           <div className="pb-5">
-            <BiLockAlt size="72px" className="text-green-400" />{" "}
+            <BiLockAlt size="72px" className="text-city-blue" />{" "}
           </div>
         ) : approving === "approving" ? (
           <div className="pb-5">
-            <BiLockAlt size="72px" className="text-green-400 animate-bounce" />
+            <BiLockAlt size="72px" className="text-city-blue animate-bounce" />
           </div>
         ) : (
-          <BiLockOpenAlt size="72px" className="text-green-400 animate-bounce" />
+          <BiLockOpenAlt size="72px" className="text-city-blue animate-bounce" />
         )}
         <h3 className="text-sm lg:text-2xl pb-5">Unlock {token1.info.symbol}</h3>
         <p className="text-sm lg:text-base text-center pb-5">

@@ -17,7 +17,7 @@ import { MoonLoader } from "react-spinners";
 import BigNumber from "bignumber.js";
 import { toFixed5 } from "../utils/equate";
 import UnlockTokenModal from "./UnlockTokenModal";
-import { getAllowance, TokenInfo } from "../utils/tokenUtils";
+import { getAllowance } from "../hooks/useTokenList";
 import useWatchLocation from "../hooks/useWatchLocation";
 import Footer from "./Footer";
 const text = {
