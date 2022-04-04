@@ -100,3 +100,39 @@ export function connectedWalletViaGA({ wallet }: { wallet: string | null }) {
     console.error(error);
   }
 }
+
+export function transactionTypeGA(type:string){
+  try {
+    ReactGA.event({
+      category: "Transaction",
+      action: `User made a transaction: ${type}`,
+      label: "Transaction Event",
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export function boughtAmountGA(amount:string, tokenAddress:string){
+  try {
+    ReactGA.event({
+      category: "Transaction",
+      action: `User bought ${amount} ${tokenAddress}`,
+      label: "Transaction Event",
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export function soldAmountGA(amount:string, tokenAddress:string){
+  try {
+    ReactGA.event({
+      category: "Transaction",
+      action: `User sold ${amount} ${tokenAddress}`,
+      label: "Transaction Event",
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}

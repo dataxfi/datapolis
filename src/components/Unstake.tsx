@@ -18,6 +18,7 @@ import useAutoLoadToken from "../hooks/useAutoLoadToken";
 import TokenSelect from "./TokenSelect";
 import { IMaxUnstake } from "@dataxfi/datax.js";
 import MaxToolTip from "./MaxToolTip";
+import { boughtAmountGA, soldAmountGA, transactionTypeGA } from "../context/Analytics";
 
 export default function Unstake() {
   const {
@@ -262,6 +263,7 @@ export default function Unstake() {
       if (txReceipt) {
         setRecentTxHash(ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash);
         setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
+        transactionTypeGA("Unstake")
         if (singleLiquidityPos && preTxDetails.shares) {
           const newShares = new BigNumber(singleLiquidityPos.shares).minus(preTxDetails.shares);
           setSingleLiquidityPos({ ...singleLiquidityPos, shares: newShares });

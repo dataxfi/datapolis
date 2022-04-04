@@ -5,22 +5,8 @@ import WalletConnectProvider from "@walletconnect/web3-provider";
 import { createContext, PropsWithChildren, useEffect, useRef, useState } from "react";
 import Core from "web3modal";
 import { Disclaimer } from "../components/DisclaimerModal";
-import {
-  connectedMultipleWalletsGA,
-  connectedWalletGA,
-  connectedToNetworkGA,
-  deniedSignatureGA,
-  connectedWalletViaGA,
-} from "./Analytics";
-import {
-  IDisclaimerSigned,
-  globalStates,
-  ILiquidityPosition,
-  ITxHistory,
-  ITxDetails,
-  ISnackbarItem,
-  supportedChains,
-} from "../utils/types";
+import { connectedMultipleWalletsGA, connectedWalletGA, connectedToNetworkGA, deniedSignatureGA, connectedWalletViaGA } from "./Analytics";
+import { IDisclaimerSigned, globalStates, ILiquidityPosition, ITxHistory, ITxDetails, ISnackbarItem, supportedChains } from "../utils/types";
 import BigNumber from "bignumber.js";
 import { IToken, ITList, ITokenInfo } from "@dataxfi/datax.js";
 
@@ -112,6 +98,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       const key = localStorage.key(i);
       const value = localStorage.getItem(key || "");
       if (value === "Pending") localStorage.removeItem(key || "");
+      localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER");
     }
 
     const bgPref = localStorage.getItem("bgPref");
@@ -142,7 +129,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
               },
             },
           }, // required
-        });        
+        });
         setWeb3Modal(web3Modal);
       } catch (error) {
         console.log(error);
