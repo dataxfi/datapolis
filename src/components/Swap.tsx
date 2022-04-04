@@ -279,8 +279,8 @@ export default function Swap() {
         }
       }
       if (txReceipt) {
-        boughtAmountGA(token1.value.dp(5).toString(), token1.info.address)
-        soldAmountGA(token2.value.dp(5).toString(), token2.info.address)
+        soldAmountGA(token1.value.dp(5).toString(), token1.info.address)
+        boughtAmountGA(token2.value.dp(5).toString(), token2.info.address)
         transactionTypeGA("Trade")
         setLastTxUrl(config.default.explorerUri + "/tx/" + txReceipt.transactionHash);
         setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
