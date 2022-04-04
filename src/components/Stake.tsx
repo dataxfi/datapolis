@@ -17,7 +17,7 @@ import TokenSelect from "./TokenSelect";
 import PositionBox from "./PositionBox";
 import DatasetDescription from "./DatasetDescription";
 import ViewDescBtn from "./ViewDescButton";
-import { boughtAmountGA, soldAmountGA, transactionTypeGA } from "../context/Analytics";
+import { boughtAmountGA, soldAmountGA, stakeAmountGA, transactionTypeGA } from "../context/Analytics";
 
 const INITIAL_BUTTON_STATE = {
   text: "Connect wallet",
@@ -162,7 +162,7 @@ export default function Stake() {
   }
 
   async function executeStake(preTxDetails: ITxDetails) {
-    if (!token2.info || !chainId || !ocean || !accountId || !token1.info) return;
+    if (!token2.info || !chainId || !ocean || !accountId || !token1.info?.pool) return;
     try {
       setLoading(true);
       console.log(accountId, token2?.info?.pool, token1.value?.toString());
@@ -171,7 +171,7 @@ export default function Stake() {
       if (txReceipt) {
         setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
         setOceanBalance();
-        soldAmountGA(token2.value.dp(5).toString(), token2.info.address)
+        stakeAmountGA(token2.value.dp(5).toString(), token2.info.address, token1.info.pool)
         transactionTypeGA("Stake")
         if (token2.info) {
           setImportPool(token2.info.pool);

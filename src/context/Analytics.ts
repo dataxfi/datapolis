@@ -136,3 +136,27 @@ export function soldAmountGA(amount:string, tokenAddress:string){
     console.error(error);
   }
 }
+
+export function stakeAmountGA(amount:string, tokenStaked:string, pool:string){
+  try {
+    ReactGA.event({
+      category: "Transaction",
+      action: `User staked ${amount} ${tokenStaked}, in ${pool}`,
+      label: "Transaction Event",
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export function unstakeAmountGA(amount:string, tokenUnstaked:string, pool:string){
+  try {
+    ReactGA.event({
+      category: "Transaction",
+      action: `User unstaked ${amount} ${tokenUnstaked}, from ${pool}`,
+      label: "Transaction Event",
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}

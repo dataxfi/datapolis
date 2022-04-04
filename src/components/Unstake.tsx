@@ -13,12 +13,12 @@ import BigNumber from "bignumber.js";
 import WrappedInput from "./WrappedInput";
 import UnlockTokenModal from "./UnlockTokenModal";
 import { getAllowance } from "../hooks/useTokenList";
-import {  ITxDetails } from "../utils/types";
+import { ITxDetails } from "../utils/types";
 import useAutoLoadToken from "../hooks/useAutoLoadToken";
 import TokenSelect from "./TokenSelect";
 import { IMaxUnstake } from "@dataxfi/datax.js";
 import MaxToolTip from "./MaxToolTip";
-import { boughtAmountGA, soldAmountGA, transactionTypeGA } from "../context/Analytics";
+import { boughtAmountGA, soldAmountGA, transactionTypeGA, unstakeAmountGA } from "../context/Analytics";
 
 export default function Unstake() {
   const {
@@ -38,7 +38,7 @@ export default function Unstake() {
     lastTx,
     setSingleLiquidityPos,
     showUnlockTokenModal,
-    setSnackbarItem
+    setSnackbarItem,
   } = useContext(GlobalContext);
   const [recentTxHash, setRecentTxHash] = useState("");
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
@@ -62,16 +62,10 @@ export default function Unstake() {
       try {
         //.98 is a fix for the MAX_OUT_RATIO error from the contract
         if (!ocean || !singleLiquidityPos || !singleLiquidityPos.address) return;
-        const oceanAmt: BigNumber = new BigNumber(
-          await ocean.getMaxUnstakeAmount(singleLiquidityPos.address, ocean.config.default.oceanTokenAddress)
-        ).multipliedBy(0.98);
+        const oceanAmt: BigNumber = new BigNumber(await ocean.getMaxUnstakeAmount(singleLiquidityPos.address, ocean.config.default.oceanTokenAddress)).multipliedBy(0.98);
 
         const shareAmt: BigNumber = new BigNumber(
-          await ocean.getPoolSharesRequiredToUnstake(
-            singleLiquidityPos.address,
-            ocean.config.default.oceanTokenAddress,
-            oceanAmt.toFixed(18)
-          )
+          await ocean.getPoolSharesRequiredToUnstake(singleLiquidityPos.address, ocean.config.default.oceanTokenAddress, oceanAmt.toFixed(18))
         );
 
         const userPerc: BigNumber = shareAmt.div(Number(singleLiquidityPos.shares)).multipliedBy(100);
@@ -173,18 +167,12 @@ export default function Unstake() {
 
         if (percInput.gt(0) && percInput.lte(100)) setToken1({ ...token1, percentage: percInput });
 
-        const userTotalStakedOcean: BigNumber = new BigNumber(
-          await ocean.getOceanRemovedforPoolShares(singleLiquidityPos.address, singleLiquidityPos.shares.toString())
-        );
+        const userTotalStakedOcean: BigNumber = new BigNumber(await ocean.getOceanRemovedforPoolShares(singleLiquidityPos.address, singleLiquidityPos.shares.toString()));
 
         const oceanFromPerc: BigNumber = userTotalStakedOcean.times(percInput).div(100);
 
         const sharesNeeded = new BigNumber(
-          await ocean.getPoolSharesRequiredToUnstake(
-            singleLiquidityPos.address,
-            ocean.config.default.oceanTokenAddress,
-            oceanFromPerc.toFixed(18)
-          )
+          await ocean.getPoolSharesRequiredToUnstake(singleLiquidityPos.address, ocean.config.default.oceanTokenAddress, oceanFromPerc.toFixed(18))
         );
 
         console.log("User shares from percentage", sharesNeeded);
@@ -210,9 +198,7 @@ export default function Unstake() {
     console.log("Max unstake amount set at:", { ocean: max.OCEAN.toString(), shares: max.shares.toString() });
 
     try {
-      const userTotalStakedOcean: BigNumber = new BigNumber(
-        await ocean.getOceanRemovedforPoolShares(singleLiquidityPos.address, singleLiquidityPos.shares.toString())
-      );
+      const userTotalStakedOcean: BigNumber = new BigNumber(await ocean.getOceanRemovedforPoolShares(singleLiquidityPos.address, singleLiquidityPos.shares.toString()));
 
       console.log("Total user shares in ocean", userTotalStakedOcean);
       //find whether user staked oceans is greater or lesser than max unstake
@@ -225,11 +211,7 @@ export default function Unstake() {
         console.log("setting to userMAx ");
 
         const sharesNeeded = new BigNumber(
-          await ocean.getPoolSharesRequiredToUnstake(
-            singleLiquidityPos.address,
-            ocean.config.default.oceanTokenAddress,
-            userTotalStakedOcean.toFixed(18)
-          )
+          await ocean.getPoolSharesRequiredToUnstake(singleLiquidityPos.address, ocean.config.default.oceanTokenAddress, userTotalStakedOcean.toFixed(18))
         );
 
         setShares(sharesNeeded);
@@ -246,24 +228,16 @@ export default function Unstake() {
     if (!chainId || !singleLiquidityPos || !ocean || !accountId) return;
 
     setShowConfirmModal(true);
-    console.log(
-      `Unstaking from pool ${singleLiquidityPos.address}, ${
-        singleLiquidityPos.shares
-      } shares for ${token1.value?.toFixed(5)} OCEAN`
-    );
+    console.log(`Unstaking from pool ${singleLiquidityPos.address}, ${singleLiquidityPos.shares} shares for ${token1.value?.toFixed(5)} OCEAN`);
 
     try {
-      const txReceipt = await ocean.unstakeOcean(
-        accountId,
-        singleLiquidityPos.address,
-        token1.value.dp(5).toString(),
-        singleLiquidityPos.shares.toString()
-      );
+      const txReceipt = await ocean.unstakeOcean(accountId, singleLiquidityPos.address, token1.value.dp(5).toString(), singleLiquidityPos.shares.toString());
 
       if (txReceipt) {
         setRecentTxHash(ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash);
         setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
-        transactionTypeGA("Unstake")
+        transactionTypeGA("Unstake");
+        if (token2.info) unstakeAmountGA(token2.value.dp(5).toString(), token2.info.address, singleLiquidityPos.address);
         if (singleLiquidityPos && preTxDetails.shares) {
           const newShares = new BigNumber(singleLiquidityPos.shares).minus(preTxDetails.shares);
           setSingleLiquidityPos({ ...singleLiquidityPos, shares: newShares });
@@ -291,23 +265,9 @@ export default function Unstake() {
             <div className="mx-auto bg-black opacity-90 w-full rounded-lg p-3 hm-box">
               <div className="flex flex-row pb-2 justify-between">
                 <div className="flex flex-row">
-                  <img
-                    src="https://gateway.pinata.cloud/ipfs/QmPQ13zfryc9ERuJVj7pvjCfnqJ45Km4LE5oPcFvS1SMDg/datatoken.png"
-                    className="rounded-lg mr-2"
-                    alt=""
-                    width="40px"
-                  />
-                  <img
-                    src="https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY"
-                    className="rounded-lg mr-2"
-                    alt=""
-                    width="40px"
-                  />
-                  {singleLiquidityPos ? (
-                    <p className="text-gray-100 text-sm md:text-lg">{token2.info.symbol}/OCEAN</p>
-                  ) : (
-                    <PulseLoader color="white" size="4px" margin="5px" />
-                  )}
+                  <img src="https://gateway.pinata.cloud/ipfs/QmPQ13zfryc9ERuJVj7pvjCfnqJ45Km4LE5oPcFvS1SMDg/datatoken.png" className="rounded-lg mr-2" alt="" width="40px" />
+                  <img src="https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY" className="rounded-lg mr-2" alt="" width="40px" />
+                  {singleLiquidityPos ? <p className="text-gray-100 text-sm md:text-lg">{token2.info.symbol}/OCEAN</p> : <PulseLoader color="white" size="4px" margin="5px" />}
                 </div>
               </div>
               <div className="md:grid md:grid-cols-5 modalSelectBg p-2 rounded">
@@ -356,9 +316,7 @@ export default function Unstake() {
                         }}
                         disabled={inputDisabled}
                         text="Max Unstake"
-                        classes={`px-2 lg:w-24 py-0 border  rounded-full text-xs ${
-                          inputDisabled ? "text-gray-700 border-gray-700" : "hover:bg-primary-600 border-gray-300"
-                        }`}
+                        classes={`px-2 lg:w-24 py-0 border  rounded-full text-xs ${inputDisabled ? "text-gray-700 border-gray-700" : "hover:bg-primary-600 border-gray-300"}`}
                       />
                     </div>
                   </div>
@@ -366,22 +324,11 @@ export default function Unstake() {
               </div>
               <div className="px-4 relative mt-6 mb-8">
                 <div className="rounded-full border-black border-4 absolute -top-7 bg-trade-darkBlue w-10 h-10 flex items-center justify-center swap-center">
-                  {calculating ? (
-                    <MoonLoader size={25} color={"white"} />
-                  ) : (
-                    <BsArrowDown size="30px" className="text-gray-300 m-0 p-0" />
-                  )}
+                  {calculating ? <MoonLoader size={25} color={"white"} /> : <BsArrowDown size="30px" className="text-gray-300 m-0 p-0" />}
                 </div>
               </div>
 
-              <TokenSelect
-                max={maxUnstake.OCEAN}
-                otherToken={token2.info.symbol}
-                pos={1}
-                setToken={setToken1}
-                token={token1}
-                updateNum={updateNum}
-              />
+              <TokenSelect max={maxUnstake.OCEAN} otherToken={token2.info.symbol} pos={1} setToken={setToken1} token={token1} updateNum={updateNum} />
               <div className="flex mt-4">
                 {/* <div className="bg-gradient"></div> */}
                 <Button
@@ -424,11 +371,7 @@ export default function Unstake() {
               </div>
             </div>
             <div className="pt-3 pl-3">
-              <Link
-                id="remove-lp-link"
-                to="/stake/list"
-                className="text-gray-300 hover:text-gray-100 transition-colors"
-              >
+              <Link id="remove-lp-link" to="/stake/list" className="text-gray-300 hover:text-gray-100 transition-colors">
                 {"<"} Back to liquidity position
               </Link>
             </div>
@@ -466,11 +409,7 @@ export default function Unstake() {
         close={() => {
           if (setShowConfirmModal) setShowConfirmModal(false);
         }}
-        txs={
-          singleLiquidityPos && token1.value && token1.value
-            ? [`Unstake ${token1.value.dp(5).toString()} ${token1.info?.symbol} from the ${token2.info?.symbol} pool.`]
-            : []
-        }
+        txs={singleLiquidityPos && token1.value && token1.value ? [`Unstake ${token1.value.dp(5).toString()} ${token1.info?.symbol} from the ${token2.info?.symbol} pool.`] : []}
       />
       <TransactionDoneModal
         show={showTxDone ? showTxDone : false}
