@@ -20,6 +20,7 @@ function TxHistoryModal() {
     setShowTxDone,
     showTxDone,
     showConfirmModal,
+    setBlurBG
   } = useContext(GlobalContext);
 
   const [page, setPage] = useState([0, 5]);
@@ -137,6 +138,8 @@ function TxHistoryModal() {
   function handleClose() {
     setNewTxHistory();
     setShowTxHistoryModal(false);
+    setBlurBG(false)
+  
   }
 
   return showTxHistoryModal ? (

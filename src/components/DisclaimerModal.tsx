@@ -20,7 +20,7 @@ export const Disclaimer = (): string => {
 };
 
 function DisclaimerModal() {
-  const { setDisclaimerSigned, disclaimerSigned, setShowDisclaimer, handleSignature} =
+  const { setDisclaimerSigned, disclaimerSigned, setShowDisclaimer, handleSignature, setBlurBG} =
     useContext(GlobalContext);
   const [showReminder, setShowReminder] = useState(false);
 
@@ -39,6 +39,7 @@ function DisclaimerModal() {
           setShowReminder(false);
           setDisclaimerSigned({ client: "denied", wallet: "denied" });
           setShowDisclaimer(false)
+          setBlurBG(false)
         }
       });
     } else {
@@ -52,6 +53,7 @@ function DisclaimerModal() {
     if(!setShowDisclaimer || ! setDisclaimerSigned) return
     setShowDisclaimer(false);
     setShowReminder(false);
+    setBlurBG(false)
     setDisclaimerSigned({ client: "denied", wallet: false });
   }
 

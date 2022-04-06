@@ -22,11 +22,11 @@ BigNumber.config({ DECIMAL_PLACES: 18, ROUNDING_MODE: BigNumber.ROUND_DOWN, EXPO
 
 //import "./stars.css"
 function App() {
-  const { unsupportedNet, showDisclaimer, cookiesAllowed, location, bgOff } = useContext(GlobalContext);
+  const { unsupportedNet, showDisclaimer, cookiesAllowed, location, bgOff, blurBG } = useContext(GlobalContext);
 
   document.getElementById("loader");
-  useTxHistory()
-  useTokenDesc()
+  useTxHistory();
+  useTokenDesc();
 
   useEffect(() => {
     if (cookiesAllowed) {
@@ -45,16 +45,17 @@ function App() {
   return (
     <div className="w-full h-full relative">
       <div
-        className={`w-full h-full ${
-          bgOff ? "" :
-          location === "/trade"
+        className={`w-full h-full ${blurBG? "blur-sm" : "blur-none"} ${
+          bgOff
+            ? ""
+            : location === "/trade"
             ? "lg:absolute lg:bg-dataXtrade lg:bg-cover lg:bg-top"
             : location !== "/"
             ? "lg:absolute lg:bg-dataXstake lg:bg-cover lg:bg-bottom"
             : ""
         }`}
       >
-        <div className={`min-h-full relative overflow-hidden w-full`}>
+        <div className={`min-h-full relative overflow-hidden w-full ${blurBG? "bg-black bg-opacity-40": ""}`}>
           {unsupportedNet ? (
             <UnsupportedNetwork />
           ) : (
@@ -70,13 +71,13 @@ function App() {
               </Routes>
             </Router>
           )}
-          {cookiesAllowed === null ? <CookiesModal /> : null}
-          {showDisclaimer ? <DisclaimerModal /> : null}
-          <SnackbarArea />
-          <TxHistoryModal />
-          {location !== "/" ? <Footer /> : null}
         </div>
+      {location !== "/" ? <Footer /> : null}
       </div>
+      {cookiesAllowed === null ? <CookiesModal /> : null}
+      {showDisclaimer ? <DisclaimerModal /> : null}
+      <SnackbarArea />
+      <TxHistoryModal />
     </div>
   );
 }

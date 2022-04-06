@@ -32,14 +32,7 @@ export default function TokenSelect({
   max: BigNumber;
 }) {
   const [showModal, setShowModal] = useState(false);
-  const {
-    accountId,
-    handleConnect,
-    tokensCleared,
-    location,
-    config,
-    ocean,
-  } = useContext(GlobalContext);
+  const { accountId, handleConnect, tokensCleared, location, config, ocean, setBlurBG } = useContext(GlobalContext);
   const [enabled, setEndabled] = useState(false);
   const [title, setTitle] = useState<TokenSelectTitles>();
 
@@ -79,6 +72,7 @@ export default function TokenSelect({
   function connectWalletOrShowlist() {
     if (accountId) {
       setShowModal(true);
+      setBlurBG(true);
     } else {
       if (handleConnect) handleConnect();
     }
@@ -112,10 +106,7 @@ export default function TokenSelect({
                 <BsChevronDown className="text-gray-200" size="16" />
               </span>
             ) : (
-              <p
-                id="selectTokenBtn"
-                className="text-xs text-gray-100 border-gray-300 border rounded-full px-2 py-1 mt-1 hover:bg-gray-600"
-              >
+              <p id="selectTokenBtn" className="text-xs text-gray-100 border-gray-300 border rounded-full px-2 py-1 mt-1 hover:bg-gray-600">
                 Select token
               </p>
             )}
@@ -194,9 +185,7 @@ export default function TokenSelect({
                           if (enabled) onMax();
                         }}
                         text="Max"
-                        classes={`${
-                          enabled ? "border-gray-300 hover:bg-primary-600" : "text-gray-600 border-gray-600"
-                        } px-2 py-0 border rounded-full text-xs`}
+                        classes={`${enabled ? "border-gray-300 hover:bg-primary-600" : "text-gray-600 border-gray-600"} px-2 py-0 border rounded-full text-xs`}
                         disabled={enabled ? false : true}
                       />
                       <DebounceInput
@@ -207,9 +196,7 @@ export default function TokenSelect({
                         onChange={(e) => {
                           if (enabled) onPerc(e.target.value);
                         }}
-                        className={`text-xs ${
-                          enabled ? "modalSelectBg bg-opacity-25" : "bg-primary-500 bg-opacity-25 text-primary-600"
-                        }   py-1 rounded px-1 w-12 outline-none`}
+                        className={`text-xs ${enabled ? "modalSelectBg bg-opacity-25" : "bg-primary-500 bg-opacity-25 text-primary-600"}   py-1 rounded px-1 w-12 outline-none`}
                         placeholder="%"
                         disabled={enabled ? false : true}
                       />
@@ -227,7 +214,15 @@ export default function TokenSelect({
         )}
       </div>
       {showModal ? (
-        <TokenModal onClick={tokenSelected} close={() => setShowModal(false)} otherToken={otherToken} pos={pos} />
+        <TokenModal
+          onClick={tokenSelected}
+          close={() => {
+            setBlurBG(false);
+            setShowModal(false);
+          }}
+          otherToken={otherToken}
+          pos={pos}
+        />
       ) : (
         <></>
       )}

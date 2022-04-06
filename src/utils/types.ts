@@ -175,4 +175,6 @@ export interface globalStates {
   setShowDescModal: React.Dispatch<React.SetStateAction<boolean>>;
   t2DIDResponse: any;
   setT2DIDResponse: React.Dispatch<React.SetStateAction<any>>;
+  blurBG: boolean
+  setBlurBG: React.Dispatch<React.SetStateAction<boolean>>
 }

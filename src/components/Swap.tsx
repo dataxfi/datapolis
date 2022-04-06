@@ -47,6 +47,7 @@ export default function Swap() {
     showUnlockTokenModal,
     setSnackbarItem,
     showDescModal,
+    blurBG
   } = useContext(GlobalContext);
   const [showSettings, setShowSettings] = useState(false);
   const [showConfirmSwapModal, setShowConfirmSwapModal] = useState(false);
@@ -447,7 +448,7 @@ export default function Swap() {
       <div
         className={`absolute w-full max-w-[32rem] top-1/2 left-1/2 transition-transform transform duration-500 ${
           showDescModal ? "translate-x-full 2lg:translate-x-0" : "-translate-x-1/2"
-        } -translate-y-1/2 `}
+        } -translate-y-1/2`}
       >
         <div className="sm:mx-4 mx-3">
           <div className="flex mt-6 w-full h-full items-center justify-center">

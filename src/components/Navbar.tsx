@@ -16,7 +16,7 @@ const Navbar = () => {
     { name: text.T_STAKE, link: "/stake" },
   ];
 
-  const { buttonText, config, chainId, accountId, setShowTxHistoryModal, handleConnect } = useContext(GlobalContext);
+  const { buttonText, config, chainId, accountId, setShowTxHistoryModal, handleConnect, setBlurBG } = useContext(GlobalContext);
 
   function truncateId() {
     if (!buttonText) return;
@@ -36,7 +36,12 @@ const Navbar = () => {
   }
 
   function handleModalOrConnect() {
-    if (setShowTxHistoryModal && handleConnect) accountId ? setShowTxHistoryModal(true) : handleConnect();
+    if (accountId) {
+      setBlurBG(true)
+      setShowTxHistoryModal(true);
+    } else {
+      handleConnect();
+    }
   }
 
   return (
@@ -44,22 +49,8 @@ const Navbar = () => {
       {/* Separating the UI logic because figuring out code reuse here will take more time. 
             i.e. It's not a simple cascade of columns to rows. There is a toggle and the connect to wallet 
             button is at the bottom */}
-      <MobileNavbar
-        links={links}
-        text={text}
-        wallet={walletText}
-        truncateId={truncateId}
-        network={getNetName()}
-        handleModalOrConnect={handleModalOrConnect}
-      />
-      <DesktopNavbar
-        links={links}
-        text={text}
-        wallet={walletText}
-        truncateId={truncateId}
-        network={getNetName()}
-        handleModalOrConnect={handleModalOrConnect}
-      />
+      <MobileNavbar links={links} text={text} wallet={walletText} truncateId={truncateId} network={getNetName()} handleModalOrConnect={handleModalOrConnect} />
+      <DesktopNavbar links={links} text={text} wallet={walletText} truncateId={truncateId} network={getNetName()} handleModalOrConnect={handleModalOrConnect} />
     </nav>
   );
 };

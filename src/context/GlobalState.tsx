@@ -89,6 +89,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [location, setLocation] = useState<string>("/");
 
   const [bgOff, setBgOff] = useState(false);
+  const [blurBG, setBlurBG] = useState(false);
 
   const tokensCleared = useRef(false);
 
@@ -158,6 +159,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       localStorage.setItem(account, "pending");
       let signature = await web3.eth.personal.sign(Disclaimer(), account || "", "", () => {
         setShowDisclaimer(false);
+        setBlurBG(false)
       });
       console.log(signature);
 
@@ -187,6 +189,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
     account = account.toLowerCase();
     if (!localSignature || localSignature === "pending") {
       setShowDisclaimer(true);
+      setBlurBG(true)
     }
     return localSignature;
   }
@@ -283,6 +286,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setButtonText(accounts.length && accounts[0] !== "" ? accounts[0] : CONNECT_TEXT);
         setDisclaimerSigned({ client: true, wallet: true });
         setShowDisclaimer(false);
+        setBlurBG(false)
         connectedMultipleWalletsGA();
         connectedWalletGA();
       } else {
@@ -395,6 +399,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setShowDescModal,
         t2DIDResponse,
         setT2DIDResponse,
+        blurBG,
+        setBlurBG,
       }}
     >
       {children}
