@@ -7,11 +7,9 @@ import Web3 from "web3";
 import axios from "axios";
 import { supportedChains } from "../utils/types";
 export default function useTokenList({
-  otherToken,
   setLoading,
   setError,
 }: {
-  otherToken: string;
   setLoading?: Function;
   setError?: Function;
 }) {
@@ -46,16 +44,18 @@ export default function useTokenList({
   }, [chainId, setDatatokens, setDtTokenResponse]);
 
   useEffect(() => {
+    console.log("in useEffect", !!accountId , !!!dtTokenResponse , !!web3 , !!chainId);
+    
     if (accountId && !dtTokenResponse && web3 && chainId) {
+      console.log("fetching datatokens");
+      
       if (setLoading) setLoading(true);
       getDtTokenList(web3, chainId)
         .then((res) => {
           if (res) {
             setDtTokenResponse(res);
-            // console.log("Datatoken Token List Response:", res);
-            //@ts-ignore
-            const formattedList = formatTokenArray(res, otherToken, location);
-            setDatatokens(formattedList);
+            console.log("Datatoken List Response", res);            
+            setDatatokens(res.tokens);
           }
         })
         .catch((err: Error) => {
@@ -68,7 +68,7 @@ export default function useTokenList({
         });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location, otherToken, dtTokenResponse, web3, chainId]);
+  }, [location, dtTokenResponse, web3, chainId, accountId]);
 
   useEffect(() => {
     if (!ERC20TokenResponse && chainId && config?.custom[chainId])
@@ -101,7 +101,7 @@ export default function useTokenList({
         console.error(error);
       }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location, otherToken, ERC20TokenResponse, web3, chainId, config]);
+  }, [location, ERC20TokenResponse, web3, chainId, config]);
 }
 
 async function getDtTokenList(web3: Web3, chainId: supportedChains): Promise<ITList> {
@@ -132,22 +132,6 @@ export async function getToken(
     return tokenList.tokens.find((token) => token.pool?.toLowerCase() === address.toLowerCase());
   }
   return tokenList.tokens.find((token) => token.address.toLowerCase() === address.toLowerCase());
-}
-
-export function formatTokenArray(
-  dtTokenResponse: { tokens: ITokenInfo[] },
-  otherToken: string,
-  location: string
-): ITokenInfo[] {
-  let tokenList: ITokenInfo[] = dtTokenResponse.tokens;
-  tokenList = dtTokenResponse.tokens.filter((t) => t.symbol !== otherToken);
-
-  if (tokenList.length > 0) {
-    //@ts-ignore
-    const oceanToken: ITokenInfo = tokenList.pop();
-    tokenList.splice(0, 0, oceanToken);
-  }
-  return tokenList;
 }
 
 export async function getAllowance(tokenAddress: string, accountId: string, router: string, ocean: Ocean) {

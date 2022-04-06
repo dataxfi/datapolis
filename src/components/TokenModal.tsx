@@ -3,24 +3,42 @@ import TokenModalItem from "./TokenModalItem";
 import { useEffect, useState, useContext, useRef } from "react";
 import Loader from "./Loader";
 import ReactList from "react-list";
-import { GlobalContext } from "../context/GlobalState";
-import useTokenList, { commonTokens, formatTokenArray } from "../hooks/useTokenList";
+import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
+import useTokenList, { commonTokens } from "../hooks/useTokenList";
 import OutsideClickHandler from "react-outside-click-handler";
 import { ITokenInfo } from "@dataxfi/datax.js";
 import { TokenInfo as TInfo } from "@uniswap/token-lists";
 import CommonToken from "./CommonToken";
+import BigNumber from "bignumber.js";
 
-export default function TokenModal({ close, onClick, otherToken, pos }: { close: Function; onClick: Function; otherToken: string; pos?: 1 | 2 }) {
-  const { datatokens, setDatatokens, ERC20Tokens, ERC20TokenResponse, setERC20Tokens, dtTokenResponse, location, chainId, accountId } = useContext(GlobalContext);
+export default function TokenModal() {
+  const {
+    setBlurBG,
+    setShowTokenModal,
+    datatokens,
+    setDatatokens,
+    ERC20Tokens,
+    ERC20TokenResponse,
+    setERC20Tokens,
+    dtTokenResponse,
+    location,
+    chainId,
+    accountId,
+    selectTokenPos,
+    ocean,
+    setToken1,
+    setToken2,
+    showTokenModal,
+  } = useContext(GlobalContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [showDtks, setShowDtks] = useState<boolean>(true);
   const [commons, setCommons] = useState<TInfo[]>([]);
-  useTokenList({ otherToken, setLoading, setError });
+  useTokenList({ setLoading, setError });
 
   const initialChain = useRef(chainId);
   useEffect(() => {
-    if (chainId !== initialChain.current) close();
+    if (chainId !== initialChain.current) closeModal();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId]);
 
@@ -29,7 +47,7 @@ export default function TokenModal({ close, onClick, otherToken, pos }: { close:
       setLoading(true);
       setError(false);
     } else {
-      setLoading(false);
+      closeModal();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dtTokenResponse, datatokens]);
@@ -45,8 +63,8 @@ export default function TokenModal({ close, onClick, otherToken, pos }: { close:
   }, [chainId, ERC20Tokens]);
 
   const tokenRenderer = (idx: number, key: string | number) => {
-    if (datatokens && showDtks) return <TokenModalItem onClick={onClick} key={key} token={datatokens[idx]} />;
-    if (ERC20Tokens && !showDtks) return <TokenModalItem onClick={onClick} key={key} token={ERC20Tokens[idx] as ITokenInfo} />;
+    if (datatokens && showDtks) return <TokenModalItem onClick={tokenSelected} key={key} token={datatokens[idx]}/>;
+    if (ERC20Tokens && !showDtks) return <TokenModalItem onClick={tokenSelected} key={key} token={ERC20Tokens[idx] as ITokenInfo} />;
     return <></>;
   };
 
@@ -62,37 +80,51 @@ export default function TokenModal({ close, onClick, otherToken, pos }: { close:
         setERC20Tokens(filterTokens(ERC20Tokens as ITokenInfo[], val));
       }
     } else if (dtTokenResponse && showDtks) {
-      setDatatokens(formatTokenArray(dtTokenResponse, otherToken, location));
+      setDatatokens(dtTokenResponse.tokens);
     } else if (ERC20TokenResponse && !showDtks) {
       setERC20Tokens(ERC20TokenResponse.tokens);
     }
   };
 
+  function closeModal() {
+    setShowTokenModal(false);
+    setBlurBG(false);
+  }
+
+  const tokenSelected = async (token: ITokenInfo) => {
+    if (!ocean || !accountId) return;
+    const balance = new BigNumber(await ocean?.getBalance(token.address, accountId));
+    let setToken;
+    switch (selectTokenPos) {
+      case 1:
+        setToken = setToken1;
+        break;
+      case 2:
+        setToken = setToken2;
+        break;
+      default:
+        // import token
+        // setImportPool(e.pool?.toLowerCase());
+        break;
+    }
+    if (setToken) setToken({ ...INITIAL_TOKEN_STATE, info: token, balance });
+    closeModal();
+  };
+
   const loader = (
-    <div id="tokenLoadingAni" className="flex h-full justify-center my-4">
+    <div className="w-full h-full flex items-center justify-center">
       <Loader size={40} />
     </div>
   );
 
-  return (
+  return showTokenModal ? (
     <>
-      <OutsideClickHandler
-        onOutsideClick={() => {
-          close();
-        }}
-      >
+      <OutsideClickHandler onOutsideClick={closeModal}>
         <div id="tokenModal" className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  z-30 w-full sm:max-w-sm p-2 md:p-0">
           <div className="hm-box flex flex-col p-2 w-full h-109 bg-background border-primary-500 border rounded-lg">
             <div className="flex justify-between items-center">
               <p className="mb-0 text-gray-100 text-xl pl-2">Select a token</p>
-              <MdClose
-                id="closeTokenModalBtn"
-                role="button"
-                onClick={() => {
-                  close();
-                }}
-                className="text-gray-100 text-2xl"
-              />
+              <MdClose id="closeTokenModalBtn" role="button" onClick={closeModal} className="text-gray-100 text-2xl" />
             </div>
             <div className="mt-2">
               <input
@@ -103,7 +135,7 @@ export default function TokenModal({ close, onClick, otherToken, pos }: { close:
                 className="px-4 py-2 h-full w-full rounded-lg bg-primary-900 text-base outline-none focus:placeholder-gray-200 placeholder-gray-400"
               />
             </div>
-            {(location === "/stake" && pos === 2) || location === "/stake/list" ? (
+            {(location === "/stake" && selectTokenPos === 2) || location === "/stake/list" ? (
               <></>
             ) : (
               <div className="w-full px-2 mt-2">
@@ -140,7 +172,7 @@ export default function TokenModal({ close, onClick, otherToken, pos }: { close:
                 </div>
                 <ul className="flex flex-wrap w-full">
                   {commons.map((token, index) => (
-                    <CommonToken onClick={onClick} index={index} token={token} />
+                    <CommonToken index={index} token={token} onClick={tokenSelected} />
                   ))}
                 </ul>
                 <div className="mt-2 hm-hide-scrollbar overflow-y-scroll bg-trade-darkBlue rounded-lg border border-gray-700" id="tokenList">
@@ -154,5 +186,7 @@ export default function TokenModal({ close, onClick, otherToken, pos }: { close:
         </div>
       </OutsideClickHandler>
     </>
+  ) : (
+    <></>
   );
 }

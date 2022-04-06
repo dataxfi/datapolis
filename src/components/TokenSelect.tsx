@@ -13,11 +13,9 @@ import { TokenSelectTitles } from "../utils/types";
 import MaxToolTip from "./MaxToolTip";
 
 export default function TokenSelect({
-  setToken,
   token,
   pos,
   updateNum,
-  otherToken,
   onPerc = () => {},
   onMax = () => {},
   max,
@@ -31,8 +29,7 @@ export default function TokenSelect({
   onMax?: Function;
   max: BigNumber;
 }) {
-  const [showModal, setShowModal] = useState(false);
-  const { accountId, handleConnect, tokensCleared, location, config, ocean, setBlurBG } = useContext(GlobalContext);
+  const { accountId, handleConnect, tokensCleared, location, config, ocean, setBlurBG, setSelectTokenPos, setShowTokenModal, selectTokenPos } = useContext(GlobalContext);
   const [enabled, setEndabled] = useState(false);
   const [title, setTitle] = useState<TokenSelectTitles>();
 
@@ -62,17 +59,16 @@ export default function TokenSelect({
     }
   }, [location, setTitle, pos]);
 
-  const tokenSelected = async (info: ITokenInfo) => {
-    if (!ocean || !accountId) return;
-    const balance = new BigNumber(await ocean?.getBalance(info.address, accountId));
-    if (setToken) setToken({ ...INITIAL_TOKEN_STATE, info, balance });
-    setShowModal(false);
-  };
+ useEffect(()=>{
+  console.log("token being selected", selectTokenPos);
+  
+ }, [selectTokenPos])
 
   function connectWalletOrShowlist() {
     if (accountId) {
-      setShowModal(true);
+      setShowTokenModal(true);
       setBlurBG(true);
+      setSelectTokenPos(pos);
     } else {
       if (handleConnect) handleConnect();
     }
@@ -213,19 +209,6 @@ export default function TokenSelect({
           </div>
         )}
       </div>
-      {showModal ? (
-        <TokenModal
-          onClick={tokenSelected}
-          close={() => {
-            setBlurBG(false);
-            setShowModal(false);
-          }}
-          otherToken={otherToken}
-          pos={pos}
-        />
-      ) : (
-        <></>
-      )}
     </div>
   );
 }

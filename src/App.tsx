@@ -18,11 +18,12 @@ import LandingPage from "./components/LandingPage";
 import WatchLocation from "./components/WatchLocation";
 import useTxHistory from "./hooks/useTxHistory";
 import useTokenDesc from "./hooks/useTokenDesc";
+import TokenModal from "./components/TokenModal";
 BigNumber.config({ DECIMAL_PLACES: 18, ROUNDING_MODE: BigNumber.ROUND_DOWN, EXPONENTIAL_AT: 18 });
 
 //import "./stars.css"
 function App() {
-  const { unsupportedNet, showDisclaimer, cookiesAllowed, location, bgOff, blurBG } = useContext(GlobalContext);
+  const { unsupportedNet, showDisclaimer, cookiesAllowed, location, bgOff, blurBG, showTokenModal } = useContext(GlobalContext);
 
   document.getElementById("loader");
   useTxHistory();
@@ -45,7 +46,7 @@ function App() {
   return (
     <div className="w-full h-full relative">
       <div
-        className={`w-full h-full ${blurBG? "blur-sm" : "blur-none"} ${
+        className={`w-full h-full ${blurBG ? "blur-xs" : "blur-none"} ${
           bgOff
             ? ""
             : location === "/trade"
@@ -55,7 +56,7 @@ function App() {
             : ""
         }`}
       >
-        <div className={`min-h-full relative overflow-hidden w-full ${blurBG? "bg-black bg-opacity-40": ""}`}>
+        <div className={`min-h-full relative overflow-hidden w-full ${blurBG ? "bg-black bg-opacity-40" : ""}`}>
           {unsupportedNet ? (
             <UnsupportedNetwork />
           ) : (
@@ -72,12 +73,13 @@ function App() {
             </Router>
           )}
         </div>
-      {location !== "/" ? <Footer /> : null}
+        {location !== "/" ? <Footer /> : null}
       </div>
       {cookiesAllowed === null ? <CookiesModal /> : null}
       {showDisclaimer ? <DisclaimerModal /> : null}
       <SnackbarArea />
       <TxHistoryModal />
+      <TokenModal />
     </div>
   );
 }

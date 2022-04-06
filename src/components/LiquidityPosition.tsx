@@ -2,18 +2,15 @@ import { useContext, useEffect, useState } from "react";
 import { GlobalContext } from "../context/GlobalState";
 import LiquidityPositionItem from "./LiquidityPositionItem";
 import UserMessage from "./UserMessage";
-import TokenModal from "./TokenModal";
 import { MoonLoader } from "react-spinners";
 import { IUserMessage, ILiquidityPosition } from "../utils/types";
 import useLiquidityPos from "../hooks/useLiquidityPos";
-import { ITokenInfo } from "@dataxfi/datax.js";
 
 export default function LiquidityPosition() {
-  const { accountId, allStakedPools } = useContext(GlobalContext);
+  const { accountId, allStakedPools, setShowTokenModal } = useContext(GlobalContext);
   const [userMessage, setUserMessage] = useState<string | IUserMessage | null>(
     "Dont see your tokens? Import a pool by name with the import button below."
   );
-  const [showModal, setShowModal] = useState<boolean>(false);
   const [messageId, setMessageId] = useState<string | null>("importMessage");
   const [importPool, setImportPool] = useState<string>();
   useLiquidityPos(importPool, setImportPool);
@@ -60,18 +57,6 @@ export default function LiquidityPosition() {
               ))}
             </ul>
           )}
-          {showModal ? (
-            <TokenModal
-              onClick={(e: ITokenInfo) => {
-                setShowModal(false);
-                setImportPool(e.pool?.toLowerCase());
-              }}
-              close={() => setShowModal(false)}
-              otherToken="OCEAN"
-            />
-          ) : (
-            <></>
-          )}
 
           <div className="w-full flex justify-center">
             <div className="w-full pr-1">
@@ -80,7 +65,7 @@ export default function LiquidityPosition() {
                 title="Import your stake information."
                 disabled={accountId ? false : true}
                 onClick={() => {
-                  setShowModal(true);
+                  setShowTokenModal(true);
                 }}
                 className={`p-2 w-full mt-2 txButton rounded-lg ${accountId ? "" : "cursor-not-allowed"}`}
               >

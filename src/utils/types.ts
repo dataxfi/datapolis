@@ -27,12 +27,7 @@ export interface IPoolLiquidity {
   oceanAmount: BigNumber;
 }
 
-export type TokenSelectTitles =
-  | "You are buying"
-  | "You are selling"
-  | "Datatoken pool"
-  | "You are staking"
-  | "You will receive";
+export type TokenSelectTitles = "You are buying" | "You are selling" | "Datatoken pool" | "You are staking" | "You will receive";
 
 export interface IUserMessage {
   message?: any;
@@ -175,6 +170,10 @@ export interface globalStates {
   setShowDescModal: React.Dispatch<React.SetStateAction<boolean>>;
   t2DIDResponse: any;
   setT2DIDResponse: React.Dispatch<React.SetStateAction<any>>;
-  blurBG: boolean
-  setBlurBG: React.Dispatch<React.SetStateAction<boolean>>
+  blurBG: boolean;
+  setBlurBG: React.Dispatch<React.SetStateAction<boolean>>;
+  showTokenModal: boolean;
+  setShowTokenModal: React.Dispatch<React.SetStateAction<boolean>>;
+  selectTokenPos: 1 | 2 | null
+  setSelectTokenPos: React.Dispatch<React.SetStateAction<1 | 2 | null>>
 }

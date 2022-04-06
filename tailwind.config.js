@@ -32,11 +32,9 @@ module.exports = {
       xs: "50px",
     },
     extend: {
-      extend: {
         blur: {
           xs: "2px",
         },
-      },
       border: {
         6: "6px",
       },
