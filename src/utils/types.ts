@@ -86,6 +86,7 @@ export interface ITxDetails {
   slippage?: BigNumber;
   shares?: BigNumber;
   txReceipt?: TransactionReceipt;
+  postExchange?: BigNumber;
 }
 
 export interface ITxHistory {
@@ -111,7 +112,6 @@ export interface globalStates {
   chainId?: supportedChains;
   provider?: Web3Modal;
   web3?: Web3;
-  network: string;
   config?: Config;
   unsupportedNet: boolean;
   handleSignature: Function;
@@ -151,8 +151,6 @@ export interface globalStates {
   setShowConfirmModal: React.Dispatch<React.SetStateAction<boolean>>;
   showTxDone: boolean;
   setShowTxDone: React.Dispatch<React.SetStateAction<boolean>>;
-  stakeFetchTimeout: boolean;
-  setStakeFetchTimeout: React.Dispatch<React.SetStateAction<boolean>>;
   showUnlockTokenModal: boolean;
   setShowUnlockTokenModal: React.Dispatch<React.SetStateAction<boolean>>;
   location: string;
@@ -174,6 +172,18 @@ export interface globalStates {
   setBlurBG: React.Dispatch<React.SetStateAction<boolean>>;
   showTokenModal: boolean;
   setShowTokenModal: React.Dispatch<React.SetStateAction<boolean>>;
-  selectTokenPos: 1 | 2 | null
-  setSelectTokenPos: React.Dispatch<React.SetStateAction<1 | 2 | null>>
+  selectTokenPos: 1 | 2 | null;
+  setSelectTokenPos: React.Dispatch<React.SetStateAction<1 | 2 | null>>;
+  showConfirmTxDetails: boolean;
+  setShowConfirmTxDetails: React.Dispatch<React.SetStateAction<boolean>>;
+  preTxDetails?: ITxDetails;
+  setPreTxDetails: React.Dispatch<React.SetStateAction<ITxDetails | undefined>>;
+  swapConfirmed: boolean;
+  setSwapConfirmed: React.Dispatch<React.SetStateAction<boolean>>;
+  executeSwap: boolean;
+  setExecuteSwap: React.Dispatch<React.SetStateAction<boolean>>;
+  executeStake: boolean;
+  setExecuteStake: React.Dispatch<React.SetStateAction<boolean>>;
+  executeUnstake: boolean;
+  setExecuteUnstake: React.Dispatch<React.SetStateAction<boolean>>;
 }

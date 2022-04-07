@@ -16,7 +16,7 @@ const Navbar = () => {
     { name: text.T_STAKE, link: "/stake" },
   ];
 
-  const { buttonText, config, chainId, accountId, setShowTxHistoryModal, handleConnect, setBlurBG } = useContext(GlobalContext);
+  const { buttonText, config, chainId, accountId, setShowTxHistoryModal, handleConnect, setBlurBG, location } = useContext(GlobalContext);
 
   function truncateId() {
     if (!buttonText) return;
@@ -28,22 +28,26 @@ const Navbar = () => {
       let network = config.getNetwork(String(chainId));
       if (network !== "unknown") {
         network = network.charAt(0).toUpperCase() + network.slice(1);
-        return <p>{network}</p> ;
+        return <p>{network}</p>;
       }
     }
-    return <p><span className="text-xs mr-1">⚠</span>Unknown</p>
+    return (
+      <p>
+        <span className="text-xs mr-1">⚠</span>Unknown
+      </p>
+    );
   }
 
   function handleModalOrConnect() {
     if (accountId) {
-      setBlurBG(true)
+      setBlurBG(true);
       setShowTxHistoryModal(true);
     } else {
       handleConnect();
     }
   }
 
-  return (
+  return location !== "/" ? (
     <nav className="z-20 absolute top-0 w-full">
       {/* Separating the UI logic because figuring out code reuse here will take more time. 
             i.e. It's not a simple cascade of columns to rows. There is a toggle and the connect to wallet 
@@ -51,6 +55,8 @@ const Navbar = () => {
       <MobileNavbar links={links} text={text} wallet={walletText} truncateId={truncateId} network={getNetName()} handleModalOrConnect={handleModalOrConnect} />
       <DesktopNavbar links={links} text={text} wallet={walletText} truncateId={truncateId} network={getNetName()} handleModalOrConnect={handleModalOrConnect} />
     </nav>
+  ) : (
+    <></>
   );
 };
 

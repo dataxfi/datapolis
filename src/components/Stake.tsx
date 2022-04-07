@@ -31,10 +31,7 @@ export default function Stake() {
     accountId,
     chainId,
     handleConnect,
-    showConfirmModal,
     setShowConfirmModal,
-    showTxDone,
-    setShowTxDone,
     setShowUnlockTokenModal,
     token2,
     setToken2,
@@ -43,15 +40,17 @@ export default function Stake() {
     setLastTx,
     lastTx,
     tokensCleared,
-    showUnlockTokenModal,
     setSnackbarItem,
     showDescModal,
+    preTxDetails,
+    setPreTxDetails,
+    executeStake,
+    setExecuteStake,
   } = useContext(GlobalContext);
 
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
   const [loading, setLoading] = useState(false);
   const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
-  const [recentTxHash, setRecentTxHash] = useState("");
   const [importPool, setImportPool] = useState<string>();
 
   //hooks
@@ -114,6 +113,37 @@ export default function Stake() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId, ocean, chainId, token2, token1.value, token1.balance, loading, token1.info, lastTx?.status]);
 
+  useEffect(() => {
+    if (!executeStake) return;
+    if (!accountId) {
+      handleConnect();
+    } else if (token1.allowance?.lt(token1.value)) {
+      const preTxDetails: ITxDetails = {
+        accountId,
+        status: "Pending",
+        token1,
+        token2,
+        txDateId: Date.now().toString(),
+        txType: "approve",
+      };
+      console.log(token1);
+      setLastTx(preTxDetails);
+      setShowUnlockTokenModal(true);
+    } else {
+      setShowConfirmModal(true);
+      const preTxDetails: ITxDetails = {
+        accountId,
+        status: "Pending",
+        token1,
+        token2,
+        txDateId: Date.now().toString(),
+        txType: "stake",
+      };
+      setPreTxDetails(preTxDetails);
+      stake(preTxDetails);
+    }
+  }, [executeStake, token1.allowance]);
+
   async function getMaxStakeAmt() {
     if (token2.info && ocean) return new BigNumber(await ocean.getMaxStakeAmount(token2.info.pool || "", ocean.config.default.oceanTokenAddress)).dp(5);
   }
@@ -156,7 +186,7 @@ export default function Stake() {
       .catch(console.error);
   }
 
-  async function executeStake(preTxDetails: ITxDetails) {
+  async function stake(preTxDetails: ITxDetails) {
     if (!token2.info || !chainId || !ocean || !accountId || !token1.info?.pool) return;
     try {
       setLoading(true);
@@ -171,7 +201,6 @@ export default function Stake() {
         if (token2.info) {
           setImportPool(token2.info.pool);
         }
-        setRecentTxHash(ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash);
         setShowConfirmModal(false);
       } else {
         throw new Error("Didn't receive a receipt.");
@@ -263,43 +292,7 @@ export default function Stake() {
                 onMax={setMaxStake}
               />
               <PositionBox loading={loading} setLoading={setLoading} />
-              <button
-                id="executeStake"
-                onClick={() => {
-                  if (btnProps.text === "Connect wallet" || !accountId) {
-                    handleConnect();
-                  } else {
-                    if (token1.allowance?.lt(token1.value)) {
-                      const preTxDetails: ITxDetails = {
-                        accountId,
-                        status: "Pending",
-                        token1,
-                        token2,
-                        txDateId: Date.now().toString(),
-                        txType: "approve",
-                      };
-                      console.log(token1);
-                      setLastTx(preTxDetails);
-                      setShowUnlockTokenModal(true);
-                    } else {
-                      setShowConfirmModal(true);
-                      const preTxDetails: ITxDetails = {
-                        accountId,
-                        status: "Pending",
-                        token1,
-                        token2,
-                        txDateId: Date.now().toString(),
-                        txType: "stake",
-                      };
-
-                      setLastTx(preTxDetails);
-                      executeStake(preTxDetails);
-                    }
-                  }
-                }}
-                className="txButton mt-3"
-                disabled={btnProps.disabled}
-              >
+              <button id="executeStake" onClick={() => setExecuteStake(true)} className="txButton mt-3" disabled={btnProps.disabled}>
                 {btnProps.text}
               </button>
             </div>
@@ -311,45 +304,6 @@ export default function Stake() {
             </div>
           </div>
         </div>
-
-        {showUnlockTokenModal ? (
-          <UnlockTokenModal
-            nextFunction={() => {
-              setShowConfirmModal(true);
-              if (!accountId) return;
-              const preTxDetails: ITxDetails = {
-                accountId,
-                status: "Pending",
-                token1,
-                token2,
-                txDateId: Date.now().toString(),
-                txType: "stake",
-              };
-              setLastTx(preTxDetails);
-              executeStake(preTxDetails);
-            }}
-          />
-        ) : (
-          <></>
-        )}
-
-        <ConfirmModal
-          show={showConfirmModal ? showConfirmModal : false}
-          close={() => {
-            setShowConfirmModal(false);
-          }}
-          txs={token2.info ? [`Stake ${token1.value?.toString()} OCEAN in ${token2.info.symbol} pool`] : []}
-        />
-
-        <TransactionDoneModal
-          show={showTxDone ? showTxDone : false}
-          txHash={recentTxHash}
-          close={() => {
-            setShowTxDone(false);
-            setToken2(INITIAL_TOKEN_STATE);
-            setToken1({ ...token1, value: new BigNumber(0) });
-          }}
-        />
       </div>
     </>
   );

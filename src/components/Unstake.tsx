@@ -2,23 +2,19 @@ import { useContext, useEffect, useState } from "react";
 import { BsArrowDown } from "react-icons/bs";
 import { Link } from "react-router-dom";
 import { GlobalContext } from "../context/GlobalState";
-import Button from "./Button";
-import ConfirmModal from "./ConfirmModal";
-import TransactionDoneModal from "./TransactionDoneModal";
 import UserMessage from "./UserMessage";
 import { MoonLoader, PulseLoader } from "react-spinners";
 import { DebounceInput } from "react-debounce-input";
 import useLiquidityPos from "../hooks/useLiquidityPos";
 import BigNumber from "bignumber.js";
 import WrappedInput from "./WrappedInput";
-import UnlockTokenModal from "./UnlockTokenModal";
 import { getAllowance } from "../hooks/useTokenList";
 import { ITxDetails } from "../utils/types";
 import useAutoLoadToken from "../hooks/useAutoLoadToken";
 import TokenSelect from "./TokenSelect";
 import { IMaxUnstake } from "@dataxfi/datax.js";
 import MaxToolTip from "./MaxToolTip";
-import { boughtAmountGA, soldAmountGA, transactionTypeGA, unstakeAmountGA } from "../context/Analytics";
+import { transactionTypeGA, unstakeAmountGA } from "../context/Analytics";
 
 export default function Unstake() {
   const {
@@ -26,9 +22,7 @@ export default function Unstake() {
     accountId,
     singleLiquidityPos,
     ocean,
-    showConfirmModal,
     setShowConfirmModal,
-    showTxDone,
     setShowTxDone,
     setShowUnlockTokenModal,
     token1,
@@ -37,8 +31,10 @@ export default function Unstake() {
     setLastTx,
     lastTx,
     setSingleLiquidityPos,
-    showUnlockTokenModal,
     setSnackbarItem,
+    setBlurBG,
+    setExecuteUnstake,
+    executeUnstake,
   } = useContext(GlobalContext);
   const [recentTxHash, setRecentTxHash] = useState("");
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
@@ -137,6 +133,36 @@ export default function Unstake() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token1.value, lastTx, singleLiquidityPos, maxUnstake, token1.allowance, token1.info, token2.info, ocean]);
 
+  useEffect(() => {
+    if (!accountId || !token1 || !token2 || !executeUnstake) return;
+    if (token1.allowance?.lt(token1.value)) {
+      setLastTx({
+        txDateId: Date.now().toString(),
+        accountId,
+        status: "Pending",
+        token1,
+        token2,
+        txType: "approve",
+        shares,
+      });
+
+      setShowUnlockTokenModal(true);
+      setBlurBG(true);
+    } else {
+      setShowConfirmModal(true);
+      handleUnstake({
+        txDateId: Date.now().toString(),
+        accountId,
+        status: "Pending",
+        token1,
+        token2,
+        txType: "unstake",
+        shares,
+      });
+      setBlurBG(true);
+    }
+  }, [executeUnstake]);
+
   const updateNum = async (val: string) => {
     setCalculating(true);
     if (val === "") val = "0";
@@ -224,8 +250,8 @@ export default function Unstake() {
     }
   }
 
-  const handleUnstake = async (preTxDetails: ITxDetails) => {
-    if (!chainId || !singleLiquidityPos || !ocean || !accountId) return;
+  async function handleUnstake(preTxDetails: ITxDetails) {
+    if (!chainId || !singleLiquidityPos || !ocean || !accountId || !preTxDetails) return;
 
     setShowConfirmModal(true);
     console.log(`Unstaking from pool ${singleLiquidityPos.address}, ${singleLiquidityPos.shares} shares for ${token1.value?.toFixed(5)} OCEAN`);
@@ -254,7 +280,8 @@ export default function Unstake() {
 
     setShares(new BigNumber(0));
     setToken1({ ...token1, value: new BigNumber(0), percentage: new BigNumber(0) });
-  };
+  }
+
   return (
     <div className="absolute top-0 w-full h-full">
       {!accountId ? (
@@ -307,7 +334,7 @@ export default function Unstake() {
                           : "Shares: < 0.001"
                         : ". . ."}
                     </p>
-                    <div className="text-sm text-gray-300 grid grid-flow-col justify-end gap-2">
+                    <div className="text-sm text-gray-300 grid grid-flow-col justify-end gap-2 items-center">
                       <MaxToolTip />
                       <button
                         id="maxUnstakeBtn"
@@ -316,7 +343,9 @@ export default function Unstake() {
                         }}
                         disabled={inputDisabled}
                         className="btn-dark btn-sm rounded-full text-xs"
-                      >Max</button>
+                      >
+                        Max
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -326,46 +355,10 @@ export default function Unstake() {
                   {calculating ? <MoonLoader size={25} color={"white"} /> : <BsArrowDown size="30px" className="text-gray-300 m-0 p-0" />}
                 </div>
               </div>
-
               <TokenSelect max={maxUnstake.OCEAN} otherToken={token2.info.symbol} pos={1} setToken={setToken1} token={token1} updateNum={updateNum} />
               <div className="flex mt-4">
                 {/* <div className="bg-gradient"></div> */}
-                <button
-                  id="executeUnstake"
-                  onClick={() => {
-                    if (!accountId || !token1 || !token2) return;
-
-                    if (token1.allowance?.lt(token1.value)) {
-                      const preTxDetails: ITxDetails = {
-                        txDateId: Date.now().toString(),
-                        accountId,
-                        status: "Pending",
-                        token1,
-                        token2,
-                        txType: "approve",
-                        shares,
-                      };
-                      setLastTx(preTxDetails);
-                      setShowUnlockTokenModal(true);
-                    } else {
-                      const preTxDetails: ITxDetails = {
-                        txDateId: Date.now().toString(),
-                        accountId,
-                        status: "Pending",
-                        token1,
-                        token2,
-                        txType: "unstake",
-                        shares,
-                      };
-
-                      setLastTx(preTxDetails);
-                      setShowConfirmModal(true);
-                      handleUnstake(preTxDetails);
-                    }
-                  }}
-                  className="txButton"
-                  disabled={btnDisabled}
-                >
+                <button id="executeUnstake" onClick={() => setExecuteUnstake(true)} className="txButton" disabled={btnDisabled}>
                   {btnText}
                 </button>
               </div>
@@ -380,44 +373,6 @@ export default function Unstake() {
       ) : (
         <></>
       )}
-
-      {singleLiquidityPos && showUnlockTokenModal ? (
-        <UnlockTokenModal
-          nextFunction={() => {
-            if (setShowConfirmModal) setShowConfirmModal(true);
-            if (!accountId) return;
-            const preTxDetails: ITxDetails = {
-              txDateId: Date.now().toString(),
-              accountId,
-              status: "Pending",
-              token1,
-              token2,
-              txType: "unstake",
-              shares,
-            };
-
-            setLastTx(preTxDetails);
-            handleUnstake(preTxDetails);
-          }}
-        />
-      ) : (
-        <></>
-      )}
-
-      <ConfirmModal
-        show={showConfirmModal ? showConfirmModal : false}
-        close={() => {
-          if (setShowConfirmModal) setShowConfirmModal(false);
-        }}
-        txs={singleLiquidityPos && token1.value && token1.value ? [`Unstake ${token1.value.dp(5).toString()} ${token1.info?.symbol} from the ${token2.info?.symbol} pool.`] : []}
-      />
-      <TransactionDoneModal
-        show={showTxDone ? showTxDone : false}
-        txHash={recentTxHash}
-        close={() => {
-          if (setShowTxDone) setShowTxDone(false);
-        }}
-      />
     </div>
   );
 }

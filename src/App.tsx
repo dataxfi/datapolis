@@ -1,29 +1,33 @@
-import Navbar from "./components/Navbar";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Swap from "./components/Swap";
-import Stake from "./components/Stake";
-import LiquidityPosition from "./components/LiquidityPosition";
-import CookiesModal from "./components/CookiesModal";
-import Unstake from "./components/Unstake";
 import { useEffect, useContext } from "react";
 import { initializeGA } from "./context/Analytics";
-import UnsupportedNetwork from "./components/UnsupportedNetwork";
 import { GlobalContext } from "./context/GlobalState";
+import TransactionDoneModal from "./components/TransactionDoneModal";
+import ConfirmTxDetailsModal from "./components/ConfirmTxDetailsModal";
+import UnsupportedNetwork from "./components/UnsupportedNetwork";
+import LiquidityPosition from "./components/LiquidityPosition";
+import UnlockTokenModal from "./components/UnlockTokenModal";
 import DisclaimerModal from "./components/DisclaimerModal";
 import TxHistoryModal from "./components/TxHistoryModal";
-import Footer from "./components/Footer";
-import SnackbarArea from "./components/SnackbarArea";
-import BigNumber from "bignumber.js";
-import LandingPage from "./components/LandingPage";
 import WatchLocation from "./components/WatchLocation";
+import CookiesModal from "./components/CookiesModal";
+import SnackbarArea from "./components/SnackbarArea";
+import ConfirmModal from "./components/ConfirmModal";
 import useTxHistory from "./hooks/useTxHistory";
 import useTokenDesc from "./hooks/useTokenDesc";
+import LandingPage from "./components/LandingPage";
 import TokenModal from "./components/TokenModal";
+import BigNumber from "bignumber.js";
+import Unstake from "./components/Unstake";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import Stake from "./components/Stake";
+import Swap from "./components/Swap";
+
 BigNumber.config({ DECIMAL_PLACES: 18, ROUNDING_MODE: BigNumber.ROUND_DOWN, EXPONENTIAL_AT: 18 });
 
-//import "./stars.css"
 function App() {
-  const { unsupportedNet, showDisclaimer, cookiesAllowed, location, bgOff, blurBG, showTokenModal } = useContext(GlobalContext);
+  const { unsupportedNet, cookiesAllowed, location, bgOff, blurBG } = useContext(GlobalContext);
 
   document.getElementById("loader");
   useTxHistory();
@@ -62,7 +66,7 @@ function App() {
           ) : (
             <Router>
               <WatchLocation />
-              {location !== "/" ? <Navbar /> : null}
+              <Navbar />
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/trade" element={<Swap />} />
@@ -73,13 +77,17 @@ function App() {
             </Router>
           )}
         </div>
-        {location !== "/" ? <Footer /> : null}
+        <Footer />
       </div>
-      {cookiesAllowed === null ? <CookiesModal /> : null}
-      {showDisclaimer ? <DisclaimerModal /> : null}
+      <UnlockTokenModal />
+      <CookiesModal />
+      <DisclaimerModal />
       <SnackbarArea />
       <TxHistoryModal />
       <TokenModal />
+      <ConfirmModal />
+      <TransactionDoneModal />
+      <ConfirmTxDetailsModal />
     </div>
   );
 }

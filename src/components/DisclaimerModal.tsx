@@ -20,8 +20,7 @@ export const Disclaimer = (): string => {
 };
 
 function DisclaimerModal() {
-  const { setDisclaimerSigned, disclaimerSigned, setShowDisclaimer, handleSignature, setBlurBG} =
-    useContext(GlobalContext);
+  const { setDisclaimerSigned, disclaimerSigned, setShowDisclaimer, handleSignature, setBlurBG, showDisclaimer } = useContext(GlobalContext);
   const [showReminder, setShowReminder] = useState(false);
 
   useEffect(() => {
@@ -29,35 +28,35 @@ function DisclaimerModal() {
   }, []);
 
   async function approvedDisclaimer() {
-    if(!setShowDisclaimer || ! setDisclaimerSigned) return
-    if ((!disclaimerSigned?.client || disclaimerSigned.client === "denied")&& handleSignature) {
+    if (!setShowDisclaimer || !setDisclaimerSigned) return;
+    if ((!disclaimerSigned?.client || disclaimerSigned.client === "denied") && handleSignature) {
       setDisclaimerSigned({ ...disclaimerSigned, client: true });
       await handleSignature().then((res: string) => {
         console.log(res);
-        
+
         if (!res) {
           setShowReminder(false);
           setDisclaimerSigned({ client: "denied", wallet: "denied" });
-          setShowDisclaimer(false)
-          setBlurBG(false)
+          setShowDisclaimer(false);
+          setBlurBG(false);
         }
       });
     } else {
       console.log(53646);
-      
+
       setShowReminder(true);
     }
   }
 
   function deniedDisclaimer() {
-    if(!setShowDisclaimer || ! setDisclaimerSigned) return
+    if (!setShowDisclaimer || !setDisclaimerSigned) return;
     setShowDisclaimer(false);
     setShowReminder(false);
-    setBlurBG(false)
+    setBlurBG(false);
     setDisclaimerSigned({ client: "denied", wallet: false });
   }
 
-  return (
+  return showDisclaimer ? (
     <div id="disclaimer-modal" className="absolute w-full h-full max-h-full z-10 overflow-hidden py-18 px-4">
       <div className="h-102 md:h-full max-w-2xl m-auto bg-black bg-opacity-80 w-full rounded-lg hm-box flex flex-col p-1 sm:p-4 md:px-10 py-4">
         <h2 className="md:text-2xl text-xl self-center mb-2">Disclaimer</h2>
@@ -65,22 +64,13 @@ function DisclaimerModal() {
           <p className="whitespace-pre-wrap p-2 text-xs md:text-sm">{Disclaimer()}</p>
         </div>
         <p className="text-primary-400 my-3 text-xs md:text-sm">
-          Please sign this disclaimer to connect to your wallet. Your wallet will ask for your signature regarding the
-          same disclaimer.
+          Please sign this disclaimer to connect to your wallet. Your wallet will ask for your signature regarding the same disclaimer.
         </p>
         <div className="flex flex-row w-full">
-          <button
-            id="deny-disclaimer-btn"
-            className="w-1/2 text-xs sm:text-sm p-3 mr-1 rounded-lg txButton"
-            onClick={deniedDisclaimer}
-          >
+          <button id="deny-disclaimer-btn" className="w-1/2 text-xs sm:text-sm p-3 mr-1 rounded-lg txButton" onClick={deniedDisclaimer}>
             Cancel
           </button>
-          <button
-            id="sign-disclaimer-btn"
-            className="w-1/2 text-xs sm:text-sm p-3 ml-1 rounded-lg txButton"
-            onClick={approvedDisclaimer}
-          >
+          <button id="sign-disclaimer-btn" className="w-1/2 text-xs sm:text-sm p-3 ml-1 rounded-lg txButton" onClick={approvedDisclaimer}>
             Agree
           </button>
         </div>
@@ -91,6 +81,8 @@ function DisclaimerModal() {
         ) : null}
       </div>
     </div>
+  ) : (
+    <></>
   );
 }
 

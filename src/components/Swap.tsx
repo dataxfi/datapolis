@@ -5,12 +5,8 @@ import { useState, useContext, useEffect } from "react";
 import { GlobalContext } from "../context/GlobalState";
 import Button from "./Button";
 import OutsideClickHandler from "react-outside-click-handler";
-import ConfirmSwapModal from "./ConfirmSwapModal";
-import ConfirmModal from "./ConfirmModal";
-import TransactionDoneModal from "./TransactionDoneModal";
 import { MoonLoader } from "react-spinners";
 import BigNumber from "bignumber.js";
-import UnlockTokenModal from "./UnlockTokenModal";
 import { getAllowance } from "../hooks/useTokenList";
 import { IBtnProps, ITxDetails } from "../utils/types";
 import { IMaxExchange } from "@dataxfi/datax.js";
@@ -32,10 +28,6 @@ export default function Swap() {
     ocean,
     chainId,
     config,
-    showConfirmModal,
-    setShowConfirmModal,
-    showTxDone,
-    setShowTxDone,
     setShowUnlockTokenModal,
     token1,
     setToken1,
@@ -44,14 +36,17 @@ export default function Swap() {
     setLastTx,
     lastTx,
     tokensCleared,
-    showUnlockTokenModal,
     setSnackbarItem,
     showDescModal,
-    blurBG,
+    setShowConfirmTxDetails,
+    setPreTxDetails,
+    setBlurBG,
+    executeSwap,
+    setExecuteSwap,
+    swapConfirmed,
+    preTxDetails,
   } = useContext(GlobalContext);
   const [showSettings, setShowSettings] = useState(false);
-  const [showConfirmSwapModal, setShowConfirmSwapModal] = useState(false);
-  const [lastTxUrl, setLastTxUrl] = useState("");
   const [exactToken, setExactToken] = useState<number>(1);
   const [postExchange, setPostExchange] = useState<BigNumber>(new BigNumber(0));
   const [slippage, setSlippage] = useState<BigNumber>(new BigNumber(1));
@@ -150,6 +145,41 @@ export default function Swap() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token1.info, token2.info, ocean, accountId]);
 
+  useEffect(() => {
+    if (!accountId) handleConnect();
+    if (!executeSwap || !token1.info || !token1.info || !accountId) return;
+    if (token1.allowance && token1.value > token1.allowance) {
+      setLastTx({
+        accountId,
+        status: "Pending",
+        token1,
+        token2,
+        txDateId: Date.now().toString(),
+        txType: "approve",
+        slippage,
+        postExchange,
+      });
+      setShowUnlockTokenModal(true);
+      setBlurBG(true);
+    }
+    if (!swapConfirmed) {
+      setPreTxDetails({
+        accountId,
+        status: "Pending",
+        token1,
+        token2,
+        txDateId: Date.now().toString(),
+        txType: "trade",
+        slippage,
+        postExchange,
+      });
+      setShowConfirmTxDetails(true);
+      setBlurBG(true);
+    } else {
+      swap();
+    }
+  }, [swapConfirmed, executeSwap, token1.allowance, lastTx]);
+
   async function updateBalance(address: string) {
     if (!ocean || !accountId) return;
     return new BigNumber(await ocean.getBalance(address, accountId));
@@ -198,9 +228,9 @@ export default function Swap() {
     }
   }
 
-  async function makeTheSwap(preTxDetails: ITxDetails) {
+  async function swap() {
     let txReceipt = null;
-
+    if (!preTxDetails || preTxDetails.txType !== "trade") return;
     let decSlippage = slippage.div(100).dp(5);
     if (!chainId || !token2.info || !token1.info || !accountId || !ocean || !config) return;
     try {
@@ -259,7 +289,6 @@ export default function Swap() {
         soldAmountGA(token1.value.dp(5).toString(), token1.info.address);
         boughtAmountGA(token2.value.dp(5).toString(), token2.info.address);
         transactionTypeGA("Trade");
-        setLastTxUrl(config.default.explorerUri + "/tx/" + txReceipt.transactionHash);
         setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
         setPostExchange(new BigNumber(0));
       }
@@ -491,34 +520,7 @@ export default function Swap() {
               )}
 
               <div className="mt-4">
-                <button
-                  id="executeTradeBtn"
-                  onClick={() => {
-                    switch (btnProps.text) {
-                      case "Connect Wallet":
-                        if (handleConnect) handleConnect();
-                        break;
-                      case `Unlock ${token1?.info ? token1.info.symbol : ""}`:
-                        if (!accountId || !slippage) return;
-                        setLastTx({
-                          accountId,
-                          status: "Pending",
-                          token1,
-                          token2,
-                          txDateId: Date.now().toString(),
-                          txType: "approve",
-                          slippage,
-                        });
-                        setShowUnlockTokenModal(true);
-                        break;
-                      default:
-                        setShowConfirmSwapModal(true);
-                        break;
-                    }
-                  }}
-                  className="txButton"
-                  disabled={btnProps.disabled}
-                >
+                <button id="executeTradeBtn" onClick={() => setExecuteSwap(true)} className="txButton" disabled={btnProps.disabled}>
                   {btnProps.text}
                 </button>
               </div>
@@ -526,47 +528,6 @@ export default function Swap() {
           </div>
           <ViewDescBtn />
         </div>
-        {showUnlockTokenModal ? <UnlockTokenModal nextFunction={() => setShowConfirmSwapModal(true)} /> : <></>}
-
-        <ConfirmSwapModal
-          close={() => setShowConfirmSwapModal(false)}
-          confirm={() => {
-            setShowConfirmSwapModal(false);
-            setShowConfirmModal(true);
-            if (!accountId || !slippage) return;
-            const preTxDetails: ITxDetails = {
-              accountId,
-              status: "Pending",
-              token1,
-              token2,
-              txDateId: Date.now().toString(),
-              txType: "trade",
-              slippage,
-            };
-            setLastTx(preTxDetails);
-            if (preTxDetails) makeTheSwap(preTxDetails);
-          }}
-          show={showConfirmSwapModal}
-          postExchange={postExchange}
-          slippage={slippage.dp(0).toString()}
-        />
-        <ConfirmModal
-          show={showConfirmModal ? showConfirmModal : false}
-          close={() => {
-            setShowConfirmModal(false);
-          }}
-          txs={[
-            `Swap ${token1.value.dp(5)} ${token1.info?.symbol} for ${token2.value.dp(5)} 
-      ${token2.info?.symbol}`,
-          ]}
-        />
-        <TransactionDoneModal
-          show={showTxDone ? showTxDone : false}
-          txHash={lastTxUrl}
-          close={() => {
-            if (setShowTxDone) setShowTxDone(false);
-          }}
-        />
       </div>
     </>
   );

@@ -1,27 +1,30 @@
+import { useContext, useEffect, useState } from "react";
 import { BsCheckCircle, BsX } from "react-icons/bs";
 import OutsideClickHandler from "react-outside-click-handler";
+import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
+import BigNumber from "bignumber.js";
 
-const TransactionDoneModal = ({ show, txHash, close }: { show: boolean; txHash: string; close: Function }) => {
-  if (!show) return null;
-  return (
-    <div
-      id="transactionDoneModal"
-      className="fixed center sm:max-w-sm w-full z-20 shadow"
-    >
-      <OutsideClickHandler
-        onOutsideClick={() => {
-          close()
-        }}
-      >
+const TransactionDoneModal = () => {
+  const { showTxDone, setShowTxDone, lastTx, config, location, setToken1, setToken2, token1 } = useContext(GlobalContext);
+  const [lastTxUrl, setLastTxUrl] = useState<string>("");
+
+  useEffect(() => {
+    if (config && lastTx?.txReceipt?.transactionHash) setLastTxUrl(config.default.explorerUri + "/tx/" + lastTx.txReceipt.transactionHash);
+  }, [lastTx?.txReceipt?.transactionHash]);
+
+  function close() {
+    setShowTxDone(false);
+    if (location === "/stake") {
+    setToken2(INITIAL_TOKEN_STATE);
+    //maybe should set this to initial token state since users can stake anything now (used to only be ocean)
+    setToken1({ ...token1, value: new BigNumber(0) })};
+  }
+  return showTxDone ? (
+    <div id="transactionDoneModal" className="fixed center sm:max-w-sm w-full z-20 shadow">
+      <OutsideClickHandler onOutsideClick={close}>
         <div className="bg-black bg-opacity-90 border rounded-lg pb-8 p-4 hm-box mx-3">
           <div className="flex justify-end">
-            <BsX
-              id="transactionDoneModalCloseBtn"
-              onClick={() => close()}
-              size={28}
-              className="text-gray-200"
-              role="button"
-            />
+            <BsX id="transactionDoneModalCloseBtn" onClick={close} size={28} className="text-gray-200" role="button" />
           </div>
 
           <div className="mt-4 flex justify-center">
@@ -30,7 +33,7 @@ const TransactionDoneModal = ({ show, txHash, close }: { show: boolean; txHash: 
           <div>
             <p className="text-center text-gray-100 text-lg">Transaction Processed</p>
             <p className="text-blue-400 text-center mt-1">
-              <a id="transactionLink" target="_blank" rel="noreferrer" className="text-city-blue" href={txHash}>
+              <a id="transactionLink" target="_blank" rel="noreferrer" className="text-city-blue" href={lastTxUrl}>
                 View on explorer
               </a>
             </p>
@@ -38,6 +41,8 @@ const TransactionDoneModal = ({ show, txHash, close }: { show: boolean; txHash: 
         </div>
       </OutsideClickHandler>
     </div>
+  ) : (
+    <></>
   );
 };
 

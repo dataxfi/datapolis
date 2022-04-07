@@ -23,7 +23,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
         <div
           onClick={() => setVisible(!visible)}
           className={`flex justify-between p-2  ${visible ? "rounded-t-lg" : "rounded-lg mb-2"} ${
-            importPool ? "bg-city-blue bg-opacity-10" : "modalSelectBg"
+            true ? "bg-city-blue bg-opacity-10" : "modalSelectBg"
           }  bg-opacity-75 select-none `}
           role="button"
         >

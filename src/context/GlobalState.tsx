@@ -21,8 +21,6 @@ export const INITIAL_TOKEN_STATE: IToken = {
 export const GlobalContext = createContext<globalStates>({} as globalStates);
 
 export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }) => {
-  const NETWORK = "mainnet";
-  // const [state, dispatch]: [any, Function] = useReducer(AppReducer, initialState)
 
   // essential states for connection to web3, user wallet, ocean operations, and DataX configurations
   const [web3Modal, setWeb3Modal] = useState<Core>();
@@ -33,9 +31,22 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [ocean, setOcean] = useState<Ocean>();
   const [config, setConfig] = useState<Config>();
   const [watcher, setWatcher] = useState<Watcher>();
+  
+  // loading state is to be used when the app needs to finish loading before a page can render (i.e. show loading screen)
+  const [loading, setLoading] = useState<boolean>(true);
+  const [location, setLocation] = useState<string>("/");
+  
+  //Modal and notification states
   const [unsupportedNet, setUnsupportedNet] = useState<boolean>(false);
-
-  //states responsible for user info collection
+  const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
+  const [snackbarItem, setSnackbarItem] = useState<ISnackbarItem>();
+  const [showUnlockTokenModal, setShowUnlockTokenModal] = useState<boolean>(false);
+  const [showTokenModal, setShowTokenModal] = useState<boolean>(false);
+  const [showTxHistoryModal, setShowTxHistoryModal] = useState<boolean>(false);
+  const [showDescModal, setShowDescModal] = useState<boolean>(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showConfirmTxDetails, setShowConfirmTxDetails] = useState(false);
+  const [showTxDone, setShowTxDone] = useState(false);
   const [cookiesAllowed, setCookiesAllowed] = useState<boolean | null>(null);
   const [showDisclaimer, setShowDisclaimer] = useState<boolean>(false);
   const [disclaimerSigned, setDisclaimerSigned] = useState<IDisclaimerSigned>({
@@ -43,52 +54,34 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
     wallet: null,
   });
 
-  // loading state is to be used when the app needs to finish loading before a page can render (i.e. show loading screen)
-  const [loading, setLoading] = useState<boolean>(true);
-
-  //array of pending transaction Ids
+  //transaction states
   const [pendingTxs, setPendingTxs] = useState<string[]>([]);
-
-  //Transaction and tx modal states
-  const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
-  const [snackbarItem, setSnackbarItem] = useState<ISnackbarItem>();
-
-  const [showTxHistoryModal, setShowTxHistoryModal] = useState<boolean>(false);
-  //all transaction history
   const [txHistory, setTxHistory] = useState<ITxHistory>();
   const [lastTx, setLastTx] = useState<ITxDetails>();
+  const [preTxDetails, setPreTxDetails] = useState<ITxDetails>();
+  const [executeSwap, setExecuteSwap] = useState<boolean>(false);
+  const [swapConfirmed, setSwapConfirmed] = useState<boolean>(false)
+  const [executeStake, setExecuteStake] = useState<boolean>(false);
+  const [executeUnstake, setExecuteUnstake] = useState<boolean>(false);
 
-  // (user)confirmModal and txDone state for specific transactions
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [showTxDone, setShowTxDone] = useState(false);
-
-  //all stake pool information for the current user
+  //user pool information states
   const [allStakedPools, setAllStakedPools] = useState<ILiquidityPosition[]>();
-  //Pool information associated with pool
   const [singleLiquidityPos, setSingleLiquidityPos] = useState<ILiquidityPosition>();
-  //Stake pool sync timeout
-  const [stakeFetchTimeout, setStakeFetchTimeout] = useState<boolean>(false);
 
-  //tokens to be rendered in token modal
+  //token data states
   const [datatokens, setDatatokens] = useState<ITokenInfo[]>();
-  //datatokens to be rendered in token modal
   const [ERC20Tokens, setERC20Tokens] = useState<ITokenInfo[]>();
-  //current token pair to be traded, staked, etc
-  const [token1, setToken1] = useState<IToken>(INITIAL_TOKEN_STATE);
-  const [token2, setToken2] = useState<IToken>(INITIAL_TOKEN_STATE);
-
-  //response from token fetch operations
   const [ERC20TokenResponse, setERC20TokenResponse] = useState<ITList>();
   const [dtTokenResponse, setDtTokenResponse] = useState<ITList>();
-  const [showDescModal, setShowDescModal] = useState<boolean>(false);
   const [t2DIDResponse, setT2DIDResponse] = useState<any>();
   const [buttonText, setButtonText] = useState<string>(CONNECT_TEXT);
 
-  const [showUnlockTokenModal, setShowUnlockTokenModal] = useState<boolean>(false);
-  const [showTokenModal, setShowTokenModal] = useState<boolean>(false);
+  //selected token states
+  const [token1, setToken1] = useState<IToken>(INITIAL_TOKEN_STATE);
+  const [token2, setToken2] = useState<IToken>(INITIAL_TOKEN_STATE);
   const [selectTokenPos, setSelectTokenPos] = useState<1 | 2 | null>(null);
-  const [location, setLocation] = useState<string>("/");
 
+  //bg states
   const [bgOff, setBgOff] = useState(false);
   const [blurBG, setBlurBG] = useState(false);
 
@@ -341,7 +334,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         provider,
         web3,
         ocean,
-        network: NETWORK,
         config,
         unsupportedNet,
         tokensCleared,
@@ -382,8 +374,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setShowConfirmModal,
         showTxDone,
         setShowTxDone,
-        stakeFetchTimeout,
-        setStakeFetchTimeout,
         showUnlockTokenModal,
         setShowUnlockTokenModal,
         location,
@@ -404,8 +394,20 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setBlurBG,
         showTokenModal,
         setShowTokenModal,
-        selectTokenPos, 
-        setSelectTokenPos
+        selectTokenPos,
+        setSelectTokenPos,
+        showConfirmTxDetails,
+        setShowConfirmTxDetails,
+        preTxDetails,
+        setPreTxDetails,
+        executeSwap,
+        setExecuteSwap,
+        swapConfirmed,
+        setSwapConfirmed,
+        executeStake,
+        setExecuteStake,
+        executeUnstake,
+        setExecuteUnstake,
       }}
     >
       {children}

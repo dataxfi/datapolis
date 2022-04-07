@@ -6,7 +6,7 @@ import BigNumber from "bignumber.js";
 import { getAllowance } from "../hooks/useTokenList";
 import { ApprovalStates } from "../utils/types";
 import OutsideClickHandler from "react-outside-click-handler";
-export default function UnlockTokenModal({ nextFunction }: { nextFunction: Function }) {
+export default function UnlockTokenModal() {
   const {
     accountId,
     config,
@@ -19,11 +19,13 @@ export default function UnlockTokenModal({ nextFunction }: { nextFunction: Funct
     setLastTx,
     setToken1,
     location,
+    showUnlockTokenModal,
   } = useContext(GlobalContext);
   const [approving, setApproving] = useState<ApprovalStates>("pending");
   const [pool, setPool] = useState<string | null>(null);
   const [address, setAddress] = useState<string | null>(null);
   const remove = "/stake/remove";
+
   // Set up the interval.
   useEffect(() => {
     let delay: number | null = 1500;
@@ -36,7 +38,6 @@ export default function UnlockTokenModal({ nextFunction }: { nextFunction: Funct
             const allowance = new BigNumber(res);
             if (allowance.gte(token1.value) && setShowUnlockTokenModal) {
               setShowUnlockTokenModal(false);
-              nextFunction();
               setPool(null);
               setAddress(null);
               delay = null;
@@ -80,24 +81,19 @@ export default function UnlockTokenModal({ nextFunction }: { nextFunction: Funct
         if (lastTx?.txType === "approve") {
           setLastTx({ ...lastTx, txReceipt, status: "Indexing" });
         }
-
         setApproving("approved");
         setPool(pool);
         setAddress(address);
       } catch (error: any) {
-        if(lastTx)
-        setLastTx({ ...lastTx, status: "Failure" });
+        if (lastTx) setLastTx({ ...lastTx, status: "Failure" });
         setSnackbarItem({ type: "error", message: error.error.message, error });
         setShowUnlockTokenModal(false);
       }
     }
   }
 
-  return token1.info && lastTx ? (
-    <div
-      id="transactionDoneModal"
-      className="fixed center sm:max-w-sm w-full z-20 shadow"
-    >
+  return token1.info && lastTx && showUnlockTokenModal ? (
+    <div id="transactionDoneModal" className="fixed center sm:max-w-sm w-full z-20 shadow">
       <OutsideClickHandler
         onOutsideClick={() => {
           setShowUnlockTokenModal(false);
@@ -127,8 +123,7 @@ export default function UnlockTokenModal({ nextFunction }: { nextFunction: Funct
           </div>
           <h3 className="text-sm lg:text-2xl pb-5">Unlock {token1.info.symbol}</h3>
           <p className="text-sm lg:text-base text-center pb-5">
-            DataX needs your permission to spend{" "}
-            {location === remove ? lastTx.shares?.dp(5).toString() : token1.value.dp(5).toString()}{" "}
+            DataX needs your permission to spend {location === remove ? lastTx.shares?.dp(5).toString() : token1.value.dp(5).toString()}{" "}
             {location === remove ? "shares" : token1.info.symbol}.
           </p>
 

@@ -7,7 +7,7 @@ import BGToggle from "./BGToggle";
 import BuiltWDataX from "./BuiltWDataX";
 
 export default function Footer() {
-  const { web3 } = useContext(GlobalContext);
+  const { web3, location } = useContext(GlobalContext);
   // console.log(web3);
   const [blockNo, setBlockNo] = useState(0);
 
@@ -18,7 +18,7 @@ export default function Footer() {
     getBlockNumber();
   }, [web3]);
 
-  return (
+  return location !== "/" ? (
     <footer className="absolute bottom-0 pb-2 w-full mt-5 hidden lg:block">
       <div className="flex flex-col text-center">
         <ul className="inline-flex text-2xl justify-center">
@@ -48,5 +48,5 @@ export default function Footer() {
         </div>
       </div>
     </footer>
-  );
+  ): <></>;
 }
