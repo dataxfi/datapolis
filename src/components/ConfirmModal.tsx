@@ -5,7 +5,7 @@ import { GlobalContext } from "../context/GlobalState";
 import Loader from "./Loader";
 
 const ConfirmModal = () => {
-  const { showConfirmModal, setShowConfirmModal, location, token1, token2, singleLiquidityPos } = useContext(GlobalContext);
+  const { showConfirmModal, setShowConfirmModal, location, token1, token2, singleLiquidityPos, setBlurBG } = useContext(GlobalContext);
   const [txMessage, setTxMessage] = useState("Check wallet for transaction to confirm.");
 
   useEffect(() => {
@@ -22,26 +22,18 @@ const ConfirmModal = () => {
     }
   }, [location]);
 
-  //swap
-  //   txs={}
-  //stake
-  // txs={token2.info ? [`Stake ${token1.value?.toString()} OCEAN in ${token2.info.symbol} pool`] : []}
-
-  //unstake
+  function close() {
+    setShowConfirmModal(false);
+    setBlurBG(false);
+  }
 
   return showConfirmModal ? (
     <div className="fixed center md:max-w-sm w-full z-30">
-      <OutsideClickHandler
-        onOutsideClick={() => {
-          setShowConfirmModal(false);
-        }}
-      >
+      <OutsideClickHandler onOutsideClick={close}>
         <div className="bg-black bg-opacity-90 p-4 rounded-lg border padding mx-3 shadow hm-box">
           <div className="flex justify-end">
             <BsX
-              onClick={() => {
-                setShowConfirmModal(false);
-              }}
+              onClick={close}
               role="button"
               size="28"
               className="text-gray-200 text-right"

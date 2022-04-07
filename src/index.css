@@ -20,6 +20,10 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
+input:focus{
+  @apply border-none
+}
+
 body,
 html,
 #loader {

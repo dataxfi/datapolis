@@ -36,7 +36,6 @@ export default function Unstake() {
     setExecuteUnstake,
     executeUnstake,
   } = useContext(GlobalContext);
-  const [recentTxHash, setRecentTxHash] = useState("");
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
   const [btnText, setBtnText] = useState("Enter Amount to Remove");
   const [inputDisabled, setInputDisabled] = useState(false);
@@ -260,7 +259,6 @@ export default function Unstake() {
       const txReceipt = await ocean.unstakeOcean(accountId, singleLiquidityPos.address, token1.value.dp(5).toString(), singleLiquidityPos.shares.toString());
 
       if (txReceipt) {
-        setRecentTxHash(ocean.config.default.explorerUri + "/tx/" + txReceipt.transactionHash);
         setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
         transactionTypeGA("Unstake");
         if (token2.info) unstakeAmountGA(token2.value.dp(5).toString(), token2.info.address, singleLiquidityPos.address);

@@ -20,6 +20,13 @@ export default function UnlockTokenModal() {
     setToken1,
     location,
     showUnlockTokenModal,
+    setExecuteStake,
+    setExecuteSwap,
+    setExecuteUnstake,
+    setBlurBG,
+    executeSwap,
+    executeStake,
+    executeUnstake,
   } = useContext(GlobalContext);
   const [approving, setApproving] = useState<ApprovalStates>("pending");
   const [pool, setPool] = useState<string | null>(null);
@@ -51,6 +58,8 @@ export default function UnlockTokenModal() {
   }, [address, accountId, pool, ocean]);
 
   async function unlockTokens(amount: "perm" | "once") {
+    //  setLastTx()
+
     if (ocean) {
       let pool: string = "";
       let address: string = "";
@@ -92,25 +101,32 @@ export default function UnlockTokenModal() {
     }
   }
 
-  return token1.info && lastTx && showUnlockTokenModal ? (
+  function close() {
+    setBlurBG(false);
+    switch (location) {
+      case "/trade":
+        setExecuteSwap(false);
+        break;
+      case "/stake":
+        setExecuteStake(false);
+        break;
+      case "/stake/remove":
+        setExecuteUnstake(false);
+        break;
+    }
+    // setShowUnlockTokenModal(false);
+    // setShowUnlockTokenModal(false);
+    // setLastTx({ ...lastTx, status: "Failure" });
+  }
+
+  return token1.info && lastTx && showUnlockTokenModal && (executeSwap || executeStake || executeUnstake) ? (
     <div id="transactionDoneModal" className="fixed center sm:max-w-sm w-full z-20 shadow">
-      <OutsideClickHandler
-        onOutsideClick={() => {
-          setShowUnlockTokenModal(false);
-          setLastTx({ ...lastTx, status: "Failure" });
-        }}
-      >
+      <OutsideClickHandler onOutsideClick={close}>
         <div className="bg-black border items-center flex flex-col rounded-lg pb-8 pt-2 px-4 hm-box mx-3">
           <div className="flex w-full  justify-end">
-            <MdClose
-              id="closeTokenModalBtn"
-              role="button"
-              onClick={() => {
-                setShowUnlockTokenModal(false);
-                setLastTx({ ...lastTx, status: "Failure" });
-              }}
-              className="text-gray-100 text-2xl"
-            />
+            <button onClick={close}>
+              <MdClose id="closeTokenModalBtn" className="text-gray-100 text-2xl" />
+            </button>
           </div>
           <div className="pb-5">
             {approving === "pending" ? (

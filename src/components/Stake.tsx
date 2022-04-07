@@ -117,6 +117,7 @@ export default function Stake() {
     if (!executeStake) return;
     if (!accountId) {
       handleConnect();
+      setExecuteStake(false)
     } else if (token1.allowance?.lt(token1.value)) {
       const preTxDetails: ITxDetails = {
         accountId,

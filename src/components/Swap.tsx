@@ -146,9 +146,13 @@ export default function Swap() {
   }, [token1.info, token2.info, ocean, accountId]);
 
   useEffect(() => {
-    if (!accountId) handleConnect();
+    if (!accountId && executeSwap) {
+      handleConnect();
+      setExecuteSwap(false);
+    }
     if (!executeSwap || !token1.info || !token1.info || !accountId) return;
-    if (token1.allowance && token1.value > token1.allowance) {
+    if (token1.allowance?.lt(token1.value)) {
+      console.log(token1.value.toString(), token1.allowance?.toString());
       setLastTx({
         accountId,
         status: "Pending",
@@ -161,8 +165,7 @@ export default function Swap() {
       });
       setShowUnlockTokenModal(true);
       setBlurBG(true);
-    }
-    if (!swapConfirmed) {
+    } else if (!swapConfirmed) {
       setPreTxDetails({
         accountId,
         status: "Pending",
@@ -178,7 +181,7 @@ export default function Swap() {
     } else {
       swap();
     }
-  }, [swapConfirmed, executeSwap, token1.allowance, lastTx]);
+  }, [swapConfirmed, executeSwap, token1.allowance, lastTx?.txType]);
 
   async function updateBalance(address: string) {
     if (!ocean || !accountId) return;

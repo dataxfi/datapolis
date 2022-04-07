@@ -75,7 +75,7 @@ export default function useTxHistory() {
           break;
       }
 
-      setPendingTxs(newTxs);
+      // setPendingTxs(newTxs);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastTx]);

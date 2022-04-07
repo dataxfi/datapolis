@@ -7,7 +7,7 @@ import BigNumber from "bignumber.js";
 import OutsideClickHandler from "react-outside-click-handler";
 
 export default function ConfirmTxDetailsModal() {
-  const { ocean, token1, token2, setShowConfirmTxDetails, showConfirmTxDetails, preTxDetails, setLastTx, setShowConfirmModal, setSwapConfirmed, setBlurBG } =
+  const { ocean, token1, token2, setShowConfirmTxDetails, showConfirmTxDetails, preTxDetails, setLastTx, setShowConfirmModal, setSwapConfirmed, setBlurBG, setExecuteSwap } =
     useContext(GlobalContext);
   const [swapFee, setswapFee] = useState<BigNumber>(new BigNumber(0));
   const [minReceived, setMinReceived] = useState<BigNumber>(new BigNumber(0));
@@ -42,19 +42,19 @@ export default function ConfirmTxDetailsModal() {
     setSwapConfirmed(true);
   }
 
+  function close() {
+    setShowConfirmTxDetails(false);
+    setBlurBG(false);
+    setSwapConfirmed(false);
+    setExecuteSwap(false)
+  }
   return showConfirmTxDetails ? (
     <div id="confirmSwapModal" className={`fixed center sm:max-w-md w-full z-30 shadow ${showConfirmTxDetails ? "block" : "hidden"}`}>
-      <OutsideClickHandler
-        onOutsideClick={() => {
-          setShowConfirmTxDetails(false);
-          setBlurBG(false);
-          setSwapConfirmed(false);
-        }}
-      >
+      <OutsideClickHandler onOutsideClick={close}>
         <div className="py-8 px-4 md:px-8 bg-black bg-opacity-95 border rounded-lg hm-box mx-3 md:mx-auto">
           <div className="flex justify-between items-center">
             <p className="text-gray-300 text-xl">Confirm swap</p>
-            <BsX id="closeConfrimSwapModalbtn" onClick={() => setShowConfirmTxDetails(false)} role="button" size={28} />
+            <BsX id="closeConfrimSwapModalbtn" onClick={close} role="button" size={28} />
           </div>
           <div className="mt-4">
             <ConfirmSwapItem pos={1} />
