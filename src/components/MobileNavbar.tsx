@@ -16,7 +16,7 @@ const MobileNavbar = ({
   text: INavText;
   wallet: string;
   truncateId: Function;
-  network: string;
+  network: JSX.Element;
   handleModalOrConnect: Function;
 }) => {
   const { accountId, bgOff } = useContext(GlobalContext);

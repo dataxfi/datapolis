@@ -59,10 +59,9 @@ export default function TokenSelect({
     }
   }, [location, setTitle, pos]);
 
- useEffect(()=>{
-  console.log("token being selected", selectTokenPos);
-  
- }, [selectTokenPos])
+  useEffect(() => {
+    console.log("token being selected", selectTokenPos);
+  }, [selectTokenPos]);
 
   function connectWalletOrShowlist() {
     if (accountId) {
@@ -93,7 +92,7 @@ export default function TokenSelect({
               connectWalletOrShowlist();
             }}
           >
-            <p className="text-xs text-gray-200">{title}</p>
+            <p className="text-xs text-gray-200 text-center">{title}</p>
             {token?.info && tokensCleared.current ? (
               <span className="text-sm sm:text-2xl text-gray-200 font-bold grid grid-flow-col items-center gap-1 ">
                 <span id={`selectedToken${pos}`} className="text-sm sm:text-lg">
@@ -102,8 +101,8 @@ export default function TokenSelect({
                 <BsChevronDown className="text-gray-200" size="16" />
               </span>
             ) : (
-              <p id="selectTokenBtn" className="text-xs text-gray-100 border-gray-300 border rounded-full px-2 py-1 mt-1 hover:bg-gray-600">
-                Select token
+              <p id="selectTokenBtn" className="text-xs btn-dark rounded-full mt-1">
+                Select Token
               </p>
             )}
           </div>
@@ -173,17 +172,18 @@ export default function TokenSelect({
                   {pos === 2 || location === "/stake/remove" ? null : token?.balance ? (
                     <div className="text-sm text-gray-300 grid grid-flow-col justify-end gap-2 items-center">
                       <MaxToolTip />
-                      <Button
+                      <button
                         id="maxBtn"
                         onClick={() => {
                           console.log(enabled);
 
                           if (enabled) onMax();
                         }}
-                        text="Max"
-                        classes={`${enabled ? "border-gray-300 hover:bg-primary-600" : "text-gray-600 border-gray-600"} px-2 py-0 border rounded-full text-xs`}
+                        className={`btn-dark btn-sm rounded-full text-xs`}
                         disabled={enabled ? false : true}
-                      />
+                      >
+                        Max
+                      </button>
                       <DebounceInput
                         id={`token${pos}-perc-input`}
                         value={token.percentage.dp(3).toString()}

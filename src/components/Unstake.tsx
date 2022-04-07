@@ -309,15 +309,14 @@ export default function Unstake() {
                     </p>
                     <div className="text-sm text-gray-300 grid grid-flow-col justify-end gap-2">
                       <MaxToolTip />
-                      <Button
+                      <button
                         id="maxUnstakeBtn"
                         onClick={() => {
                           maxUnstakeHandler();
                         }}
                         disabled={inputDisabled}
-                        text="Max Unstake"
-                        classes={`px-2 lg:w-24 py-0 border  rounded-full text-xs ${inputDisabled ? "text-gray-700 border-gray-700" : "hover:bg-primary-600 border-gray-300"}`}
-                      />
+                        className="btn-dark btn-sm rounded-full text-xs"
+                      >Max</button>
                     </div>
                   </div>
                 </div>
@@ -331,9 +330,8 @@ export default function Unstake() {
               <TokenSelect max={maxUnstake.OCEAN} otherToken={token2.info.symbol} pos={1} setToken={setToken1} token={token1} updateNum={updateNum} />
               <div className="flex mt-4">
                 {/* <div className="bg-gradient"></div> */}
-                <Button
+                <button
                   id="executeUnstake"
-                  text={btnText}
                   onClick={() => {
                     if (!accountId || !token1 || !token2) return;
 
@@ -365,9 +363,11 @@ export default function Unstake() {
                       handleUnstake(preTxDetails);
                     }
                   }}
-                  classes={`px-4 py-2 rounded-lg w-full txButton`}
+                  className="txButton"
                   disabled={btnDisabled}
-                />
+                >
+                  {btnText}
+                </button>
               </div>
             </div>
             <div className="pt-3 pl-3">

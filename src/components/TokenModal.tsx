@@ -161,7 +161,7 @@ export default function TokenModal() {
                 There was an error loading the tokens
               </div>
             ) : datatokens && showDtks ? (
-              <div className="hm-hide-scrollbar h-full overflow-y-scroll mt-2 bg-trade-darkBlue rounded-lg border border-gray-700" id="tokenList">
+              <div className="hm-hide-scrollbar h-full overflow-y-scroll mt-2 bg-trade-darkBlue rounded-lg border border-gray-700 p-1" id="tokenList">
                 <ReactList itemRenderer={tokenRenderer} length={datatokens ? datatokens.length : 0} type="simple" />
               </div>
             ) : ERC20Tokens && !showDtks ? (
@@ -175,7 +175,7 @@ export default function TokenModal() {
                     <CommonToken index={index} token={token} onClick={tokenSelected} />
                   ))}
                 </ul>
-                <div className="mt-2 hm-hide-scrollbar overflow-y-scroll bg-trade-darkBlue rounded-lg border border-gray-700" id="tokenList">
+                <div className="mt-2 hm-hide-scrollbar overflow-y-scroll bg-trade-darkBlue rounded-lg border border-gray-700 p-1" id="tokenList">
                   <ReactList itemRenderer={tokenRenderer} length={ERC20Tokens ? ERC20Tokens.length : 0} type="simple" />
                 </div>
               </>

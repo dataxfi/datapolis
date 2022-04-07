@@ -17,7 +17,7 @@ import TokenSelect from "./TokenSelect";
 import PositionBox from "./PositionBox";
 import DatasetDescription from "./DatasetDescription";
 import ViewDescBtn from "./ViewDescButton";
-import { boughtAmountGA, soldAmountGA, stakeAmountGA, transactionTypeGA } from "../context/Analytics";
+import { stakeAmountGA, transactionTypeGA } from "../context/Analytics";
 
 const INITIAL_BUTTON_STATE = {
   text: "Connect wallet",
@@ -115,10 +115,7 @@ export default function Stake() {
   }, [accountId, ocean, chainId, token2, token1.value, token1.balance, loading, token1.info, lastTx?.status]);
 
   async function getMaxStakeAmt() {
-    if (token2.info && ocean)
-      return new BigNumber(
-        await ocean.getMaxStakeAmount(token2.info.pool || "", ocean.config.default.oceanTokenAddress)
-      ).dp(5);
+    if (token2.info && ocean) return new BigNumber(await ocean.getMaxStakeAmount(token2.info.pool || "", ocean.config.default.oceanTokenAddress)).dp(5);
   }
 
   async function setOceanBalance() {
@@ -145,18 +142,16 @@ export default function Stake() {
       })
       .then(() => {
         if (token2.info && accountId && chainId && ocean)
-          getAllowance(ocean.config.default.oceanTokenAddress, accountId, token2.info.pool || "", ocean).then(
-            async (res) => {
-              if (!token1.info) return;
-              const balance = new BigNumber(await ocean.getBalance(token1.info.address, accountId));
-              setToken1({
-                ...token1,
-                allowance: new BigNumber(res),
-                balance,
-                value: new BigNumber(0),
-              });
-            }
-          );
+          getAllowance(ocean.config.default.oceanTokenAddress, accountId, token2.info.pool || "", ocean).then(async (res) => {
+            if (!token1.info) return;
+            const balance = new BigNumber(await ocean.getBalance(token1.info.address, accountId));
+            setToken1({
+              ...token1,
+              allowance: new BigNumber(res),
+              balance,
+              value: new BigNumber(0),
+            });
+          });
       })
       .catch(console.error);
   }
@@ -171,8 +166,8 @@ export default function Stake() {
       if (txReceipt) {
         setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
         setOceanBalance();
-        stakeAmountGA(token2.value.dp(5).toString(), token2.info.address, token1.info.pool)
-        transactionTypeGA("Stake")
+        stakeAmountGA(token2.value.dp(5).toString(), token2.info.address, token1.info.pool);
+        transactionTypeGA("Stake");
         if (token2.info) {
           setImportPool(token2.info.pool);
         }
@@ -199,9 +194,7 @@ export default function Stake() {
     if (maxStakeAmt.gt(0)) {
       maxStake = maxStakeAmt;
     } else {
-      maxStake = new BigNumber(
-        await ocean.getMaxStakeAmount(token2.info.pool || "", ocean.config.default.oceanTokenAddress)
-      );
+      maxStake = new BigNumber(await ocean.getMaxStakeAmount(token2.info.pool || "", ocean.config.default.oceanTokenAddress));
     }
     console.log("Max Stake Amount - ", maxStake.toFixed(18));
     if (maxStake.isNaN()) {
@@ -251,25 +244,11 @@ export default function Stake() {
       >
         <div className="flex h-full w-full items-center justify-center">
           <div className="lg:mx-auto sm:mx-4 mx-3">
-            <div
-              id="stakeModal"
-              className="lg:w-107  bg-black bg-opacity-90 rounded-lg p-3 hm-box"
-            >
-              <TokenSelect
-                max={maxStakeAmt}
-                otherToken={"OCEAN"}
-                pos={2}
-                setToken={setToken2}
-                token={token2}
-                updateNum={() => {}}
-              />
+            <div id="stakeModal" className="lg:w-107  bg-black bg-opacity-90 rounded-lg p-3 hm-box">
+              <TokenSelect max={maxStakeAmt} otherToken={"OCEAN"} pos={2} setToken={setToken2} token={token2} updateNum={() => {}} />
               <div className="px-4 relative mt-6 mb-10">
                 <div className="rounded-full border-black border-4 absolute -top-7 bg-trade-darkBlue w-12 h-12 flex items-center justify-center swap-center">
-                  {loading ? (
-                    <MoonLoader size={25} color={"white"} />
-                  ) : (
-                    <AiOutlinePlus size="30" className="text-gray-300" />
-                  )}
+                  {loading ? <MoonLoader size={25} color={"white"} /> : <AiOutlinePlus size="30" className="text-gray-300" />}
                 </div>
               </div>
               <TokenSelect
@@ -284,9 +263,8 @@ export default function Stake() {
                 onMax={setMaxStake}
               />
               <PositionBox loading={loading} setLoading={setLoading} />
-              <Button
+              <button
                 id="executeStake"
-                text={btnProps.text}
                 onClick={() => {
                   if (btnProps.text === "Connect wallet" || !accountId) {
                     handleConnect();
@@ -319,9 +297,11 @@ export default function Stake() {
                     }
                   }
                 }}
-                classes="p-2 rounded-lg w-full mt-4 txButton"
+                className="txButton mt-3"
                 disabled={btnProps.disabled}
-              />
+              >
+                {btnProps.text}
+              </button>
             </div>
             <div className=" flex justify-between">
               <ViewDescBtn />

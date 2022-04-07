@@ -28,11 +28,10 @@ const Navbar = () => {
       let network = config.getNetwork(String(chainId));
       if (network !== "unknown") {
         network = network.charAt(0).toUpperCase() + network.slice(1);
-        return network;
+        return <p>{network}</p> ;
       }
-      return "⚠ Unknown";
     }
-    return "⚠ Unknown";
+    return <p><span className="text-xs mr-1">⚠</span>Unknown</p>
   }
 
   function handleModalOrConnect() {

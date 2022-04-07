@@ -47,46 +47,21 @@ html:empty {
   @apply animate-pulse;
 }
 
-.center{
-  @apply top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2
-}
-/* Links */
-.hm-link {
-  @apply text-gray-300 hover:text-gray-50;
+.center {
+  @apply top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2;
 }
 
-/* Buttons */
-.hm-btn {
-  @apply px-4 py-2 rounded;
+.btn-dark {
+  @apply py-1 px-3 bg-black text-white bg-opacity-50 hover:bg-opacity-10 hover:bg-white  border-gray-500 border-[.5px];
+  @apply transition-all duration-200;
 }
 
-.hm-btn.hm-btn-medium {
-  @apply px-4 py-4 rounded;
+.btn-sm {
+  padding: 0.025rem 0.5rem !important;
 }
 
-.hm-btn.hm-btn-light {
-  @apply bg-black bg-opacity-75 text-gray-200 hover:bg-primary-800 hover:bg-opacity-75 transition-all duration-200;
-}
-
-.hm-loading {
-  display: inline-block;
-  width: 50px;
-  height: 50px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: #fff;
-  animation: spin 1s ease-in-out infinite;
-  -webkit-animation: spin 1s ease-in-out infinite;
-}
-
-.logo {
-  width: 8rem;
-  height: 4rem;
-}
-
-.product {
-  font-size: 1rem;
-  font-weight: 200;
+.btn-dark:disabled {
+  @apply text-gray-600 hover:bg-black hover:bg-opacity-50 cursor-not-allowed;
 }
 
 @keyframes spin {
@@ -155,38 +130,30 @@ html:empty {
 }
 
 .txButton {
-  position: relative;
+  @apply p-2 rounded-lg w-full relative;
   background-image: rgb(10, 69, 110);
   background-image: linear-gradient(90deg, rgba(10, 69, 110, 1) 0%, rgba(26, 38, 70, 1) 100%);
   z-index: 1;
 }
 
 .txButton::before {
-  border-radius: 0.5rem;
-  position: absolute;
+  @apply absolute top-0 right-0 bottom-0 left-0 opacity-0 rounded-lg;
   content: "";
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
   background-image: rgb(49, 59, 101);
   background-image: linear-gradient(90deg, rgba(49, 59, 101, 1) 0%, rgba(58, 123, 191, 1) 100%);
   z-index: -1;
   transition: opacity 0.1s linear;
-  opacity: 0;
 }
 .txButton:hover::before {
-  opacity: 1;
+  @apply opacity-100;
 }
 
 .txButton:disabled::before {
-  opacity: 0;
+  @apply opacity-0;
 }
 
 .txButton:disabled {
-  cursor: not-allowed;
-  background-color: black;
-  opacity: 0.5;
+  @apply cursor-not-allowed bg-black opacity-50;
 }
 
 .mobileBgPosition {
