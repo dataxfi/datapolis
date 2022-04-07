@@ -7,7 +7,7 @@ import { IUserMessage, ILiquidityPosition } from "../utils/types";
 import useLiquidityPos from "../hooks/useLiquidityPos";
 
 export default function LiquidityPosition() {
-  const { accountId, allStakedPools, setShowTokenModal } = useContext(GlobalContext);
+  const { accountId, allStakedPools, setShowTokenModal, setBlurBG } = useContext(GlobalContext);
   const [userMessage, setUserMessage] = useState<string | IUserMessage | null>(
     "Dont see your tokens? Import a pool by name with the import button below."
   );
@@ -66,6 +66,7 @@ export default function LiquidityPosition() {
                 disabled={accountId ? false : true}
                 onClick={() => {
                   setShowTokenModal(true);
+                  setBlurBG(true)
                 }}
                 className={`p-2 w-full mt-2 txButton rounded-lg ${accountId ? "" : "cursor-not-allowed"}`}
               >

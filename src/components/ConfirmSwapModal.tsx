@@ -52,7 +52,7 @@ const ConfirmSwapModal = ({
     return (
       <div
         id="confirmSwapModal"
-        className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 sm:max-w-md w-full z-30 shadow ${
+        className={`fixed center sm:max-w-md w-full z-30 shadow ${
           show ? "block" : "hidden"
         }`}
       >

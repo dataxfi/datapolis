@@ -7,7 +7,7 @@ const ConfirmModal = ({ show, close, txs }: { show: boolean; close: Function; tx
     return null;
   } else
     return (
-      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 md:max-w-sm w-full z-30 ">
+      <div className="fixed center md:max-w-sm w-full z-30">
         <OutsideClickHandler
           onOutsideClick={() => {
             close();

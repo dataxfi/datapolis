@@ -120,7 +120,7 @@ export default function TokenModal() {
   return showTokenModal ? (
     <>
       <OutsideClickHandler onOutsideClick={closeModal}>
-        <div id="tokenModal" className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  z-30 w-full sm:max-w-sm p-2 md:p-0">
+        <div id="tokenModal" className="fixed center z-30 w-full sm:max-w-sm p-2 md:p-0">
           <div className="hm-box flex flex-col p-2 w-full h-109 bg-background border-primary-500 border rounded-lg">
             <div className="flex justify-between items-center">
               <p className="mb-0 text-gray-100 text-xl pl-2">Select a token</p>

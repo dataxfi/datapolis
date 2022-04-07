@@ -3,7 +3,7 @@ import Button from './Button'
 
 const CreatePoolModal = () => {
     return (
-        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 sm:max-w-sm w-full z-20 shadow">
+        <div className="fixed center sm:max-w-sm w-full z-20 shadow">
             <div className="bg-primary-900 p-4 rounded-t-lg hm-box mx-3">
                 <div className="flex justify-between items-start">
                     <p className="text-gray-200 text-xl">You are creating a pool</p>
