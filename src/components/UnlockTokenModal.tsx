@@ -4,7 +4,6 @@ import { BiLockAlt, BiLockOpenAlt } from "react-icons/bi";
 import { MdClose } from "react-icons/md";
 import BigNumber from "bignumber.js";
 import { getAllowance } from "../hooks/useTokenList";
-import { ApprovalStates } from "../utils/types";
 import OutsideClickHandler from "react-outside-click-handler";
 export default function UnlockTokenModal() {
   const {
@@ -24,14 +23,21 @@ export default function UnlockTokenModal() {
     setExecuteSwap,
     setExecuteUnstake,
     setBlurBG,
-    executeSwap,
-    executeStake,
-    executeUnstake,
+    preTxDetails,
+    executeUnlock,
+    setExecuteUnlock,
+    approving,
+    setApproving,
   } = useContext(GlobalContext);
-  const [approving, setApproving] = useState<ApprovalStates>("pending");
   const [pool, setPool] = useState<string | null>(null);
   const [address, setAddress] = useState<string | null>(null);
+  const [allowance, setAllowance] = useState<BigNumber>();
   const remove = "/stake/remove";
+
+  useEffect(() => {
+    if (showUnlockTokenModal) setApproving("pending");
+  }, [showUnlockTokenModal]);
+
 
   // Set up the interval.
   useEffect(() => {
@@ -43,8 +49,9 @@ export default function UnlockTokenModal() {
           getAllowance(address, accountId, pool, ocean).then((res) => {
             console.log("Response from allowance call", res);
             const allowance = new BigNumber(res);
-            if (allowance.gte(token1.value) && setShowUnlockTokenModal) {
-              setShowUnlockTokenModal(false);
+            setAllowance(new BigNumber(allowance));
+            if (allowance.gte(token1.value)) {
+              setExecuteUnlock(false);
               setPool(null);
               setAddress(null);
               delay = null;
@@ -58,7 +65,9 @@ export default function UnlockTokenModal() {
   }, [address, accountId, pool, ocean]);
 
   async function unlockTokens(amount: "perm" | "once") {
-    //  setLastTx()
+    if (!preTxDetails) return;
+    setApproving("approving");
+    setLastTx({ ...preTxDetails, status: "Pending" });
 
     if (ocean) {
       let pool: string = "";
@@ -77,7 +86,6 @@ export default function UnlockTokenModal() {
 
       try {
         if (!accountId || (lastTx?.txType === "unstake" && !lastTx?.shares)) return;
-        setApproving("approving");
         let txReceipt;
         if (amount === "perm") {
           txReceipt = await ocean.approve(address, pool, new BigNumber(18e10).toString(), accountId);
@@ -97,29 +105,38 @@ export default function UnlockTokenModal() {
         if (lastTx) setLastTx({ ...lastTx, status: "Failure" });
         setSnackbarItem({ type: "error", message: error.error.message, error });
         setShowUnlockTokenModal(false);
+        setExecuteUnlock(false);
+        switchOnLocation(false);
+        setBlurBG(false)
       }
+    }
+  }
+
+  function switchOnLocation(setExecute: boolean) {
+    switch (location) {
+      case "/trade":
+        setExecuteSwap(setExecute);
+        console.log("set swap execute to false");
+        break;
+      case "/stake":
+        setExecuteStake(setExecute);
+        break;
+      case "/stake/remove":
+        setExecuteUnstake(setExecute);
+        break;
     }
   }
 
   function close() {
     setBlurBG(false);
-    switch (location) {
-      case "/trade":
-        setExecuteSwap(false);
-        break;
-      case "/stake":
-        setExecuteStake(false);
-        break;
-      case "/stake/remove":
-        setExecuteUnstake(false);
-        break;
+    setShowUnlockTokenModal(false);
+    switchOnLocation(false);
+    if (approving === "pending") {
+      setExecuteUnlock(false);
     }
-    // setShowUnlockTokenModal(false);
-    // setShowUnlockTokenModal(false);
-    // setLastTx({ ...lastTx, status: "Failure" });
   }
 
-  return token1.info && lastTx && showUnlockTokenModal && (executeSwap || executeStake || executeUnstake) ? (
+  return token1.info && preTxDetails && showUnlockTokenModal && executeUnlock ? (
     <div id="transactionDoneModal" className="fixed center sm:max-w-sm w-full z-20 shadow">
       <OutsideClickHandler onOutsideClick={close}>
         <div className="bg-black border items-center flex flex-col rounded-lg pb-8 pt-2 px-4 hm-box mx-3">
@@ -139,7 +156,7 @@ export default function UnlockTokenModal() {
           </div>
           <h3 className="text-sm lg:text-2xl pb-5">Unlock {token1.info.symbol}</h3>
           <p className="text-sm lg:text-base text-center pb-5">
-            DataX needs your permission to spend {location === remove ? lastTx.shares?.dp(5).toString() : token1.value.dp(5).toString()}{" "}
+            DataX needs your permission to spend {location === remove ? preTxDetails.shares?.dp(5).toString() : token1.value.dp(5).toString()}{" "}
             {location === remove ? "shares" : token1.info.symbol}.
           </p>
 

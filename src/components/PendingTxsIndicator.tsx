@@ -3,22 +3,41 @@ import { RingLoader } from "react-spinners";
 import { GlobalContext } from "../context/GlobalState";
 
 export default function PendingTxsIndicator() {
-  const { accountId, pendingTxs, setShowTxHistoryModal, setPendingTxs, executeStake, executeUnstake, executeSwap } = useContext(GlobalContext);
+  const { accountId, setShowTxHistoryModal, executeStake, executeUnstake, executeSwap, showConfirmTxDetails, executeUnlock, approving } = useContext(GlobalContext);
   const [pending, setPending] = useState<number>(0);
+  const [render, setRender] = useState<boolean>(false);
+  const [opacity, setOpacity] = useState<0 | 100>(0);
   useEffect(() => {
     let count = 0;
     if (executeStake) count++;
     if (executeUnstake) count++;
-    if (executeSwap) count++;
+    if (executeUnlock && approving === "approving") count++;
+    if (executeSwap && !showConfirmTxDetails) count++;
     setPending(count);
-  }, [accountId, executeStake, executeUnstake, executeSwap]);
+  }, [accountId, executeStake, executeUnstake, executeSwap, executeUnlock, showConfirmTxDetails, approving]);
 
-  return pending > 0 ? (
+  useEffect(() => {
+    if (pending && !render) {
+      setRender(true);
+      setTimeout(() => {
+        setOpacity(100);
+      }, 250);
+    }
+
+    if (!pending && render) {
+      setOpacity(0);
+      setTimeout(() => {
+        setRender(false);
+      }, 250);
+    }
+  }, [pending, render]);
+
+  return render ? (
     <div
       onClick={() => {
         setShowTxHistoryModal(true);
       }}
-      className="flex items-center capitalize border border-gray-500 text-gray-200 rounded-md pl-4 py-1 hm-box transition-all ease-in-out transform hover:bg-primary-400 hover:bg-opacity-20"
+      className={`btn-dark flex items-center capitalize border border-gray-500 text-gray-200 rounded-md pl-4 py-1 hm-box transition-opacity opacity-${opacity} duration-300`}
     >
       <div className="pr-3 flex flex-row items-center">
         {`${pending} Pending`}{" "}
@@ -27,5 +46,7 @@ export default function PendingTxsIndicator() {
         </div>
       </div>{" "}
     </div>
-  ) : null;
+  ) : (
+    <></>
+  );
 }

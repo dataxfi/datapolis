@@ -35,6 +35,7 @@ export default function Unstake() {
     setBlurBG,
     setExecuteUnstake,
     executeUnstake,
+    setPreTxDetails
   } = useContext(GlobalContext);
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
   const [btnText, setBtnText] = useState("Enter Amount to Remove");
@@ -135,7 +136,7 @@ export default function Unstake() {
   useEffect(() => {
     if (!accountId || !token1 || !token2 || !executeUnstake) return;
     if (token1.allowance?.lt(token1.value)) {
-      setLastTx({
+      setPreTxDetails({
         txDateId: Date.now().toString(),
         accountId,
         status: "Pending",

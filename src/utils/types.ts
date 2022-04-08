@@ -186,4 +186,8 @@ export interface globalStates {
   setExecuteStake: React.Dispatch<React.SetStateAction<boolean>>;
   executeUnstake: boolean;
   setExecuteUnstake: React.Dispatch<React.SetStateAction<boolean>>;
+  executeUnlock: boolean;
+  setExecuteUnlock: React.Dispatch<React.SetStateAction<boolean>>;
+  approving: ApprovalStates;
+  setApproving: React.Dispatch<React.SetStateAction<ApprovalStates>>;
 }

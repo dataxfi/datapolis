@@ -45,6 +45,11 @@ export default function Swap() {
     setExecuteSwap,
     swapConfirmed,
     preTxDetails,
+    setExecuteUnlock,
+    executeUnlock,
+    showUnlockTokenModal,
+    setSwapConfirmed,
+    approving,
   } = useContext(GlobalContext);
   const [showSettings, setShowSettings] = useState(false);
   const [exactToken, setExactToken] = useState<number>(1);
@@ -146,42 +151,54 @@ export default function Swap() {
   }, [token1.info, token2.info, ocean, accountId]);
 
   useEffect(() => {
-    if (!accountId && executeSwap) {
+    if (showUnlockTokenModal && token1.allowance?.gt(token1.value)) {
+      console.log("smoogle");
+      setBlurBG(false)
+      setShowUnlockTokenModal(false);
+      setExecuteSwap(true);
+    }
+  }, [token1.allowance]);
+
+  useEffect(() => {
+    if (!accountId && (executeSwap || executeUnlock)) {
       handleConnect();
       setExecuteSwap(false);
+      return;
     }
-    if (!executeSwap || !token1.info || !token1.info || !accountId) return;
-    if (token1.allowance?.lt(token1.value)) {
-      console.log(token1.value.toString(), token1.allowance?.toString());
-      setLastTx({
-        accountId,
-        status: "Pending",
-        token1,
-        token2,
-        txDateId: Date.now().toString(),
-        txType: "approve",
-        slippage,
-        postExchange,
-      });
-      setShowUnlockTokenModal(true);
-      setBlurBG(true);
-    } else if (!swapConfirmed) {
-      setPreTxDetails({
-        accountId,
-        status: "Pending",
-        token1,
-        token2,
-        txDateId: Date.now().toString(),
-        txType: "trade",
-        slippage,
-        postExchange,
-      });
-      setShowConfirmTxDetails(true);
-      setBlurBG(true);
-    } else {
-      swap();
-    }
-  }, [swapConfirmed, executeSwap, token1.allowance, lastTx?.txType]);
+
+    if (accountId)
+      if (token1.allowance?.lt(token1.value)) {
+        setPreTxDetails({
+          accountId,
+          status: "Pending",
+          token1,
+          token2,
+          txDateId: Date.now().toString(),
+          txType: "approve",
+          slippage,
+          postExchange,
+        });
+        setExecuteUnlock(true)
+        setShowUnlockTokenModal(true);
+        setBlurBG(true);
+        setExecuteSwap(false)
+      } else if (!swapConfirmed && executeSwap) {
+        setPreTxDetails({
+          accountId,
+          status: "Pending",
+          token1,
+          token2,
+          txDateId: Date.now().toString(),
+          txType: "trade",
+          slippage,
+          postExchange,
+        });
+        setShowConfirmTxDetails(true);
+        setBlurBG(true);
+      } else if (executeSwap) {
+        swap();
+      }
+  }, [swapConfirmed, executeSwap, lastTx?.txType]);
 
   async function updateBalance(address: string) {
     if (!ocean || !accountId) return;
@@ -293,12 +310,16 @@ export default function Swap() {
         boughtAmountGA(token2.value.dp(5).toString(), token2.info.address);
         transactionTypeGA("Trade");
         setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
+        setExecuteSwap(false);
         setPostExchange(new BigNumber(0));
       }
     } catch (error: any) {
       console.log("DataX Caught an Error for Transaction:", lastTx?.txDateId);
       setLastTx({ ...preTxDetails, status: "Failure" });
       setSnackbarItem({ type: "error", message: error.error.message, error });
+      setBlurBG(false);
+      setExecuteSwap(false);
+      setSwapConfirmed(false);
     }
   }
 
@@ -523,7 +544,16 @@ export default function Swap() {
               )}
 
               <div className="mt-4">
-                <button id="executeTradeBtn" onClick={() => setExecuteSwap(true)} className="txButton" disabled={btnProps.disabled}>
+                <button
+                  id="executeTradeBtn"
+                  onClick={() => {
+            
+                      setExecuteSwap(true);
+                    
+                  }}
+                  className="txButton"
+                  disabled={btnProps.disabled}
+                >
                   {btnProps.text}
                 </button>
               </div>

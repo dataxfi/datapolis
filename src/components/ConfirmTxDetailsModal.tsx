@@ -43,10 +43,10 @@ export default function ConfirmTxDetailsModal() {
   }
 
   function close() {
+    setExecuteSwap(false)
     setShowConfirmTxDetails(false);
     setBlurBG(false);
     setSwapConfirmed(false);
-    setExecuteSwap(false)
   }
   return showConfirmTxDetails ? (
     <div id="confirmSwapModal" className={`fixed center sm:max-w-md w-full z-30 shadow ${showConfirmTxDetails ? "block" : "hidden"}`}>

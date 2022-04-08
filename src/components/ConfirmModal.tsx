@@ -20,7 +20,7 @@ const ConfirmModal = () => {
         setTxMessage(`Swap ${token1.value.dp(5)} ${token1.info?.symbol} for ${token2.value.dp(5)} ${token2.info?.symbol}`);
         break;
     }
-  }, [location]);
+  }, [location, token1.info, token2.info, token1.value, token2.value]);
 
   function close() {
     setShowConfirmModal(false);

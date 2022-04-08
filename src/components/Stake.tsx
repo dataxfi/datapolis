@@ -117,18 +117,16 @@ export default function Stake() {
     if (!executeStake) return;
     if (!accountId) {
       handleConnect();
-      setExecuteStake(false)
+      setExecuteStake(false);
     } else if (token1.allowance?.lt(token1.value)) {
-      const preTxDetails: ITxDetails = {
+      setLastTx({
         accountId,
         status: "Pending",
         token1,
         token2,
         txDateId: Date.now().toString(),
         txType: "approve",
-      };
-      console.log(token1);
-      setLastTx(preTxDetails);
+      });
       setShowUnlockTokenModal(true);
     } else {
       setShowConfirmModal(true);

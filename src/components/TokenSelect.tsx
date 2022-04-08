@@ -29,7 +29,7 @@ export default function TokenSelect({
   onMax?: Function;
   max: BigNumber;
 }) {
-  const { accountId, handleConnect, tokensCleared, location, config, ocean, setBlurBG, setSelectTokenPos, setShowTokenModal, selectTokenPos } = useContext(GlobalContext);
+  const { accountId, handleConnect, tokensCleared, location, config, ocean, setBlurBG, setSelectTokenPos, setShowTokenModal, selectTokenPos, blurBG } = useContext(GlobalContext);
   const [enabled, setEndabled] = useState(false);
   const [title, setTitle] = useState<TokenSelectTitles>();
 

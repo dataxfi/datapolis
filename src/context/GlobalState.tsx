@@ -6,7 +6,7 @@ import { createContext, PropsWithChildren, useEffect, useRef, useState } from "r
 import Core from "web3modal";
 import { Disclaimer } from "../components/DisclaimerModal";
 import { connectedMultipleWalletsGA, connectedWalletGA, connectedToNetworkGA, deniedSignatureGA, connectedWalletViaGA } from "./Analytics";
-import { IDisclaimerSigned, globalStates, ILiquidityPosition, ITxHistory, ITxDetails, ISnackbarItem, supportedChains } from "../utils/types";
+import { IDisclaimerSigned, globalStates, ILiquidityPosition, ITxHistory, ITxDetails, ISnackbarItem, supportedChains, ApprovalStates } from "../utils/types";
 import BigNumber from "bignumber.js";
 import { IToken, ITList, ITokenInfo } from "@dataxfi/datax.js";
 
@@ -21,7 +21,6 @@ export const INITIAL_TOKEN_STATE: IToken = {
 export const GlobalContext = createContext<globalStates>({} as globalStates);
 
 export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }) => {
-
   // essential states for connection to web3, user wallet, ocean operations, and DataX configurations
   const [web3Modal, setWeb3Modal] = useState<Core>();
   const [accountId, setAccountId] = useState<string>();
@@ -31,11 +30,11 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [ocean, setOcean] = useState<Ocean>();
   const [config, setConfig] = useState<Config>();
   const [watcher, setWatcher] = useState<Watcher>();
-  
+
   // loading state is to be used when the app needs to finish loading before a page can render (i.e. show loading screen)
   const [loading, setLoading] = useState<boolean>(true);
   const [location, setLocation] = useState<string>("/");
-  
+
   //Modal and notification states
   const [unsupportedNet, setUnsupportedNet] = useState<boolean>(false);
   const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
@@ -60,9 +59,11 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [lastTx, setLastTx] = useState<ITxDetails>();
   const [preTxDetails, setPreTxDetails] = useState<ITxDetails>();
   const [executeSwap, setExecuteSwap] = useState<boolean>(false);
-  const [swapConfirmed, setSwapConfirmed] = useState<boolean>(false)
+  const [swapConfirmed, setSwapConfirmed] = useState<boolean>(false);
   const [executeStake, setExecuteStake] = useState<boolean>(false);
   const [executeUnstake, setExecuteUnstake] = useState<boolean>(false);
+  const [executeUnlock, setExecuteUnlock] = useState<boolean>(false);
+  const [approving, setApproving] = useState<ApprovalStates>("pending");
 
   //user pool information states
   const [allStakedPools, setAllStakedPools] = useState<ILiquidityPosition[]>();
@@ -408,6 +409,10 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setExecuteStake,
         executeUnstake,
         setExecuteUnstake,
+        executeUnlock,
+        setExecuteUnlock,
+        approving, 
+        setApproving
       }}
     >
       {children}
