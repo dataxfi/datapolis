@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { RingLoader } from "react-spinners";
+import { MoonLoader, RingLoader } from "react-spinners";
 import { GlobalContext } from "../context/GlobalState";
 
 export default function PendingTxsIndicator() {
@@ -39,11 +39,9 @@ export default function PendingTxsIndicator() {
       }}
       className={`btn-dark flex items-center capitalize border border-gray-500 text-gray-200 rounded-md pl-4 py-1 hm-box transition-opacity opacity-${opacity} duration-300`}
     >
-      <div className="pr-3 flex flex-row items-center">
-        {`${pending} Pending`}{" "}
-        <div className="ml-2 w-5 h-5">
-          <RingLoader size="24px" color="#f3c429" />
-        </div>
+      <div className="flex flex-row items-center">
+        <p className="mr-2">{`${pending} Pending`}</p>
+        <MoonLoader size="15px" color="#f3c429" />
       </div>{" "}
     </div>
   ) : (
