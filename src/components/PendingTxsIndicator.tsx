@@ -40,7 +40,7 @@ export default function PendingTxsIndicator() {
       className={`btn-dark flex items-center capitalize border border-gray-500 text-gray-200 rounded-md pl-4 py-1 hm-box transition-opacity opacity-${opacity} duration-300`}
     >
       <div className="flex flex-row items-center">
-        <p className="mr-2">{`${pending} Pending`}</p>
+        <p className="mr-2">{`${pending > 0 ? pending : 1} Pending`}</p>
         <MoonLoader size="15px" color="#f3c429" />
       </div>{" "}
     </div>

@@ -11,7 +11,7 @@ import DisclaimerModal from "./components/DisclaimerModal";
 import TxHistoryModal from "./components/TxHistoryModal";
 import WatchLocation from "./components/WatchLocation";
 import CookiesModal from "./components/CookiesModal";
-import SnackbarArea from "./components/SnackbarArea";
+import Snackbar from "./components/Snackbar";
 import ConfirmModal from "./components/ConfirmModal";
 import useTxHistory from "./hooks/useTxHistory";
 import useTokenDesc from "./hooks/useTokenDesc";
@@ -82,7 +82,7 @@ function App() {
       <UnlockTokenModal />
       <CookiesModal />
       <DisclaimerModal />
-      <SnackbarArea />
+      <Snackbar />
       <TxHistoryModal />
       <TokenModal />
       <ConfirmModal />

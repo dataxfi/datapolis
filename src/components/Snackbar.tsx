@@ -6,7 +6,7 @@ import { IoCheckboxOutline } from "react-icons/io5";
 import { getTxUrl } from "../hooks/useTxHistory";
 import BigNumber from "bignumber.js";
 
-export default function SnackbarArea() {
+export default function Snackbar() {
   const { snackbarItem, setSnackbarItem, ocean, accountId } = useContext(GlobalContext);
   const [currentNot, setCurrentNot] = useState<ISnackbarItem>();
   const [opacity, setOpacity] = useState<string>("0");

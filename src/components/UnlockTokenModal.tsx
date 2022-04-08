@@ -38,7 +38,6 @@ export default function UnlockTokenModal() {
     if (showUnlockTokenModal) setApproving("pending");
   }, [showUnlockTokenModal]);
 
-
   // Set up the interval.
   useEffect(() => {
     let delay: number | null = 1500;
@@ -95,9 +94,8 @@ export default function UnlockTokenModal() {
           setToken1({ ...token1, allowance: token1.value.plus(0.001) });
         }
 
-        if (lastTx?.txType === "approve") {
-          setLastTx({ ...lastTx, txReceipt, status: "Indexing" });
-        }
+        setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
+
         setApproving("approved");
         setPool(pool);
         setAddress(address);
@@ -107,7 +105,7 @@ export default function UnlockTokenModal() {
         setShowUnlockTokenModal(false);
         setExecuteUnlock(false);
         switchOnLocation(false);
-        setBlurBG(false)
+        setBlurBG(false);
       }
     }
   }
