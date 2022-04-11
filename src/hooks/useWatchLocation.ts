@@ -79,7 +79,4 @@ export default function useWatchLocation() {
     
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastTx]);
-  useEffect(() => {
-    console.log(token2);
-  }, [token2]);
 }

@@ -59,10 +59,6 @@ export default function TokenSelect({
     }
   }, [location, setTitle, pos]);
 
-  useEffect(() => {
-    console.log("token being selected", selectTokenPos);
-  }, [selectTokenPos]);
-
   function connectWalletOrShowlist() {
     if (accountId) {
       setShowTokenModal(true);
@@ -157,7 +153,7 @@ export default function TokenSelect({
                   onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
                   element={WrappedInput}
                   type="number"
-                  className="h-full w-full rounded-lg bg-opacity-0 bg-white text-2xl outline-none overflow-ellipsis focus:placeholder-gray-200 placeholder-gray-400"
+                  className="h-full w-full rounded-lg bg-opacity-0 bg-white text-2xl outline-none overflow-ellipsis focus:placeholder-gray-200 placeholder-gray-400 mr-2"
                   placeholder="0.0"
                   value={token?.value.gt(0) ? token?.value.dp(5).toString() : ""}
                 />

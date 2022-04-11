@@ -9,7 +9,8 @@ const ConfirmModal = () => {
   const [txMessage, setTxMessage] = useState("Check wallet for transaction to confirm.");
 
   useEffect(() => {
-    switch (location && token1.info && token2.info) {
+    if(token1.info && token2.info)
+    switch (location) {
       case "/stake":
         setTxMessage(`Stake ${token1.value?.toString()} OCEAN in ${token2.info?.symbol} pool`);
         break;

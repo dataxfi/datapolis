@@ -114,7 +114,6 @@ export default function UnlockTokenModal() {
     switch (location) {
       case "/trade":
         setExecuteSwap(setExecute);
-        console.log("set swap execute to false");
         break;
       case "/stake":
         setExecuteStake(setExecute);

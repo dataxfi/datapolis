@@ -30,7 +30,6 @@ export default function DatasetDescription() {
   useEffect(() => {
     if (t2DIDResponse)
       try {
-        console.log(t2DIDResponse);
         setDID(t2DIDResponse.data.id);
         const metadata = t2DIDResponse.data.service.find((el: any) => el.type === "metadata").attributes;
         setName(metadata.main.name);

@@ -43,12 +43,8 @@ export default function useTokenList({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, setDatatokens, setDtTokenResponse]);
 
-  useEffect(() => {
-    console.log("in useEffect", !!accountId , !!!dtTokenResponse , !!web3 , !!chainId);
-    
-    if (accountId && !dtTokenResponse && web3 && chainId) {
-      console.log("fetching datatokens");
-      
+  useEffect(() => {    
+    if (accountId && !dtTokenResponse && web3 && chainId) {    
       if (setLoading) setLoading(true);
       getDtTokenList(web3, chainId)
         .then((res) => {

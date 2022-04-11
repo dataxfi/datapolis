@@ -45,7 +45,7 @@ export default function Snackbar() {
   }, [txDetails, currentNot]);
 
   function errorMessage(currentNot: any) {
-    if (currentNot.error.error.code === 4001) {
+    if (currentNot.error?.error?.code === 4001) {
       return "User rejected transaction";
     } else {
       return currentNot.message;

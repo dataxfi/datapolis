@@ -152,15 +152,14 @@ export default function Swap() {
 
   useEffect(() => {
     if (showUnlockTokenModal && token1.allowance?.gt(token1.value)) {
-      console.log("smoogle");
-      setBlurBG(false)
+      setBlurBG(false);
       setShowUnlockTokenModal(false);
       setExecuteSwap(true);
     }
   }, [token1.allowance]);
 
   useEffect(() => {
-    if (!accountId && (executeSwap || executeUnlock)) {
+    if (!accountId && executeSwap) {
       handleConnect();
       setExecuteSwap(false);
       return;
@@ -178,10 +177,10 @@ export default function Swap() {
           slippage,
           postExchange,
         });
-        setExecuteUnlock(true)
+        setExecuteUnlock(true);
         setShowUnlockTokenModal(true);
         setBlurBG(true);
-        setExecuteSwap(false)
+        setExecuteSwap(false);
       } else if (!swapConfirmed && executeSwap) {
         setPreTxDetails({
           accountId,
@@ -198,7 +197,7 @@ export default function Swap() {
       } else if (executeSwap) {
         swap();
       }
-  }, [swapConfirmed, executeSwap, lastTx?.txType]);
+  }, [swapConfirmed, executeSwap]);
 
   async function updateBalance(address: string) {
     if (!ocean || !accountId) return;
@@ -310,13 +309,13 @@ export default function Swap() {
         boughtAmountGA(token2.value.dp(5).toString(), token2.info.address);
         transactionTypeGA("Trade");
         setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
-        setExecuteSwap(false);
         setPostExchange(new BigNumber(0));
       }
     } catch (error: any) {
       console.log("DataX Caught an Error for Transaction:", lastTx?.txDateId);
       setLastTx({ ...preTxDetails, status: "Failure" });
       setSnackbarItem({ type: "error", message: error.error.message, error });
+    } finally {
       setBlurBG(false);
       setExecuteSwap(false);
       setSwapConfirmed(false);
@@ -547,9 +546,7 @@ export default function Swap() {
                 <button
                   id="executeTradeBtn"
                   onClick={() => {
-            
-                      setExecuteSwap(true);
-                    
+                    setExecuteSwap(true);
                   }}
                   className="txButton"
                   disabled={btnProps.disabled}

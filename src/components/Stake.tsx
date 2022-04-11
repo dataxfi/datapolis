@@ -46,6 +46,9 @@ export default function Stake() {
     setPreTxDetails,
     executeStake,
     setExecuteStake,
+    executeUnlock,
+    setExecuteUnlock,
+    setBlurBG,
   } = useContext(GlobalContext);
 
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
@@ -114,34 +117,41 @@ export default function Stake() {
   }, [accountId, ocean, chainId, token2, token1.value, token1.balance, loading, token1.info, lastTx?.status]);
 
   useEffect(() => {
-    if (!executeStake) return;
-    if (!accountId) {
+    if (!accountId && executeStake) {
       handleConnect();
       setExecuteStake(false);
-    } else if (token1.allowance?.lt(token1.value)) {
-      setLastTx({
-        accountId,
-        status: "Pending",
-        token1,
-        token2,
-        txDateId: Date.now().toString(),
-        txType: "approve",
-      });
-      setShowUnlockTokenModal(true);
-    } else {
-      setShowConfirmModal(true);
-      const preTxDetails: ITxDetails = {
-        accountId,
-        status: "Pending",
-        token1,
-        token2,
-        txDateId: Date.now().toString(),
-        txType: "stake",
-      };
-      setPreTxDetails(preTxDetails);
-      stake(preTxDetails);
+      return
     }
-  }, [executeStake, token1.allowance]);
+
+    if (accountId)
+      if (token1.allowance?.lt(token1.value)) {
+        setPreTxDetails({
+          accountId,
+          status: "Pending",
+          token1,
+          token2,
+          txDateId: Date.now().toString(),
+          txType: "approve",
+        });
+        setExecuteUnlock(true);
+        setShowUnlockTokenModal(true);
+        setBlurBG(true);
+        setExecuteStake(false);
+      } else if (executeStake) {
+        const preTxDetails: ITxDetails = {
+          accountId,
+          status: "Pending",
+          token1,
+          token2,
+          txDateId: Date.now().toString(),
+          txType: "stake",
+        }
+        setPreTxDetails(preTxDetails);
+        setShowConfirmModal(true);
+        setBlurBG(true);
+        stake(preTxDetails);
+      }
+  }, [executeStake, executeUnlock]);
 
   async function getMaxStakeAmt() {
     if (token2.info && ocean) return new BigNumber(await ocean.getMaxStakeAmount(token2.info.pool || "", ocean.config.default.oceanTokenAddress)).dp(5);
@@ -185,33 +195,31 @@ export default function Stake() {
       .catch(console.error);
   }
 
-  async function stake(preTxDetails: ITxDetails) {
-    if (!token2.info || !chainId || !ocean || !accountId || !token1.info?.pool) return;
+  async function stake(preTxDetails:ITxDetails) {
+    if (!token2.info?.pool || !chainId || !ocean || !accountId) return;
+    if (!preTxDetails || preTxDetails.txType !== "stake") return;
+
     try {
       setLoading(true);
       console.log(accountId, token2?.info?.pool, token1.value?.toString());
       const txReceipt = await ocean.stakeOcean(accountId, token2.info.pool || "", token1.value?.toString());
 
-      if (txReceipt) {
-        setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
-        setOceanBalance();
-        stakeAmountGA(token2.value.dp(5).toString(), token2.info.address, token1.info.pool);
-        transactionTypeGA("Stake");
-        if (token2.info) {
-          setImportPool(token2.info.pool);
-        }
-        setShowConfirmModal(false);
-      } else {
-        throw new Error("Didn't receive a receipt.");
-      }
+      setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
+      setOceanBalance();
+      stakeAmountGA(token2.value.dp(5).toString(), token2.info.address, token2.info.pool);
+      transactionTypeGA("Stake");
+      setImportPool(token2.info.pool);
     } catch (error: any) {
       setLastTx({ ...preTxDetails, status: "Failure" });
+      setSnackbarItem({ type: "error", message: error.error.message, error });
       setShowConfirmModal(false);
-      setSnackbarItem({ type: "error", message: error.message });
       setToken1({ ...token1, value: new BigNumber(0) });
     } finally {
       setLoading(false);
       getMaxAndAllowance();
+      setShowConfirmModal(false);
+      setBlurBG(false);
+      setExecuteStake(false)
     }
   }
 

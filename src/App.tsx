@@ -79,10 +79,10 @@ function App() {
         </div>
         <Footer />
       </div>
+      <Snackbar />
       <UnlockTokenModal />
       <CookiesModal />
       <DisclaimerModal />
-      <Snackbar />
       <TxHistoryModal />
       <TokenModal />
       <ConfirmModal />
