@@ -22,9 +22,9 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
       <div className="w-full mx-auto z-0">
         <div
           onClick={() => setVisible(!visible)}
-          className={`flex justify-between p-2  ${visible ? "rounded-t-lg" : "rounded-lg mb-2"} ${
-            true ? "bg-city-blue bg-opacity-10" : "modalSelectBg"
-          }  bg-opacity-75 select-none `}
+          className={`flex justify-between p-2 transition-colors duration-500 ${visible ? "rounded-t-lg" : "rounded-lg mb-2"} ${
+            importPool ? "bg-city-blue bg-opacity-10" : "modalSelectBg bg-opacity-75"
+          }  select-none `}
           role="button"
         >
           <div className="grid grid-flow-col gap-2 items-center justify-start">
@@ -48,7 +48,9 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
           </div>
         </div>
         {visible ? (
-          <div id={`${token1Info.symbol}-lp-info`} className={`p-2 modalSelectBg bg-opacity-75 rounded-b-lg mb-2`}>
+          <div id={`${token1Info.symbol}-lp-info`} className={`p-2 transition-colors duration-500  ${
+            importPool ? "bg-city-blue bg-opacity-10" : "modalSelectBg bg-opacity-75"
+          } rounded-b-lg mb-2`}>
             <div className="py-2 px-4 bg-black bg-opacity-70 rounded-lg">
               <div className="grid grid-cols-2 justify-between">
                 <div>
