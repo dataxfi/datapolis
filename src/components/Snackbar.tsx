@@ -4,7 +4,7 @@ import { ISnackbarItem, ITxDetails } from "../utils/types";
 import { BsX, BsXCircle } from "react-icons/bs";
 import { IoCheckboxOutline } from "react-icons/io5";
 import { getTxUrl } from "../hooks/useTxHistory";
-import BigNumber from 'bignumber.js'
+import BigNumber from "bignumber.js";
 export default function Snackbar() {
   const { snackbarItem, setSnackbarItem, ocean, accountId } = useContext(GlobalContext);
   const [currentNot, setCurrentNot] = useState<ISnackbarItem>();
@@ -13,9 +13,13 @@ export default function Snackbar() {
   const [url, setUrl] = useState<string>();
   const [cleanup, setCleanup] = useState<boolean>(true);
   const [progress, setProgress] = useState<string>("100%");
+
+  useEffect(() => {
+    if (snackbarItem) setProgress("100%");
+  }, [snackbarItem]);
+
   useEffect(() => {
     if (snackbarItem && !currentNot) {
-      console.log(snackbarItem);
       setCurrentNot(snackbarItem);
       setSnackbarItem(undefined);
     }
@@ -49,14 +53,14 @@ export default function Snackbar() {
   }
 
   function display() {
-    //default render time is 6 seconds
+    //render time is 6 seconds
     setTimeout(() => {
       setOpacity("100");
     }, 500);
 
-    setTimeout(()=>{
-      setProgress("0%")
-    }, 500)
+    setTimeout(() => {
+      setProgress("0%");
+    }, 500);
 
     setTimeout(() => {
       setOpacity("0");
@@ -74,7 +78,7 @@ export default function Snackbar() {
       <div className={`relative top-0 left-0 max-w-xs w-full mx-auto bg-black bg-opacity-90 rounded-lg p-1 lg:p-4 transition-opacity ease-in-out opacity-${opacity} duration-500`}>
         <div className="flex justify-between items-center">
           <div className="grid grid-flow-col gap-4 items-center">
-            {(txDetails && currentNot?.type === "tx")? (
+            {txDetails && currentNot?.type === "tx" ? (
               <>
                 <IoCheckboxOutline size="24" className="text-city-blue" />
                 <div>
@@ -117,7 +121,12 @@ export default function Snackbar() {
           </div>
         </div>
         <div className="bottom-0 left-0 w-full bg-gray-900 h-2 absolute rounded-b-full overflow-clip">
-          <div className="h-full bg-stake-blue bg-opacity-60 transition-all transform duration-[5400ms] ease-linear rounded-bl-full rounded-r-full" style={{ width: progress }} />
+          <div
+            className={`h-full ${
+              currentNot.type === "error" ? "bg-red-900" : "bg-stake-blue"
+            } bg-opacity-60 transition-all transform duration-[5400ms] ease-linear rounded-bl-full rounded-r-full`}
+            style={{ width: progress }}
+          />
         </div>
       </div>
     </div>
