@@ -8,7 +8,7 @@ import OutsideClickHandler from "react-outside-click-handler";
 import { MoonLoader } from "react-spinners";
 import BigNumber from "bignumber.js";
 import { getAllowance } from "../hooks/useTokenList";
-import { IBtnProps, ITxDetails } from "../utils/types";
+import { IBtnProps } from "../utils/types";
 import { IMaxExchange } from "@dataxfi/datax.js";
 import DatasetDescription from "./DatasetDescription";
 import ViewDescBtn from "./ViewDescButton";
@@ -195,6 +195,7 @@ export default function Swap() {
         setShowConfirmTxDetails(true);
         setBlurBG(true);
       } else if (executeSwap) {
+        setLastTx(preTxDetails);
         swap();
       }
   }, [swapConfirmed, executeSwap]);

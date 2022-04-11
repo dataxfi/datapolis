@@ -2,13 +2,9 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { useState, useContext, useEffect } from "react";
 import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
 import { MoonLoader } from "react-spinners";
-import Button from "./Button";
-import ConfirmModal from "./ConfirmModal";
-import TransactionDoneModal from "./TransactionDoneModal";
 import { Link } from "react-router-dom";
 import useLiquidityPos from "../hooks/useLiquidityPos";
 import BigNumber from "bignumber.js";
-import UnlockTokenModal from "./UnlockTokenModal";
 import { ITxDetails } from "../utils/types";
 import { getAllowance } from "../hooks/useTokenList";
 import { IBtnProps } from "../utils/types";
@@ -42,7 +38,6 @@ export default function Stake() {
     tokensCleared,
     setSnackbarItem,
     showDescModal,
-    preTxDetails,
     setPreTxDetails,
     executeStake,
     setExecuteStake,
@@ -149,9 +144,10 @@ export default function Stake() {
         setPreTxDetails(preTxDetails);
         setShowConfirmModal(true);
         setBlurBG(true);
+        setLastTx(preTxDetails);
         stake(preTxDetails);
       }
-  }, [executeStake, executeUnlock]);
+  }, [executeStake]);
 
   async function getMaxStakeAmt() {
     if (token2.info && ocean) return new BigNumber(await ocean.getMaxStakeAmount(token2.info.pool || "", ocean.config.default.oceanTokenAddress)).dp(5);
@@ -218,7 +214,6 @@ export default function Stake() {
       setLoading(false);
       getMaxAndAllowance();
       setShowConfirmModal(false);
-      setBlurBG(false);
       setExecuteStake(false)
     }
   }

@@ -133,6 +133,11 @@ export default function UnlockTokenModal() {
     }
   }
 
+  useEffect(() => {
+    console.log(!!token1.info, !!preTxDetails, !!showUnlockTokenModal, !!executeUnlock);
+    
+  }, [token1.info, preTxDetails, showUnlockTokenModal, executeUnlock]);
+
   return token1.info && preTxDetails && showUnlockTokenModal && executeUnlock ? (
     <div id="transactionDoneModal" className="fixed center sm:max-w-sm w-full z-20 shadow">
       <OutsideClickHandler onOutsideClick={close}>

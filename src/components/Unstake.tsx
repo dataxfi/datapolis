@@ -35,7 +35,9 @@ export default function Unstake() {
     setBlurBG,
     setExecuteUnstake,
     executeUnstake,
-    setPreTxDetails
+    setPreTxDetails,
+    executeUnlock,
+    setExecuteUnlock,
   } = useContext(GlobalContext);
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
   const [btnText, setBtnText] = useState("Enter Amount to Remove");
@@ -134,7 +136,7 @@ export default function Unstake() {
   }, [token1.value, lastTx, singleLiquidityPos, maxUnstake, token1.allowance, token1.info, token2.info, ocean]);
 
   useEffect(() => {
-    if (!accountId || !token1 || !token2 || !executeUnstake) return;
+    if (!accountId || !token1.info || !token2.info) return;
     if (token1.allowance?.lt(token1.value)) {
       setPreTxDetails({
         txDateId: Date.now().toString(),
@@ -145,12 +147,13 @@ export default function Unstake() {
         txType: "approve",
         shares,
       });
-
+      setExecuteUnstake(false);
+      setExecuteUnlock(true);
       setShowUnlockTokenModal(true);
       setBlurBG(true);
-    } else {
+    } else if (executeUnstake) {
       setShowConfirmModal(true);
-      handleUnstake({
+      const preTxDetails: ITxDetails = {
         txDateId: Date.now().toString(),
         accountId,
         status: "Pending",
@@ -158,7 +161,11 @@ export default function Unstake() {
         token2,
         txType: "unstake",
         shares,
-      });
+      };
+      setPreTxDetails(preTxDetails);
+      setLastTx(preTxDetails);
+      handleUnstake(preTxDetails);
+      setShowConfirmModal(true);
       setBlurBG(true);
     }
   }, [executeUnstake]);
@@ -251,7 +258,7 @@ export default function Unstake() {
   }
 
   async function handleUnstake(preTxDetails: ITxDetails) {
-    if (!chainId || !singleLiquidityPos || !ocean || !accountId || !preTxDetails) return;
+    if (!chainId || !singleLiquidityPos || !ocean || !accountId || !preTxDetails || !token1.info || !token2.info) return;
 
     setShowConfirmModal(true);
     console.log(`Unstaking from pool ${singleLiquidityPos.address}, ${singleLiquidityPos.shares} shares for ${token1.value?.toFixed(5)} OCEAN`);
@@ -259,26 +266,24 @@ export default function Unstake() {
     try {
       const txReceipt = await ocean.unstakeOcean(accountId, singleLiquidityPos.address, token1.value.dp(5).toString(), singleLiquidityPos.shares.toString());
 
-      if (txReceipt) {
-        setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
-        transactionTypeGA("Unstake");
-        if (token2.info) unstakeAmountGA(token2.value.dp(5).toString(), token2.info.address, singleLiquidityPos.address);
-        if (singleLiquidityPos && preTxDetails.shares) {
-          const newShares = new BigNumber(singleLiquidityPos.shares).minus(preTxDetails.shares);
-          setSingleLiquidityPos({ ...singleLiquidityPos, shares: newShares });
-        }
-      } else {
-        throw new Error("Didn't receive a receipt.");
+      setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
+      transactionTypeGA("Unstake");
+      unstakeAmountGA(token2.value.dp(5).toString(), token2.info.address, singleLiquidityPos.address);
+      if (singleLiquidityPos && preTxDetails.shares) {
+        const newShares = new BigNumber(singleLiquidityPos.shares).minus(preTxDetails.shares);
+        setSingleLiquidityPos({ ...singleLiquidityPos, shares: newShares });
       }
     } catch (error: any) {
       setLastTx({ ...preTxDetails, status: "Failure" });
       setSnackbarItem({ type: "error", message: error.message });
       setShowConfirmModal(false);
       setShowTxDone(false);
+    } finally {
+      setExecuteUnstake(false)
+      setShares(new BigNumber(0));
+      setToken1({ ...token1, value: new BigNumber(0), percentage: new BigNumber(0) });
     }
 
-    setShares(new BigNumber(0));
-    setToken1({ ...token1, value: new BigNumber(0), percentage: new BigNumber(0) });
   }
 
   return (
