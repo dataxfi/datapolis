@@ -41,7 +41,6 @@ export default function Stake() {
     setPreTxDetails,
     executeStake,
     setExecuteStake,
-    executeUnlock,
     setExecuteUnlock,
     setBlurBG,
   } = useContext(GlobalContext);

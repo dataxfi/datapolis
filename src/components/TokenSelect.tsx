@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react";
 import { BsBoxArrowUpRight, BsChevronDown } from "react-icons/bs";
-import TokenModal from "./TokenModal";
 import { DebounceInput } from "react-debounce-input";
 import { useContext } from "react";
-import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
-import Button from "./Button";
+import { GlobalContext } from "../context/GlobalState";
 import BigNumber from "bignumber.js";
 import WrappedInput from "./WrappedInput";
 import { ReactComponent as XLogo } from "../assets/datax-x-logo.svg";
-import { IToken, ITokenInfo } from "@dataxfi/datax.js";
+import { IToken } from "@dataxfi/datax.js";
 import { TokenSelectTitles } from "../utils/types";
 import MaxToolTip from "./MaxToolTip";
 

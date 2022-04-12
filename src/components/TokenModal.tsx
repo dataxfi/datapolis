@@ -29,6 +29,7 @@ export default function TokenModal() {
     setToken1,
     setToken2,
     showTokenModal,
+    setImportPool,
   } = useContext(GlobalContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -63,7 +64,7 @@ export default function TokenModal() {
   }, [chainId, ERC20Tokens]);
 
   const tokenRenderer = (idx: number, key: string | number) => {
-    if (datatokens && showDtks) return <TokenModalItem onClick={tokenSelected} key={key} token={datatokens[idx]}/>;
+    if (datatokens && showDtks) return <TokenModalItem onClick={tokenSelected} key={key} token={datatokens[idx]} />;
     if (ERC20Tokens && !showDtks) return <TokenModalItem onClick={tokenSelected} key={key} token={ERC20Tokens[idx] as ITokenInfo} />;
     return <></>;
   };
@@ -103,8 +104,7 @@ export default function TokenModal() {
         setToken = setToken2;
         break;
       default:
-        // import token
-        // setImportPool(e.pool?.toLowerCase());
+        if (token.pool) setImportPool(token.pool);
         break;
     }
     if (setToken) setToken({ ...INITIAL_TOKEN_STATE, info: token, balance });

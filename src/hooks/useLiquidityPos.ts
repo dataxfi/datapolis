@@ -5,14 +5,12 @@ import { ILiquidityPosition } from "../utils/types";
 import { getToken } from "./useTokenList";
 import BigNumber from "bignumber.js";
 
-export default function useLiquidityPos(
-  importPool?: string | undefined,
-  setImportPool?: React.Dispatch<React.SetStateAction<string | undefined>>
-) {
-  const { allStakedPools, setSingleLiquidityPos, chainId, accountId, ocean, setAllStakedPools, token1, token2, web3 } =
-    useContext(GlobalContext);
+export default function useLiquidityPos(updatePool?: string | undefined, setUpdatePool?: React.Dispatch<React.SetStateAction<string | undefined>>) {
+  const { allStakedPools, setSingleLiquidityPos, chainId, accountId, ocean, setAllStakedPools, token1, token2, web3} = useContext(GlobalContext);
   const location = useLocation();
   const [loading, setLoading] = useState(false);
+
+ 
 
   //sets all staked pools, sets singleLiquidityPos when there is a pool address in the url
   useEffect(() => {
@@ -21,12 +19,7 @@ export default function useLiquidityPos(
 
     if (web3 && ocean && accountId && chainId) {
       let dtPool: string | null = pool;
-      if (
-        dtPool === null &&
-        token1.info &&
-        token2.info &&
-        (ocean.isOCEAN(token1.info.address) || ocean.isOCEAN(token2.info?.address))
-      )
+      if (dtPool === null && token1.info && token2.info && (ocean.isOCEAN(token1.info.address) || ocean.isOCEAN(token2.info?.address)))
         ocean.isOCEAN(token1.info.address) ? (dtPool = token1.info.pool || "") : (dtPool = token2.info.pool || "");
 
       const localStoragePoolData = getLocalPoolData(accountId, chainId);
@@ -59,10 +52,10 @@ export default function useLiquidityPos(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token1.info, token2.info, ocean, accountId, web3]);
 
-  const nextToImport = useRef(importPool);
+  const nextToImport = useRef(updatePool);
   useEffect(() => {
-    if (importPool && chainId && !loading) {
-      updateSingleStakePool(importPool)
+    if (updatePool && chainId && !loading) {
+      updateSingleStakePool(updatePool)
         .then((res) => {
           if (res && allStakedPools) {
             let newData = allStakedPools;
@@ -77,14 +70,14 @@ export default function useLiquidityPos(
         })
         .catch(console.error)
         .finally(() => {
-          if (setImportPool) setImportPool(nextToImport.current);
+          if (setUpdatePool) setUpdatePool(nextToImport.current);
           setLoading(false);
         });
     } else if (loading) {
-      nextToImport.current = importPool;
+      nextToImport.current = updatePool;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [importPool, loading]);
+  }, [updatePool, loading]);
 
   async function updateSingleStakePool(poolAddress: string): Promise<ILiquidityPosition | void> {
     if (!ocean || !accountId || !web3 || !chainId) return;
@@ -145,14 +138,14 @@ export function getLocalPoolData(accountId: string, chainId: string | number): I
     if (oceanAmount) oceanAmount = new BigNumber(oceanAmount);
     if (totalPoolShares) totalPoolShares = new BigNumber(totalPoolShares);
     if (yourPoolSharePerc) yourPoolSharePerc = new BigNumber(yourPoolSharePerc);
-    shares = new BigNumber(shares)
+    shares = new BigNumber(shares);
     return {
       ...pool,
       dtAmount,
       oceanAmount,
       totalPoolShares,
       yourPoolSharePerc,
-      shares
+      shares,
     };
   });
 }

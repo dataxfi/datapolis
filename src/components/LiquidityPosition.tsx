@@ -7,13 +7,13 @@ import { IUserMessage, ILiquidityPosition } from "../utils/types";
 import useLiquidityPos from "../hooks/useLiquidityPos";
 
 export default function LiquidityPosition() {
-  const { accountId, allStakedPools, setShowTokenModal, setBlurBG } = useContext(GlobalContext);
+  const { accountId, allStakedPools, setShowTokenModal, setBlurBG, importPool } = useContext(GlobalContext);
   const [userMessage, setUserMessage] = useState<string | IUserMessage | null>(
     "Dont see your tokens? Import a pool by name with the import button below."
   );
   const [messageId, setMessageId] = useState<string | null>("importMessage");
-  const [importPool, setImportPool] = useState<string>();
-  useLiquidityPos(importPool, setImportPool);
+  const [updatePool, setUpdatePool] = useState<string>();
+  useLiquidityPos(updatePool, setUpdatePool);
 
   useEffect(() => {
     if (!accountId) {
@@ -35,9 +35,9 @@ export default function LiquidityPosition() {
           className="bg-black bg-opacity-90 w-full lg:w-107 p-2 max-h-full rounded-lg px-3 m-auto flex flex-col justify-center"
         >
           <div className="flex flex-row w-full m-auto">
-            <div className="w-full flex pb-1 rounded-lg justify-between">
+            <div className="w-full flex rounded-lg justify-between">
               <h2 className="text-2xl">Your staked pools</h2>
-              {importPool && accountId ? <MoonLoader color="white" size="25px" /> : null}
+              {importPool && accountId ? <MoonLoader color="white" size="25px" /> : <></>}
             </div>
           </div>
 
@@ -51,7 +51,7 @@ export default function LiquidityPosition() {
               />
             </div>
           ) : (
-            <ul className={`${importPool ? " md:mt-1" : "md:mt-5"} pr-3 pl-3 overflow-scroll hm-hide-scrollbar`}>
+            <ul className={`${updatePool ? " md:mt-1" : "md:mt-5"} pr-3 pl-3 overflow-scroll hm-hide-scrollbar`}>
               {allStakedPools?.map((pool: ILiquidityPosition, index: number) => (
                 <LiquidityPositionItem singleLiqPosItem={pool} index={index} />
               ))}

@@ -2,6 +2,10 @@ import { useContext, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
 import BigNumber from "bignumber.js";
+import useLiquidityPos from "./useLiquidityPos";
+
+//work around for being able to use useLocation globaly without a conditionaly rendered component
+
 export default function useWatchLocation() {
   const {
     setLocation,
@@ -17,9 +21,13 @@ export default function useWatchLocation() {
     setToken2,
     location,
     setT2DIDResponse,
+    importPool,
+    setImportPool,
   } = useContext(GlobalContext);
   const currentLocation = useLocation();
   const lastLocation = useRef(currentLocation);
+
+  useLiquidityPos(importPool, setImportPool);
 
   useEffect(() => {
     setLocation(currentLocation.pathname);
@@ -48,11 +56,7 @@ export default function useWatchLocation() {
   const initialAccount = useRef(accountId);
   const navigate = useNavigate();
   useEffect(() => {
-    if (
-      initialAccount.current &&
-      accountId !== initialAccount.current &&
-      currentLocation.pathname === "/stake/remove"
-    ) {
+    if (initialAccount.current && accountId !== initialAccount.current && currentLocation.pathname === "/stake/remove") {
       navigate("/stake/list");
     }
     initialAccount.current = accountId;
@@ -76,7 +80,7 @@ export default function useWatchLocation() {
         setToken1({ ...token1, value: new BigNumber(0) });
       }
     }
-    
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastTx]);
 }

@@ -81,6 +81,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [token1, setToken1] = useState<IToken>(INITIAL_TOKEN_STATE);
   const [token2, setToken2] = useState<IToken>(INITIAL_TOKEN_STATE);
   const [selectTokenPos, setSelectTokenPos] = useState<1 | 2 | null>(null);
+  const [importPool, setImportPool] = useState<string>();
 
   //bg states
   const [bgOff, setBgOff] = useState(false);
@@ -411,8 +412,10 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setExecuteUnstake,
         executeUnlock,
         setExecuteUnlock,
-        approving, 
-        setApproving
+        approving,
+        setApproving,
+        importPool,
+        setImportPool,
       }}
     >
       {children}

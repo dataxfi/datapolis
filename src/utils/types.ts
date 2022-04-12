@@ -190,4 +190,6 @@ export interface globalStates {
   setExecuteUnlock: React.Dispatch<React.SetStateAction<boolean>>;
   approving: ApprovalStates;
   setApproving: React.Dispatch<React.SetStateAction<ApprovalStates>>;
+  importPool?: string;
+  setImportPool: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
