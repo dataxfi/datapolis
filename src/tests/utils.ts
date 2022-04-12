@@ -101,6 +101,9 @@ export async function setupDappBrowser(acct2: boolean = false) {
 export async function quickConnectWallet(page: puppeteer.Page) {
   await page.waitForSelector("#d-wallet-button");
   await page.click("#d-wallet-button");
+  await page.waitForSelector(".sc-hKwDye.iWCqoQ.web3modal-provider-container");
+  await page.waitForTimeout(200)
+  await page.click(".sc-hKwDye.iWCqoQ.web3modal-provider-container");
 }
 
 export async function setupDataX(page: puppeteer.Page, metamask: dappeteer.Dappeteer, network: string, mobile: boolean) {
@@ -109,8 +112,6 @@ export async function setupDataX(page: puppeteer.Page, metamask: dappeteer.Dappe
   await metamask.switchNetwork(network);
   await page.bringToFront();
   await quickConnectWallet(page);
-  await page.waitForSelector(".sc-hKwDye.iWCqoQ.web3modal-provider-container");
-  await page.click(".sc-hKwDye.iWCqoQ.web3modal-provider-container");
 
   try {
     // Confirm Connection in MetaMaks
@@ -556,7 +557,7 @@ async function assertTo3(page: puppeteer.Page, truth: string | number, id: strin
  * @return string of balance
  */
 
-export async function getBalanceInMM(metamask: dappeteer.Dappeteer, symbol: string, chainId:number = 4): Promise<string> {
+export async function getBalanceInMM(metamask: dappeteer.Dappeteer, symbol: string, chainId: number = 4): Promise<string> {
   await metamask.page.bringToFront();
   const assets: puppeteer.JSHandle | undefined = await useXPath(metamask.page, "button", "Assets", false);
   //@ts-ignore
@@ -588,13 +589,8 @@ export function getAfterColon(value: string) {
 export async function getBalanceInDapp(page: puppeteer.Page, pos: BalancePos): Promise<number> {
   await page.bringToFront();
   let balance;
-  if (Number(pos)) {
-    await page.waitForSelector(`#token${pos}-balance`);
-    balance = await page.evaluate(`document.querySelector("#token${pos}-balance").innerText`);
-  } else {
-    await page.waitForSelector(`#oceanBalance`);
-    balance = await page.evaluate(`document.querySelector("#oceanBalance").innerText`);
-  }
+  await page.waitForSelector(`#token${pos}-balance`);
+  balance = await page.evaluate(`document.querySelector("#token${pos}-balance").innerText`);
   const match = balance.match(afterColon);
   const number = match[1].replace(commas, "");
   balance = Number(number);
@@ -919,26 +915,26 @@ export async function selectStakeToken(page: puppeteer.Page, stakeToken: string)
  * @returns The input amount after max calculation.
  */
 
-export async function inputStakeAmt(page: puppeteer.Page, stakeAmt: string): Promise<string> {
-  const origionalAmount = await page.evaluate('document.querySelector("#stakeAmtInput").value');
+export async function inputStakeAmt(page: puppeteer.Page, stakeAmt: string, pos: 1 | 2): Promise<string> {
+  const origionalAmount = await page.evaluate(`document.querySelector("#token${pos}-input").value`);
 
   if (stakeAmt === "max") {
-    await page.waitForSelector("#maxStake");
-    await page.click("#maxStake");
-    await page.waitForSelector("#stakeAmtInput");
-    await page.waitForFunction('Number(document.querySelector("#stakeAmtInput").value) > 0');
+    await page.waitForSelector("#maxBtn");
+    await page.click("#maxBtn");
+    await page.waitForSelector(`#token${pos}-input`);
+    await page.waitForFunction(`Number(document.querySelector("#token${pos}-input").value) > 0`);
   } else {
-    await page.waitForSelector("#stakeAmtInput");
-    await page.type("#stakeAmtInput", stakeAmt, { delay: 150 });
-    await page.waitForFunction(`Number(document.querySelector("#stakeAmtInput").value) !== Number(${origionalAmount})`);
+    await page.waitForSelector(`#token${pos}-input`);
+    await page.type(`#token${pos}-input`, stakeAmt, { delay: 150 });
+    await page.waitForFunction(`Number(document.querySelector("#token${pos}-input").value) !== Number(${origionalAmount})`);
   }
-  return await page.evaluate('document.querySelector("#stakeAmtInput").value');
+  return await page.evaluate(`document.querySelector("#token${pos}-input").value`);
 }
 
 export async function setUpStake(page: puppeteer.Page, stakeToken: string, stakeAmt: string) {
   //open token modal
   await selectStakeToken(page, stakeToken);
-  await inputStakeAmt(page, stakeAmt);
+  await inputStakeAmt(page, stakeAmt, 1);
 }
 
 export async function confirmAndCloseTxDoneModal(page: puppeteer.Page, timeout: number = 120000) {

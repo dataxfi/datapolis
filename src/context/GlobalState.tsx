@@ -95,7 +95,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       const key = localStorage.key(i);
       const value = localStorage.getItem(key || "");
       if (value === "Pending") localStorage.removeItem(key || "");
-      localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER");
+      // localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER");
     }
 
     const bgPref = localStorage.getItem("bgPref");

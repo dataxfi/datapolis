@@ -73,15 +73,15 @@ describe("DataX Navigation User Interface Works as Expected", () => {
   it("Can navigate to Stake from LP", async () => {
     await navToLp(page);
     await navToStakeWPool(page, "SAGKRI-94");
-    await page.waitForSelector("#stakeToken");
-    const text = await page.evaluate('document.querySelector("#stakeToken").innerText');
+    await page.waitForSelector("#selectedToken2");
+    const text = await page.evaluate('document.querySelector("#selectedToken2").innerText');
     expect(text).toBe("SAGKRI-94");
   });
   it("Can reload on Stake with token selected", async () => {
     await page.reload();
     await quickConnectWallet(page);
-    await page.waitForSelector("#stakeToken");
-    const text = await page.evaluate('document.querySelector("#stakeToken").innerText');
+    await page.waitForSelector("#selectedToken2");
+    const text = await page.evaluate('document.querySelector("#selectedToken2").innerText');
     expect(text).toBe("SAGKRI-94");
   });
 });

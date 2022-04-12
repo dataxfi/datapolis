@@ -129,18 +129,18 @@ export default function Swap() {
               })
               .catch(console.error);
           });
+      }
 
-        if (token2.info) {
-          updateBalance(token2.info.address).then((balance) => {
-            if (balance) setToken2({ ...token2, balance, value: new BigNumber(0) });
-          });
-        }
+      if (token2.info) {
+        updateBalance(token2.info.address).then((balance) => {
+          if (balance) setToken2({ ...token2, balance, value: new BigNumber(0) });
+        });
+      }
 
-        if (token1.info && !token2.info) {
-          updateBalance(token1.info.address).then((balance) => {
-            if (balance) setToken1({ ...token1, balance, value: new BigNumber(0) });
-          });
-        }
+      if (token1.info && !token2.info) {
+        updateBalance(token1.info.address).then((balance) => {
+          if (balance) setToken1({ ...token1, balance, value: new BigNumber(0) });
+        });
       }
     } catch (error) {
       console.error(error);

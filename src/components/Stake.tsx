@@ -1,6 +1,6 @@
 import { AiOutlinePlus } from "react-icons/ai";
 import { useState, useContext, useEffect } from "react";
-import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
+import { GlobalContext } from "../context/GlobalState";
 import { MoonLoader } from "react-spinners";
 import { Link } from "react-router-dom";
 import useLiquidityPos from "../hooks/useLiquidityPos";
@@ -55,8 +55,16 @@ export default function Stake() {
   useAutoLoadToken();
 
   useEffect(() => {
-    if (token1.info && token2.info && tokensCleared.current) {
+    if(!tokensCleared.current) return 
+    
+    if (token1.info && token2.info ) {
       getMaxAndAllowance();
+    }
+
+    if (token1.info && !token2.info && ocean && accountId) {
+      ocean.getBalance(token1.info.address, accountId).then((res) => {
+        setToken1({ ...token1, balance: new BigNumber(res)});
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token1.info, token2.info, tokensCleared, accountId]);
@@ -73,7 +81,7 @@ export default function Stake() {
     } else if (!token1.value || token1.value.eq(0)) {
       setBtnProps({
         ...INITIAL_BUTTON_STATE,
-        text: "Enter OCEAN Amount",
+        text: "Enter Stake Amount",
         disabled: true,
       });
     } else if (token1.balance?.eq(0) || (token1.balance && token1.value.gt(token1.balance))) {
@@ -114,7 +122,7 @@ export default function Stake() {
     if (!accountId && executeStake) {
       handleConnect();
       setExecuteStake(false);
-      return
+      return;
     }
 
     if (accountId)
@@ -139,7 +147,7 @@ export default function Stake() {
           token2,
           txDateId: Date.now().toString(),
           txType: "stake",
-        }
+        };
         setPreTxDetails(preTxDetails);
         setShowConfirmModal(true);
         setBlurBG(true);
@@ -190,7 +198,7 @@ export default function Stake() {
       .catch(console.error);
   }
 
-  async function stake(preTxDetails:ITxDetails) {
+  async function stake(preTxDetails: ITxDetails) {
     if (!token2.info?.pool || !chainId || !ocean || !accountId) return;
     if (!preTxDetails || preTxDetails.txType !== "stake") return;
 
@@ -201,7 +209,7 @@ export default function Stake() {
 
       setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
       setOceanBalance();
-      transactionTypeGA("Stake");
+      transactionTypeGA("stake");
       setImportPool(token2.info.pool);
     } catch (error: any) {
       setLastTx({ ...preTxDetails, status: "Failure" });
@@ -212,7 +220,7 @@ export default function Stake() {
       setLoading(false);
       getMaxAndAllowance();
       setShowConfirmModal(false);
-      setExecuteStake(false)
+      setExecuteStake(false);
     }
   }
 
