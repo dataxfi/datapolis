@@ -12,7 +12,7 @@ import { IBtnProps } from "../utils/types";
 import { IMaxExchange } from "@dataxfi/datax.js";
 import DatasetDescription from "./DatasetDescription";
 import ViewDescBtn from "./ViewDescButton";
-import { boughtAmountGA, soldAmountGA, transactionTypeGA } from "../context/Analytics";
+import { transactionTypeGA } from "../context/Analytics";
 
 const INITIAL_MAX_EXCHANGE: IMaxExchange = {
   maxBuy: new BigNumber(0),
@@ -306,8 +306,6 @@ export default function Swap() {
         }
       }
       if (txReceipt) {
-        soldAmountGA(token1.value.dp(5).toString(), token1.info.address);
-        boughtAmountGA(token2.value.dp(5).toString(), token2.info.address);
         transactionTypeGA("Trade");
         setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
         setPostExchange(new BigNumber(0));

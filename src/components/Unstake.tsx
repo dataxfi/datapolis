@@ -14,7 +14,7 @@ import useAutoLoadToken from "../hooks/useAutoLoadToken";
 import TokenSelect from "./TokenSelect";
 import { IMaxUnstake } from "@dataxfi/datax.js";
 import MaxToolTip from "./MaxToolTip";
-import { transactionTypeGA, unstakeAmountGA } from "../context/Analytics";
+import { transactionTypeGA } from "../context/Analytics";
 
 export default function Unstake() {
   const {
@@ -267,8 +267,7 @@ export default function Unstake() {
       const txReceipt = await ocean.unstakeOcean(accountId, singleLiquidityPos.address, token1.value.dp(5).toString(), singleLiquidityPos.shares.toString());
 
       setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
-      transactionTypeGA("Unstake");
-      unstakeAmountGA(token2.value.dp(5).toString(), token2.info.address, singleLiquidityPos.address);
+      transactionTypeGA("unstake");
       if (singleLiquidityPos && preTxDetails.shares) {
         const newShares = new BigNumber(singleLiquidityPos.shares).minus(preTxDetails.shares);
         setSingleLiquidityPos({ ...singleLiquidityPos, shares: newShares });

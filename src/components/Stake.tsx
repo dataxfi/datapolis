@@ -13,7 +13,7 @@ import TokenSelect from "./TokenSelect";
 import PositionBox from "./PositionBox";
 import DatasetDescription from "./DatasetDescription";
 import ViewDescBtn from "./ViewDescButton";
-import { stakeAmountGA, transactionTypeGA } from "../context/Analytics";
+import { transactionTypeGA } from "../context/Analytics";
 
 const INITIAL_BUTTON_STATE = {
   text: "Connect wallet",
@@ -201,7 +201,6 @@ export default function Stake() {
 
       setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
       setOceanBalance();
-      stakeAmountGA(token2.value.dp(5).toString(), token2.info.address, token2.info.pool);
       transactionTypeGA("Stake");
       setImportPool(token2.info.pool);
     } catch (error: any) {
