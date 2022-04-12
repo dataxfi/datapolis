@@ -359,8 +359,8 @@ export async function approveTransactions(metamask: dappeteer.Dappeteer, page: p
 export async function clickMaxTrade(page: puppeteer.Page) {
   await page.bringToFront();
   await page.waitForTimeout(10000);
-  await page.waitForSelector("#maxTrade");
-  await page.click("#maxTrade");
+  await page.waitForSelector("#maxBtn");
+  await page.click("#maxBtn");
   await page.waitForFunction('Number(document.querySelector("#token1-input").value) > 0', { timeout: 8000 });
 }
 
@@ -801,9 +801,6 @@ export async function setupUnstake(page: puppeteer.Page, unstakeAmt: string, ini
 }
 
 export async function inputUnstakeAmt(page: puppeteer.Page, unstakeAmt: string, shares: string) {
-  //expect input and receive amt to have max data attributes
-  await page.waitForSelector("[data-test-max-perc]");
-  await page.waitForSelector("[data-test-max-ocean]");
 
   let receive: string, input: string;
 
@@ -814,15 +811,15 @@ export async function inputUnstakeAmt(page: puppeteer.Page, unstakeAmt: string, 
     await page.waitForSelector("#unstakeAmtInput");
     await page.waitForFunction('Number(document.querySelector("#unstakeAmtInput").value) > 0');
     input = await page.evaluate('document.querySelector("#unstakeAmtInput").value');
-    await page.waitForSelector("#oceanToReceive");
-    await page.waitForFunction('Number(document.querySelector("#oceanToReceive").innerText) > 0');
-    receive = await page.evaluate('document.querySelector("#oceanToReceive").innerText');
+    await page.waitForSelector("#token1-input");
+    await page.waitForFunction('Number(document.querySelector("#token1-input").value) > 0');
+    receive = await page.evaluate('document.querySelector("#token1-input").value');
   } else {
     await page.waitForSelector("#unstakeAmtInput");
     await page.type("#unstakeAmtInput", unstakeAmt, { delay: 150 });
-    await page.waitForSelector("#oceanToReceive");
-    if (Number(shares) > 0) await page.waitForFunction('Number(document.querySelector("#oceanToReceive").innerText) > 0');
-    receive = await page.evaluate('Number(document.querySelector("#oceanToReceive").innerText)');
+    await page.waitForSelector("#token1-input");
+    if (Number(shares) > 0) await page.waitForFunction('Number(document.querySelector("#token1-input").value) > 0');
+    receive = await page.evaluate('Number(document.querySelector("#token1-input").value)');
     input = await page.evaluate('document.querySelector("#unstakeAmtInput").value');
   }
 
@@ -954,8 +951,8 @@ export async function confirmInputClearedAfterStake(page: puppeteer.Page) {
   await page.waitForFunction("document.querySelector('#executeStake').innerText === 'Select a Token'", {
     timeout: 3000,
   });
-  await page.waitForSelector("#stakeAmtInput");
-  await page.waitForFunction("document.querySelector('#stakeAmtInput').value === '0'", { timeout: 3000 });
+  await page.waitForSelector("#token1-input");
+  await page.waitForFunction("document.querySelector('#token1-input').value === '0'", { timeout: 3000 });
 }
 
 export async function confirmInputClearedAfterUnstake(page: puppeteer.Page) {

@@ -126,7 +126,7 @@ describe("Trade Platform User Interface Works as Expected", () => {
   it("If balance is 0 max btn and perc input are disabled, ", async () => {
     await selectToken(page, "ZEASEA-66", 1);
     await awaitTokenSelect(page, "ZEASEA-66", 1);
-    expect(await page.waitForSelector("#maxTrade[disabled]")).toBeDefined();
+    expect(await page.waitForSelector("#maxBtn[disabled]")).toBeDefined();
     expect(await page.waitForSelector("#token1-perc-input[disabled]")).toBeDefined();
   });
 

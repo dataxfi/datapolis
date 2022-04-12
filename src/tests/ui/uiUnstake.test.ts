@@ -18,6 +18,7 @@ import {
   useXPath,
   selectRemoveStakeButton,
   selectOrImportPool,
+  selectToken,
 } from "../utils";
 import BigNumber from "bignumber.js";
 describe("User Interface Works as Expected", () => {
@@ -53,6 +54,13 @@ describe("User Interface Works as Expected", () => {
 
   it("Unstake button is disabled when input = 0", async () => {
     await page.bringToFront();
+    const btnText = await getExecuteButtonText(page, "unstake", "Select");
+    expect(btnText).toBe("Select a Token");
+    expect(await page.waitForSelector("#executeUnstake[disabled]", { timeout: 1500 })).toBeTruthy();
+  });
+
+  it("Unstake button is disabled when input = 0", async () => {
+    await selectToken(page, "OCEAN", 1);
     const btnText = await getExecuteButtonText(page, "unstake", "Enter");
     expect(btnText).toBe("Enter Amount to Remove");
     expect(await page.waitForSelector("#executeUnstake[disabled]", { timeout: 1500 })).toBeTruthy();
@@ -60,19 +68,20 @@ describe("User Interface Works as Expected", () => {
 
   it("Unstake button is enabled when input is > 0", async () => {
     const shares = await getSharesFromUnstake(page);
-    await page.waitForTimeout(2500)
+    await page.waitForTimeout(2500);
     const { input, receive } = await inputUnstakeAmt(page, "1", shares || "");
     expect(Number(input)).toBeGreaterThan(0);
     expect(Number(receive)).toBeGreaterThan(0);
     await page.waitForFunction("document.querySelector('#executeUnstake[disabled]') === null", { timeout: 1500 });
-    const btnText = await getExecuteButtonText(page, "unstake", "Unlock");
-    expect(btnText).toBe("Unlock OCEAN");
+    const btnText = await getExecuteButtonText(page, "unstake", "Withdrawal");
+    expect(btnText).toBe("Withdrawal");
   });
 
   // it("Stake button is disabled when input > balance", async () => {});
   it("Transactions for less than .01 ocean are not allowed", async () => {
     await page.reload();
     await quickConnectWallet(page);
+    await selectToken(page, "OCEAN", 1);
     await page.waitForSelector("#removeStakeModal");
     const shares = await getSharesFromUnstake(page);
     const { input, receive } = await inputUnstakeAmt(page, ".0001", shares || "");
@@ -116,12 +125,13 @@ describe("User Interface Works as Expected", () => {
   });
 
   it("Shares should limit input when less than max stake", async () => {
+    await selectToken(page, "OCEAN", 1);
     const shares = await getSharesFromUnstake(page);
     if (Number(shares) === 0) {
-      expect(await page.waitForSelector("#maxUnstakeBtn[disabled]", { timeout: 1500 })).toBeTruthy();
+      expect(await page.waitForSelector("#maxBtn[disabled]", { timeout: 1500 })).toBeTruthy();
     } else {
       const shares = await getSharesFromUnstake(page);
-      await page.waitForTimeout(2500)
+      await page.waitForTimeout(2500);
       const { input, receive } = await inputUnstakeAmt(page, "max", shares || "");
       expect(Number(input)).toBe(100);
       expect(Number(receive)).toBeGreaterThan(0);

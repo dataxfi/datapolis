@@ -107,10 +107,16 @@ export default function Unstake() {
 
   useEffect(() => {
     setInputDisabled(false);
-    if (!ocean || !singleLiquidityPos || !token1.info || !token2.info) {
+    console.log(token1.info, token2.info);
+
+    if (!ocean || !singleLiquidityPos) {
       setBtnDisabled(true);
       setInputDisabled(true);
       setBtnText("Loading Liquidity Information");
+    } else if (!token1.info) {
+      setBtnDisabled(true);
+      setInputDisabled(true);
+      setBtnText("Select a Token");
     } else if (singleLiquidityPos && Number(singleLiquidityPos.shares) === 0) {
       setBtnDisabled(true);
       setInputDisabled(true);
@@ -278,11 +284,10 @@ export default function Unstake() {
       setShowConfirmModal(false);
       setShowTxDone(false);
     } finally {
-      setExecuteUnstake(false)
+      setExecuteUnstake(false);
       setShares(new BigNumber(0));
       setToken1({ ...token1, value: new BigNumber(0), percentage: new BigNumber(0) });
     }
-
   }
 
   return (
