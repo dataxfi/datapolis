@@ -306,7 +306,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       const parsedId = String(parseInt(chainId));
       console.log(chainId);
       // console.log("Chain changed to ", parsedId);
-      setChainId(chainId);
+      setChainId(parsedId as supportedChains);
       const config = new Config(web3, parsedId);
       // console.log("Config for new chain:");
       setConfig(config);
