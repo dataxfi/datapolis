@@ -32,7 +32,6 @@ export default function useTokenList(otherToken: string, setLoading: Function) {
         .fetchPreparedTokenList(chainId ? chainId : 4)
         .then((res) => {
           setTokenResponse(res);
-          console.log("Token Response:", res);
           //@ts-ignore
           const formattedList = formatTokenList(res, otherToken, location);
           if (setCurrentTokens) setCurrentTokens(formattedList);

@@ -217,8 +217,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       const provider = await web3Modal?.connect();
       setProvider(provider);
       const web3 = new Web3(provider);
-      console.log("Web3");
-      console.log(web3);
+      // console.log("Web3");
+      // console.log(web3);
       setWeb3(web3);
 
       let accounts = await web3.eth.getAccounts();
@@ -232,11 +232,11 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         // This is required to do wallet-specific functions
         const ocean = new Ocean(web3, String(_chainId));
         setOcean(ocean);
-        console.log("chainID - ", chainId);
-        console.log("Pre chainID - ", _chainId);
+        // console.log("chainID - ", chainId);
+        // console.log("Pre chainID - ", _chainId);
         const config = new Config(web3, String(_chainId));
         setConfig(config);
-        console.log(config);
+        // console.log(config);
         const watcher = new Watcher(web3, String(_chainId));
         setWatcher(watcher);
         isSupportedChain(config, String(_chainId), accounts[0] ? accounts[0] : "");
@@ -268,8 +268,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setUnsupportedNet(true);
       } else {
         setUnsupportedNet(false);
-        console.log("Account Id - ", accountId);
-        console.log("Pre Account Id - ", account);
+        // console.log("Account Id - ", accountId);
+        // console.log("Pre Account Id - ", account);
         //account is null when chain changes to prevent switching to an unsigned account
         setAccountId(account);
         setButtonText(account || CONNECT_TEXT);
@@ -295,8 +295,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       let account = accounts[0] ? accounts[0].toLowerCase() : null;
       const localSignature = localStorage.getItem(account ? account : "");
       if (localSignature && localSignature !== "pending") {
-        console.log("Accounts changed to - ", accounts[0]);
-        console.log("Connected Accounts - ", JSON.stringify(accounts));
+        // console.log("Accounts changed to - ", accounts[0]);
+        // console.log("Connected Accounts - ", JSON.stringify(accounts));
         setAccountId(accounts[0]);
         setButtonText(accounts.length && accounts[0] !== "" ? accounts[0] : CONNECT_TEXT);
         setDisclaimerSigned({ client: true, wallet: true });
@@ -318,11 +318,11 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       setTxHistory(null);
       setPendingTxs([]);
       const parsedId = String(parseInt(chainId));
-      console.log(chainId);
-      console.log("Chain changed to ", parsedId);
+      // console.log(chainId);
+      // console.log("Chain changed to ", parsedId);
       setChainId(parseInt(chainId));
       const config = new Config(web3, parsedId);
-      console.log("Config for new chain:");
+      // console.log("Config for new chain:");
       setConfig(config);
       setOcean(new Ocean(web3, String(parseInt(chainId))));
       isSupportedChain(config, parsedId, null);

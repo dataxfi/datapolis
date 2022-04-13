@@ -113,8 +113,7 @@ const Stake = () => {
   // useTokenList("OCEAN", ()=>{})
 
   async function getMaxStakeAmt() {
-    if (token)
-      return new BigNumber(await ocean.getMaxStakeAmount(token.pool, ocean.config.default.oceanTokenAddress)).dp(5);
+    if (token) return new BigNumber(await ocean.getMaxStakeAmount(token.pool, ocean.config.default.oceanTokenAddress)).dp(5);
   }
 
   async function setOceanBalance() {
@@ -147,7 +146,6 @@ const Stake = () => {
 
       if (token.pool)
         getAllowance(ocean.config.default.oceanTokenAddress, accountId, token.pool, ocean).then((res) => {
-          console.log(res)
           setOceanToken({
             ...oceanToken,
             info: {
@@ -300,7 +298,7 @@ const Stake = () => {
       const txReceipt = await ocean.stakeOcean(accountId, token.pool, oceanValToStake?.toString());
 
       if (txReceipt) {
-        setToken(null)
+        setToken(null);
         setOceanValToStake(new BigNumber(0));
         setTxReceipt(txReceipt);
         addTxHistory({
@@ -317,8 +315,8 @@ const Stake = () => {
           stakeAmt: oceanValToStake?.toFixed(5),
           txReceipt,
         });
-        if (token.pool){
-          const json = JSON.parse(getLocalPoolData(accountId, chainId) || "[]")
+        if (token.pool) {
+          const json = JSON.parse(getLocalPoolData(accountId, chainId) || "[]");
           updateSingleStakePool({
             ocean,
             accountId,
@@ -336,7 +334,7 @@ const Stake = () => {
         throw new Error("Didn't receive a receipt.");
       }
     } catch (error: any) {
-      console.error(error)
+      console.error(error);
       const allNotifications = notifications;
       allNotifications.push({
         type: "alert",
@@ -365,9 +363,7 @@ const Stake = () => {
     if (!token) return;
     console.log(ocean);
     let maxStake: BigNumber | null;
-    maxStakeAmt
-      ? (maxStake = maxStakeAmt)
-      : (maxStake = new BigNumber(await ocean.getMaxStakeAmount(token.pool, ocean.config.default.oceanTokenAddress)));
+    maxStakeAmt ? (maxStake = maxStakeAmt) : (maxStake = new BigNumber(await ocean.getMaxStakeAmount(token.pool, ocean.config.default.oceanTokenAddress)));
     console.log("Max Stake Amount - ", maxStake.toFixed(18));
     if (maxStake.isNaN()) {
       setOceanValToStake(new BigNumber(0));
@@ -376,7 +372,11 @@ const Stake = () => {
       if (balance?.lt(maxStake)) {
         setOceanValToStake(balance.dp(5));
       } else {
-        setOceanValToStake(maxStake.dp(5).minus(1));
+        if (maxStake.gt(101)) {
+          setOceanValToStake(maxStake.dp(5).minus(1));
+        } else {
+          setOceanValToStake(maxStake.minus(maxStake.multipliedBy(0.001)).dp(5));
+        }
       }
     }
   }
@@ -444,12 +444,7 @@ const Stake = () => {
           <div id="stakeModal" className="lg:w-107 lg:mx-auto sm:mx-4 mx-3 bg-black bg-opacity-90 rounded-lg p-3 hm-box">
             <div className="flex justify-between">
               {userMessage && userMessage.type === "error" ? (
-                <UserMessageModal
-                  message={userMessage.message}
-                  pulse={true}
-                  container={false}
-                  timeout={{ showState: setUserMessage, time: 5000 }}
-                />
+                <UserMessageModal message={userMessage.message} pulse={true} container={false} timeout={{ showState: setUserMessage, time: 5000 }} />
               ) : userMessage && userMessage.type === "message" ? (
                 <UserMessageModal message={userMessage.message} pulse={true} container={false} timeout={null} />
               ) : null}
@@ -462,21 +457,13 @@ const Stake = () => {
             />
             <div className="px-4 relative mt-6 mb-10">
               <div className="rounded-full border-black border-4 absolute -top-7 bg-trade-darkBlue w-12 h-12 flex items-center justify-center swap-center">
-                {loading ? (
-                  <MoonLoader size={25} color={"white"} />
-                ) : (
-                  <AiOutlinePlus size="30" className="text-gray-300" />
-                )}
+                {loading ? <MoonLoader size={25} color={"white"} /> : <AiOutlinePlus size="30" className="text-gray-300" />}
               </div>
             </div>
             <div className="modalSelectBg p-2 rounded-lg">
               <div className="md:grid md:grid-cols-5">
                 <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center">
-                  <img
-                    src="https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY"
-                    className="w-10 h-10 rounded-md"
-                    alt=""
-                  />
+                  <img src="https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY" className="w-10 h-10 rounded-md" alt="" />
                   <div>
                     <p className="text-xs text-type-200">Token</p>
                     <span className="xs:text-sm sm:text-2xl text-type-200 font-bold grid grid-flow-col items-center gap-1">
@@ -515,11 +502,9 @@ const Stake = () => {
                           id="maxStake"
                           text="Max Stake"
                           classes={`px-2 py-0 lg:w-20 border rounded-full text-xs ${
-                            balance?.isNaN() || balance?.eq(0) || !accountId || !token
-                              ? "text-gray-600 border-gray-600"
-                              : "border-type-300 hover:bg-primary-600"
+                            balance?.isNaN() || balance?.eq(0) || !accountId || !token ? "text-gray-600 border-gray-600" : "border-type-300 hover:bg-primary-600"
                           }`}
-                          disabled={balance && accountId && token ? false : true}
+                          disabled={accountId && token ? false : true}
                         />
                       </div>
                     </div>
@@ -619,12 +604,7 @@ const Stake = () => {
       <TransactionDoneModal show={showTxDone} txHash={recentTxHash} close={() => setShowTxDone(false)} />
 
       {userMessage && userMessage.type === "alert" ? (
-        <UserMessageModal
-          message={userMessage}
-          pulse={false}
-          container={false}
-          timeout={{ showState: setUserMessage, time: 5000 }}
-        />
+        <UserMessageModal message={userMessage} pulse={false} container={false} timeout={{ showState: setUserMessage, time: 5000 }} />
       ) : null}
       {/* <PositionBox />  */}
     </div>

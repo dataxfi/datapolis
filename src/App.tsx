@@ -24,13 +24,8 @@ function App() {
 
   document.getElementById("loader");
 
-  useEffect(() => {
-    console.log(location);
-  }, [location]);
-
   usePTxInitializer();
   useEffect(() => {
-    console.log(process.env.NODE_ENV);
     if (cookiesAllowed) {
       initializeGA();
     }

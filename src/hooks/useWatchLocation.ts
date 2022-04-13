@@ -6,7 +6,6 @@ export default function useWatchLocation (){
     const {location, setLocation} = useContext(GlobalContext)
     const currentLocation = useLocation()
     useEffect(()=>{
-        console.log(currentLocation);
         setLocation(currentLocation.pathname)
     }, [currentLocation])
 }
