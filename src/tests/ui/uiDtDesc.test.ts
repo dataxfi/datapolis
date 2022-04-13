@@ -18,7 +18,7 @@ describe("Datatoken previews should work as expected", () => {
     }
     await acceptCookies(page);
     await navToTradeXFromLanding(page);
-    await setupDataX(page, metamask, "polygon", false);
+    await setupDataX(page, metamask, "rinkeby", false);
     await page.bringToFront();
   });
 
@@ -31,17 +31,22 @@ describe("Datatoken previews should work as expected", () => {
     //open token modal
     const selectToken2 = await page.waitForSelector("#selectToken2");
     await selectToken2?.click();
+    await page.waitForTimeout(150)
     //select datatoken
     const tokenModal = await page.waitForSelector("#tokenModal", { timeout: 3000 });
     expect(tokenModal).toBeDefined();
-    const ARCCOR20 = await page.waitForSelector("#ARCCOR-20-btn", { timeout: 3000 });
+    await page.waitForTimeout(150)
+    const ARCCOR20 = await page.waitForSelector("#ZEASEA-66-btn", { timeout: 3000 });
     expect(ARCCOR20).toBeDefined;
     ARCCOR20?.click();
     //check datatoken populates field
     await page.waitForTimeout(500);
     const selectedToken1 = await page.waitForSelector("#selectedToken1");
     const innerText = await selectedToken1?.getProperty("innerText");
-    expect(innerText).toBe("ARCCOR-20");
+    expect(innerText).toBe("ZEASEA-66");
+    //press preview dataset button
+    const previewDatasetButton = await page.waitForSelector("#viewDescButton");
+    await previewDatasetButton?.click();
     //ensure token preview opens
     const datasetPreviewModal = await page.waitForSelector("#dataset-desc-vis");
     expect(datasetPreviewModal).toBeDefined();

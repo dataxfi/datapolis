@@ -38,6 +38,8 @@
     "test-uiTrade": "react-scripts test --preset @chainsafe/dappeteer src/tests/ui/uiTrade.test.ts",
     "test-uiUnstake": "react-scripts test --preset @chainsafe/dappeteer src/tests/ui/uiUnstake.test.ts",
     "test-uiLP": "react-scripts test --preset @chainsafe/dappeteer src/tests/ui/uiLP.test.ts",
+    "test-uiDtDesc": "react-scripts test --preset @chainsafe/dappeteer src/tests/ui/uiDtDesc.test.ts",
+    "test-uiTokenList": "react-scripts test --preset @chainsafe/dappeteer src/tests/ui/uiDtDesc.test.ts",
     "test-uiCookies": "react-scripts test --preset @chainsafe/dappeteer src/tests/ui/uiCookies.test.ts",
     "test-uiDisclaimer": "react-scripts test --preset @chainsafe/dappeteer src/tests/ui/uiDisclaimer.test.ts",
     "test-rinkeby-txs": "yarn run test-rinkeby-tradex && yarn run test-rinkeby-stakex && yarn run test-rinkeby-unstake",
