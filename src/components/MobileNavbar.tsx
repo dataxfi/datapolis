@@ -2,7 +2,6 @@ import { Link, useLocation } from "react-router-dom";
 import { MdMenu, MdClose } from "react-icons/md";
 import { useState, useEffect, useContext } from "react";
 import { GlobalContext } from "../context/GlobalState";
-import Button from "./Button";
 import PendingTxsIndicator from "./PendingTxsIndicator";
 import { INavText } from "../utils/types";
 
@@ -12,7 +11,7 @@ const MobileNavbar = ({
   network,
   handleModalOrConnect,
 }: {
-  links: Array<{ name: string, link: string }>;
+  links: Array<{ name: string; link: string }>;
   text: INavText;
   wallet: string;
   truncateId: Function;
@@ -40,7 +39,7 @@ const MobileNavbar = ({
 
   return (
     <header id="mobileNavbar" className="flex flex-col">
-      <div className={`flex lg:hidden bg-black ${bgOff? "bg-opacity-0": "bg-opacity-75"}  justify-between items-center py-2 border-gray-800 pr-4`}>
+      <div className={`flex lg:hidden bg-black ${bgOff ? "bg-opacity-0" : "bg-opacity-75"}  justify-between items-center py-2 border-gray-800 pr-4`}>
         <div className="flex flex-row justify-start ml-4">
           <Link to={"/"} className="lg:w-auto font-spectral text-3xl">
             Datapolis
@@ -94,13 +93,14 @@ const MobileNavbar = ({
           <div className="flex flex-row justify-center align-middle  w-full ">
             <div className={`flex flex-row bg-primary-900 ${accountId ? "pl-2" : ""}  pr-1 py-1 rounded-lg`}>
               {" "}
-              <p className="text-xs self-center rounded-l-lg">{accountId ? <span>{network}</span> : null}</p>
-              <Button
+              <div className="text-xs self-center rounded-l-lg">{accountId ? <span>{network}</span> : null}</div>
+              <button
                 id={`${accountId ? "m-view-txs-btn" : "m-wallet-button"}`}
-                text={`${accountId ? `${truncateId()}` : "Connect wallet"}`}
                 onClick={() => handleModalOrConnect()}
-                classes={`hm-btn text-xs ml-2 ${accountId ? "px-1" : ""}py-1 bg-black`}
-              />
+                className={`hm-btn text-xs ml-2 ${accountId ? "px-1" : ""} py-1 bg-black rounded`}
+              >
+                {accountId ? `${truncateId()}` : "Connect wallet"}
+              </button>
             </div>
           </div>
 

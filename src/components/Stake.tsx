@@ -11,7 +11,7 @@ import { IBtnProps } from "../utils/types";
 import useAutoLoadToken from "../hooks/useAutoLoadToken";
 import TokenSelect from "./TokenSelect";
 import PositionBox from "./PositionBox";
-import DatasetDescription from "./DatasetDescription";
+import DatasetDescription from "./DTDescriptionModal";
 import ViewDescBtn from "./ViewDescButton";
 import { transactionTypeGA } from "../context/Analytics";
 

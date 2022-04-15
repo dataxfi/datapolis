@@ -10,7 +10,7 @@ import BigNumber from "bignumber.js";
 import { getAllowance } from "../hooks/useTokenList";
 import { IBtnProps } from "../utils/types";
 import { IMaxExchange } from "@dataxfi/datax.js";
-import DatasetDescription from "./DatasetDescription";
+import DatasetDescription from "./DTDescriptionModal";
 import ViewDescBtn from "./ViewDescButton";
 import { transactionTypeGA } from "../context/Analytics";
 
@@ -489,7 +489,7 @@ export default function Swap() {
       <DatasetDescription />
       <div
         className={`absolute w-full max-w-[32rem] top-1/2 left-1/2 transition-transform transform duration-500 ${
-          showDescModal ? "translate-x-full 2lg:translate-x-0" : "-translate-x-1/2"
+          showDescModal ? "translate-x-[125%] 2lg:translate-x-0" : "-translate-x-1/2"
         } -translate-y-1/2`}
       >
         <div className="sm:mx-4 mx-3">

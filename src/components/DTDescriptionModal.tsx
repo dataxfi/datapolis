@@ -15,9 +15,9 @@ export default function DatasetDescription() {
   const [dateCreated, setDateCreate] = useState<string>();
   const [author, setAuthor] = useState<string>();
   const [did, setDID] = useState<string>();
-
+  const [xAmt, setXAmt] = useState<number>(window.innerWidth);
   const { setSnackbarItem, ocean, token2, showDescModal, setShowDescModal, t2DIDResponse, setT2DIDResponse } = useContext(GlobalContext);
-
+  const [changeLoc, setChangeLoc] = useState(false);
   useEffect(() => {
     if (!showDescModal) {
       setTimeout(() => {
@@ -46,13 +46,13 @@ export default function DatasetDescription() {
       }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [t2DIDResponse]);
-
+  
   return (
     <div
       id={`${showDescModal && t2DIDResponse && token2.info ? "dataset-desc-vis" : "dataset-desc-invis"}`}
-      className={`absolute top-1/2 max-w-[550px] -translate-y-1/2 items-center w-full -left-full 2lg:w-1/3 2lg:-left-1/3 transition-transform transform duration-500 px-2 ${
-        showDescModal && t2DIDResponse && token2.info ? "translate-x-full 2lg:translate-x-[150%]" : ""
-      }`}
+      className={`absolute max-w-[550px] top-1/2 left-1/2 ${
+        showDescModal && t2DIDResponse && token2.info ? "-translate-x-1/2 2lg:-translate-x-full" : "translate-x-[-225%] 2lg:translate-x-[-260%]"
+      } -translate-y-1/2 items-center w-full transition-transform transform duration-500 px-2`}
     >
       <div className="flex flex-col max-h-[750px] bg-black bg-opacity-90 rounded-lg p-4">
         {description ? (

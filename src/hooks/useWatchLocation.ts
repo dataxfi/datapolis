@@ -23,6 +23,7 @@ export default function useWatchLocation() {
     setT2DIDResponse,
     importPool,
     setImportPool,
+    setShowDescModal
   } = useContext(GlobalContext);
   const currentLocation = useLocation();
   const lastLocation = useRef(currentLocation);
@@ -33,6 +34,7 @@ export default function useWatchLocation() {
     setLocation(currentLocation.pathname);
     setToken1(INITIAL_TOKEN_STATE);
     setToken2(INITIAL_TOKEN_STATE);
+    setShowDescModal(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentLocation]);
 
