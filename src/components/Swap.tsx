@@ -566,17 +566,17 @@ export default function Swap() {
                 >
                   <div className="flex justify-between my-1">
                     <p>Exchange rate</p>
-                    <p>
+                    <p className={`${token2?.loading || token1?.loading || percLoading ? "blur-xs" : ""}`}>
                       1 {token1.info.symbol} = {postExchange.dp(5).toString()} {`${" "}${token2.info.symbol}`}
                     </p>
                   </div>
                   <div className="flex justify-between my-1">
                     <p>Swap Fee</p>
-                    <p>{swapFee?.dp(5).toString() + " " + token1.info?.symbol}</p>
+                    <p className={`${token2?.loading || token1?.loading || percLoading ? "blur-xs" : ""}`}>{swapFee?.dp(5).toString() + " " + token1.info?.symbol}</p>
                   </div>{" "}
                   <div className="flex justify-between my-1">
                     <p>Minimum Received</p>
-                    <p>{minReceived?.dp(5).toString() + " " + token2.info?.symbol}</p>
+                    <p className={`${token2?.loading || token1?.loading || percLoading ? "blur-xs" : ""}`}>{minReceived?.dp(5).toString() + " " + token2.info?.symbol}</p>
                   </div>
                 </div>
               ) : (

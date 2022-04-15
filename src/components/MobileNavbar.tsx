@@ -94,7 +94,7 @@ const MobileNavbar = ({
           <div className="flex flex-row justify-center align-middle  w-full ">
             <div className={`flex flex-row bg-primary-900 ${accountId ? "pl-2" : ""}  pr-1 py-1 rounded-lg`}>
               {" "}
-              <p className="text-xs self-center rounded-l-lg">{accountId ? `${network}` : null}</p>
+              <p className="text-xs self-center rounded-l-lg">{accountId ? <span>{network}</span> : null}</p>
               <Button
                 id={`${accountId ? "m-view-txs-btn" : "m-wallet-button"}`}
                 text={`${accountId ? `${truncateId()}` : "Connect wallet"}`}
