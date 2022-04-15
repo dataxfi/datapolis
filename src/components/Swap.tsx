@@ -560,7 +560,7 @@ export default function Swap() {
 
               {token1?.info && token2?.info && token1.value.gt(0) && token2.value.gt(0) && postExchange.gt(0) ? (
                 <div
-                  className={`my-4 p-2 bg-city-blue transition-opacity ${
+                  className={`my-4 p-2 bg-black border border-city-blue border-opacity-50 transition-opacity ${
                     token2?.loading || token1?.loading || percLoading ? "bg-opacity-10 text-gray-400" : "bg-opacity-25 text-gray-300"
                   } flex flex-col justify-between text-sm rounded-lg`}
                 >

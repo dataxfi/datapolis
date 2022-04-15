@@ -54,7 +54,7 @@ export default function PositionBox({
   }
 
   return (
-    <div className="flex border border-gray-600 mt-4 rounded-lg p-2 w-full">
+    <div className="flex border border-city-blue border-opacity-50 mt-4 rounded-lg p-2 w-full">
       <div className="my-1 mr-4">
         <p className="text-gray-300 text-xs">Swap Rate</p>
         {token2.info && oceanToDt.gt(0) && dtToOcean.gt(0) && !loading ? (
