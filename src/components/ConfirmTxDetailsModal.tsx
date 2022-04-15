@@ -7,33 +7,23 @@ import BigNumber from "bignumber.js";
 import OutsideClickHandler from "react-outside-click-handler";
 
 export default function ConfirmTxDetailsModal() {
-  const { ocean, token1, token2, setShowConfirmTxDetails, showConfirmTxDetails, preTxDetails, setLastTx, setShowConfirmModal, setSwapConfirmed, setBlurBG, setExecuteSwap } =
-    useContext(GlobalContext);
-  const [swapFee, setswapFee] = useState<BigNumber>(new BigNumber(0));
-  const [minReceived, setMinReceived] = useState<BigNumber>(new BigNumber(0));
-
-  useEffect(() => {
-    if (showConfirmTxDetails && preTxDetails && preTxDetails.slippage) {
-      const exchange: BigNumber = token2.value;
-      const slip = new BigNumber(exchange).times(preTxDetails.slippage).div(100);
-      const min = new BigNumber(exchange).minus(slip);
-      setMinReceived(min);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token2.value, preTxDetails, preTxDetails?.slippage, showConfirmTxDetails]);
-
-  useEffect(() => {
-    if (showConfirmTxDetails) {
-      if (ocean && token1.info && token1.value.gt(0) && token2.info) {
-        (async () => {
-          const pool = token1.info?.symbol === "OCEAN" ? token2.info?.pool : token1.info?.pool;
-          if (!pool) return;
-          const swapFee = new BigNumber(await ocean.calculateSwapFee(pool, token1.value.dp(5).toString()));
-          setswapFee(swapFee);
-        })();
-      }
-    }
-  });
+  const {
+    ocean,
+    token1,
+    token2,
+    setShowConfirmTxDetails,
+    showConfirmTxDetails,
+    preTxDetails,
+    setLastTx,
+    setShowConfirmModal,
+    setSwapConfirmed,
+    setBlurBG,
+    setExecuteSwap,
+    swapFee,
+    setSwapFee,
+    minReceived,
+    setMinReceived,
+  } = useContext(GlobalContext);
 
   function confirm() {
     setShowConfirmTxDetails(false);
@@ -43,7 +33,7 @@ export default function ConfirmTxDetailsModal() {
   }
 
   function close() {
-    setExecuteSwap(false)
+    setExecuteSwap(false);
     setShowConfirmTxDetails(false);
     setBlurBG(false);
     setSwapConfirmed(false);
@@ -72,7 +62,7 @@ export default function ConfirmTxDetailsModal() {
             {/* <ConfirmSwapListItem name="Route" value="ETH > KNC" /> */}
             <ConfirmSwapListItem name="Minimum received" value={minReceived.dp(5).toString()} />
             {/* <ConfirmSwapListItem name="Price impact" value="-0.62%" valueClass="text-green-500" /> */}
-            <ConfirmSwapListItem name="Swap fee" value={swapFee.dp(5).toString() + " " + token1.info?.symbol} />
+            <ConfirmSwapListItem name="Swap fee" value={swapFee?.dp(5).toString() + " " + token1.info?.symbol} />
             <ConfirmSwapListItem name="DataX fee" value="0" />
             {/* <ConfirmSwapListItem name="DataX fee" value="0.000000006 ETH" /> */}
             <ConfirmSwapListItem name="Slippage tolerance" value={preTxDetails?.slippage + "%"} />

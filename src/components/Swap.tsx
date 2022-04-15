@@ -50,6 +50,10 @@ export default function Swap() {
     showUnlockTokenModal,
     setSwapConfirmed,
     approving,
+    swapFee,
+    setSwapFee,
+    minReceived,
+    setMinReceived,
   } = useContext(GlobalContext);
   const [showSettings, setShowSettings] = useState(false);
   const [exactToken, setExactToken] = useState<number>(1);
@@ -157,6 +161,27 @@ export default function Swap() {
       setExecuteSwap(true);
     }
   }, [token1.allowance]);
+
+  useEffect(() => {
+    if (token2.value.gt(0)) {
+      const exchange: BigNumber = token2.value;
+      const slip = new BigNumber(exchange).times(slippage).div(100);
+      const min = new BigNumber(exchange).minus(slip);
+      setMinReceived(min);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token2.value, slippage]);
+
+  useEffect(() => {
+    if (ocean && token1.info && token1.value.gt(0) && token2.info) {
+      (async () => {
+        const pool = token1.info?.symbol === "OCEAN" ? token2.info?.pool : token1.info?.pool;
+        if (!pool) return;
+        const swapFee = new BigNumber(await ocean.calculateSwapFee(pool, token1.value.dp(5).toString()));
+        setSwapFee(swapFee);
+      })();
+    }
+  });
 
   useEffect(() => {
     if (!accountId && executeSwap) {
@@ -349,17 +374,20 @@ export default function Swap() {
           text: `Not Enough ${token1.info.symbol}`,
           disabled: true,
         });
-      } else if (ocean && ((ocean.isOCEAN(token1.info.address) && token1.value.lt(0.01)) || (ocean.isOCEAN(token2.info.address) && token2.value.lt(0.01)))) {
+      } else if (
+        ocean &&
+        ((ocean.isOCEAN(token1.info.address) && token1.value.lt(0.01) && token1.value.gt(0)) || (ocean.isOCEAN(token2.info.address) && token2.value.lt(0.01) && token2.value.gt(0)))
+      ) {
         setBtnProps({
           text: `Minimum trade is .01 OCEAN`,
           disabled: true,
         });
-      } else if (token1.value.lt(0.001)) {
+      } else if (token1.value.lt(0.001) && token1.value.gt(0)) {
         setBtnProps({
           text: `Minimum trade is .001 ${token1.info.symbol}`,
           disabled: true,
         });
-      } else if (token2.value.lt(0.001)) {
+      } else if (token2.value.lt(0.001) && token2.value.gt(0)) {
         setBtnProps({
           text: `Minimum trade is .001 ${token2.info.symbol}`,
           disabled: true,
@@ -530,12 +558,26 @@ export default function Swap() {
               </div>
               <TokenSelect setToken={setToken2} token={token2} max={maxExchange.maxBuy} otherToken={token1.info ? token1.info.symbol : ""} pos={2} updateNum={dbUpdateToken2} />
 
-              {token1?.info && token2?.info && postExchange.isNaN && postExchange.gt(0) ? (
-                <div className="my-4 p-2 modalSelectBg flex justify-between text-gray-400 text-sm rounded-lg">
-                  <p>Exchange rate</p>
-                  <p>
-                    1 {token1.info.symbol} = {postExchange.dp(5).toString()} {`${" "}${token2.info.symbol}`}
-                  </p>
+              {token1?.info && token2?.info && token1.value.gt(0) && token2.value.gt(0) && postExchange.gt(0) ? (
+                <div
+                  className={`my-4 p-2 bg-city-blue transition-opacity ${
+                    token2?.loading || token1?.loading || percLoading ? "bg-opacity-10 text-gray-400" : "bg-opacity-25 text-gray-300"
+                  } flex flex-col justify-between text-sm rounded-lg`}
+                >
+                  <div className="flex justify-between my-1">
+                    <p>Exchange rate</p>
+                    <p>
+                      1 {token1.info.symbol} = {postExchange.dp(5).toString()} {`${" "}${token2.info.symbol}`}
+                    </p>
+                  </div>
+                  <div className="flex justify-between my-1">
+                    <p>Swap Fee</p>
+                    <p>{swapFee?.dp(5).toString() + " " + token1.info?.symbol}</p>
+                  </div>{" "}
+                  <div className="flex justify-between my-1">
+                    <p>Minimum Received</p>
+                    <p>{minReceived?.dp(5).toString() + " " + token2.info?.symbol}</p>
+                  </div>
                 </div>
               ) : (
                 <></>
@@ -548,7 +590,7 @@ export default function Swap() {
                     setExecuteSwap(true);
                   }}
                   className="txButton"
-                  disabled={btnProps.disabled}
+                  disabled={btnProps.disabled || token2.loading || token1.loading || percLoading}
                 >
                   {btnProps.text}
                 </button>

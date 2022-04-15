@@ -192,4 +192,8 @@ export interface globalStates {
   setApproving: React.Dispatch<React.SetStateAction<ApprovalStates>>;
   importPool?: string;
   setImportPool: React.Dispatch<React.SetStateAction<string | undefined>>;
+  swapFee: BigNumber;
+  setSwapFee: React.Dispatch<React.SetStateAction<BigNumber>>;
+  minReceived: BigNumber;
+  setMinReceived: React.Dispatch<React.SetStateAction<BigNumber>>;
 }

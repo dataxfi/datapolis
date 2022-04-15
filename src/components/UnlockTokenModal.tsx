@@ -133,58 +133,61 @@ export default function UnlockTokenModal() {
     }
   }
 
-  useEffect(() => {
-    console.log(!!token1.info, !!preTxDetails, !!showUnlockTokenModal, !!executeUnlock);
-    
-  }, [token1.info, preTxDetails, showUnlockTokenModal, executeUnlock]);
-
   return token1.info && preTxDetails && showUnlockTokenModal && executeUnlock ? (
-    <div id="transactionDoneModal" className="fixed center sm:max-w-sm w-full z-20 shadow">
-      <OutsideClickHandler onOutsideClick={close}>
-        <div className="bg-black border items-center flex flex-col rounded-lg pb-8 pt-2 px-4 hm-box mx-3">
-          <div className="flex w-full  justify-end">
-            <button onClick={close}>
-              <MdClose id="closeTokenModalBtn" className="text-gray-100 text-2xl" />
+    location !== "/moo" ? (
+      <div id="transactionDoneModal" className="fixed center sm:max-w-sm w-full z-20 shadow">
+        <OutsideClickHandler onOutsideClick={close}>
+          <div className="bg-black border items-center flex flex-col rounded-lg pb-8 pt-2 px-4 hm-box mx-3">
+            <div className="flex w-full  justify-end">
+              <button onClick={close}>
+                <MdClose id="closeTokenModalBtn" className="text-gray-100 text-2xl" />
+              </button>
+            </div>
+            <div className="pb-5">
+              {approving === "pending" ? (
+                <BiLockAlt size="72px" className="text-city-blue" />
+              ) : approving === "approving" ? (
+                <BiLockAlt size="72px" className="text-city-blue animate-bounce" />
+              ) : (
+                <BiLockOpenAlt size="72px" className="text-city-blue animate-bounce" />
+              )}
+            </div>
+            <h3 className="text-sm lg:text-2xl pb-5">Unlock {token1.info.symbol}</h3>
+            <p className="text-sm lg:text-base text-center pb-5">
+              DataX needs your permission to spend {location === remove ? preTxDetails.shares?.dp(5).toString() : token1.value.dp(5).toString()}{" "}
+              {location === remove ? "shares" : token1.info.symbol}.
+            </p>
+
+            <button
+              id="perm-unlock-btn"
+              onClick={() => {
+                unlockTokens("perm");
+              }}
+              className="w-full p-2 rounded-lg mb-2 bg-opacity-20 txButton"
+              disabled={approving === "approving" || pool || address ? true : false}
+            >
+              Unlock Permanently
+            </button>
+            <button
+              id="unlock-once-btn"
+              onClick={() => {
+                unlockTokens("once");
+              }}
+              disabled={approving === "approving" || pool || address ? true : false}
+              className="w-full p-2 rounded-lg mb-2 bg-opacity-20 txButton"
+            >
+              Unlock this time only
             </button>
           </div>
-          <div className="pb-5">
-            {approving === "pending" ? (
-              <BiLockAlt size="72px" className="text-city-blue" />
-            ) : approving === "approving" ? (
-              <BiLockAlt size="72px" className="text-city-blue animate-bounce" />
-            ) : (
-              <BiLockOpenAlt size="72px" className="text-city-blue animate-bounce" />
-            )}
-          </div>
-          <h3 className="text-sm lg:text-2xl pb-5">Unlock {token1.info.symbol}</h3>
-          <p className="text-sm lg:text-base text-center pb-5">
-            DataX needs your permission to spend {location === remove ? preTxDetails.shares?.dp(5).toString() : token1.value.dp(5).toString()}{" "}
-            {location === remove ? "shares" : token1.info.symbol}.
-          </p>
-
-          <button
-            id="perm-unlock-btn"
-            onClick={() => {
-              unlockTokens("perm");
-            }}
-            className="w-full p-2 rounded-lg mb-2 bg-opacity-20 txButton"
-            disabled={approving === "approving" || pool || address ? true : false}
-          >
-            Unlock Permanently
-          </button>
-          <button
-            id="unlock-once-btn"
-            onClick={() => {
-              unlockTokens("once");
-            }}
-            disabled={approving === "approving" || pool || address ? true : false}
-            className="w-full p-2 rounded-lg mb-2 bg-opacity-20 txButton"
-          >
-            Unlock this time only
-          </button>
-        </div>
-      </OutsideClickHandler>
-    </div>
+        </OutsideClickHandler>
+      </div>
+    ) : (
+      <div className="mt-4">
+        <button id="confirmSwapModalBtn" onClick={() => {unlockTokens("once")}} className="px-4 py-2 text-lg w-full txButton rounded-lg">
+          Confirm swap
+        </button>
+      </div>
+    )
   ) : (
     <></>
   );

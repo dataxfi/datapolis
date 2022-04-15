@@ -86,9 +86,9 @@ export default function TokenSelect({
               connectWalletOrShowlist();
             }}
           >
-            <p className="text-xs text-gray-200 text-center">{title}</p>
+            <p className="text-xs text-gray-200 text-left">{title}</p>
             {token?.info && tokensCleared.current ? (
-              <span className="text-sm sm:text-2xl text-gray-200 font-bold grid grid-flow-col items-center gap-1 ">
+              <span className="text-sm sm:text-2xl text-gray-200 font-bold flex justify-center items-center">
                 <span id={`selectedToken${pos}`} className="text-sm sm:text-lg">
                   {token.info.symbol}
                 </span>

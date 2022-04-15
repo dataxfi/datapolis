@@ -64,7 +64,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [executeUnstake, setExecuteUnstake] = useState<boolean>(false);
   const [executeUnlock, setExecuteUnlock] = useState<boolean>(false);
   const [approving, setApproving] = useState<ApprovalStates>("pending");
-
+  const [swapFee, setSwapFee] = useState<BigNumber>(new BigNumber(0));
+  const [minReceived, setMinReceived] = useState<BigNumber>(new BigNumber(0));
   //user pool information states
   const [allStakedPools, setAllStakedPools] = useState<ILiquidityPosition[]>();
   const [singleLiquidityPos, setSingleLiquidityPos] = useState<ILiquidityPosition>();
@@ -416,6 +417,10 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setApproving,
         importPool,
         setImportPool,
+        swapFee,
+        setSwapFee,
+        minReceived, 
+        setMinReceived
       }}
     >
       {children}
