@@ -13,7 +13,6 @@ import WatchLocation from "./components/WatchLocation";
 import CookiesModal from "./components/CookiesModal";
 import ConfirmModal from "./components/ConfirmModal";
 import useTxHistory from "./hooks/useTxHistory";
-import useTokenDesc from "./hooks/useTokenDesc";
 import LandingPage from "./components/LandingPage";
 import TokenModal from "./components/TokenModal";
 import BigNumber from "bignumber.js";
@@ -31,7 +30,6 @@ function App() {
 
   document.getElementById("loader");
   useTxHistory();
-  useTokenDesc();
 
   useEffect(() => {
     if (cookiesAllowed) {

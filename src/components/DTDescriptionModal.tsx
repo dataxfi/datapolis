@@ -9,23 +9,34 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import style from "../markdown.module.css";
 import { BsArrowLeft, BsArrowRight, BsBoxArrowUpRight } from "react-icons/bs";
+import axios from "axios";
+import { IToken } from "@dataxfi/datax.js";
 export default function DatasetDescription() {
   const [description, setDescription] = useState<string>();
   const [name, setName] = useState<string>();
   const [dateCreated, setDateCreate] = useState<string>();
   const [author, setAuthor] = useState<string>();
   const [did, setDID] = useState<string>();
-  const [xAmt, setXAmt] = useState<number>(window.innerWidth);
-  const { setSnackbarItem, ocean, token2, showDescModal, setShowDescModal, t2DIDResponse, setT2DIDResponse } = useContext(GlobalContext);
-  const [changeLoc, setChangeLoc] = useState(false);
+  const { setSnackbarItem, ocean, token2, showDescModal, setShowDescModal, t2DIDResponse, setT2DIDResponse, location } = useContext(GlobalContext);
+
   useEffect(() => {
-    if (!showDescModal) {
-      setTimeout(() => {
-        if (t2DIDResponse) setT2DIDResponse(undefined);
-        if (description) setDescription(undefined);
-      }, 1000);
+    if (showDescModal && !t2DIDResponse) {
+      getDID(setT2DIDResponse, token2);
     }
   }, [showDescModal]);
+
+  useEffect(() => {
+    try {
+      if (token2.info?.address) {
+        getDID(setT2DIDResponse, token2);
+      } else {
+        setT2DIDResponse(undefined);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token2.info?.address, location]);
 
   useEffect(() => {
     if (t2DIDResponse)
@@ -45,8 +56,12 @@ export default function DatasetDescription() {
         });
       }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [t2DIDResponse]);
-  
+  }, [t2DIDResponse, token2.info]);
+
+  useEffect(() => {
+    console.log(showDescModal, !!t2DIDResponse);
+  }, [showDescModal, t2DIDResponse]);
+
   return (
     <div
       id={`${showDescModal && t2DIDResponse && token2.info ? "dataset-desc-vis" : "dataset-desc-invis"}`}
@@ -176,4 +191,11 @@ export default function DatasetDescription() {
       </div>
     </div>
   );
+}
+
+export async function getDID(setT2DIDResponse: React.Dispatch<any>, token2: IToken) {
+  axios
+    .get(`https://aquarius.oceanprotocol.com/api/v1/aquarius/assets/ddo/did:op:${token2.info?.address.substring(2)}`)
+    .then(setT2DIDResponse)
+    .catch(console.error);
 }
