@@ -14,6 +14,7 @@ module.exports = {
       "2lg": "1150px",
       xl: "1280px",
       "2xl": "1536px",
+      "3xl": "1745px"
     },
     fontFamily: {
       sans: ["DM Sans", "Helvetica", "Arial", "sans-serif"],

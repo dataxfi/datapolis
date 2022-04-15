@@ -66,7 +66,7 @@ export default function DatasetDescription() {
     <div
       id={`${showDescModal && t2DIDResponse && token2.info ? "dataset-desc-vis" : "dataset-desc-invis"}`}
       className={`absolute max-w-[550px] top-1/2 left-1/2 ${
-        showDescModal && t2DIDResponse && token2.info ? "-translate-x-1/2 2lg:-translate-x-full" : "translate-x-[-225%] 2lg:translate-x-[-260%]"
+        showDescModal && t2DIDResponse && token2.info ? "-translate-x-1/2 2lg:-translate-x-full" : "translate-x-[-225%] 2lg:translate-x-[-260%] 3xl:translate-x-[-400%]"
       } -translate-y-1/2 items-center w-full transition-transform transform duration-500 px-2`}
     >
       <div className="flex flex-col max-h-[750px] bg-black bg-opacity-90 rounded-lg p-4">
