@@ -46,7 +46,7 @@ function App() {
   }, []);
 
   return (
-    <div className="w-full h-full relative">
+    <div className="w-full h-full relative overflow-hidden">
       <div
         className={`w-full h-full ${blurBG ? "blur-xs" : "blur-none"} ${
           bgOff

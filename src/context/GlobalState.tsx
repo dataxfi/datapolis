@@ -419,11 +419,11 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setImportPool,
         swapFee,
         setSwapFee,
-        minReceived, 
-        setMinReceived
+        minReceived,
+        setMinReceived,
       }}
     >
-      {children}
+      <>{children}</>
     </GlobalContext.Provider>
   );
 };

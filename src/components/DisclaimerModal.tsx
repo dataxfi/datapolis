@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react";
+import OutsideClickHandler from "react-outside-click-handler";
 import { GlobalContext } from "../context/GlobalState";
 
 export const Disclaimer = (): string => {
@@ -32,8 +33,6 @@ function DisclaimerModal() {
     if ((!disclaimerSigned?.client || disclaimerSigned.client === "denied") && handleSignature) {
       setDisclaimerSigned({ ...disclaimerSigned, client: true });
       await handleSignature().then((res: string) => {
-        console.log(res);
-
         if (!res) {
           setShowReminder(false);
           setDisclaimerSigned({ client: "denied", wallet: "denied" });
@@ -42,8 +41,6 @@ function DisclaimerModal() {
         }
       });
     } else {
-      console.log(53646);
-
       setShowReminder(true);
     }
   }
@@ -57,30 +54,37 @@ function DisclaimerModal() {
   }
 
   return showDisclaimer ? (
-    <div id="disclaimer-modal" className="absolute w-full h-full max-h-full z-10 overflow-hidden py-18 px-4">
-      <div className="h-102 md:h-full max-w-2xl m-auto bg-black bg-opacity-80 w-full rounded-lg hm-box flex flex-col p-1 sm:p-4 md:px-10 py-4">
-        <h2 className="md:text-2xl text-xl self-center mb-2">Disclaimer</h2>
-        <div className="h-3/5 lg:h-full overflow-scroll md:overflow-auto w-full p-2 bg-primary-900 rounded">
-          <p className="whitespace-pre-wrap p-2 text-xs md:text-sm">{Disclaimer()}</p>
-        </div>
-        <p className="text-primary-400 my-3 text-xs md:text-sm">
-          Please sign this disclaimer to connect to your wallet. Your wallet will ask for your signature regarding the same disclaimer.
-        </p>
-        <div className="flex flex-row w-full">
-          <button id="deny-disclaimer-btn" className="w-1/2 text-xs sm:text-sm p-3 mr-1 rounded-lg txButton" onClick={deniedDisclaimer}>
-            Cancel
-          </button>
-          <button id="sign-disclaimer-btn" className="w-1/2 text-xs sm:text-sm p-3 ml-1 rounded-lg txButton" onClick={approvedDisclaimer}>
-            Agree
-          </button>
-        </div>
-        {showReminder ? (
-          <div className="transition-all ease-in-out duration-500 self-center animate-pulse mt-2">
-            <p>Sign in your wallet and you will be ready to go!</p>
+    <OutsideClickHandler
+      onOutsideClick={() => {
+        setShowDisclaimer(false);
+        setBlurBG(false);
+      }}
+    >
+      <div id="disclaimer-modal" className="overflow-hidden absolute max-h-full left-1/2 top-1/2 px-4 z-10 -translate-x-1/2 -translate-y-1/2 py-4">
+        <div className="h-full max-h-full w-full max-w-2xl bg-black bg-opacity-80 rounded-lg hm-box flex flex-col p-1 sm:p-4 md:px-10 py-4 ">
+          <h2 className="md:text-2xl text-xl self-center mb-2">Disclaimer</h2>
+          <div className="h-3/5 lg:h-full overflow-scroll md:overflow-auto w-full p-2 bg-primary-900 rounded">
+            <p className="whitespace-pre-wrap p-2 text-xs md:text-sm">{Disclaimer()}</p>
           </div>
-        ) : null}
+          <p className="text-primary-400 my-3 text-xs md:text-sm">
+            Please sign this disclaimer to connect to your wallet. Your wallet will ask for your signature regarding the same disclaimer.
+          </p>
+          <div className="flex flex-row w-full">
+            <button id="deny-disclaimer-btn" className="w-1/2 text-xs sm:text-sm p-3 mr-1 rounded-lg txButton" onClick={deniedDisclaimer}>
+              Cancel
+            </button>
+            <button id="sign-disclaimer-btn" className="w-1/2 text-xs sm:text-sm p-3 ml-1 rounded-lg txButton" onClick={approvedDisclaimer}>
+              Agree
+            </button>
+          </div>
+          {showReminder ? (
+            <div className="transition-all ease-in-out duration-500 self-center animate-pulse mt-2">
+              <p>Sign in your wallet and you will be ready to go!</p>
+            </div>
+          ) : null}
+        </div>
       </div>
-    </div>
+    </OutsideClickHandler>
   ) : (
     <></>
   );
