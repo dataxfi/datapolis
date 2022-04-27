@@ -51,13 +51,13 @@ export async function forceSignDisclaimer(metamask: dappeteer.Dappeteer, page: p
 
     await quickConnectWallet(page);
     try {
-      if (await page.waitForSelector("#d-view-txs-btn", { timeout: 1500 })) return;
+      if (await page.waitForSelector("#d-view-txs-btn", { timeout: 500 })) return;
     } catch (error) {}
     await page.waitForSelector("#sign-disclaimer-btn");
     await page.click("#sign-disclaimer-btn");
     await metamask.sign();
     await page.bringToFront();
-    await page.waitForSelector("#d-view-txs-btn", { timeout: 3000 });
+    await page.waitForSelector("#d-view-txs-btn", { timeout: 500 });
   } catch (error) {
     await forceSignDisclaimer(metamask, page);
   }
@@ -101,9 +101,9 @@ export async function setupDappBrowser(acct2: boolean = false) {
 export async function quickConnectWallet(page: puppeteer.Page) {
   await page.waitForSelector("#d-wallet-button");
   await page.click("#d-wallet-button");
-  await page.waitForSelector(".sc-hKwDye.iWCqoQ.web3modal-provider-container");
-  await page.waitForTimeout(200)
-  await page.click(".sc-hKwDye.iWCqoQ.web3modal-provider-container");
+  await page.waitForSelector(".sc-hKwDye.Klclp.web3modal-provider-container");
+  await page.waitForTimeout(200);
+  await page.click(".sc-hKwDye.Klclp.web3modal-provider-container");
 }
 
 export async function setupDataX(page: puppeteer.Page, metamask: dappeteer.Dappeteer, network: string, mobile: boolean) {
@@ -287,10 +287,19 @@ export async function swapTokens(page: puppeteer.Page) {
 
 export async function selectToken(page: puppeteer.Page, symbol: string, pos: number) {
   //open modal for token pos
-  await page.waitForSelector(`#selectToken${pos}`);
-  await page.waitForTimeout(500);
+  try {
+    await page.waitForSelector(`#selectToken${pos} > #selectTokenBtn`, { timeout: 1200 });
+    await page.waitForFunction(`document.querySelector('#selectToken${pos} > #selectTokenBtn').innerText === "Select Token"`);
+  } catch (error) {
+    try {
+      await page.waitForSelector(`#selectToken${pos} > #selectedToken${pos}`, { timeout: 1200 });
+      await page.waitForFunction(`document.querySelector('#selectToken${pos} > #selectedToken${pos}').innerText === "${symbol}"`);
+    } catch (error) {
+      throw(error)
+    }
+  }
+  await page.waitForTimeout(1000);
   await page.click(`#selectToken${pos}`);
-
   //click token
   await page.waitForSelector(`#${symbol}-btn`);
   await page.waitForTimeout(500);
@@ -358,7 +367,7 @@ export async function approveTransactions(metamask: dappeteer.Dappeteer, page: p
 
 export async function clickMaxTrade(page: puppeteer.Page) {
   await page.bringToFront();
-  await page.waitForTimeout(10000);
+  await page.waitForFunction('document.querySelector("#maxBtn[disabled]") === null');
   await page.waitForSelector("#maxBtn");
   await page.click("#maxBtn");
   await page.waitForFunction('Number(document.querySelector("#token1-input").value) > 0', { timeout: 8000 });
@@ -406,7 +415,6 @@ export async function setUpSwap(page: puppeteer.Page, metamask: dappeteer.Dappet
   await swapOrSelect(page, t1Symbol, t2Symbol);
 
   if (amount === "max") {
-    await page.waitForTimeout(3000);
     await clickMaxTrade(page);
   } else {
     await typeAmount(page, amount, inputLoc, t1Symbol, t2Symbol);
@@ -490,6 +498,8 @@ export async function incrementUntilValid(page: puppeteer.Page, amount: string, 
   let t1Limit = t1Symbol === "OCEAN" ? 0.01 : 0.001;
   let t2Limit = t2Symbol === "OCEAN" ? 0.01 : 0.001;
   if (t1val.lt(t1Limit) || t2val.lt(t2Limit)) {
+    console.log("incrementing");
+
     amountBN = amountBN.plus(0.5);
     await clearInput(page, `#token${inputPos}-input`);
     await page.click(`#token${inputPos}-input`);
@@ -801,7 +811,6 @@ export async function setupUnstake(page: puppeteer.Page, unstakeAmt: string, ini
 }
 
 export async function inputUnstakeAmt(page: puppeteer.Page, unstakeAmt: string, shares: string) {
-
   let receive: string, input: string;
 
   if (unstakeAmt === "max") {
@@ -966,8 +975,7 @@ export async function reloadOrContinue(lastTestPassed: Boolean, page: puppeteer.
   if (lastTestPassed) return;
   page.reload();
   await page.setViewport({ width: 1039, height: 913 });
-  await page.waitForSelector("#d-wallet-button");
-  await page.click("#d-wallet-button");
+  await quickConnectWallet(page);
   if (stake) navToStake(page);
 }
 

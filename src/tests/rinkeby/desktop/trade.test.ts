@@ -59,12 +59,12 @@ describe("Execute Standard Trades on Trade", () => {
   });
 
   it(".1 OCEAN -> SAGKRI-94", async () => {
-    await reloadOrContinue(lastTestPassed, page);
+    await reloadOrContinue(false, page);
     await stdTradeFlow("OCEAN", "SAGKRI-94", ".1", 1);
   });
 
   it("MAX OCEAN -> SAGKRI-94", async () => {
-    await reloadOrContinue(lastTestPassed, page);
+    await reloadOrContinue(false, page);
     await stdTradeFlow("OCEAN", "SAGKRI-94", "max", 1);
   });
 
@@ -74,46 +74,20 @@ describe("Execute Standard Trades on Trade", () => {
   });
 
   it("1 SAGKRI-94 -> DAZORC-13", async () => {
-    await reloadOrContinue(lastTestPassed, page);
+    await reloadOrContinue(false, page);
     await stdTradeFlow("SAGKRI-94", "DAZORC-13", "1", 1);
   });
 
   it("MAX DAZORC-13 -> SAGKRI-94", async () => {
-    await reloadOrContinue(lastTestPassed, page);
+    await reloadOrContinue(false, page);
     await stdTradeFlow("DAZORC-13", "SAGKRI-94", "max", 1);
   });
 
   it("MAX SAGKRI-94 -> OCEAN", async () => {
-    await reloadOrContinue(lastTestPassed, page);
+    await reloadOrContinue(false, page);
     await stdTradeFlow("SAGKRI-94", "OCEAN", "max", 1);
   });
 
 });
 
-// Test priority
 
-// High value features
-
-// Boilerplate
-// 1.Connecting to provider
-// 2.Accessing user wallet
-// 3.Collecting wallet information
-// 4.Getting token lists
-
-// Making Trade:
-// 1. OCEAN to DT
-// 2. DT to OCEAN
-// 3. DT to DT
-
-// Staking:
-// 1. Stake ocean in Pool
-
-// Unstaking:
-// 1. Unstake ocean from pool
-
-// LP:
-// 1. Pool Import
-// 2. Pool Scan
-
-// Edge cases in highvalue features:
-//

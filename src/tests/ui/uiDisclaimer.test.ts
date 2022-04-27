@@ -28,8 +28,8 @@ describe("Setup web3 and connect to wallet", () => {
     await page.setViewport({ width: 1039, height: 913 });
     await page.waitForSelector("#d-wallet-button");
     await page.click("#d-wallet-button");
-    await page.waitForSelector(".sc-hKwDye.iWCqoQ.web3modal-provider-container");
-    await page.click(".sc-hKwDye.iWCqoQ.web3modal-provider-container");
+    await page.waitForSelector(".sc-hKwDye.Klclp.web3modal-provider-container");
+    await page.click(".sc-hKwDye.Klclp.web3modal-provider-container");
     //Confirm Connection in MetaMaks
     await metamask.confirmTransaction();
     await metamask.confirmTransaction();
