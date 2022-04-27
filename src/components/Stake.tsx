@@ -43,6 +43,7 @@ export default function Stake() {
     setExecuteStake,
     setExecuteUnlock,
     setBlurBG,
+    showUnlockTokenModal,
   } = useContext(GlobalContext);
 
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
@@ -55,19 +56,21 @@ export default function Stake() {
   useAutoLoadToken();
 
   useEffect(() => {
-    if(!tokensCleared.current) return 
-    
-    if (token1.info && token2.info ) {
-      getMaxAndAllowance();
-    }
+    if (!tokensCleared.current) return;
 
-    if (token1.info && !token2.info && ocean && accountId) {
-      ocean.getBalance(token1.info.address, accountId).then((res) => {
-        setToken1({ ...token1, balance: new BigNumber(res)});
-      });
+    if (token1.info && token2.info) {
+      getMaxAndAllowance();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token1.info, token2.info, tokensCleared, accountId]);
+
+  useEffect(() => {
+    if (token1.info && !token2.info && ocean && accountId) {
+      ocean.getBalance(token1.info.address, accountId).then((res) => {
+        setToken1({ ...token1, balance: new BigNumber(res) });
+      });
+    }
+  }, [token1.info, accountId]);
 
   useEffect(() => {
     if (!accountId) {
@@ -117,6 +120,14 @@ export default function Stake() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId, ocean, chainId, token2, token1.value, token1.balance, loading, token1.info, lastTx?.status]);
+
+  useEffect(() => {
+    if (showUnlockTokenModal && token1.allowance?.gt(token1.value)) {
+      setBlurBG(false);
+      setShowUnlockTokenModal(false);
+      setExecuteStake(true);
+    }
+  }, [token1.allowance]);
 
   useEffect(() => {
     if (!accountId && executeStake) {
@@ -208,7 +219,6 @@ export default function Stake() {
       const txReceipt = await ocean.stakeOcean(accountId, token2.info.pool || "", token1.value?.toString());
 
       setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
-      setOceanBalance();
       transactionTypeGA("stake");
       setImportPool(token2.info.pool);
     } catch (error: any) {
@@ -216,11 +226,12 @@ export default function Stake() {
       setSnackbarItem({ type: "error", message: error.error.message, error });
       setShowConfirmModal(false);
       setToken1({ ...token1, value: new BigNumber(0) });
+      setBlurBG(false);
     } finally {
       setLoading(false);
-      getMaxAndAllowance();
       setShowConfirmModal(false);
       setExecuteStake(false);
+      setBlurBG(false);
     }
   }
 

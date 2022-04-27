@@ -23,7 +23,7 @@ export default function useWatchLocation() {
     setT2DIDResponse,
     importPool,
     setImportPool,
-    setShowDescModal
+    setShowDescModal,
   } = useContext(GlobalContext);
   const currentLocation = useLocation();
   const lastLocation = useRef(currentLocation);
@@ -34,7 +34,7 @@ export default function useWatchLocation() {
     setLocation(currentLocation.pathname);
     setToken1(INITIAL_TOKEN_STATE);
     setToken2(INITIAL_TOKEN_STATE);
-    setShowDescModal(false)
+    setShowDescModal(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentLocation]);
 
@@ -73,13 +73,11 @@ export default function useWatchLocation() {
       }
       if (location === "/stake/remove") {
         setToken1({ ...token1, value: new BigNumber(0), percentage: new BigNumber(0) });
-      } else if (location === "/trade") {
+      } else if (location === "/trade" || location === "/stake") {
+        console.log("capooe");
         setToken1(INITIAL_TOKEN_STATE);
         setToken2(INITIAL_TOKEN_STATE);
         setT2DIDResponse(undefined);
-      } else if (location === "/stake") {
-        setToken2(INITIAL_TOKEN_STATE);
-        setToken1({ ...token1, value: new BigNumber(0) });
       }
     }
 

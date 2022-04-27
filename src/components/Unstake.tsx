@@ -260,6 +260,8 @@ export default function Unstake() {
       console.error(error);
     } finally {
       setCalculating(false);
+      setExecuteUnstake(false)
+      setShowConfirmModal(false)
     }
   }
 

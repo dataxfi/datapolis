@@ -5,7 +5,7 @@ import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
 import BigNumber from "bignumber.js";
 
 const TransactionDoneModal = () => {
-  const { showTxDone, setShowTxDone, lastTx, config, location, setToken1, setToken2, token1, setBlurBG } = useContext(GlobalContext);
+  const { showTxDone, setShowTxDone, lastTx, config, setBlurBG } = useContext(GlobalContext);
   const [lastTxUrl, setLastTxUrl] = useState<string>("");
 
   useEffect(() => {
@@ -15,10 +15,6 @@ const TransactionDoneModal = () => {
   function close() {
     setShowTxDone(false);
     setBlurBG(false)
-    if (location === "/stake") {
-    setToken2(INITIAL_TOKEN_STATE);
-    //maybe should set this to initial token state since users can stake anything now (used to only be ocean)
-    setToken1({ ...token1, value: new BigNumber(0) })};
   }
   return showTxDone ? (
     <div id="transactionDoneModal" className="fixed center sm:max-w-sm w-full z-20 shadow">

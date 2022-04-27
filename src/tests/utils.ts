@@ -295,7 +295,7 @@ export async function selectToken(page: puppeteer.Page, symbol: string, pos: num
       await page.waitForSelector(`#selectToken${pos} > #selectedToken${pos}`, { timeout: 1200 });
       await page.waitForFunction(`document.querySelector('#selectToken${pos} > #selectedToken${pos}').innerText === "${symbol}"`);
     } catch (error) {
-      throw(error)
+      throw error;
     }
   }
   await page.waitForTimeout(1000);
@@ -656,7 +656,7 @@ export async function executeTransaction(page: puppeteer.Page, metamask: dappete
     case "stake":
       await page.waitForSelector("#executeStake");
       btnHandle = await page.$("#executeStake");
-      await page.waitForFunction('document.querySelector("#executeStake").innerText !== "Enter OCEAN Amount"');
+      await page.waitForFunction('document.querySelector("#executeStake").innerText === "Stake" || document.querySelector("#executeStake").innerText.includes("Unlock")');
       break;
     case "unstake":
       await page.waitForSelector("#executeUnstake");
@@ -677,7 +677,13 @@ export async function executeTransaction(page: puppeteer.Page, metamask: dappete
     await btnHandle.click();
     if (innerText.includes("Unlock")) {
       await unlockTokens(page, metamask, unlock);
-      if (txType === "trade") await confirmSwapModal(page, metamask);
+      if (txType === "trade") {
+        await confirmSwapModal(page, metamask);
+      } else {
+        // console.log("recalling execute transaction");
+
+        // await executeTransaction(page, metamask, txType, unlock);
+      }
       await metamask.page.bringToFront();
     } else {
       if (txType === "trade") await confirmSwapModal(page, metamask);
@@ -939,7 +945,9 @@ export async function inputStakeAmt(page: puppeteer.Page, stakeAmt: string, pos:
 
 export async function setUpStake(page: puppeteer.Page, stakeToken: string, stakeAmt: string) {
   //open token modal
-  await selectStakeToken(page, stakeToken);
+  await selectToken(page, stakeToken, 2);
+  await selectToken(page, "OCEAN", 1);
+  await page.waitForTimeout(1000);
   await inputStakeAmt(page, stakeAmt, 1);
 }
 
@@ -961,7 +969,7 @@ export async function confirmInputClearedAfterStake(page: puppeteer.Page) {
     timeout: 3000,
   });
   await page.waitForSelector("#token1-input");
-  await page.waitForFunction("document.querySelector('#token1-input').value === '0'", { timeout: 3000 });
+  await page.waitForFunction("document.querySelector('#token1-input').value === ''", { timeout: 3000 });
 }
 
 export async function confirmInputClearedAfterUnstake(page: puppeteer.Page) {

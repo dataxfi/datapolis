@@ -53,6 +53,7 @@ export default function UnlockTokenModal() {
               setExecuteUnlock(false);
               setPool(null);
               setAddress(null);
+              setBlurBG(false)
               delay = null;
             }
           }),

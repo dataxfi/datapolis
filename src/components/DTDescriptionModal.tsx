@@ -58,9 +58,6 @@ export default function DatasetDescription() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [t2DIDResponse, token2.info]);
 
-  useEffect(() => {
-    console.log(showDescModal, !!t2DIDResponse);
-  }, [showDescModal, t2DIDResponse]);
 
   return (
     <div
