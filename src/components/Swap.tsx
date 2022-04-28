@@ -13,6 +13,7 @@ import { IMaxExchange } from "@dataxfi/datax.js";
 import DatasetDescription from "./DTDescriptionModal";
 import ViewDescBtn from "./ViewDescButton";
 import { transactionTypeGA } from "../context/Analytics";
+import { Collapse } from "react-collapse";
 
 const INITIAL_MAX_EXCHANGE: IMaxExchange = {
   maxBuy: new BigNumber(0),
@@ -46,14 +47,13 @@ export default function Swap() {
     swapConfirmed,
     preTxDetails,
     setExecuteUnlock,
-    executeUnlock,
     showUnlockTokenModal,
     setSwapConfirmed,
-    approving,
     swapFee,
     setSwapFee,
     minReceived,
     setMinReceived,
+    executeUnlock,
   } = useContext(GlobalContext);
   const [showSettings, setShowSettings] = useState(false);
   const [exactToken, setExactToken] = useState<number>(1);
@@ -69,7 +69,7 @@ export default function Swap() {
   useEffect(() => {
     getButtonProperties();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token1, token2, accountId]);
+  }, [token1, token2, accountId, executeSwap, executeUnlock]);
 
   let controller = new AbortController();
   useEffect(() => {
@@ -367,6 +367,13 @@ export default function Swap() {
         disabled: true,
       });
     }
+    if (executeSwap || executeUnlock) {
+      setBtnProps({
+        text: `Processing Transaction...`,
+        disabled: true,
+      });
+      return;
+    }
 
     if (accountId && token1?.info && token2?.info && token1.value.gt(0) && token1.value.gt(0)) {
       if (token1.balance.lt(token1.value)) {
@@ -558,7 +565,7 @@ export default function Swap() {
               </div>
               <TokenSelect setToken={setToken2} token={token2} max={maxExchange.maxBuy} otherToken={token1.info ? token1.info.symbol : ""} pos={2} updateNum={dbUpdateToken2} />
 
-              {token1?.info && token2?.info && token1.value.gt(0) && token2.value.gt(0) && postExchange.gt(0) ? (
+              <Collapse isOpened={token1?.info && token2?.info && token1.value.gt(0) && token2.value.gt(0) && postExchange.gt(0) ? true : false}>
                 <div
                   className={`my-4 p-2 bg-black border border-city-blue border-opacity-50 transition-opacity ${
                     token2?.loading || token1?.loading || percLoading ? "bg-opacity-10 text-gray-400" : "bg-opacity-25 text-gray-300"
@@ -567,7 +574,7 @@ export default function Swap() {
                   <div className="flex justify-between my-1">
                     <p>Exchange rate</p>
                     <p className={`${token2?.loading || token1?.loading || percLoading ? "blur-xs" : ""}`}>
-                      1 {token1.info.symbol} = {postExchange.dp(5).toString()} {`${" "}${token2.info.symbol}`}
+                      1 {token1.info?.symbol} = {postExchange.dp(5).toString()} {`${" "}${token2.info?.symbol}`}
                     </p>
                   </div>
                   <div className="flex justify-between my-1">
@@ -579,9 +586,7 @@ export default function Swap() {
                     <p className={`${token2?.loading || token1?.loading || percLoading ? "blur-xs" : ""}`}>{minReceived?.dp(5).toString() + " " + token2.info?.symbol}</p>
                   </div>
                 </div>
-              ) : (
-                <></>
-              )}
+              </Collapse>
 
               <div className="mt-4">
                 <button

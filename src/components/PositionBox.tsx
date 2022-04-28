@@ -3,14 +3,9 @@ import { GlobalContext } from "../context/GlobalState";
 import BigNumber from "bignumber.js";
 import { IPoolLiquidity } from "../utils/types";
 import { IToken } from "@dataxfi/datax.js";
+import { Collapse } from "react-collapse";
 
-export default function PositionBox({
-  loading,
-  setLoading,
-}: {
-  loading: boolean;
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-}) {
+export default function PositionBox({ loading, setLoading }: { loading: boolean; setLoading: React.Dispatch<React.SetStateAction<boolean>> }) {
   const [dtToOcean, setDtToOcean] = useState<BigNumber>(new BigNumber(""));
   const [oceanToDt, setOceanToDt] = useState<BigNumber>(new BigNumber(""));
   const [yourLiquidity, setYourLiquidity] = useState<BigNumber>(new BigNumber(0));
@@ -54,46 +49,48 @@ export default function PositionBox({
   }
 
   return (
-    <div className="flex border border-city-blue border-opacity-50 mt-4 rounded-lg p-2 w-full">
-      <div className="my-1 mr-4">
-        <p className="text-gray-300 text-xs">Swap Rate</p>
-        {token2.info && oceanToDt.gt(0) && dtToOcean.gt(0) && !loading ? (
-          <div id="swapRate">
-            <p className="text-gray-200 text-xs">
-              {oceanToDt.dp(5).toString()} OCEAN per {token2.info.symbol}
-            </p>
-            <p className="text-gray-200 text-xs">
-              {dtToOcean.dp(5).toString()} {token2.info.symbol} per OCEAN
-            </p>
-          </div>
-        ) : (
-          <div> - </div>
-        )}
+    <Collapse isOpened={token2.info && !loading && oceanToDt.gt(0) && dtToOcean.gt(0) ? true : false}>
+      <div className="flex border border-city-blue border-opacity-50 mt-4 rounded-lg p-2 w-full">
+        <div className="my-1 mr-4">
+          <p className="text-gray-300 text-xs">Swap Rate</p>
+          {token2.info && oceanToDt.gt(0) && dtToOcean.gt(0) && !loading ? (
+            <div id="swapRate">
+              <p className="text-gray-200 text-xs">
+                {oceanToDt.dp(5).toString()} OCEAN per {token2.info.symbol}
+              </p>
+              <p className="text-gray-200 text-xs">
+                {dtToOcean.dp(5).toString()} {token2.info.symbol} per OCEAN
+              </p>
+            </div>
+          ) : (
+            <div> - </div>
+          )}
+        </div>
+        <div className="my-1 mr-4">
+          <p className="text-gray-300 text-xs">Pool liquidity</p>
+          {token2.info && poolLiquidity && !loading ? (
+            <div id="poolLiquidity">
+              <p className="text-gray-200 text-xs">{poolLiquidity?.oceanAmount.dp(5).toString()} OCEAN</p>
+              <p className="text-gray-200 text-xs">
+                {poolLiquidity?.dtAmount.dp(5).toString()} {token2.info.symbol}
+              </p>
+            </div>
+          ) : (
+            <div> - </div>
+          )}
+        </div>
+        <div className="my-1">
+          <p className="text-gray-300 text-xs">Your liquidity</p>
+          {token2.info && yourLiquidity && !loading ? (
+            <div id="yourLiquidity">
+              <p className="text-gray-200 text-xs">{yourShares.dp(5).toString()} Shares</p>
+              <p className="text-gray-200 text-xs">{yourLiquidity.dp(5).toString()} OCEAN</p>
+            </div>
+          ) : (
+            <div> - </div>
+          )}
+        </div>
       </div>
-      <div className="my-1 mr-4">
-        <p className="text-gray-300 text-xs">Pool liquidity</p>
-        {token2.info && poolLiquidity && !loading ? (
-          <div id="poolLiquidity">
-            <p className="text-gray-200 text-xs">{poolLiquidity?.oceanAmount.dp(5).toString()} OCEAN</p>
-            <p className="text-gray-200 text-xs">
-              {poolLiquidity?.dtAmount.dp(5).toString()} {token2.info.symbol}
-            </p>
-          </div>
-        ) : (
-          <div> - </div>
-        )}
-      </div>
-      <div className="my-1">
-        <p className="text-gray-300 text-xs">Your liquidity</p>
-        {token2.info && yourLiquidity && !loading ? (
-          <div id="yourLiquidity">
-            <p className="text-gray-200 text-xs">{yourShares.dp(5).toString()} Shares</p>
-            <p className="text-gray-200 text-xs">{yourLiquidity.dp(5).toString()} OCEAN</p>
-          </div>
-        ) : (
-          <div> - </div>
-        )}
-      </div>
-    </div>
+    </Collapse>
   );
 }

@@ -123,8 +123,8 @@ export default function Snackbar() {
         <div className="bottom-0 left-0 w-full bg-gray-900 h-2 absolute rounded-b-full overflow-clip">
           <div
             className={`h-full ${
-              currentNot.type === "error" ? "bg-red-900" : "bg-stake-blue"
-            } bg-opacity-60 transition-all transform duration-[5400ms] ease-linear rounded-bl-full rounded-r-full`}
+              currentNot.type === "error" ? "from-red-900 via-red-900" : "from-stake-blue via-stake-blue"
+            } bg-opacity-60 transition-all transform duration-[5400ms] ease-linear rounded-bl-full bg-gradient-to-r to-transparent`}
             style={{ width: progress }}
           />
         </div>
