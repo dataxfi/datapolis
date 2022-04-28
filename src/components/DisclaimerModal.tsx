@@ -60,10 +60,10 @@ function DisclaimerModal() {
           setBlurBG(false);
         }}
       >
-        <div id="disclaimer-modal" className="overflow-hidden absolute max-h-full left-1/2 top-1/2 px-4 z-30 -translate-x-1/2 -translate-y-1/2 py-4 w-full">
-          <div className="h-full max-h-full w-full max-w-2xl bg-black bg-opacity-80 rounded-lg hm-box flex flex-col p-1 sm:p-4 md:px-10 py-4 ">
+        <div id="disclaimer-modal" className="overflow-hidden absolute max-h-full left-1/2 top-1/2 px-4 z-30 -translate-x-1/2 -translate-y-1/2 py-4 w-full flex justify-center">
+          <div className="h-full max-h-full w-full max-w-2xl bg-black bg-opacity-80 rounded-lg hm-box flex flex-col p-1 sm:p-4 md:px-10 py-4 overflow-scroll">
             <h2 className="md:text-2xl text-xl self-center mb-2">Disclaimer</h2>
-            <div className="h-3/5 lg:h-full overflow-scroll md:overflow-auto w-full p-2 bg-primary-900 rounded">
+            <div className="max-h-[450px] lg:h-full overflow-scroll md:overflow-auto w-full p-2 bg-primary-900 rounded">
               <p className="whitespace-pre-wrap p-2 text-xs md:text-sm">{disclaimer}</p>
             </div>
             <p className="text-primary-400 my-3 text-xs md:text-sm">
