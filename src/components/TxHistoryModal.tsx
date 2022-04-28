@@ -143,7 +143,7 @@ function TxHistoryModal() {
   }
 
   return showTxHistoryModal ? (
-    <div className="fixed center sm:max-w-md w-full z-20 shadow">
+    <div className="fixed center sm:max-w-md w-full z-30 shadow">
       <OutsideClickHandler onOutsideClick={handleClose}>
         <div className="bg-black bg-opacity-95 border rounded-lg p-4 hm-box mx-3">
           <div className="flex justify-between mb-2">

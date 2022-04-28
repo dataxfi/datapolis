@@ -17,7 +17,7 @@ const TransactionDoneModal = () => {
     setBlurBG(false)
   }
   return showTxDone ? (
-    <div id="transactionDoneModal" className="fixed center sm:max-w-sm w-full z-20 shadow">
+    <div id="transactionDoneModal" className="fixed center sm:max-w-sm w-full z-30 shadow">
       <OutsideClickHandler onOutsideClick={close}>
         <div className="bg-black bg-opacity-90 border rounded-lg pb-8 p-4 hm-box mx-3">
           <div className="flex justify-end">

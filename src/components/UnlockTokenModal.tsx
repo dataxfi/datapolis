@@ -136,7 +136,7 @@ export default function UnlockTokenModal() {
 
   return token1.info && preTxDetails && showUnlockTokenModal && executeUnlock ? (
     location !== "/moo" ? (
-      <div id="transactionDoneModal" className="fixed center sm:max-w-sm w-full z-20 shadow">
+      <div id="transactionDoneModal" className="fixed center sm:max-w-sm w-full z-30 shadow">
         <OutsideClickHandler onOutsideClick={close}>
           <div className="bg-black border items-center flex flex-col rounded-lg pb-8 pt-2 px-4 hm-box mx-3">
             <div className="flex w-full  justify-end">

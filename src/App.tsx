@@ -22,6 +22,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Stake from "./components/Stake";
 import Swap from "./components/Swap";
+import CenterModalContainer from "./components/CenterModalContainer";
 
 BigNumber.config({ DECIMAL_PLACES: 18, ROUNDING_MODE: BigNumber.ROUND_DOWN, EXPONENTIAL_AT: 18 });
 
@@ -78,14 +79,8 @@ function App() {
         <Footer />
       </div>
       <Snackbar />
-      <UnlockTokenModal />
       <CookiesModal />
-      <DisclaimerModal />
-      <TxHistoryModal />
-      <TokenModal />
-      <ConfirmModal />
-      <TransactionDoneModal />
-      <ConfirmTxDetailsModal />
+      <CenterModalContainer />
     </div>
   );
 }
