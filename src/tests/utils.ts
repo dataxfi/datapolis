@@ -290,20 +290,32 @@ export async function selectToken(page: puppeteer.Page, symbol: string, pos: num
   try {
     await page.waitForSelector(`#selectToken${pos} > #selectTokenBtn`, { timeout: 1200 });
     await page.waitForFunction(`document.querySelector('#selectToken${pos} > #selectTokenBtn').innerText === "Select Token"`);
+    await page.waitForTimeout(1000);
+    await page.click(`#selectToken${pos}`);
+    //click token
+    await page.waitForSelector(`#${symbol}-btn`);
+    await page.waitForTimeout(500);
+    await page.click(`#${symbol}-btn`);
   } catch (error) {
     try {
-      await page.waitForSelector(`#selectToken${pos} > #selectedToken${pos}`, { timeout: 1200 });
-      await page.waitForFunction(`document.querySelector('#selectToken${pos} > #selectedToken${pos}').innerText === "${symbol}"`);
+      const selectedToken = await page.waitForSelector(`#selectedToken${pos}`, { timeout: 1200 });
+      const text = await (await selectedToken?.getProperty("innerText"))?.jsonValue();
+      console.log("Selected token:", text);
+
+      //@ts-ignore
+      if (text !== symbol) {
+        await page.waitForTimeout(1000);
+        await page.click(`#selectedToken${pos}`);
+        await page.waitForFunction(`document.querySelector('#selectedToken${pos}').innerText === "${symbol}"`);
+        //click token
+        await page.waitForSelector(`#${symbol}-btn`);
+        await page.waitForTimeout(500);
+        await page.click(`#${symbol}-btn`);
+      }
     } catch (error) {
       throw error;
     }
   }
-  await page.waitForTimeout(1000);
-  await page.click(`#selectToken${pos}`);
-  //click token
-  await page.waitForSelector(`#${symbol}-btn`);
-  await page.waitForTimeout(500);
-  await page.click(`#${symbol}-btn`);
 }
 
 export async function awaitTokenSelect(page: puppeteer.Page, symbol: string, pos: number) {
@@ -681,7 +693,6 @@ export async function executeTransaction(page: puppeteer.Page, metamask: dappete
         await confirmSwapModal(page, metamask);
       } else {
         // console.log("recalling execute transaction");
-
         // await executeTransaction(page, metamask, txType, unlock);
       }
       await metamask.page.bringToFront();
@@ -791,10 +802,10 @@ export async function acceptCookies(page: puppeteer.Page) {
 export async function setupUnstake(page: puppeteer.Page, unstakeAmt: string, initialShares?: BigNumber) {
   await page.waitForSelector("#executeUnstake[disabled]");
 
+  await selectToken(page, "OCEAN", 1);
+  await page.waitForFunction('document.querySelector("#executeUnstake").innerText === "Enter Amount to Remove"');
   //check btn text and btn is disabled
   await page.$("#executeUnstake[disabled]");
-  const InitBtnText = await page.evaluate('document.querySelector("#executeUnstake").innerText');
-  expect(InitBtnText).toBe("Enter Amount to Remove");
 
   //wait 6s max for loading lp to dissapear
   await page.waitForFunction('document.querySelector("#loading-lp") === null', { timeout: 6000 });

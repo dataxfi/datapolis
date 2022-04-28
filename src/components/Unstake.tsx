@@ -36,8 +36,8 @@ export default function Unstake() {
     setExecuteUnstake,
     executeUnstake,
     setPreTxDetails,
-    executeUnlock,
     setExecuteUnlock,
+    showUnlockTokenModal
   } = useContext(GlobalContext);
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
   const [btnText, setBtnText] = useState("Enter Amount to Remove");
@@ -140,6 +140,14 @@ export default function Unstake() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token1.value, lastTx, singleLiquidityPos, maxUnstake, token1.allowance, token1.info, token2.info, ocean]);
+
+  useEffect(() => {
+    if (showUnlockTokenModal && token1.allowance?.gt(token1.value)) {
+      setBlurBG(false);
+      setShowUnlockTokenModal(false);
+      setExecuteUnstake(true);
+    }
+  }, [token1.allowance]);
 
   useEffect(() => {
     if (!accountId || !token1.info || !token2.info) return;
