@@ -17,6 +17,7 @@ import {
   confirmTokensClearedAfterTrade,
   selectStakeToken,
   navToTrade,
+  goToLocalHost,
 } from "../../utils";
 
 describe("Execute Standard Trades on Trade", () => {
@@ -26,12 +27,10 @@ describe("Execute Standard Trades on Trade", () => {
   let metamask: dappeteer.Dappeteer;
 
   beforeAll(async () => {
-    const tools = await setupDappBrowser();
-    if (tools) {
-      page = tools?.page;
-      browser = tools?.browser;
-      metamask = tools?.metamask;
-    }
+    browser = global.browser;
+    metamask = global.metamask;
+    page = global.page;
+    await goToLocalHost(page);
     await navToTradeXFromLanding(page);
     await setupDataX(page, metamask, "rinkeby", false);
   });

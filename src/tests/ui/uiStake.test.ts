@@ -17,6 +17,7 @@ import {
   switchAccounts,
   selectToken,
   quickConnectWallet,
+  goToLocalHost,
 } from "../utils";
 import BigNumber from "bignumber.js";
 describe("Stake Platform UI works as expected.", () => {
@@ -27,13 +28,10 @@ describe("Stake Platform UI works as expected.", () => {
   let acc1DapBal: BigNumber, acc1MMBal: BigNumber, acc2MMbal: BigNumber, acc2DapBal: BigNumber;
 
   beforeAll(async () => {
-    const tools = await setupDappBrowser(true);
-    if (tools) {
-      page = tools?.page;
-      browser = tools?.browser;
-      metamask = tools?.metamask;
-    }
-    await page.setViewport({ width: 1039, height: 913 });
+    browser = global.browser;
+    page = global.page;
+    metamask = global.metamask;
+    await goToLocalHost(page);
     await navToTradeXFromLanding(page);
     await navToStake(page);
     await acceptCookies(page)

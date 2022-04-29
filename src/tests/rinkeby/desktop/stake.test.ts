@@ -13,6 +13,7 @@ import {
   reloadOrContinue,
   setUpStake,
   navToTradeXFromLanding,
+  goToLocalHost,
 } from "../../utils";
 
 describe("Execute Standard Trades on Stake", () => {
@@ -23,13 +24,10 @@ describe("Execute Standard Trades on Stake", () => {
   let lastTestPassed: boolean = true;
 
   beforeAll(async () => {
-    const tools = await setupDappBrowser();
-    if (tools) {
-      page = tools?.page;
-      browser = tools?.browser;
-      metamask = tools?.metamask;
-    }
-    await page.setViewport({ width: 1039, height: 913 });
+    browser = global.browser;
+    metamask = global.metamask;
+    page = global.page;
+    await goToLocalHost(page);
     await navToTradeXFromLanding(page);
     await navToStake(page);
     await setupDataX(page, metamask, "rinkeby", false);

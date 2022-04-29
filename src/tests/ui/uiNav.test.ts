@@ -14,6 +14,7 @@ import {
   navToLpFromUnstake,
   acceptCookies,
   navToTradeXFromLanding,
+  goToLocalHost,
 } from "../utils";
 
 describe("DataX Navigation User Interface Works as Expected", () => {
@@ -23,12 +24,10 @@ describe("DataX Navigation User Interface Works as Expected", () => {
   let metamask: dappeteer.Dappeteer;
 
   beforeAll(async () => {
-    const tools = await setupDappBrowser();
-    if (tools) {
-      page = tools?.page;
-      browser = tools?.browser;
-      metamask = tools?.metamask;
-    }
+    browser = global.browser;
+    page = global.page;
+    metamask = global.metamask;
+    await goToLocalHost(page);
     await acceptCookies(page);
     await navToTradeXFromLanding(page);
     await setupDataX(page, metamask, "rinkeby", false);

@@ -16,6 +16,8 @@ function toFixed3(value: any): string {
   }
 }
 
+export type screenSize = "mobile" | "desktop"
+
 export async function closeBrowser(browser: puppeteer.Browser) {
   try {
     await browser.close();
@@ -804,8 +806,9 @@ export async function acceptCookies(page: puppeteer.Page) {
   await page.waitForTimeout(500);
 }
 
-export async function goToLocalHost(page:puppeteer.Page){
+export async function goToLocalHost(page:puppeteer.Page, screenSize:screenSize = "desktop"){
   await page.goto("http://localhost:3000")
+  await page.setViewport({ width: 1039, height: 913 });
 }
 
 export async function setupUnstake(page: puppeteer.Page, unstakeAmt: string, initialShares?: BigNumber) {

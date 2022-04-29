@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@keithers98/dappeteer-stable";
 import "regenerator-runtime/runtime";
-import { setupDappBrowser, setupDataX, closeBrowser, acceptCookies, navToTradeXFromLanding } from "../utils";
+import { setupDappBrowser, setupDataX, closeBrowser, acceptCookies, navToTradeXFromLanding, goToLocalHost } from "../utils";
 import BigNumber from "bignumber.js";
 describe("Datatoken previews should work as expected", () => {
   jest.setTimeout(300000);
@@ -10,12 +10,10 @@ describe("Datatoken previews should work as expected", () => {
   let metamask: dappeteer.Dappeteer;
 
   beforeAll(async () => {
-    const tools = await setupDappBrowser(true);
-    if (tools) {
-      page = tools?.page;
-      browser = tools?.browser;
-      metamask = tools?.metamask;
-    }
+    browser = global.browser;
+    page = global.page;
+    metamask = global.metamask;
+    await goToLocalHost(page);
     await acceptCookies(page);
     await navToTradeXFromLanding(page);
     await setupDataX(page, metamask, "rinkeby", false);
@@ -31,11 +29,11 @@ describe("Datatoken previews should work as expected", () => {
     //open token modal
     const selectToken2 = await page.waitForSelector("#selectToken2");
     await selectToken2?.click();
-    await page.waitForTimeout(150)
+    await page.waitForTimeout(150);
     //select datatoken
     const tokenModal = await page.waitForSelector("#tokenModal", { timeout: 3000 });
     expect(tokenModal).toBeDefined();
-    await page.waitForTimeout(150)
+    await page.waitForTimeout(150);
     const ARCCOR20 = await page.waitForSelector("#ZEASEA-66-btn", { timeout: 3000 });
     expect(ARCCOR20).toBeDefined;
     ARCCOR20?.click();

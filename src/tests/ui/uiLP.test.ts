@@ -11,6 +11,7 @@ import {
   navToLp,
   navToTradeXFromLanding,
   acceptCookies,
+  goToLocalHost,
 } from "../utils";
 
 describe("Execute Standard Trades on Stake", () => {
@@ -20,14 +21,12 @@ describe("Execute Standard Trades on Stake", () => {
   let metamask: dappeteer.Dappeteer;
 
   beforeAll(async () => {
-    const tools = await setupDappBrowser();
-    if (tools) {
-      page = tools?.page;
-      browser = tools?.browser;
-      metamask = tools?.metamask;
-    }
-    await navToTradeXFromLanding(page)
-    await acceptCookies(page)
+    browser = global.browser;
+    page = global.page;
+    metamask = global.metamask;
+    await goToLocalHost(page);
+    await navToTradeXFromLanding(page);
+    await acceptCookies(page);
     await setupDataX(page, metamask, "rinkeby", false);
     await page.evaluate((testAcctId) => {
       window.localStorage.removeItem(`allStakedPools@4@${testAcctId}`);
@@ -95,10 +94,7 @@ describe("Execute Standard Trades on Stake", () => {
     await quickConnectWallet(page);
     await page.waitForSelector("#SAGKRI-94-lp-item");
     // await page.waitForSelector("#loadingStakeMessage");
-    const local = await page.evaluate(
-      (testAcctId) => window.localStorage.getItem(`allStakedPools@4@${testAcctId.toLowerCase()}`),
-      testAcctId
-    );
+    const local = await page.evaluate((testAcctId) => window.localStorage.getItem(`allStakedPools@4@${testAcctId.toLowerCase()}`), testAcctId);
     const parsed = JSON.parse(String(local));
     expect(parsed).toHaveLength(1);
   });

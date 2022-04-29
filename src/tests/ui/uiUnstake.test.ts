@@ -19,6 +19,7 @@ import {
   selectRemoveStakeButton,
   selectOrImportPool,
   selectToken,
+  goToLocalHost,
 } from "../utils";
 import BigNumber from "bignumber.js";
 describe("User Interface Works as Expected", () => {
@@ -29,12 +30,10 @@ describe("User Interface Works as Expected", () => {
   let initialShares: BigNumber;
 
   beforeAll(async () => {
-    const tools = await setupDappBrowser(true);
-    if (tools) {
-      page = tools?.page;
-      browser = tools?.browser;
-      metamask = tools?.metamask;
-    }
+    browser = global.browser;
+    page = global.page;
+    metamask = global.metamask;
+    await goToLocalHost(page);
     await page.setViewport({ width: 1039, height: 913 });
     await navToTradeXFromLanding(page);
     await acceptCookies(page);

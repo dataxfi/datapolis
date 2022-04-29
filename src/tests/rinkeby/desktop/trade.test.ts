@@ -27,16 +27,15 @@ describe("Execute Standard Trades on Trade", () => {
   let metamask: dappeteer.Dappeteer;
   let lastTestPassed: boolean = true;
 
+
   beforeAll(async () => {
-    //@ts-ignore disable-next-line
+
     browser = global.browser;
-    //@ts-ignore disable-next-line
     metamask = global.metamask;
-    //@ts-ignore disable-next-line
     page = global.page;
+    await goToLocalHost(page);
 
     console.log(!!browser, !!page, !!metamask);
-    await goToLocalHost(page);
     await navToTradeXFromLanding(page);
     await setupDataX(page, metamask, "rinkeby", false);
   });

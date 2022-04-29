@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
 import * as dappeteer from "@keithers98/dappeteer-stable";
 import "regenerator-runtime/runtime";
-import { closeBrowser, navToTradeXFromLanding, quickConnectWallet, setupDappBrowser, forceSignDisclaimer } from "../utils";
+import { closeBrowser, navToTradeXFromLanding, quickConnectWallet, setupDappBrowser, forceSignDisclaimer, goToLocalHost } from "../utils";
 
 describe("Setup web3 and connect to wallet", () => {
   jest.setTimeout(300000);
@@ -10,12 +10,10 @@ describe("Setup web3 and connect to wallet", () => {
   let metamask: dappeteer.Dappeteer;
 
   beforeAll(async () => {
-    const tools = await setupDappBrowser();
-    if (tools) {
-      page = tools?.page;
-      browser = tools?.browser;
-      metamask = tools?.metamask;
-    }
+    browser = global.browser;
+    page = global.page;
+    metamask = global.metamask;
+    await goToLocalHost(page);
     await navToTradeXFromLanding(page);
   });
 

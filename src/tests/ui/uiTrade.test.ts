@@ -20,6 +20,7 @@ import {
   getExecuteButtonText,
   getSelectedTokens,
   navToTradeXFromLanding,
+  goToLocalHost,
 } from "../utils";
 import BigNumber from "bignumber.js";
 describe("Trade Platform User Interface Works as Expected", () => {
@@ -38,12 +39,10 @@ describe("Trade Platform User Interface Works as Expected", () => {
     acc3DapBalt1: BigNumber;
 
   beforeAll(async () => {
-    const tools = await setupDappBrowser(true);
-    if (tools) {
-      page = tools?.page;
-      browser = tools?.browser;
-      metamask = tools?.metamask;
-    }
+    browser = global.browser;
+    page = global.page;
+    metamask = global.metamask;
+    await goToLocalHost(page);
     await acceptCookies(page);
     await navToTradeXFromLanding(page);
     await setupDataX(page, metamask, "rinkeby", false);

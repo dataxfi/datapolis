@@ -2082,10 +2082,10 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@keithers98/dappeteer-stable@^2.4.3":
-  version "2.4.3"
-  resolved "https://registry.yarnpkg.com/@keithers98/dappeteer-stable/-/dappeteer-stable-2.4.3.tgz#b57c5caa115b159e730ae82636751114d600441c"
-  integrity sha512-bw4wmoi2guVzhk42JClysEJd0n4kuuk4ggzirMJC8m2T6TnO+7DfFCM9JdO6b7wkcHt/DylzD/HcTIxx3AEevA==
+"@keithers98/dappeteer-stable@^2.4.5":
+  version "2.4.5"
+  resolved "https://registry.yarnpkg.com/@keithers98/dappeteer-stable/-/dappeteer-stable-2.4.5.tgz#881db0e7bc852a0b6d32a4292ce4d74fbec70eed"
+  integrity sha512-Z4ghwLnjEzY8zT7ZAqCpcpjML1xTZOaF30r5Ei3JdP4FE7mV+dU6cKdcoR/y7XDZKXWOdB+bF8wC1OebHFTQMA==
   dependencies:
     node-stream-zip "^1.13.0"
 
@@ -3378,7 +3378,7 @@
   dependencies:
     "@types/istanbul-lib-report" "*"
 
-"@types/jest@*", "@types/jest@^28.0.3":
+"@types/jest@*", "@types/jest@^27.4.1":
   version "27.4.1"
   resolved "https://registry.yarnpkg.com/@types/jest/-/jest-27.4.1.tgz#185cbe2926eaaf9662d340cc02e548ce9e11ab6d"
   integrity sha512-23iPJADSmicDVrWk+HT58LMJtzLAnB2AgIzplQuq/bSrGaxCrlvRFjGbXmamnnk/mAmCdLStiGqggu28ocUyiw==

@@ -1,6 +1,6 @@
 import puppeteer from "puppeteer";
 import "regenerator-runtime/runtime";
-import { acceptCookies,closeBrowser, setupPuppBrowser  } from "../utils";
+import { acceptCookies,closeBrowser, goToLocalHost, setupPuppBrowser  } from "../utils";
 
 describe("Execute Standard Trades on Stake", () => {
   jest.setTimeout(300000);
@@ -8,11 +8,9 @@ describe("Execute Standard Trades on Stake", () => {
   let browser: puppeteer.Browser;
 
   beforeAll(async () => {
-    const tools = await setupPuppBrowser();
-    if (tools) {
-      page = tools.page;
-      browser = tools.browser;
-    }
+    browser = global.browser;
+    page = global.page;
+    await goToLocalHost(page);
   });
 
   afterAll(async () => {

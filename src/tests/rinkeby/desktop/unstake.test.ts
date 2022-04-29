@@ -15,6 +15,7 @@ import {
   awaitUpdateShares,
   navToTradeXFromLanding,
   acceptCookies,
+  goToLocalHost,
 } from "../../utils";
 import BigNumber from "bignumber.js";
 describe("Execute Standard Trades on Stake", () => {
@@ -26,13 +27,10 @@ describe("Execute Standard Trades on Stake", () => {
   let initialShares: BigNumber;
 
   beforeAll(async () => {
-    const tools = await setupDappBrowser();
-    if (tools) {
-      page = tools?.page;
-      browser = tools?.browser;
-      metamask = tools?.metamask;
-    }
-    await page.setViewport({ width: 1039, height: 913 });
+    browser = global.browser;
+    metamask = global.metamask;
+    page = global.page;
+    await goToLocalHost(page);
     await acceptCookies(page)
     await navToTradeXFromLanding(page)
     await setupDataX(page, metamask, "rinkeby", false);
