@@ -1,5 +1,9 @@
+/**
+ * @jest-environment ./node_modules/@keithers98/dappeteer-stable/dist/jest/DappeteerEnvironment.js
+ */
+
 import puppeteer from "puppeteer";
-import * as dappeteer from "@chainsafe/dappeteer";
+import * as dappeteer from "@keithers98/dappeteer-stable";
 import "regenerator-runtime/runtime";
 import {
   setupDappBrowser,
@@ -13,6 +17,7 @@ import {
   reloadOrContinue,
   setUpSwap,
   navToTradeXFromLanding,
+  goToLocalHost,
 } from "../../utils";
 
 describe("Execute Standard Trades on Trade", () => {
@@ -23,12 +28,15 @@ describe("Execute Standard Trades on Trade", () => {
   let lastTestPassed: boolean = true;
 
   beforeAll(async () => {
-    const tools = await setupDappBrowser();
-    if (tools) {
-      page = tools?.page;
-      browser = tools?.browser;
-      metamask = tools?.metamask;
-    }
+    //@ts-ignore disable-next-line
+    browser = global.browser;
+    //@ts-ignore disable-next-line
+    metamask = global.metamask;
+    //@ts-ignore disable-next-line
+    page = global.page;
+
+    console.log(!!browser, !!page, !!metamask);
+    await goToLocalHost(page);
     await navToTradeXFromLanding(page);
     await setupDataX(page, metamask, "rinkeby", false);
   });
@@ -87,7 +95,4 @@ describe("Execute Standard Trades on Trade", () => {
     await reloadOrContinue(false, page);
     await stdTradeFlow("SAGKRI-94", "OCEAN", "max", 1);
   });
-
 });
-
-

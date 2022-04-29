@@ -1,5 +1,5 @@
 import puppeteer from "puppeteer";
-import * as dappeteer from "@chainsafe/dappeteer";
+import * as dappeteer from "@keithers98/dappeteer-stable";
 import "regenerator-runtime/runtime";
 import BigNumber from "bignumber.js";
 import { IMaxEval, BalancePos, ITxType, LocalStorageMethods } from "../utils/types";
@@ -67,13 +67,18 @@ export async function setupDappBrowser(acct2: boolean = false) {
   let page: puppeteer.Page;
   let browser: puppeteer.Browser;
   let metamask: dappeteer.Dappeteer;
+  console.log("wsEndpoint Variable:", process.env.PUPPETEER_WS_ENDPOINT)
 
   try {
+
     browser = await dappeteer.launch(puppeteer, {
       metamaskVersion: "v10.8.1",
       headless: false,
       timeout: 5000,
     });
+
+    console.log("wsEndpoint Variable:", process.env.PUPPETEER_WS_ENDPOINT)
+
     console.log(`Setting up metamask with creds: \n Password: ${process.env.REACT_APP_T_ACCT_PASS} \n Seed: ${process.env.REACT_APP_T_ACCT_SEED}`);
 
     metamask = await dappeteer.setupMetamask(browser, {
@@ -797,6 +802,10 @@ export async function acceptCookies(page: puppeteer.Page) {
   await page.waitForSelector("#confirmCookies");
   await page.click("#confirmCookies");
   await page.waitForTimeout(500);
+}
+
+export async function goToLocalHost(page:puppeteer.Page){
+  await page.goto("http://localhost:3000")
 }
 
 export async function setupUnstake(page: puppeteer.Page, unstakeAmt: string, initialShares?: BigNumber) {
