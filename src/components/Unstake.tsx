@@ -44,7 +44,7 @@ export default function Unstake() {
   const [inputDisabled, setInputDisabled] = useState(false);
   const [shares, setShares] = useState<BigNumber>(new BigNumber(0));
   const [calculating, setCalculating] = useState<boolean>(false);
-  //Max possible amount of OCEAN to remove
+  // Max possible amount of OCEAN to remove
   const [maxUnstake, setMaxUnstake] = useState<IMaxUnstake>({
     OCEAN: new BigNumber(0),
     shares: new BigNumber(0),
@@ -58,7 +58,7 @@ export default function Unstake() {
       });
 
       try {
-        //.98 is a fix for the MAX_OUT_RATIO error from the contract
+        // .98 is a fix for the MAX_OUT_RATIO error from the contract
         if (!ocean || !singleLiquidityPos || !singleLiquidityPos.address) return;
         const oceanAmt: BigNumber = new BigNumber(
           await ocean.getMaxUnstakeAmount(singleLiquidityPos.address, ocean.config.default.oceanTokenAddress)
@@ -80,7 +80,7 @@ export default function Unstake() {
     });
   }
 
-  //hooks
+  // hooks
   useLiquidityPos(token1.info?.pool);
   useAutoLoadToken();
 
@@ -253,7 +253,7 @@ export default function Unstake() {
   async function maxUnstakeHandler() {
     if (!ocean || !singleLiquidityPos) return;
     setCalculating(true);
-    let max: IMaxUnstake | void = maxUnstake?.OCEAN.gt(0) ? maxUnstake : await getMaxUnstake(getNewSignal());
+    const max: IMaxUnstake | void = maxUnstake?.OCEAN.gt(0) ? maxUnstake : await getMaxUnstake(getNewSignal());
     console.log('Max unstake amount set at:', { ocean: max.OCEAN.toString(), shares: max.shares.toString() });
 
     try {
@@ -262,7 +262,7 @@ export default function Unstake() {
       );
 
       console.log('Total user shares in ocean', userTotalStakedOcean);
-      //find whether user staked oceans is greater or lesser than max unstake
+      // find whether user staked oceans is greater or lesser than max unstake
       if (userTotalStakedOcean.gt(max?.OCEAN)) {
         console.log('setting to max max');
 
@@ -292,8 +292,7 @@ export default function Unstake() {
   }
 
   async function handleUnstake(preTxDetails: ITxDetails) {
-    if (!chainId || !singleLiquidityPos || !ocean || !accountId || !preTxDetails || !token1.info || !token2.info)
-      return;
+    if (!chainId || !singleLiquidityPos || !ocean || !accountId || !preTxDetails || !token1.info || !token2.info) { return; }
 
     setShowConfirmModal(true);
     console.log(
@@ -350,11 +349,13 @@ export default function Unstake() {
                     alt=""
                     width="40px"
                   />
-                  {singleLiquidityPos ? (
+                  {singleLiquidityPos
+                    ? (
                     <p className="text-gray-100 text-sm md:text-lg">{token2.info.symbol}/OCEAN</p>
-                  ) : (
+                      )
+                    : (
                     <PulseLoader color="white" size="4px" margin="5px" />
-                  )}
+                      )}
                 </div>
               </div>
               <div className="md:grid md:grid-cols-5 modalSelectBg p-2 rounded">
@@ -364,7 +365,7 @@ export default function Unstake() {
                 <div className="col-span-3 flex justify-between mt-3 md:mt-0 bg-black bg-opacity-70 rounded-lg p-1">
                   <div className="flex w-full items-center">
                     {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
-                    <span className={`text-2xl hover:text-white focus-within:text-white text-primary-400`}>
+                    <span className={'text-2xl hover:text-white focus-within:text-white text-primary-400'}>
                       <DebounceInput
                         id="unstakeAmtInput"
                         step="1"
@@ -390,8 +391,8 @@ export default function Unstake() {
                         ? Number(singleLiquidityPos?.shares) === 0
                           ? 'Shares: 0'
                           : Number(singleLiquidityPos?.shares) > 0.001
-                          ? `Shares: ${singleLiquidityPos?.shares.dp(5).toString()}`
-                          : 'Shares: < 0.001'
+                            ? `Shares: ${singleLiquidityPos?.shares.dp(5).toString()}`
+                            : 'Shares: < 0.001'
                         : '. . .'}
                     </p>
                     <div className="text-sm text-gray-300 grid grid-flow-col justify-end gap-2 items-center">
@@ -412,11 +413,13 @@ export default function Unstake() {
               </div>
               <div className="px-4 relative mt-6 mb-8">
                 <div className="rounded-full border-black border-4 absolute -top-7 bg-trade-darkBlue w-10 h-10 flex items-center justify-center swap-center">
-                  {calculating ? (
+                  {calculating
+                    ? (
                     <MoonLoader size={25} color={'white'} />
-                  ) : (
+                      )
+                    : (
                     <BsArrowDown size="30px" className="text-gray-300 m-0 p-0" />
-                  )}
+                      )}
                 </div>
               </div>
               <TokenSelect

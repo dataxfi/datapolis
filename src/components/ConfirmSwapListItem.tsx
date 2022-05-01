@@ -5,7 +5,7 @@ const ConfirmSwapListItem = ({ name, value, valueClass }: { name: string; value:
         <p className="text-gray-300 text-sm">{name}</p>
       </div>
       <div>
-        <p id={`swapListValue-${name}`} className={'text-sm ' + (valueClass ? valueClass : 'text-gray-100')}>
+        <p id={`swapListValue-${name}`} className={'text-sm ' + (valueClass || 'text-gray-100')}>
           {value}
         </p>
       </div>

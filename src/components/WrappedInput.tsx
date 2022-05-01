@@ -25,11 +25,11 @@ export default function WrappedInput(props: any) {
     const afterPeriod = /\.(.*)/;
     const decimals = value.match(afterPeriod);
 
-    //dont call db change if decimals >= 5
+    // dont call db change if decimals >= 5
     if (decimals && decimals[1].length > 5) {
       result = 'dec';
     }
-    //dont call db change if the input is the same as the current value (ie. trailing/leading zero(s))
+    // dont call db change if the input is the same as the current value (ie. trailing/leading zero(s))
     else if (bnVal.toFixed(5) === internalState.toFixed(5)) {
       result = 'trail';
     }

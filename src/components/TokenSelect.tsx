@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { BsBoxArrowUpRight, BsChevronDown } from 'react-icons/bs';
 import { DebounceInput } from 'react-debounce-input';
-import { useContext } from 'react';
 import { GlobalContext } from '../context/GlobalState';
 import BigNumber from 'bignumber.js';
 import WrappedInput from './WrappedInput';
@@ -83,13 +82,15 @@ export default function TokenSelect({
     <div id={`${pos}-swapInput`} className="mt-4 rounded-xl">
       <div className="md:grid md:grid-cols-5 bg-city-blue bg-opacity-30 rounded-xl p-1">
         <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center p-1">
-          {token?.info && tokensCleared.current ? (
+          {token?.info && tokensCleared.current
+            ? (
             <img src={token?.info.logoURI} className="w-10 h-10 rounded-md" alt="" />
-          ) : (
+              )
+            : (
             <div className="w-10 h-10 rounded-md bg-background flex justify-center items-center text-3xl">
               <XLogo style={{ height: '30px' }} />
             </div>
-          )}
+              )}
           <div
             id={`selectToken${pos}`}
             role="button"
@@ -99,23 +100,26 @@ export default function TokenSelect({
             }}
           >
             <p className="text-xs text-gray-200 text-left">{title}</p>
-            {token?.info && tokensCleared.current ? (
+            {token?.info && tokensCleared.current
+              ? (
               <span className="text-sm sm:text-2xl text-gray-200 font-bold flex justify-center items-center">
                 <span id={`selectedToken${pos}`} className="text-sm sm:text-lg">
                   {token.info.symbol}
                 </span>
                 <BsChevronDown className="text-gray-200" size="16" />
               </span>
-            ) : (
+                )
+              : (
               <p id="selectTokenBtn" className="text-xs btn-dark rounded-full mt-1">
                 Select Token
               </p>
-            )}
+                )}
           </div>
         </div>
 
         {location === '/stake' && pos === 2 ? (
-          token.info ? (
+          token.info
+            ? (
             <div className="col-span-3 ml-4 mt-3 md:mt-0">
               <div>
                 <p className="text-gray-100 uppercase text-xs md:text-base">{token.info?.name}</p>
@@ -141,9 +145,10 @@ export default function TokenSelect({
                 </div>
               </div>
             </div>
-          ) : (
+              )
+            : (
             <></>
-          )
+              )
         ) : (
           <div className="col-span-3 mt-3 md:mt-0 ">
             <div className="h-full w-full rounded-lg bg-opacity-100 text-3xl p-1 flex items-center">
@@ -168,14 +173,19 @@ export default function TokenSelect({
                   value={token?.value.gt(0) ? token?.value.dp(5).toString() : ''}
                 />
                 <div>
-                  {token?.balance ? (
+                  {token?.balance
+                    ? (
                     <p id={`token${pos}-balance`} className="text-sm text-gray-400 whitespace-nowrap text-right">
                       Balance: {token.balance.dp(3).toString()}
                     </p>
-                  ) : (
+                      )
+                    : (
                     <></>
-                  )}
-                  {pos === 2 || location === '/stake/remove' ? null : token?.balance ? (
+                      )}
+                  {pos === 2 || location === '/stake/remove'
+                    ? null
+                    : token?.balance
+                      ? (
                     <div className="text-sm text-gray-300 grid grid-flow-col justify-end gap-2 items-center">
                       <MaxToolTip />
                       <button
@@ -185,8 +195,8 @@ export default function TokenSelect({
 
                           if (enabled) onMax();
                         }}
-                        className={`btn-dark btn-sm rounded-full text-xs`}
-                        disabled={enabled ? false : true}
+                        className={'btn-dark btn-sm rounded-full text-xs'}
+                        disabled={!enabled}
                       >
                         Max
                       </button>
@@ -202,12 +212,13 @@ export default function TokenSelect({
                           enabled ? 'modalSelectBg bg-opacity-25' : 'bg-primary-500 bg-opacity-25 text-primary-600'
                         }   py-1 rounded px-1 w-12 outline-none`}
                         placeholder="%"
-                        disabled={enabled ? false : true}
+                        disabled={!enabled}
                       />
                     </div>
-                  ) : (
+                        )
+                      : (
                     <></>
-                  )}
+                        )}
                 </div>
               </div>
             </div>

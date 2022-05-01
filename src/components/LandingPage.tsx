@@ -1,6 +1,5 @@
-import { FaAngleDoubleRight } from 'react-icons/fa';
+import { FaAngleDoubleRight, FaBook } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import { FaBook } from 'react-icons/fa';
 import SocialLinkIcons from './SocialLinkIcons';
 import BuiltWDataX from './BuiltWDataX';
 

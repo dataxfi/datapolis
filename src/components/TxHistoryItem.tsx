@@ -52,7 +52,7 @@ export default function TxHistoryItem({
   }
 
   function txItemTitle(tx: ITxDetails) {
-    if (tx.token1.info && tx.token2.info)
+    if (tx.token1.info && tx.token2.info) {
       switch (tx.txType) {
         case 'stake':
           return `Stake ${tx.token2.info.symbol}/${tx.token1.info.symbol}`;
@@ -63,6 +63,7 @@ export default function TxHistoryItem({
         default:
           return `${tx.token1.info.symbol} to ${tx.token2.info.symbol}`;
       }
+    }
   }
 
   return (
@@ -76,11 +77,13 @@ export default function TxHistoryItem({
           <p className={`ml-1 ${txInstance.status === 'Success' ? 'text-city-blue' : 'text-primary-400'} `}>
             {txInstance.status}
           </p>
-          {txInstance.status === 'Success' || txInstance.status === 'Failure' ? null : (
+          {txInstance.status === 'Success' || txInstance.status === 'Failure'
+            ? null
+            : (
             <div className="pt-.5">
               <PulseLoader size="3px" color="white" />
             </div>
-          )}
+              )}
         </div>
         <a href={txLink} target="_blank" rel="noreferrer" className={txLink.includes('/tx/') ? 'text-city-blue' : ''}>
           <BsBoxArrowUpRight />

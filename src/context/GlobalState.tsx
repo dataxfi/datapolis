@@ -1,5 +1,5 @@
 import Web3 from 'web3';
-import { Ocean, Config, Watcher } from '@dataxfi/datax.js';
+import { Ocean, Config, Watcher, IToken, ITList, ITokenInfo } from '@dataxfi/datax.js';
 import Web3Modal from 'web3modal';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import { createContext, PropsWithChildren, useEffect, useRef, useState } from 'react';
@@ -23,7 +23,6 @@ import {
   ApprovalStates,
 } from '../utils/types';
 import BigNumber from 'bignumber.js';
-import { IToken, ITList, ITokenInfo } from '@dataxfi/datax.js';
 
 const CONNECT_TEXT = 'Connect Wallet';
 export const INITIAL_TOKEN_STATE: IToken = {
@@ -50,7 +49,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [loading, setLoading] = useState<boolean>(true);
   const [location, setLocation] = useState<string>('/');
 
-  //Modal and notification states
+  // Modal and notification states
   const [unsupportedNet, setUnsupportedNet] = useState<boolean>(false);
   const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
   const [snackbarItem, setSnackbarItem] = useState<ISnackbarItem>();
@@ -68,7 +67,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
     wallet: null,
   });
 
-  //transaction states
+  // transaction states
   const [pendingTxs, setPendingTxs] = useState<string[]>([]);
   const [txHistory, setTxHistory] = useState<ITxHistory>();
   const [lastTx, setLastTx] = useState<ITxDetails>();
@@ -81,11 +80,11 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [approving, setApproving] = useState<ApprovalStates>('pending');
   const [swapFee, setSwapFee] = useState<BigNumber>(new BigNumber(0));
   const [minReceived, setMinReceived] = useState<BigNumber>(new BigNumber(0));
-  //user pool information states
+  // user pool information states
   const [allStakedPools, setAllStakedPools] = useState<ILiquidityPosition[]>();
   const [singleLiquidityPos, setSingleLiquidityPos] = useState<ILiquidityPosition>();
 
-  //token data states
+  // token data states
   const [datatokens, setDatatokens] = useState<ITokenInfo[]>();
   const [ERC20Tokens, setERC20Tokens] = useState<ITokenInfo[]>();
   const [ERC20TokenResponse, setERC20TokenResponse] = useState<ITList>();
@@ -93,13 +92,13 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [t2DIDResponse, setT2DIDResponse] = useState<any>();
   const [buttonText, setButtonText] = useState<string>(CONNECT_TEXT);
 
-  //selected token states
+  // selected token states
   const [token1, setToken1] = useState<IToken>(INITIAL_TOKEN_STATE);
   const [token2, setToken2] = useState<IToken>(INITIAL_TOKEN_STATE);
   const [selectTokenPos, setSelectTokenPos] = useState<1 | 2 | null>(null);
   const [importPool, setImportPool] = useState<string>();
 
-  //bg states
+  // bg states
   const [bgOff, setBgOff] = useState(false);
   const [blurBG, setBlurBG] = useState(false);
 
@@ -170,12 +169,12 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
    */
   async function handleSignature() {
     if (!web3) return;
-    let accounts = await web3.eth.getAccounts();
+    const accounts = await web3.eth.getAccounts();
     const account = accounts[0].toLowerCase();
 
     try {
       localStorage.setItem(account, 'pending');
-      let signature = await web3.eth.personal.sign(disclaimer, account || '', '', () => {
+      const signature = await web3.eth.personal.sign(disclaimer, account || '', '', () => {
         setShowDisclaimer(false);
         setBlurBG(false);
       });
@@ -224,12 +223,12 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       // console.log(web3);
       setWeb3(web3);
 
-      let accounts = await web3.eth.getAccounts();
-      let account = accounts[0] ? accounts[0].toLowerCase() : null;
-      const localSignature = localStorage.getItem(account ? account : '');
+      const accounts = await web3.eth.getAccounts();
+      const account = accounts[0] ? accounts[0].toLowerCase() : null;
+      const localSignature = localStorage.getItem(account || '');
 
       if (localSignature && localSignature !== 'pending') {
-        let _chainId = String(await web3.eth.getChainId());
+        const _chainId = String(await web3.eth.getChainId());
         setChainId(_chainId as supportedChains);
 
         // This is required to do wallet-specific functions
@@ -273,7 +272,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setUnsupportedNet(false);
         // console.log("Account Id - ", accountId);
         // console.log("Pre Account Id - ", account);
-        //account is null when chain changes to prevent switching to an unsigned account
+        // account is null when chain changes to prevent switching to an unsigned account
         setAccountId(account);
         setButtonText(account || CONNECT_TEXT);
         connectedWalletGA();
@@ -295,8 +294,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
   function setListeners(provider: any, web3: Web3) {
     provider.on('accountsChanged', async (accounts: string[]) => {
-      let account = accounts[0] ? accounts[0].toLowerCase() : null;
-      const localSignature = localStorage.getItem(account ? account : '');
+      const account = accounts[0] ? accounts[0].toLowerCase() : null;
+      const localSignature = localStorage.getItem(account || '');
       if (localSignature && localSignature !== 'pending') {
         // console.log("Accounts changed to - ", accounts[0]);
         // console.log("Connected Accounts - ", JSON.stringify(accounts));

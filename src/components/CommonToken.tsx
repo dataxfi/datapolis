@@ -19,9 +19,11 @@ export default function CommonToken({
           onClick(token);
         }}
       >
-        {imgFailed ? (
+        {imgFailed
+          ? (
           <BsSlashCircle className="w-5 h-5 text-gray-600 mr-1" />
-        ) : (
+            )
+          : (
           <img
             src={token.logoURI}
             onError={() => {
@@ -31,7 +33,7 @@ export default function CommonToken({
             alt=""
             loading="lazy"
           />
-        )}
+            )}
         <p>{token.symbol}</p>
       </button>
     </li>

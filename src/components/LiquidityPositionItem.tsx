@@ -26,7 +26,8 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId]);
 
-  return token1Info && token2Info ? (
+  return token1Info && token2Info
+    ? (
     <li id={`${token2Info.symbol}-lp-item`} key={`LP${index}`}>
       <div className="w-full mx-auto z-0">
         <div
@@ -56,7 +57,8 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
             {visible ? <BsChevronDown size={14} /> : <BsChevronUp size={14} />}
           </div>
         </div>
-        {visible ? (
+        {visible
+          ? (
           <div
             id={`${token1Info.symbol}-lp-info`}
             className={`p-2 transition-colors duration-500  ${
@@ -113,8 +115,8 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                     {yourPoolSharePerc?.gte(1)
                       ? `${yourPoolSharePerc?.dp(5).toString()} %`
                       : yourPoolSharePerc?.eq(0)
-                      ? '0'
-                      : '< 0 %'}
+                        ? '0'
+                        : '< 0 %'}
                   </p>
                 </div>
               </div>
@@ -146,14 +148,16 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
               </Link>
             </div>
           </div>
-        ) : (
+            )
+          : (
           <></>
-        )}
+            )}
       </div>
     </li>
-  ) : (
+      )
+    : (
     <></>
-  );
+      );
 }
 
 export default LiquidityPositionItem;

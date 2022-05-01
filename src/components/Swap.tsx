@@ -190,7 +190,7 @@ export default function Swap() {
       return;
     }
 
-    if (accountId)
+    if (accountId) {
       if (token1.allowance?.lt(token1.value)) {
         setPreTxDetails({
           accountId,
@@ -223,6 +223,7 @@ export default function Swap() {
         setLastTx(preTxDetails);
         swap();
       }
+    }
   }, [swapConfirmed, executeSwap]);
 
   async function updateBalance(address: string) {
@@ -238,7 +239,7 @@ export default function Swap() {
 
   function updateValueFromPercentage(value: string) {
     // max case is handled in onPerc for token1
-    let perc = new BigNumber(value);
+    const perc = new BigNumber(value);
     if (perc.isNaN()) {
       setToken1({ ...token1, percentage: new BigNumber(0) });
     } else if (perc.gte(100)) {
@@ -246,7 +247,7 @@ export default function Swap() {
       setToken2({ ...token2, percentage: new BigNumber(0) });
       updateOtherTokenValue(true, new BigNumber(100));
     } else {
-      let value: BigNumber = token1.balance.multipliedBy(perc).div(100).dp(5);
+      const value: BigNumber = token1.balance.multipliedBy(perc).div(100).dp(5);
       console.log('Value from perc', value.toString());
       setToken1({ ...token1, percentage: perc, value });
       updateOtherTokenValue(true, value);
@@ -257,13 +258,13 @@ export default function Swap() {
     if (token1?.info && token2?.info && ocean) {
       if (from) {
         setToken2({ ...token2, loading: true });
-        let exchange = await ocean.calculateExchange(from, inputAmount, token1, token2);
+        const exchange = await ocean.calculateExchange(from, inputAmount, token1, token2);
         setPostExchange(exchange.div(inputAmount));
         setToken2({ ...token2, value: exchange, loading: false });
         setExactToken(1);
       } else {
         setToken1({ ...token1, loading: true });
-        let exchange = await ocean.calculateExchange(from, inputAmount, token1, token2);
+        const exchange = await ocean.calculateExchange(from, inputAmount, token1, token2);
         console.log(inputAmount.toString(), exchange.toString());
 
         setPostExchange(inputAmount.div(exchange));
@@ -276,7 +277,7 @@ export default function Swap() {
   async function swap() {
     let txReceipt = null;
     if (!preTxDetails || preTxDetails.txType !== 'trade') return;
-    let decSlippage = slippage.div(100).dp(5);
+    const decSlippage = slippage.div(100).dp(5);
     if (!chainId || !token2.info || !token1.info || !accountId || !ocean || !config) return;
     try {
       if (ocean.isOCEAN(token1.info.address)) {
@@ -312,7 +313,7 @@ export default function Swap() {
             decSlippage.toString()
           );
         } else {
-          //Error: Throws not enough datatokens
+          // Error: Throws not enough datatokens
           console.log('dt to exact ocean');
           // console.log(accountId, token1.info.pool, token2.value.toString(), token1.value.toString());
           txReceipt = await ocean.swapExactDtToOcean(
@@ -393,7 +394,7 @@ export default function Swap() {
     }
     if (executeSwap || executeUnlock) {
       setBtnProps({
-        text: `Processing Transaction...`,
+        text: 'Processing Transaction...',
         disabled: true,
       });
       return;
@@ -411,7 +412,7 @@ export default function Swap() {
           (ocean.isOCEAN(token2.info.address) && token2.value.lt(0.01) && token2.value.gt(0)))
       ) {
         setBtnProps({
-          text: `Minimum trade is .01 OCEAN`,
+          text: 'Minimum trade is .01 OCEAN',
           disabled: true,
         });
       } else if (token1.value.lt(0.001) && token1.value.gt(0)) {
@@ -441,7 +442,7 @@ export default function Swap() {
   async function dbUpdateToken1(value: string) {
     if (!ocean) return;
     const bnVal = new BigNumber(value);
-    //Setting state here allows for max to be persisted in the input
+    // Setting state here allows for max to be persisted in the input
     setToken1({ ...token1, value: bnVal });
     if (token1?.info && token2?.info) {
       let exchangeLimit = INITIAL_MAX_EXCHANGE;
@@ -474,7 +475,7 @@ export default function Swap() {
     if (!ocean) return;
     setPercLoading(true);
     if (val === '') val = '0';
-    let bnVal = new BigNumber(val);
+    const bnVal = new BigNumber(val);
     let exchangeLimit = INITIAL_MAX_EXCHANGE;
 
     maxExchange.maxPercent.gt(0)
@@ -502,7 +503,7 @@ export default function Swap() {
   async function dbUpdateToken2(value: string) {
     if (!ocean) return;
     const bnVal = new BigNumber(value);
-    //Setting state here allows for max to be persisted in the input
+    // Setting state here allows for max to be persisted in the input
     setToken2({ ...token2, value: bnVal });
     if (token1?.info && token2?.info) {
       let exchangeLimit;
@@ -547,7 +548,8 @@ export default function Swap() {
                     <MdTune size="24" />
                   </div>
                 </div>
-                {showSettings ? (
+                {showSettings
+                  ? (
                   <div id="settingsModal" className="absolute top-0 left-0 max-w-sm">
                     <OutsideClickHandler
                       onOutsideClick={() => {
@@ -582,9 +584,10 @@ export default function Swap() {
                       </div>
                     </OutsideClickHandler>
                   </div>
-                ) : (
+                    )
+                  : (
                   <></>
-                )}
+                    )}
               </div>
               <TokenSelect
                 setToken={setToken1}
@@ -604,11 +607,13 @@ export default function Swap() {
                   tabIndex={0}
                   className="rounded-full border-black bg-opacity-100 border-4 absolute -top-7 bg-trade-darkBlue hover:bg-gray-600 transition-colors duration-200 w-12 h-12 flex swap-center items-center justify-center"
                 >
-                  {token2?.loading || token1?.loading || percLoading ? (
+                  {token2?.loading || token1?.loading || percLoading
+                    ? (
                     <MoonLoader size={25} color={'white'} />
-                  ) : (
+                      )
+                    : (
                     <IoSwapVertical size="30" className="text-gray-300" />
-                  )}
+                      )}
                 </div>
               </div>
               <TokenSelect
@@ -622,9 +627,7 @@ export default function Swap() {
 
               <Collapse
                 isOpened={
-                  token1?.info && token2?.info && token1.value.gt(0) && token2.value.gt(0) && postExchange.gt(0)
-                    ? true
-                    : false
+                  !!(token1?.info && token2?.info && token1.value.gt(0) && token2.value.gt(0) && postExchange.gt(0))
                 }
               >
                 <div

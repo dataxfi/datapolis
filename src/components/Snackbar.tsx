@@ -27,8 +27,7 @@ export default function Snackbar() {
   }, [snackbarItem, currentNot]);
 
   useEffect(() => {
-    if (ocean && accountId && currentNot?.newTx)
-      setUrl(getTxUrl({ ocean, accountId, txHash: currentNot.newTx.txReceipt?.transactionHash }));
+    if (ocean && accountId && currentNot?.newTx) { setUrl(getTxUrl({ ocean, accountId, txHash: currentNot.newTx.txReceipt?.transactionHash })); }
     setTxDetails(currentNot?.newTx);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ocean, accountId, currentNot]);
@@ -54,7 +53,7 @@ export default function Snackbar() {
   }
 
   function display() {
-    //render time is 6 seconds
+    // render time is 6 seconds
     setTimeout(() => {
       setOpacity('100');
     }, 500);
@@ -75,13 +74,14 @@ export default function Snackbar() {
 
   if (!currentNot) return <></>;
   return (
-    <div className={`max-w-xs fixed right-2 top-18 md:right-8 w-full`}>
+    <div className={'max-w-xs fixed right-2 top-18 md:right-8 w-full'}>
       <div
         className={`relative top-0 left-0 max-w-xs w-full mx-auto bg-black bg-opacity-90 rounded-lg p-1 lg:p-4 transition-opacity ease-in-out opacity-${opacity} duration-500`}
       >
         <div className="flex justify-between items-center">
           <div className="grid grid-flow-col gap-4 items-center">
-            {txDetails && currentNot?.type === 'tx' ? (
+            {txDetails && currentNot?.type === 'tx'
+              ? (
               <>
                 <IoCheckboxOutline size="24" className="text-city-blue" />
                 <div>
@@ -91,12 +91,12 @@ export default function Snackbar() {
                           txDetails.token2.info.symbol
                         }/OCEAN pool`
                       : txDetails.txType === 'unstake' && txDetails.shares && txDetails.token2.info
-                      ? `Unstake ${new BigNumber(txDetails.shares).dp(5).toString()} OCEAN from ${
+                        ? `Unstake ${new BigNumber(txDetails.shares).dp(5).toString()} OCEAN from ${
                           txDetails.token2.info.symbol
                         }/OCEAN pool`
-                      : txDetails.txType === 'approve'
-                      ? `Unlock ${txDetails.token1.info?.symbol}`
-                      : `Trade ${new BigNumber(txDetails.token1.value).dp(5).toString()} ${
+                        : txDetails.txType === 'approve'
+                          ? `Unlock ${txDetails.token1.info?.symbol}`
+                          : `Trade ${new BigNumber(txDetails.token1.value).dp(5).toString()} ${
                           txDetails.token1.info?.symbol
                         } for ${new BigNumber(txDetails.token2.value).dp(5).toString()} ${
                           txDetails.token2.info?.symbol
@@ -109,14 +109,17 @@ export default function Snackbar() {
                   </p>
                 </div>
               </>
-            ) : currentNot?.type === 'error' ? (
+                )
+              : currentNot?.type === 'error'
+                ? (
               <>
                 <BsXCircle className="text-red-500 mr-4" />
                 <p>{errorMessage(currentNot)}</p>
               </>
-            ) : (
+                  )
+                : (
               <></>
-            )}
+                  )}
           </div>
           <div>
             <BsX

@@ -39,38 +39,44 @@ const UserMessage = ({
 
   const stdMessageEl = (
     <div id={id} className="flex flex-col text-center">
-      {type === 'error' ? (
+      {type === 'error'
+        ? (
         <div className="flex justify-center">
           <BsXCircle className="text-red-500 text-4xl self-center mb-4" />{' '}
         </div>
-      ) : null}
+          )
+        : null}
       <p
         className={` max-w-sm ${type === 'error' ? 'mb-4' : ''} ${
           pulse ? 'animate-pulse' : ''
         } opacity-${messageOpacity} transition-opacity duration-500`}
       >
-        {userMessage ? userMessage : message}
+        {userMessage || message}
       </p>
-      {link ? (
+      {link
+        ? (
         <a
           target="_blank"
           rel="noreferrer"
           className="text-primary-400 hover:text-primary-50"
-          href={href ? href : link}
+          href={href || link}
         >
-          {desc ? desc : link}
+          {desc || link}
         </a>
-      ) : null}
+          )
+        : null}
     </div>
   );
 
-  return container ? (
+  return container
+    ? (
     <div className="w-full h-4/5 flex flex-row justify-center">
-      <div className={`text-center bg-black bg-opacity-80 p-20 rounded-lg self-center`}>{stdMessageEl}</div>
+      <div className={'text-center bg-black bg-opacity-80 p-20 rounded-lg self-center'}>{stdMessageEl}</div>
     </div>
-  ) : (
-    stdMessageEl
-  );
+      )
+    : (
+        stdMessageEl
+      );
 };
 
 export default UserMessage;

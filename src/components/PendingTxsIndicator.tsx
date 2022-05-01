@@ -41,7 +41,8 @@ export default function PendingTxsIndicator() {
     }
   }, [pending, render]);
 
-  return render ? (
+  return render
+    ? (
     <div
       onClick={() => {
         setShowTxHistoryModal(true);
@@ -53,7 +54,8 @@ export default function PendingTxsIndicator() {
         <MoonLoader size="15px" color="#f3c429" />
       </div>{' '}
     </div>
-  ) : (
+      )
+    : (
     <></>
-  );
+      );
 }

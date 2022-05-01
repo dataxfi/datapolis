@@ -41,24 +41,26 @@ export default function LiquidityPosition() {
             </div>
           </div>
 
-          {userMessage ? (
+          {userMessage
+            ? (
             <div className="flex flex-row justify-center items-center p-4 lg:p-2 h-60 bg-trade-darkBlue bg-opacity-40 rounded-lg">
               <UserMessage id={messageId} message={userMessage} pulse={false} container={false} />
             </div>
-          ) : (
+              )
+            : (
             <ul className={`${updatePool ? ' md:mt-1' : 'md:mt-5'} pr-3 pl-3 overflow-scroll hm-hide-scrollbar`}>
               {allStakedPools?.map((pool: ILiquidityPosition, index: number) => (
                 <LiquidityPositionItem singleLiqPosItem={pool} index={index} />
               ))}
             </ul>
-          )}
+              )}
 
           <div className="w-full flex justify-center">
             <div className="w-full pr-1">
               <button
                 id="importStakeBtn"
                 title="Import your stake information."
-                disabled={accountId ? false : true}
+                disabled={!accountId}
                 onClick={() => {
                   setShowTokenModal(true);
                   setBlurBG(true);

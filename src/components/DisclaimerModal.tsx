@@ -51,7 +51,8 @@ function DisclaimerModal() {
     setDisclaimerSigned({ client: 'denied', wallet: false });
   }
 
-  return showDisclaimer ? (
+  return showDisclaimer
+    ? (
     <OutsideClickHandler
       onOutsideClick={() => {
         setShowDisclaimer(false);
@@ -87,17 +88,20 @@ function DisclaimerModal() {
               Agree
             </button>
           </div>
-          {showReminder ? (
+          {showReminder
+            ? (
             <div className="transition-all ease-in-out duration-500 self-center animate-pulse mt-2">
               <p>Sign in your wallet and you will be ready to go!</p>
             </div>
-          ) : null}
+              )
+            : null}
         </div>
       </div>
     </OutsideClickHandler>
-  ) : (
+      )
+    : (
     <></>
-  );
+      );
 }
 
 export default DisclaimerModal;

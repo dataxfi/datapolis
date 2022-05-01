@@ -9,15 +9,15 @@ const TransactionDoneModal = () => {
   const [lastTxUrl, setLastTxUrl] = useState<string>('');
 
   useEffect(() => {
-    if (config && lastTx?.txReceipt?.transactionHash)
-      setLastTxUrl(config.default.explorerUri + '/tx/' + lastTx.txReceipt.transactionHash);
+    if (config && lastTx?.txReceipt?.transactionHash) { setLastTxUrl(config.default.explorerUri + '/tx/' + lastTx.txReceipt.transactionHash); }
   }, [lastTx?.txReceipt?.transactionHash]);
 
   function close() {
     setShowTxDone(false);
     setBlurBG(false);
   }
-  return showTxDone ? (
+  return showTxDone
+    ? (
     <div id="transactionDoneModal" className="fixed center sm:max-w-sm w-full z-30 shadow">
       <OutsideClickHandler onOutsideClick={close}>
         <div className="bg-black bg-opacity-90 border rounded-lg pb-8 p-4 hm-box mx-3">
@@ -39,9 +39,10 @@ const TransactionDoneModal = () => {
         </div>
       </OutsideClickHandler>
     </div>
-  ) : (
+      )
+    : (
     <></>
-  );
+      );
 };
 
 export default TransactionDoneModal;

@@ -60,15 +60,17 @@ const MobileNavbar = ({
         <div className="flex">
           <PendingTxsIndicator />
           <div className="pl-5">
-            {menuVisible ? (
+            {menuVisible
+              ? (
               <button>
                 <MdClose onClick={() => toggleMenu(false)} color="#ccc" size="28" className="z-20" />
               </button>
-            ) : (
+                )
+              : (
               <button>
                 <MdMenu onClick={() => toggleMenu(true)} className="z-20" color="#ccc" size="28" />{' '}
               </button>
-            )}
+                )}
           </div>
         </div>
       </div>

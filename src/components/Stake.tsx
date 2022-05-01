@@ -5,9 +5,8 @@ import { MoonLoader } from 'react-spinners';
 import { Link } from 'react-router-dom';
 import useLiquidityPos from '../hooks/useLiquidityPos';
 import BigNumber from 'bignumber.js';
-import { ITxDetails } from '../utils/types';
+import { ITxDetails, IBtnProps } from '../utils/types';
 import { getAllowance } from '../hooks/useTokenList';
-import { IBtnProps } from '../utils/types';
 import useAutoLoadToken from '../hooks/useAutoLoadToken';
 import TokenSelect from './TokenSelect';
 import PositionBox from './PositionBox';
@@ -51,7 +50,7 @@ export default function Stake() {
   const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
   const [importPool, setImportPool] = useState<string>();
 
-  //hooks
+  // hooks
   useLiquidityPos(importPool, setImportPool);
   useAutoLoadToken();
 
@@ -136,7 +135,7 @@ export default function Stake() {
       return;
     }
 
-    if (accountId)
+    if (accountId) {
       if (token1.allowance?.lt(token1.value)) {
         setPreTxDetails({
           accountId,
@@ -165,13 +164,15 @@ export default function Stake() {
         setLastTx(preTxDetails);
         stake(preTxDetails);
       }
+    }
   }, [executeStake]);
 
   async function getMaxStakeAmt() {
-    if (token2.info && ocean)
+    if (token2.info && ocean) {
       return new BigNumber(
         await ocean.getMaxStakeAmount(token2.info.pool || '', ocean.config.default.oceanTokenAddress)
       ).dp(5);
+    }
   }
 
   async function setOceanBalance() {
@@ -197,7 +198,7 @@ export default function Stake() {
         }
       })
       .then(() => {
-        if (token2.info && accountId && chainId && ocean)
+        if (token2.info && accountId && chainId && ocean) {
           getAllowance(ocean.config.default.oceanTokenAddress, accountId, token2.info.pool || '', ocean).then(
             async (res) => {
               if (!token1.info) return;
@@ -210,6 +211,7 @@ export default function Stake() {
               });
             }
           );
+        }
       })
       .catch(console.error);
   }
@@ -265,7 +267,7 @@ export default function Stake() {
   }
 
   async function updateNum(val: string | BigNumber, max?: BigNumber) {
-    //initially set state to value to persist the max if the user continuously tries to enter over the max (or balance)
+    // initially set state to value to persist the max if the user continuously tries to enter over the max (or balance)
 
     setToken1({ ...token1, value: new BigNumber(val) });
     if (!val) {
@@ -310,11 +312,13 @@ export default function Stake() {
               />
               <div className="px-4 relative mt-6 mb-10">
                 <div className="rounded-full border-black border-4 absolute -top-7 bg-trade-darkBlue w-12 h-12 flex items-center justify-center swap-center">
-                  {loading ? (
+                  {loading
+                    ? (
                     <MoonLoader size={25} color={'white'} />
-                  ) : (
+                      )
+                    : (
                     <AiOutlinePlus size="30" className="text-gray-300" />
-                  )}
+                      )}
                 </div>
               </div>
               <TokenSelect

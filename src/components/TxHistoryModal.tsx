@@ -104,7 +104,7 @@ function TxHistoryModal() {
   function parseHistory(history: ITxHistory) {
     if (!history || !accountId || !ocean) return;
     const txsByDate = [];
-    for (let [txDateId, tx] of Object.entries(history)) {
+    for (const [txDateId, tx] of Object.entries(history)) {
       let txLink = getTxUrl({
         ocean,
         txHash: tx.txReceipt?.transactionHash,
@@ -113,7 +113,7 @@ function TxHistoryModal() {
       if (!txLink) txLink = '/';
       txsByDate.push({ ...tx, txDateId, txLink });
     }
-    //@ts-ignore
+    // @ts-ignore
     txsByDate.sort((date1, date2) => Number(date2.txDateId) - Number(date1.txDateId));
     return txsByDate;
   }

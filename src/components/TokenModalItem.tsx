@@ -6,18 +6,22 @@ export default function TokenModalItem({ token, onClick }: { token: ITokenInfo; 
   const [imagFailed, setImageFailed] = useState(false);
   const { token1, token2 } = useContext(GlobalContext);
 
-  return token.symbol === token1.info?.symbol || token.symbol === token2.info?.symbol ? (
+  return token.symbol === token1.info?.symbol || token.symbol === token2.info?.symbol
+    ? (
     <></>
-  ) : (
+      )
+    : (
     <div
       id={`${token.symbol}-btn`}
       className="px-2 py-1.5 hover:bg-gray-200 hover:bg-opacity-20 rounded-lg cursor-pointer"
     >
       <div onClick={() => onClick(token)} className="flex justify-start w-full items-center">
         <div className="mr-2">
-          {imagFailed ? (
+          {imagFailed
+            ? (
             <BsSlashCircle className="w-8 h-8 text-gray-600" />
-          ) : (
+              )
+            : (
             <img
               src={token.logoURI}
               onError={() => {
@@ -27,7 +31,7 @@ export default function TokenModalItem({ token, onClick }: { token: ITokenInfo; 
               alt=""
               loading="lazy"
             />
-          )}
+              )}
         </div>
 
         <div>
@@ -36,5 +40,5 @@ export default function TokenModalItem({ token, onClick }: { token: ITokenInfo; 
         </div>
       </div>
     </div>
-  );
+      );
 }

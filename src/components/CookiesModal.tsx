@@ -38,7 +38,8 @@ function CookiesModal() {
     setShow(false);
   }
 
-  return cookiesAllowed === null ? (
+  return cookiesAllowed === null
+    ? (
     <div
       id="cookiesModal"
       className={`z-30 md:w-80 lg:w-96 absolute bottom-0 flex flex-col bg-black bg-opacity-90 p-5 justify-center m-4 rounded-md filter hm-box transition-all ${
@@ -59,9 +60,10 @@ function CookiesModal() {
         Deny
       </button>
     </div>
-  ) : (
+      )
+    : (
     <></>
-  );
+      );
 }
 
 export default CookiesModal;
