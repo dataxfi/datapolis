@@ -1,61 +1,60 @@
-import puppeteer from "puppeteer";
-import * as dappeteer from "@keithers98/dappeteer-stable";
-import "regenerator-runtime/runtime";
-import { closeBrowser, navToTradeXFromLanding, quickConnectWallet, setupDappBrowser, forceSignDisclaimer, goToLocalHost } from "../utils";
+import puppeteer from 'puppeteer'
+import * as dappeteer from '@keithers98/dappeteer-stable'
+import 'regenerator-runtime/runtime'
+import { closeBrowser, navToTradeXFromLanding, quickConnectWallet, setupDappBrowser, forceSignDisclaimer, goToLocalHost } from '../utils'
 
-describe("Setup web3 and connect to wallet", () => {
-  jest.setTimeout(300000);
-  let page: puppeteer.Page;
-  let browser: puppeteer.Browser;
-  let metamask: dappeteer.Dappeteer;
+describe('Setup web3 and connect to wallet', () => {
+  jest.setTimeout(300000)
+  let page: puppeteer.Page
+  let browser: puppeteer.Browser
+  let metamask: dappeteer.Dappeteer
 
   beforeAll(async () => {
-    browser = global.browser;
-    page = global.page;
-    metamask = global.metamask;
-    await goToLocalHost(page);
-    await navToTradeXFromLanding(page);
-  });
+    browser = global.browser
+    page = global.page
+    metamask = global.metamask
+    await goToLocalHost(page)
+    await navToTradeXFromLanding(page)
+  })
 
   afterAll(async () => {
-    await closeBrowser(browser);
-  });
+    await closeBrowser(browser)
+  })
 
-  it("Sign disclaimer and connect to wallet.", async () => {
-    expect(page).toBeDefined();
-    await page.setViewport({ width: 1039, height: 913 });
-    await page.waitForSelector("#d-wallet-button");
-    await page.click("#d-wallet-button");
-    await page.waitForSelector(".sc-hKwDye.Klclp.web3modal-provider-container");
-    await page.click(".sc-hKwDye.Klclp.web3modal-provider-container");
-    //Confirm Connection in MetaMaks
-    await metamask.confirmTransaction();
-    await metamask.confirmTransaction();
-    page.bringToFront();
-    //Confirm disclaimer appears
+  it('Sign disclaimer and connect to wallet.', async () => {
+    expect(page).toBeDefined()
+    await page.setViewport({ width: 1039, height: 913 })
+    await page.waitForSelector('#d-wallet-button')
+    await page.click('#d-wallet-button')
+    await page.waitForSelector('.sc-hKwDye.Klclp.web3modal-provider-container')
+    await page.click('.sc-hKwDye.Klclp.web3modal-provider-container')
+    // Confirm Connection in MetaMaks
+    await metamask.confirmTransaction()
+    await metamask.confirmTransaction()
+    page.bringToFront()
+    // Confirm disclaimer appears
     expect(
-      await page.waitForSelector("#disclaimer-modal", {
+      await page.waitForSelector('#disclaimer-modal', {
         visible: true,
-        timeout: 3000,
+        timeout: 3000
       })
-    ).toBeDefined();
-    //Sign disclaimer
-    await page.waitForSelector("#sign-disclaimer-btn");
-    await page.click("#sign-disclaimer-btn");
+    ).toBeDefined()
+    // Sign disclaimer
+    await page.waitForSelector('#sign-disclaimer-btn')
+    await page.click('#sign-disclaimer-btn')
 
-   
     await forceSignDisclaimer(metamask, page)
-    await page.bringToFront();
+    await page.bringToFront()
 
-    //Check wallet address in is the button
-    const walletBtn = await page.waitForSelector("#d-view-txs-btn");
-    await new Promise((res, rej) => setTimeout(res, 3000));
-    const btnText = await page.evaluate((el) => el.textContent, walletBtn);
-    expect(btnText).toBe("0x867...DfAd");
-  });
+    // Check wallet address in is the button
+    const walletBtn = await page.waitForSelector('#d-view-txs-btn')
+    await new Promise((res, rej) => setTimeout(res, 3000))
+    const btnText = await page.evaluate((el) => el.textContent, walletBtn)
+    expect(btnText).toBe('0x867...DfAd')
+  })
 
-  //test wallet doest ask for signature if in local storage in next session
-});
+  // test wallet doest ask for signature if in local storage in next session
+})
 
 // Test priority
 

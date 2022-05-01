@@ -1,12 +1,11 @@
-import BigNumber from "bignumber.js";
-import { ITList, ITokenInfo, IToken } from "@dataxfi/datax.js";
-import { TokenInfo as TInfo } from "@uniswap/token-lists";
-import { TransactionReceipt } from "web3-core";
-import { Config, Ocean, Watcher } from "@dataxfi/datax.js";
-import Web3 from "web3";
-import Web3Modal from "web3modal";
+import BigNumber from 'bignumber.js'
+import { ITList, ITokenInfo, IToken, Config, Ocean, Watcher } from '@dataxfi/datax.js'
+import { TokenInfo as TInfo } from '@uniswap/token-lists'
+import { TransactionReceipt } from 'web3-core'
+import Web3 from 'web3'
+import Web3Modal from 'web3modal'
 
-export type ApprovalStates = "approved" | "approving" | "pending";
+export type ApprovalStates = 'approved' | 'approving' | 'pending';
 
 export interface IBtnProps {
   classes?: string;
@@ -27,7 +26,7 @@ export interface IPoolLiquidity {
   oceanAmount: BigNumber;
 }
 
-export type TokenSelectTitles = "You are buying" | "You are selling" | "Datatoken pool" | "You are staking" | "You will receive";
+export type TokenSelectTitles = 'You are buying' | 'You are selling' | 'Datatoken pool' | 'You are staking' | 'You will receive';
 
 export interface IUserMessage {
   message?: any;
@@ -39,7 +38,7 @@ export interface IUserMessage {
 
 export interface ISnackbarItem {
   message?: string;
-  type: "alert" | "error" | "tx";
+  type: 'alert' | 'error' | 'tx';
   newTx?: ITxDetails;
   error?: { code: number; message: string; error: any };
 }
@@ -49,39 +48,39 @@ export interface IMaxEval {
   t2Max: BigNumber;
   t1Input: BigNumber;
   t2Input: BigNumber;
-  limit: "max" | "bal";
+  limit: 'max' | 'bal';
 }
-//maybe delete?
+// maybe delete?
 export interface ILiquidityPosition {
-  //user wallet ID (hash)
+  // user wallet ID (hash)
   accountId: string;
-  //pool address
+  // pool address
   address: string;
-  //tokens in pool
+  // tokens in pool
   token1Info: ITokenInfo;
   token2Info: ITokenInfo;
-  //the amount of shares you own
+  // the amount of shares you own
   shares: BigNumber;
-  //total dt in pool
+  // total dt in pool
   dtAmount?: BigNumber;
-  //total ocean in pool
+  // total ocean in pool
   oceanAmount?: BigNumber;
-  //total shares in pool
+  // total shares in pool
   totalPoolShares?: BigNumber;
-  //you share percentage in pool
+  // you share percentage in pool
   yourPoolSharePerc?: BigNumber;
 }
 
-export type BalancePos = 1 | 2 | "stake";
-export type ITxType = "trade" | "stake" | "unstake" | "approve";
-export type LocalStorageMethods = "get" | "set" | "clear" | "remove" | "key" | "length";
+export type BalancePos = 1 | 2 | 'stake';
+export type ITxType = 'trade' | 'stake' | 'unstake' | 'approve';
+export type LocalStorageMethods = 'get' | 'set' | 'clear' | 'remove' | 'key' | 'length';
 
 export interface ITxDetails {
   accountId: string;
   txDateId: string;
   token1: IToken;
   token2: IToken;
-  status: "Pending" | "Indexing" | "Success" | "Failure";
+  status: 'Pending' | 'Indexing' | 'Success' | 'Failure';
   txType: ITxType;
   slippage?: BigNumber;
   shares?: BigNumber;
@@ -98,11 +97,11 @@ export interface ITxSelection extends ITxDetails {
 }
 
 export interface IDisclaimerSigned {
-  client: boolean | null | "denied";
-  wallet: boolean | null | "denied";
+  client: boolean | null | 'denied';
+  wallet: boolean | null | 'denied';
 }
 
-export type supportedChains = "1" | "4" | "137" | "56" | "1285" | "246";
+export type supportedChains = '1' | '4' | '137' | '56' | '1285' | '246';
 
 export interface globalStates {
   ocean?: Ocean;
