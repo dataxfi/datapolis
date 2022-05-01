@@ -1,13 +1,19 @@
-import { useContext, useEffect, useState } from "react";
-import { GlobalContext } from "../context/GlobalState";
-import BigNumber from "bignumber.js";
-import { IPoolLiquidity } from "../utils/types";
-import { IToken } from "@dataxfi/datax.js";
-import { Collapse } from "react-collapse";
+import { useContext, useEffect, useState } from 'react';
+import { GlobalContext } from '../context/GlobalState';
+import BigNumber from 'bignumber.js';
+import { IPoolLiquidity } from '../utils/types';
+import { IToken } from '@dataxfi/datax.js';
+import { Collapse } from 'react-collapse';
 
-export default function PositionBox({ loading, setLoading }: { loading: boolean; setLoading: React.Dispatch<React.SetStateAction<boolean>> }) {
-  const [dtToOcean, setDtToOcean] = useState<BigNumber>(new BigNumber(""));
-  const [oceanToDt, setOceanToDt] = useState<BigNumber>(new BigNumber(""));
+export default function PositionBox({
+  loading,
+  setLoading,
+}: {
+  loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  const [dtToOcean, setDtToOcean] = useState<BigNumber>(new BigNumber(''));
+  const [oceanToDt, setOceanToDt] = useState<BigNumber>(new BigNumber(''));
   const [yourLiquidity, setYourLiquidity] = useState<BigNumber>(new BigNumber(0));
   const [yourShares, setYourShares] = useState<BigNumber>(new BigNumber(0));
   const [poolLiquidity, setPoolLiquidity] = useState<IPoolLiquidity | null>(null);
@@ -24,7 +30,7 @@ export default function PositionBox({ loading, setLoading }: { loading: boolean;
   async function updateToken(token: IToken) {
     if (!accountId || !ocean) return;
     try {
-      if (!token.info?.pool) throw new Error("Pool attribute is missing from token.");
+      if (!token.info?.pool) throw new Error('Pool attribute is missing from token.');
       setLoading(true);
       const { pool } = token.info;
       setToken2(token);

@@ -1,10 +1,10 @@
-import { BsArrowDown, BsShuffle, BsX } from "react-icons/bs";
-import { useContext, useEffect, useState } from "react";
-import ConfirmSwapItem from "./ConfirmSwapItem";
-import ConfirmSwapListItem from "./ConfirmSwapListItem";
-import { GlobalContext } from "../context/GlobalState";
-import BigNumber from "bignumber.js";
-import OutsideClickHandler from "react-outside-click-handler";
+import { BsArrowDown, BsShuffle, BsX } from 'react-icons/bs';
+import { useContext, useEffect, useState } from 'react';
+import ConfirmSwapItem from './ConfirmSwapItem';
+import ConfirmSwapListItem from './ConfirmSwapListItem';
+import { GlobalContext } from '../context/GlobalState';
+import BigNumber from 'bignumber.js';
+import OutsideClickHandler from 'react-outside-click-handler';
 
 export default function ConfirmTxDetailsModal() {
   const {
@@ -39,7 +39,10 @@ export default function ConfirmTxDetailsModal() {
     setSwapConfirmed(false);
   }
   return showConfirmTxDetails ? (
-    <div id="confirmSwapModal" className={`fixed center sm:max-w-md w-full z-30 shadow ${showConfirmTxDetails ? "block" : "hidden"}`}>
+    <div
+      id="confirmSwapModal"
+      className={`fixed center sm:max-w-md w-full z-30 shadow ${showConfirmTxDetails ? 'block' : 'hidden'}`}
+    >
       <OutsideClickHandler onOutsideClick={close}>
         <div className="py-8 px-4 md:px-8 bg-black bg-opacity-95 border rounded-lg hm-box mx-3 md:mx-auto">
           <div className="flex justify-between items-center">
@@ -62,14 +65,15 @@ export default function ConfirmTxDetailsModal() {
             {/* <ConfirmSwapListItem name="Route" value="ETH > KNC" /> */}
             <ConfirmSwapListItem name="Minimum received" value={minReceived.dp(5).toString()} />
             {/* <ConfirmSwapListItem name="Price impact" value="-0.62%" valueClass="text-green-500" /> */}
-            <ConfirmSwapListItem name="Swap fee" value={swapFee?.dp(5).toString() + " " + token1.info?.symbol} />
+            <ConfirmSwapListItem name="Swap fee" value={swapFee?.dp(5).toString() + ' ' + token1.info?.symbol} />
             <ConfirmSwapListItem name="DataX fee" value="0" />
             {/* <ConfirmSwapListItem name="DataX fee" value="0.000000006 ETH" /> */}
-            <ConfirmSwapListItem name="Slippage tolerance" value={preTxDetails?.slippage + "%"} />
+            <ConfirmSwapListItem name="Slippage tolerance" value={preTxDetails?.slippage + '%'} />
           </div>
           <div className="mt-4">
             <p className="text-gray-300 text-sm">
-              You will receive at least {minReceived.dp(5).toString()} {token2.info?.symbol} or the transaction will revert.
+              You will receive at least {minReceived.dp(5).toString()} {token2.info?.symbol} or the transaction will
+              revert.
             </p>
           </div>
           <div className="mt-4">

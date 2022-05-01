@@ -1,16 +1,21 @@
-import React from 'react'
-import BigNumber from 'bignumber.js'
-import { ITList, ITokenInfo, IToken, Config, Ocean, Watcher } from '@dataxfi/datax.js'
-import { TransactionReceipt } from 'web3-core'
-import Web3 from 'web3'
-import Web3Modal from 'web3modal'
+import React from 'react';
+import BigNumber from 'bignumber.js';
+import { ITList, ITokenInfo, IToken, Config, Ocean, Watcher } from '@dataxfi/datax.js';
+import { TransactionReceipt } from 'web3-core';
+import Web3 from 'web3';
+import Web3Modal from 'web3modal';
 
 export type ApprovalStates = 'approved' | 'approving' | 'pending';
-export type screenSize = 'mobile' | 'desktop'
+export type screenSize = 'mobile' | 'desktop';
 export type BalancePos = 1 | 2 | 'stake';
 export type ITxType = 'trade' | 'stake' | 'unstake' | 'approve';
 export type LocalStorageMethods = 'get' | 'set' | 'clear' | 'remove' | 'key' | 'length';
-export type TokenSelectTitles = 'You are buying' | 'You are selling' | 'Datatoken pool' | 'You are staking' | 'You will receive';
+export type TokenSelectTitles =
+  | 'You are buying'
+  | 'You are selling'
+  | 'Datatoken pool'
+  | 'You are staking'
+  | 'You will receive';
 
 export interface IBtnProps {
   classes?: string;

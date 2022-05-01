@@ -20,6 +20,7 @@ acceptCookies(page: puppeteer.Page)
 ## All-purpose
 
 useXPath(page: puppeteer.Page, el: string,elText: string, contains: boolean,dt?: boolean, sibling?: "prev" | "next", metamask?: dappeteer.Dappeteer)
+
 - Builds an XPath query. If you want to use with metamask, pass the metamask page directly.
 
 unlockTokens(page: puppeteer.Page, metamask: dappeteer.Dappeteer, amount: "perm" | "once")
@@ -31,21 +32,27 @@ typeAmount(page: puppeteer.Page, amount: string, pos: number, t1Symbol: string, 
 getPercInDapp(page: puppeteer.Page)
 
 clearInput(page: puppeteer.Page, elID: string)
+
 - Sets an input field to be an empty string.
 
 checkBalance( page: puppeteer.Page, metamask: dappeteer.Dappeteer, updating: boolean = false, t2Symbol?: string, t1Symbol: string = "OCEAN" )
+
 - Checks balance for tokens dapp against balance in metamask. Leaves browser on dapp.
 
 assertTo3(page: puppeteer.Page, truth: string | number, id: string, pos: balancePos, updating: boolean)
+
 - Asserts truth to match dapp element value to 3 decimal places.
 
 getBalanceInMM(metamask: dappeteer.Dappeteer, symbol: string): Promise<string>
+
 - Get balance for token entered from MM
 
 getBalanceInDapp(page: puppeteer.Page, pos: balancePos): Promise<number>
+
 - Return balance for token entered from dapp
 
 getExecuteButtonText(page: puppeteer.Page, txType: ITxType, text?: string)
+
 - Gets the execute button text for assertions.
 - @param text - Will wait for the button text to contain this text if supplied.
 
@@ -60,6 +67,7 @@ reloadOrContinue(lastTestPassed: Boolean, page: puppeteer.Page, stake?: boolean)
 ## Metamask
 
 importTokens(metamask: dappeteer.Dappeteer, symbol?: string)
+
 - Imports token to MM wallet, defaults to ocean.
 
 clearMMPopup(metamask: dappeteer.Dappeteer)
@@ -67,6 +75,7 @@ clearMMPopup(metamask: dappeteer.Dappeteer)
 approve(page: puppeteer.Page, selectAll: boolean = false, version?: string): Promise<void>
 
 switchAccounts(metamask: dappeteer.Dappeteer, page: puppeteer.Page, acct: number, signDisclaimer: boolean)
+
 - Switches metamask accounts.
 - @param acct The index of the account to be selected, not 0 indexed. (1 will select the first account in the list, and so on.)
 - @param signDisclaimer Will sign the disclaimer in metamask if true is supplied.
@@ -114,10 +123,12 @@ confirmTokensClearedAfterTrade(page: puppeteer.Page)
 setUpStake(page: puppeteer.Page, stakeToken: string, stakeAmt: string)
 
 selectStakeToken(page: puppeteer.Page, stakeToken: string)
+
 - Selects a stake pool by token symbol supplied.
 - @param stakeToken token symbol, case sensitive
 
 inputStakeAmt(page: puppeteer.Page, stakeAmt: string): Promise<string>
+
 - Inputs value to stake.
 - @param stakeAmt A number in string format or 'max'
 - @returns The input amount after max calculation.
@@ -133,17 +144,19 @@ inputUnstakeAmt(page: puppeteer.Page, unstakeAmt: string, shares:string)
 getSharesFromUnstake(page: puppeteer.Page)
 
 awaitUpdateShares(page: puppeteer.Page, initialShares: BigNumber)
+
 - Waits for shares in unstake page to not equal the shares value passed.
 
 confirmInputClearedAfterUnstake(page: puppeteer.Page)
+
 ## LP
 
 grabOrImportPool(page: puppeteer.Page, pool: string, select: boolean)
 
 importStakeInfo(page: puppeteer.Page, pool: string)
 
-
 ## Not yet functional
+
 //get method not fully functional
 export type methods = "get" | "set" | "clear" | "remove" | "key" | "length";
 useLocalStorage(page: puppeteer.Page, method: methods, data?: { key?: string; value?: string; index?: number })

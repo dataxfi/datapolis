@@ -1,4 +1,4 @@
-import { ReactComponent as DataXLogo } from "../assets/datax-logo.svg";
+import { ReactComponent as DataXLogo } from '../assets/datax-logo.svg';
 
 export default function BuiltWDataX() {
   return (

@@ -1,5 +1,5 @@
-import BigNumber from "bignumber.js";
-import { useState } from "react";
+import BigNumber from 'bignumber.js';
+import { useState } from 'react';
 /**
  * Use to check inputs before debounce input. On change will fire immediately and check:
  * - If number is over max
@@ -20,18 +20,18 @@ export default function WrappedInput(props: any) {
   function getUpdateParams(e: any) {
     const value = e.target.value;
     const bnVal = new BigNumber(value);
-    let result: "dec" | "trail" | undefined;
+    let result: 'dec' | 'trail' | undefined;
 
     const afterPeriod = /\.(.*)/;
     const decimals = value.match(afterPeriod);
 
     //dont call db change if decimals >= 5
     if (decimals && decimals[1].length > 5) {
-      result = "dec";
+      result = 'dec';
     }
     //dont call db change if the input is the same as the current value (ie. trailing/leading zero(s))
     else if (bnVal.toFixed(5) === internalState.toFixed(5)) {
-      result = "trail";
+      result = 'trail';
     }
 
     setInternalState(bnVal);
@@ -43,7 +43,7 @@ export default function WrappedInput(props: any) {
       {...props}
       onChange={(e) => {
         const result = getUpdateParams(e);
-        if (result !== "dec") {
+        if (result !== 'dec') {
           props.onChange(e, getUpdateParams(e));
         }
       }}

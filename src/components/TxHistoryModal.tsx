@@ -1,10 +1,10 @@
-import { useContext, useEffect, useState } from "react";
-import { BsX } from "react-icons/bs";
-import OutsideClickHandler from "react-outside-click-handler";
-import { GlobalContext } from "../context/GlobalState";
-import { getLocalTxHistory, getTxUrl, setLocalTxHistory } from "../hooks/useTxHistory";
-import { ITxSelection, ITxHistory, ITxDetails } from "../utils/types";
-import TxHistoryItem from "./TxHistoryItem";
+import { useContext, useEffect, useState } from 'react';
+import { BsX } from 'react-icons/bs';
+import OutsideClickHandler from 'react-outside-click-handler';
+import { GlobalContext } from '../context/GlobalState';
+import { getLocalTxHistory, getTxUrl, setLocalTxHistory } from '../hooks/useTxHistory';
+import { ITxSelection, ITxHistory, ITxDetails } from '../utils/types';
+import TxHistoryItem from './TxHistoryItem';
 
 function TxHistoryModal() {
   const {
@@ -20,7 +20,7 @@ function TxHistoryModal() {
     setShowTxDone,
     showTxDone,
     showConfirmModal,
-    setBlurBG
+    setBlurBG,
   } = useContext(GlobalContext);
 
   const [page, setPage] = useState([0, 5]);
@@ -110,7 +110,7 @@ function TxHistoryModal() {
         txHash: tx.txReceipt?.transactionHash,
         accountId,
       });
-      if (!txLink) txLink = "/";
+      if (!txLink) txLink = '/';
       txsByDate.push({ ...tx, txDateId, txLink });
     }
     //@ts-ignore
@@ -138,8 +138,7 @@ function TxHistoryModal() {
   function handleClose() {
     setNewTxHistory();
     setShowTxHistoryModal(false);
-    setBlurBG(false)
-  
+    setBlurBG(false);
   }
 
   return showTxHistoryModal ? (
@@ -148,12 +147,7 @@ function TxHistoryModal() {
         <div className="bg-black bg-opacity-95 border rounded-lg p-4 hm-box mx-3">
           <div className="flex justify-between mb-2">
             <h3>Recent Transactions</h3>
-            <BsX
-              onClick={handleClose}
-              size={28}
-              className="text-gray-200"
-              role="button"
-            />
+            <BsX onClick={handleClose} size={28} className="text-gray-200" role="button" />
           </div>
           {noTxHistory ? (
             <div className="px-5 pb-10 pt-5 w-full text-center text-gray-400">
@@ -168,14 +162,14 @@ function TxHistoryModal() {
                 {txSelection[2] ? <TxHistoryItem tx={txSelection[2]} index={2} setTx={setTx3} /> : <></>}
                 {txSelection[3] ? <TxHistoryItem tx={txSelection[3]} index={3} setTx={setTx4} /> : <></>}
                 {txSelection[4] ? <TxHistoryItem tx={txSelection[4]} index={4} setTx={setTx5} /> : <></>}
-              </ul>{" "}
+              </ul>{' '}
               <div className="flex justify-between">
                 <button className="text-lg" onClick={lastPage}>
-                  {"<"}
+                  {'<'}
                 </button>
                 <p>{pageRange()}</p>
                 <button className="text-lg" onClick={nextPage}>
-                  {">"}
+                  {'>'}
                 </button>
               </div>
             </>

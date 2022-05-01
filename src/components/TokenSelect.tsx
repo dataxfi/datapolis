@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react";
-import { BsBoxArrowUpRight, BsChevronDown } from "react-icons/bs";
-import { DebounceInput } from "react-debounce-input";
-import { useContext } from "react";
-import { GlobalContext } from "../context/GlobalState";
-import BigNumber from "bignumber.js";
-import WrappedInput from "./WrappedInput";
-import { ReactComponent as XLogo } from "../assets/datax-x-logo.svg";
-import { IToken } from "@dataxfi/datax.js";
-import { TokenSelectTitles } from "../utils/types";
-import MaxToolTip from "./MaxToolTip";
+import { useEffect, useState } from 'react';
+import { BsBoxArrowUpRight, BsChevronDown } from 'react-icons/bs';
+import { DebounceInput } from 'react-debounce-input';
+import { useContext } from 'react';
+import { GlobalContext } from '../context/GlobalState';
+import BigNumber from 'bignumber.js';
+import WrappedInput from './WrappedInput';
+import { ReactComponent as XLogo } from '../assets/datax-x-logo.svg';
+import { IToken } from '@dataxfi/datax.js';
+import { TokenSelectTitles } from '../utils/types';
+import MaxToolTip from './MaxToolTip';
 
 export default function TokenSelect({
   token,
@@ -27,7 +27,19 @@ export default function TokenSelect({
   onMax?: Function;
   max: BigNumber;
 }) {
-  const { accountId, handleConnect, tokensCleared, location, config, ocean, setBlurBG, setSelectTokenPos, setShowTokenModal, selectTokenPos, blurBG } = useContext(GlobalContext);
+  const {
+    accountId,
+    handleConnect,
+    tokensCleared,
+    location,
+    config,
+    ocean,
+    setBlurBG,
+    setSelectTokenPos,
+    setShowTokenModal,
+    selectTokenPos,
+    blurBG,
+  } = useContext(GlobalContext);
   const [enabled, setEndabled] = useState(false);
   const [title, setTitle] = useState<TokenSelectTitles>();
 
@@ -40,19 +52,19 @@ export default function TokenSelect({
   }, [token, max, accountId]);
 
   useEffect(() => {
-    if (location === "/trade") {
+    if (location === '/trade') {
       if (pos === 1) {
-        setTitle("You are selling");
+        setTitle('You are selling');
       } else {
-        setTitle("You are buying");
+        setTitle('You are buying');
       }
-    } else if (location === "/stake/remove") {
-      setTitle("You will receive");
+    } else if (location === '/stake/remove') {
+      setTitle('You will receive');
     } else {
       if (pos === 1) {
-        setTitle("You are staking");
+        setTitle('You are staking');
       } else {
-        setTitle("Datatoken pool");
+        setTitle('Datatoken pool');
       }
     }
   }, [location, setTitle, pos]);
@@ -75,7 +87,7 @@ export default function TokenSelect({
             <img src={token?.info.logoURI} className="w-10 h-10 rounded-md" alt="" />
           ) : (
             <div className="w-10 h-10 rounded-md bg-background flex justify-center items-center text-3xl">
-              <XLogo style={{ height: "30px" }} />
+              <XLogo style={{ height: '30px' }} />
             </div>
           )}
           <div
@@ -102,7 +114,7 @@ export default function TokenSelect({
           </div>
         </div>
 
-        {location === "/stake" && pos === 2 ? (
+        {location === '/stake' && pos === 2 ? (
           token.info ? (
             <div className="col-span-3 ml-4 mt-3 md:mt-0">
               <div>
@@ -110,21 +122,21 @@ export default function TokenSelect({
                 <div className="grid grid-flow-col justify-start gap-4 text-sm">
                   <a
                     id="stakePoolLink"
-                    href={config?.default.explorerUri + "/address/" + token.info?.pool}
+                    href={config?.default.explorerUri + '/address/' + token.info?.pool}
                     target="_blank"
                     rel="noreferrer"
                     className="text-white grid grid-flow-col items-center gap-2 justify-start border-b border-gray-300"
                   >
-                    Pool <BsBoxArrowUpRight />{" "}
+                    Pool <BsBoxArrowUpRight />{' '}
                   </a>
                   <a
                     id="stakeTokenLink"
-                    href={config?.default.explorerUri + "/address/" + token.info?.address}
+                    href={config?.default.explorerUri + '/address/' + token.info?.address}
                     target="_blank"
                     rel="noreferrer"
                     className="text-white grid grid-flow-col items-center gap-2 justify-start border-b border-gray-300"
                   >
-                    Token <BsBoxArrowUpRight />{" "}
+                    Token <BsBoxArrowUpRight />{' '}
                   </a>
                 </div>
               </div>
@@ -142,18 +154,18 @@ export default function TokenSelect({
                   data-test-max={max.dp(5).toString()}
                   max={max}
                   step="any"
-                  disabled={token?.loading || location === "/stake/remove"}
+                  disabled={token?.loading || location === '/stake/remove'}
                   debounceTimeout={500}
                   onChange={(e) => {
                     if (updateNum) updateNum(e.target.value);
                   }}
                   onWheel={(event: React.MouseEvent<HTMLInputElement>) => event.currentTarget.blur()}
-                  onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
+                  onKeyDown={(evt) => ['e', 'E', '+', '-'].includes(evt.key) && evt.preventDefault()}
                   element={WrappedInput}
                   type="number"
                   className="h-full w-full rounded-lg bg-opacity-0 bg-white text-2xl outline-none overflow-ellipsis focus:placeholder-gray-200 placeholder-gray-400 mr-2"
                   placeholder="0.0"
-                  value={token?.value.gt(0) ? token?.value.dp(5).toString() : ""}
+                  value={token?.value.gt(0) ? token?.value.dp(5).toString() : ''}
                 />
                 <div>
                   {token?.balance ? (
@@ -163,7 +175,7 @@ export default function TokenSelect({
                   ) : (
                     <></>
                   )}
-                  {pos === 2 || location === "/stake/remove" ? null : token?.balance ? (
+                  {pos === 2 || location === '/stake/remove' ? null : token?.balance ? (
                     <div className="text-sm text-gray-300 grid grid-flow-col justify-end gap-2 items-center">
                       <MaxToolTip />
                       <button
@@ -186,7 +198,9 @@ export default function TokenSelect({
                         onChange={(e) => {
                           if (enabled) onPerc(e.target.value);
                         }}
-                        className={`text-xs ${enabled ? "modalSelectBg bg-opacity-25" : "bg-primary-500 bg-opacity-25 text-primary-600"}   py-1 rounded px-1 w-12 outline-none`}
+                        className={`text-xs ${
+                          enabled ? 'modalSelectBg bg-opacity-25' : 'bg-primary-500 bg-opacity-25 text-primary-600'
+                        }   py-1 rounded px-1 w-12 outline-none`}
                         placeholder="%"
                         disabled={enabled ? false : true}
                       />

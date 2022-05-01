@@ -1,6 +1,6 @@
-import useWatchLocation from "../hooks/useWatchLocation"
+import useWatchLocation from '../hooks/useWatchLocation';
 
-export default function WatchLocation () {
-    useWatchLocation()
-    return <></>
+export default function WatchLocation() {
+  useWatchLocation();
+  return <></>;
 }

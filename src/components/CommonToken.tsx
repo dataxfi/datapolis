@@ -1,6 +1,6 @@
-import { ITokenInfo } from "@dataxfi/datax.js";
-import { useState } from "react";
-import { BsSlashCircle } from "react-icons/bs";
+import { ITokenInfo } from '@dataxfi/datax.js';
+import { useState } from 'react';
+import { BsSlashCircle } from 'react-icons/bs';
 export default function CommonToken({
   token,
   index,

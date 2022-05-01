@@ -1,8 +1,8 @@
-import { FaAngleDoubleRight } from "react-icons/fa";
-import { Link } from "react-router-dom";
-import { FaBook } from "react-icons/fa";
-import SocialLinkIcons from "./SocialLinkIcons";
-import BuiltWDataX from "./BuiltWDataX";
+import { FaAngleDoubleRight } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import { FaBook } from 'react-icons/fa';
+import SocialLinkIcons from './SocialLinkIcons';
+import BuiltWDataX from './BuiltWDataX';
 
 export default function LandingPage() {
   return (
@@ -12,7 +12,7 @@ export default function LandingPage() {
           Datapolis
           <div className="px-2">
             <div className="w-full h-2px bg-yellow">
-              <div className="w-1/4 h-2px" style={{ backgroundColor: "#e77f24" }} />
+              <div className="w-1/4 h-2px" style={{ backgroundColor: '#e77f24' }} />
             </div>
           </div>
           <div className="w-full flex justify-end font-spectral text-xs pr-2">
@@ -34,7 +34,7 @@ export default function LandingPage() {
           </h1>
         </div>
         <p className="text-xl  xl:text-3xl text-shadow-light mt-4 xl:mt-12 font-yantramanav">
-          Datapolis is the world's first <span className="text-yellow">Data Nation</span>{" "}
+          Datapolis is the world's first <span className="text-yellow">Data Nation</span>{' '}
         </p>
         <ul className="text-5xl py-4 inline-flex mt-4">
           <SocialLinkIcons effect="grow" />

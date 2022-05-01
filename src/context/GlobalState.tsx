@@ -1,16 +1,31 @@
-import Web3 from "web3";
-import { Ocean, Config, Watcher } from "@dataxfi/datax.js";
-import Web3Modal from "web3modal";
-import WalletConnectProvider from "@walletconnect/web3-provider";
-import { createContext, PropsWithChildren, useEffect, useRef, useState } from "react";
-import Core from "web3modal";
-import { disclaimer } from "../components/DisclaimerModal";
-import { connectedMultipleWalletsGA, connectedWalletGA, connectedToNetworkGA, deniedSignatureGA, connectedWalletViaGA } from "./Analytics";
-import { IDisclaimerSigned, globalStates, ILiquidityPosition, ITxHistory, ITxDetails, ISnackbarItem, supportedChains, ApprovalStates } from "../utils/types";
-import BigNumber from "bignumber.js";
-import { IToken, ITList, ITokenInfo } from "@dataxfi/datax.js";
+import Web3 from 'web3';
+import { Ocean, Config, Watcher } from '@dataxfi/datax.js';
+import Web3Modal from 'web3modal';
+import WalletConnectProvider from '@walletconnect/web3-provider';
+import { createContext, PropsWithChildren, useEffect, useRef, useState } from 'react';
+import Core from 'web3modal';
+import { disclaimer } from '../components/DisclaimerModal';
+import {
+  connectedMultipleWalletsGA,
+  connectedWalletGA,
+  connectedToNetworkGA,
+  deniedSignatureGA,
+  connectedWalletViaGA,
+} from './Analytics';
+import {
+  IDisclaimerSigned,
+  globalStates,
+  ILiquidityPosition,
+  ITxHistory,
+  ITxDetails,
+  ISnackbarItem,
+  supportedChains,
+  ApprovalStates,
+} from '../utils/types';
+import BigNumber from 'bignumber.js';
+import { IToken, ITList, ITokenInfo } from '@dataxfi/datax.js';
 
-const CONNECT_TEXT = "Connect Wallet";
+const CONNECT_TEXT = 'Connect Wallet';
 export const INITIAL_TOKEN_STATE: IToken = {
   info: null,
   value: new BigNumber(0),
@@ -33,7 +48,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
   // loading state is to be used when the app needs to finish loading before a page can render (i.e. show loading screen)
   const [loading, setLoading] = useState<boolean>(true);
-  const [location, setLocation] = useState<string>("/");
+  const [location, setLocation] = useState<string>('/');
 
   //Modal and notification states
   const [unsupportedNet, setUnsupportedNet] = useState<boolean>(false);
@@ -63,7 +78,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [executeStake, setExecuteStake] = useState<boolean>(false);
   const [executeUnstake, setExecuteUnstake] = useState<boolean>(false);
   const [executeUnlock, setExecuteUnlock] = useState<boolean>(false);
-  const [approving, setApproving] = useState<ApprovalStates>("pending");
+  const [approving, setApproving] = useState<ApprovalStates>('pending');
   const [swapFee, setSwapFee] = useState<BigNumber>(new BigNumber(0));
   const [minReceived, setMinReceived] = useState<BigNumber>(new BigNumber(0));
   //user pool information states
@@ -94,19 +109,19 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   useEffect(() => {
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      const value = localStorage.getItem(key || "");
-      if (value === "Pending") localStorage.removeItem(key || "");
+      const value = localStorage.getItem(key || '');
+      if (value === 'Pending') localStorage.removeItem(key || '');
       // localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER");
     }
 
-    const bgPref = localStorage.getItem("bgPref");
+    const bgPref = localStorage.getItem('bgPref');
     if (bgPref) setBgOff(JSON.parse(bgPref));
   }, []);
 
   // recall handle connect if the provider is set but there is no account id
   // essential for disclaimer flow
   useEffect(() => {
-    if (provider && !accountId && disclaimerSigned.wallet !== "denied" && disclaimerSigned.client !== "denied") {
+    if (provider && !accountId && disclaimerSigned.wallet !== 'denied' && disclaimerSigned.client !== 'denied') {
       handleConnect();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -117,13 +132,13 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
     async function init() {
       try {
         const web3Modal = new Web3Modal({
-          network: "mainnet", // optional
+          network: 'mainnet', // optional
           theme: {
-            background: "rgb(0, 0, 0, 1)",
-            main: "rgb(199, 199, 199)",
-            secondary: "rgb(136, 136, 136)",
-            border: "rgba(45, 45, 45, 1)",
-            hover: "rgba(58, 123, 191, .3)"
+            background: 'rgb(0, 0, 0, 1)',
+            main: 'rgb(199, 199, 199)',
+            secondary: 'rgb(136, 136, 136)',
+            border: 'rgba(45, 45, 45, 1)',
+            hover: 'rgba(58, 123, 191, .3)',
           },
           providerOptions: {
             walletconnect: {
@@ -159,8 +174,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
     const account = accounts[0].toLowerCase();
 
     try {
-      localStorage.setItem(account, "pending");
-      let signature = await web3.eth.personal.sign(disclaimer, account || "", "", () => {
+      localStorage.setItem(account, 'pending');
+      let signature = await web3.eth.personal.sign(disclaimer, account || '', '', () => {
         setShowDisclaimer(false);
         setBlurBG(false);
       });
@@ -190,7 +205,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
   async function handleDisclaimer(account: string, localSignature: string | null): Promise<string | null> {
     account = account.toLowerCase();
-    if (!localSignature || localSignature === "pending") {
+    if (!localSignature || localSignature === 'pending') {
       setShowDisclaimer(true);
       setBlurBG(true);
     }
@@ -211,9 +226,9 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
       let accounts = await web3.eth.getAccounts();
       let account = accounts[0] ? accounts[0].toLowerCase() : null;
-      const localSignature = localStorage.getItem(account ? account : "");
+      const localSignature = localStorage.getItem(account ? account : '');
 
-      if (localSignature && localSignature !== "pending") {
+      if (localSignature && localSignature !== 'pending') {
         let _chainId = String(await web3.eth.getChainId());
         setChainId(_chainId as supportedChains);
 
@@ -227,7 +242,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         console.log(config);
         const watcher = new Watcher(web3, String(_chainId));
         setWatcher(watcher);
-        isSupportedChain(config, String(_chainId), accounts[0] ? accounts[0] : "");
+        isSupportedChain(config, String(_chainId), accounts[0] ? accounts[0] : '');
       } else {
         await handleDisclaimer(accounts[0], localSignature);
       }
@@ -250,7 +265,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
     try {
       const network = config.getNetwork(chainId);
       connectedToNetworkGA({ network, chainId });
-      if (network === "unknown") {
+      if (network === 'unknown') {
         setAccountId(undefined);
         setButtonText(CONNECT_TEXT);
         setUnsupportedNet(true);
@@ -262,7 +277,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setAccountId(account);
         setButtonText(account || CONNECT_TEXT);
         connectedWalletGA();
-        const wallet = localStorage.getItem("WEB3_CONNECT_CACHED_PROVIDER") || "unknown";
+        const wallet = localStorage.getItem('WEB3_CONNECT_CACHED_PROVIDER') || 'unknown';
         connectedWalletViaGA({ wallet });
         return true;
       }
@@ -279,14 +294,14 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
    */
 
   function setListeners(provider: any, web3: Web3) {
-    provider.on("accountsChanged", async (accounts: string[]) => {
+    provider.on('accountsChanged', async (accounts: string[]) => {
       let account = accounts[0] ? accounts[0].toLowerCase() : null;
-      const localSignature = localStorage.getItem(account ? account : "");
-      if (localSignature && localSignature !== "pending") {
+      const localSignature = localStorage.getItem(account ? account : '');
+      if (localSignature && localSignature !== 'pending') {
         // console.log("Accounts changed to - ", accounts[0]);
         // console.log("Connected Accounts - ", JSON.stringify(accounts));
         setAccountId(accounts[0]);
-        setButtonText(accounts.length && accounts[0] !== "" ? accounts[0] : CONNECT_TEXT);
+        setButtonText(accounts.length && accounts[0] !== '' ? accounts[0] : CONNECT_TEXT);
         setDisclaimerSigned({ client: true, wallet: true });
         setShowDisclaimer(false);
         setBlurBG(false);
@@ -301,7 +316,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
     });
 
     // Subscribe to chainId change
-    provider.on("chainChanged", async (chainId: supportedChains) => {
+    provider.on('chainChanged', async (chainId: supportedChains) => {
       setToken1(INITIAL_TOKEN_STATE);
       setToken2(INITIAL_TOKEN_STATE);
       setDtTokenResponse(undefined);
@@ -322,13 +337,13 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
     });
 
     // Subscribe to provider connection
-    provider.on("connect", (info: { chainId: number }) => {
-      console.log("Connect event fired");
+    provider.on('connect', (info: { chainId: number }) => {
+      console.log('Connect event fired');
       console.log(info);
     });
 
     // Subscribe to provider disconnection
-    provider.on("disconnect", (error: { code: number; message: string }) => {
+    provider.on('disconnect', (error: { code: number; message: string }) => {
       console.log(error);
     });
   }

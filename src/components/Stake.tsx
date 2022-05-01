@@ -1,23 +1,23 @@
-import { AiOutlinePlus } from "react-icons/ai";
-import { useState, useContext, useEffect } from "react";
-import { GlobalContext } from "../context/GlobalState";
-import { MoonLoader } from "react-spinners";
-import { Link } from "react-router-dom";
-import useLiquidityPos from "../hooks/useLiquidityPos";
-import BigNumber from "bignumber.js";
-import { ITxDetails } from "../utils/types";
-import { getAllowance } from "../hooks/useTokenList";
-import { IBtnProps } from "../utils/types";
-import useAutoLoadToken from "../hooks/useAutoLoadToken";
-import TokenSelect from "./TokenSelect";
-import PositionBox from "./PositionBox";
-import DatasetDescription from "./DTDescriptionModal";
-import ViewDescBtn from "./ViewDescButton";
-import { transactionTypeGA } from "../context/Analytics";
+import { AiOutlinePlus } from 'react-icons/ai';
+import { useState, useContext, useEffect } from 'react';
+import { GlobalContext } from '../context/GlobalState';
+import { MoonLoader } from 'react-spinners';
+import { Link } from 'react-router-dom';
+import useLiquidityPos from '../hooks/useLiquidityPos';
+import BigNumber from 'bignumber.js';
+import { ITxDetails } from '../utils/types';
+import { getAllowance } from '../hooks/useTokenList';
+import { IBtnProps } from '../utils/types';
+import useAutoLoadToken from '../hooks/useAutoLoadToken';
+import TokenSelect from './TokenSelect';
+import PositionBox from './PositionBox';
+import DatasetDescription from './DTDescriptionModal';
+import ViewDescBtn from './ViewDescButton';
+import { transactionTypeGA } from '../context/Analytics';
 
 const INITIAL_BUTTON_STATE = {
-  text: "Connect wallet",
-  classes: "",
+  text: 'Connect wallet',
+  classes: '',
   disabled: false,
 };
 
@@ -78,44 +78,44 @@ export default function Stake() {
     } else if (!token2.info) {
       setBtnProps({
         ...INITIAL_BUTTON_STATE,
-        text: "Select a Token",
+        text: 'Select a Token',
         disabled: true,
       });
     } else if (!token1.value || token1.value.eq(0)) {
       setBtnProps({
         ...INITIAL_BUTTON_STATE,
-        text: "Enter Stake Amount",
+        text: 'Enter Stake Amount',
         disabled: true,
       });
     } else if (token1.balance?.eq(0) || (token1.balance && token1.value.gt(token1.balance))) {
       setBtnProps({
         ...INITIAL_BUTTON_STATE,
-        text: "Not Enough OCEAN Balance",
+        text: 'Not Enough OCEAN Balance',
         disabled: true,
       });
-    } else if (lastTx?.status === "Pending") {
+    } else if (lastTx?.status === 'Pending') {
       setBtnProps({
         ...INITIAL_BUTTON_STATE,
-        text: "Processing Transaction...",
+        text: 'Processing Transaction...',
         disabled: true,
       });
     } else if (token1.value.isLessThan(0.01)) {
       setBtnProps({
         ...INITIAL_BUTTON_STATE,
-        text: "Minimum Stake is .01 OCEAN",
+        text: 'Minimum Stake is .01 OCEAN',
         disabled: true,
       });
     } else if (token1.allowance?.lt(token1.value)) {
       setBtnProps({
         ...btnProps,
-        text: "Unlock OCEAN",
+        text: 'Unlock OCEAN',
         disabled: false,
       });
     } else {
       setBtnProps({
         ...btnProps,
         disabled: false,
-        text: "Stake",
+        text: 'Stake',
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -140,11 +140,11 @@ export default function Stake() {
       if (token1.allowance?.lt(token1.value)) {
         setPreTxDetails({
           accountId,
-          status: "Pending",
+          status: 'Pending',
           token1,
           token2,
           txDateId: Date.now().toString(),
-          txType: "approve",
+          txType: 'approve',
         });
         setExecuteUnlock(true);
         setShowUnlockTokenModal(true);
@@ -153,11 +153,11 @@ export default function Stake() {
       } else if (executeStake) {
         const preTxDetails: ITxDetails = {
           accountId,
-          status: "Pending",
+          status: 'Pending',
           token1,
           token2,
           txDateId: Date.now().toString(),
-          txType: "stake",
+          txType: 'stake',
         };
         setPreTxDetails(preTxDetails);
         setShowConfirmModal(true);
@@ -168,7 +168,10 @@ export default function Stake() {
   }, [executeStake]);
 
   async function getMaxStakeAmt() {
-    if (token2.info && ocean) return new BigNumber(await ocean.getMaxStakeAmount(token2.info.pool || "", ocean.config.default.oceanTokenAddress)).dp(5);
+    if (token2.info && ocean)
+      return new BigNumber(
+        await ocean.getMaxStakeAmount(token2.info.pool || '', ocean.config.default.oceanTokenAddress)
+      ).dp(5);
   }
 
   async function setOceanBalance() {
@@ -179,7 +182,7 @@ export default function Stake() {
         const balance = new BigNumber(await ocean.getBalance(OCEAN_ADDRESS, accountId));
         setToken1({ ...token1, balance });
       } catch (error) {
-        console.error("Error when trying to fetch Balance");
+        console.error('Error when trying to fetch Balance');
       } finally {
         setLoading(false);
       }
@@ -195,35 +198,37 @@ export default function Stake() {
       })
       .then(() => {
         if (token2.info && accountId && chainId && ocean)
-          getAllowance(ocean.config.default.oceanTokenAddress, accountId, token2.info.pool || "", ocean).then(async (res) => {
-            if (!token1.info) return;
-            const balance = new BigNumber(await ocean.getBalance(token1.info.address, accountId));
-            setToken1({
-              ...token1,
-              allowance: new BigNumber(res),
-              balance,
-              value: new BigNumber(0),
-            });
-          });
+          getAllowance(ocean.config.default.oceanTokenAddress, accountId, token2.info.pool || '', ocean).then(
+            async (res) => {
+              if (!token1.info) return;
+              const balance = new BigNumber(await ocean.getBalance(token1.info.address, accountId));
+              setToken1({
+                ...token1,
+                allowance: new BigNumber(res),
+                balance,
+                value: new BigNumber(0),
+              });
+            }
+          );
       })
       .catch(console.error);
   }
 
   async function stake(preTxDetails: ITxDetails) {
     if (!token2.info?.pool || !chainId || !ocean || !accountId) return;
-    if (!preTxDetails || preTxDetails.txType !== "stake") return;
+    if (!preTxDetails || preTxDetails.txType !== 'stake') return;
 
     try {
       setLoading(true);
       console.log(accountId, token2?.info?.pool, token1.value?.toString());
-      const txReceipt = await ocean.stakeOcean(accountId, token2.info.pool || "", token1.value?.toString());
+      const txReceipt = await ocean.stakeOcean(accountId, token2.info.pool || '', token1.value?.toString());
 
-      setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
-      transactionTypeGA("stake");
+      setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
+      transactionTypeGA('stake');
       setImportPool(token2.info.pool);
     } catch (error: any) {
-      setLastTx({ ...preTxDetails, status: "Failure" });
-      setSnackbarItem({ type: "error", message: error.error.message, error });
+      setLastTx({ ...preTxDetails, status: 'Failure' });
+      setSnackbarItem({ type: 'error', message: error.error.message, error });
       setShowConfirmModal(false);
       setToken1({ ...token1, value: new BigNumber(0) });
       setBlurBG(false);
@@ -242,9 +247,11 @@ export default function Stake() {
     if (maxStakeAmt.gt(0)) {
       maxStake = maxStakeAmt;
     } else {
-      maxStake = new BigNumber(await ocean.getMaxStakeAmount(token2.info.pool || "", ocean.config.default.oceanTokenAddress));
+      maxStake = new BigNumber(
+        await ocean.getMaxStakeAmount(token2.info.pool || '', ocean.config.default.oceanTokenAddress)
+      );
     }
-    console.log("Max Stake Amount - ", maxStake.toFixed(18));
+    console.log('Max Stake Amount - ', maxStake.toFixed(18));
     if (maxStake.isNaN()) {
       setToken1({ ...token1, value: new BigNumber(0) });
     } else {
@@ -287,21 +294,32 @@ export default function Stake() {
       <DatasetDescription />
       <div
         className={`absolute w-full max-w-[32rem] top-1/2 left-1/2 transition-transform transform duration-500 ${
-          showDescModal ? "translate-x-full 2lg:translate-x-[10%]" : "-translate-x-1/2"
+          showDescModal ? 'translate-x-full 2lg:translate-x-[10%]' : '-translate-x-1/2'
         } -translate-y-1/2 `}
       >
         <div className="flex h-full w-full items-center justify-center">
           <div className="lg:mx-auto sm:mx-4 mx-3">
             <div id="stakeModal" className="lg:w-107  bg-black bg-opacity-90 rounded-lg p-3 hm-box">
-              <TokenSelect max={maxStakeAmt} otherToken={"OCEAN"} pos={2} setToken={setToken2} token={token2} updateNum={() => {}} />
+              <TokenSelect
+                max={maxStakeAmt}
+                otherToken={'OCEAN'}
+                pos={2}
+                setToken={setToken2}
+                token={token2}
+                updateNum={() => {}}
+              />
               <div className="px-4 relative mt-6 mb-10">
                 <div className="rounded-full border-black border-4 absolute -top-7 bg-trade-darkBlue w-12 h-12 flex items-center justify-center swap-center">
-                  {loading ? <MoonLoader size={25} color={"white"} /> : <AiOutlinePlus size="30" className="text-gray-300" />}
+                  {loading ? (
+                    <MoonLoader size={25} color={'white'} />
+                  ) : (
+                    <AiOutlinePlus size="30" className="text-gray-300" />
+                  )}
                 </div>
               </div>
               <TokenSelect
                 max={maxStakeAmt}
-                otherToken={""}
+                otherToken={''}
                 pos={1}
                 setToken={setToken1}
                 token={token1}
@@ -311,14 +329,19 @@ export default function Stake() {
                 onMax={setMaxStake}
               />
               <PositionBox loading={loading} setLoading={setLoading} />
-              <button id="executeStake" onClick={() => setExecuteStake(true)} className="txButton mt-3" disabled={btnProps.disabled}>
+              <button
+                id="executeStake"
+                onClick={() => setExecuteStake(true)}
+                className="txButton mt-3"
+                disabled={btnProps.disabled}
+              >
                 {btnProps.text}
               </button>
             </div>
             <div className=" flex justify-between">
               <ViewDescBtn />
               <Link id="lpLink" to="/stake/list" className="text-gray-300 hover:text-gray-100 transition-colors">
-                Your stake positions {">"}
+                Your stake positions {'>'}
               </Link>
             </div>
           </div>

@@ -3,15 +3,15 @@
 @tailwind utilities;
 
 .reactMarkDown {
-  @apply bg-trade-blue bg-opacity-20 rounded-lg p-2 my-2
+  @apply bg-trade-blue bg-opacity-20 rounded-lg p-2 my-2;
 }
 
 .reactMarkDown ul {
   @apply my-2 list-disc list-outside p-2 bg-trade-blue bg-opacity-30 rounded;
-} 
+}
 
 .reactMarkDown ul li {
-  @apply ml-8 list-item ;
+  @apply ml-8 list-item;
   text-align: -webkit-match-parent;
 }
 
@@ -23,5 +23,5 @@
 }
 
 .reactMarkDown p {
-  @apply my-1 text-sm md:text-base
+  @apply my-1 text-sm md:text-base;
 }

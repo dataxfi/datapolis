@@ -1,9 +1,18 @@
-import { useContext, useEffect, useState } from "react";
-import { MoonLoader, RingLoader } from "react-spinners";
-import { GlobalContext } from "../context/GlobalState";
+import { useContext, useEffect, useState } from 'react';
+import { MoonLoader, RingLoader } from 'react-spinners';
+import { GlobalContext } from '../context/GlobalState';
 
 export default function PendingTxsIndicator() {
-  const { accountId, setShowTxHistoryModal, executeStake, executeUnstake, executeSwap, showConfirmTxDetails, executeUnlock, approving } = useContext(GlobalContext);
+  const {
+    accountId,
+    setShowTxHistoryModal,
+    executeStake,
+    executeUnstake,
+    executeSwap,
+    showConfirmTxDetails,
+    executeUnlock,
+    approving,
+  } = useContext(GlobalContext);
   const [pending, setPending] = useState<number>(0);
   const [render, setRender] = useState<boolean>(false);
   const [opacity, setOpacity] = useState<0 | 100>(0);
@@ -11,7 +20,7 @@ export default function PendingTxsIndicator() {
     let count = 0;
     if (executeStake) count++;
     if (executeUnstake) count++;
-    if (executeUnlock && approving === "approving") count++;
+    if (executeUnlock && approving === 'approving') count++;
     if (executeSwap && !showConfirmTxDetails) count++;
     setPending(count);
   }, [accountId, executeStake, executeUnstake, executeSwap, executeUnlock, showConfirmTxDetails, approving]);
@@ -42,7 +51,7 @@ export default function PendingTxsIndicator() {
       <div className="flex flex-row items-center">
         <p className="mr-2">{`${pending > 0 ? pending : 1} Pending`}</p>
         <MoonLoader size="15px" color="#f3c429" />
-      </div>{" "}
+      </div>{' '}
     </div>
   ) : (
     <></>

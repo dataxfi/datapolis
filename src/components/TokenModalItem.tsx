@@ -1,15 +1,18 @@
-import { ITokenInfo } from "@dataxfi/datax.js";
-import { useContext, useState } from "react";
-import { BsSlashCircle } from "react-icons/bs";
-import { GlobalContext } from "../context/GlobalState";
-export default function TokenModalItem({ token, onClick }: { token: ITokenInfo; onClick: Function; }) {
+import { ITokenInfo } from '@dataxfi/datax.js';
+import { useContext, useState } from 'react';
+import { BsSlashCircle } from 'react-icons/bs';
+import { GlobalContext } from '../context/GlobalState';
+export default function TokenModalItem({ token, onClick }: { token: ITokenInfo; onClick: Function }) {
   const [imagFailed, setImageFailed] = useState(false);
-  const {token1, token2} = useContext(GlobalContext)
+  const { token1, token2 } = useContext(GlobalContext);
 
   return token.symbol === token1.info?.symbol || token.symbol === token2.info?.symbol ? (
     <></>
   ) : (
-    <div id={`${token.symbol}-btn`} className="px-2 py-1.5 hover:bg-gray-200 hover:bg-opacity-20 rounded-lg cursor-pointer">
+    <div
+      id={`${token.symbol}-btn`}
+      className="px-2 py-1.5 hover:bg-gray-200 hover:bg-opacity-20 rounded-lg cursor-pointer"
+    >
       <div onClick={() => onClick(token)} className="flex justify-start w-full items-center">
         <div className="mr-2">
           {imagFailed ? (

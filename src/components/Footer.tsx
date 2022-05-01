@@ -1,10 +1,10 @@
-import { useEffect, useState, useContext } from "react";
-import { FaBook, FaDotCircle } from "react-icons/fa";
-import { getCommitInfo } from "../utils/gitInfo";
-import { GlobalContext } from "../context/GlobalState";
-import SocialLinkIcons from "./SocialLinkIcons";
-import BGToggle from "./BGToggle";
-import BuiltWDataX from "./BuiltWDataX";
+import { useEffect, useState, useContext } from 'react';
+import { FaBook, FaDotCircle } from 'react-icons/fa';
+import { getCommitInfo } from '../utils/gitInfo';
+import { GlobalContext } from '../context/GlobalState';
+import SocialLinkIcons from './SocialLinkIcons';
+import BGToggle from './BGToggle';
+import BuiltWDataX from './BuiltWDataX';
 
 export default function Footer() {
   const { web3, location } = useContext(GlobalContext);
@@ -18,7 +18,7 @@ export default function Footer() {
     getBlockNumber();
   }, [web3]);
 
-  return location !== "/" ? (
+  return location !== '/' ? (
     <footer className="absolute bottom-0 pb-2 w-full mt-5 hidden lg:block">
       <div className="flex flex-col text-center">
         <ul className="inline-flex text-2xl justify-center">
@@ -40,7 +40,7 @@ export default function Footer() {
             </div>
           </div>
           <div className="flex text-blue-300 text-xs justify-end items-center">
-            <p className="pr-2">{blockNo > 0 ? blockNo : ""}</p>
+            <p className="pr-2">{blockNo > 0 ? blockNo : ''}</p>
             {/* className="animate-ping" */}
             <FaDotCircle size="12px" />
             <BGToggle />
@@ -48,5 +48,7 @@ export default function Footer() {
         </div>
       </div>
     </footer>
-  ): <></>;
+  ) : (
+    <></>
+  );
 }

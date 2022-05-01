@@ -1,19 +1,19 @@
-import TokenSelect from "./TokenSelect";
-import { IoSwapVertical } from "react-icons/io5";
-import { MdTune } from "react-icons/md";
-import { useState, useContext, useEffect } from "react";
-import { GlobalContext } from "../context/GlobalState";
-import Button from "./Button";
-import OutsideClickHandler from "react-outside-click-handler";
-import { MoonLoader } from "react-spinners";
-import BigNumber from "bignumber.js";
-import { getAllowance } from "../hooks/useTokenList";
-import { IBtnProps } from "../utils/types";
-import { IMaxExchange } from "@dataxfi/datax.js";
-import DatasetDescription from "./DTDescriptionModal";
-import ViewDescBtn from "./ViewDescButton";
-import { transactionTypeGA } from "../context/Analytics";
-import { Collapse } from "react-collapse";
+import TokenSelect from './TokenSelect';
+import { IoSwapVertical } from 'react-icons/io5';
+import { MdTune } from 'react-icons/md';
+import { useState, useContext, useEffect } from 'react';
+import { GlobalContext } from '../context/GlobalState';
+import Button from './Button';
+import OutsideClickHandler from 'react-outside-click-handler';
+import { MoonLoader } from 'react-spinners';
+import BigNumber from 'bignumber.js';
+import { getAllowance } from '../hooks/useTokenList';
+import { IBtnProps } from '../utils/types';
+import { IMaxExchange } from '@dataxfi/datax.js';
+import DatasetDescription from './DTDescriptionModal';
+import ViewDescBtn from './ViewDescButton';
+import { transactionTypeGA } from '../context/Analytics';
+import { Collapse } from 'react-collapse';
 
 const INITIAL_MAX_EXCHANGE: IMaxExchange = {
   maxBuy: new BigNumber(0),
@@ -60,7 +60,7 @@ export default function Swap() {
   const [postExchange, setPostExchange] = useState<BigNumber>(new BigNumber(0));
   const [slippage, setSlippage] = useState<BigNumber>(new BigNumber(1));
   const [btnProps, setBtnProps] = useState<IBtnProps>({
-    text: "Select Tokens",
+    text: 'Select Tokens',
     disabled: true,
   });
   const [percLoading, setPercLoading] = useState(false);
@@ -80,7 +80,7 @@ export default function Swap() {
           .then((balance) => {
             if (!balance) return;
             if (token1.info && token2.info && ocean.isOCEAN(token1.info.address)) {
-              getAllowance(token1.info.address, accountId, token2.info.pool || "", ocean).then((res) => {
+              getAllowance(token1.info.address, accountId, token2.info.pool || '', ocean).then((res) => {
                 setToken1({
                   ...token1,
                   allowance: new BigNumber(res),
@@ -90,7 +90,7 @@ export default function Swap() {
                 });
               });
             } else if (token1.info && token2.info && ocean.isOCEAN(token2.info.address)) {
-              getAllowance(token1.info.address, accountId, token1.info.pool || "", ocean).then((res) => {
+              getAllowance(token1.info.address, accountId, token1.info.pool || '', ocean).then((res) => {
                 setToken1({
                   ...token1,
                   allowance: new BigNumber(res),
@@ -175,7 +175,7 @@ export default function Swap() {
   useEffect(() => {
     if (ocean && token1.info && token1.value.gt(0) && token2.info) {
       (async () => {
-        const pool = token1.info?.symbol === "OCEAN" ? token2.info?.pool : token1.info?.pool;
+        const pool = token1.info?.symbol === 'OCEAN' ? token2.info?.pool : token1.info?.pool;
         if (!pool) return;
         const swapFee = new BigNumber(await ocean.calculateSwapFee(pool, token1.value.dp(5).toString()));
         setSwapFee(swapFee);
@@ -194,11 +194,11 @@ export default function Swap() {
       if (token1.allowance?.lt(token1.value)) {
         setPreTxDetails({
           accountId,
-          status: "Pending",
+          status: 'Pending',
           token1,
           token2,
           txDateId: Date.now().toString(),
-          txType: "approve",
+          txType: 'approve',
           slippage,
           postExchange,
         });
@@ -209,11 +209,11 @@ export default function Swap() {
       } else if (!swapConfirmed && executeSwap) {
         setPreTxDetails({
           accountId,
-          status: "Pending",
+          status: 'Pending',
           token1,
           token2,
           txDateId: Date.now().toString(),
-          txType: "trade",
+          txType: 'trade',
           slippage,
           postExchange,
         });
@@ -247,7 +247,7 @@ export default function Swap() {
       updateOtherTokenValue(true, new BigNumber(100));
     } else {
       let value: BigNumber = token1.balance.multipliedBy(perc).div(100).dp(5);
-      console.log("Value from perc", value.toString());
+      console.log('Value from perc', value.toString());
       setToken1({ ...token1, percentage: perc, value });
       updateOtherTokenValue(true, value);
     }
@@ -275,33 +275,57 @@ export default function Swap() {
 
   async function swap() {
     let txReceipt = null;
-    if (!preTxDetails || preTxDetails.txType !== "trade") return;
+    if (!preTxDetails || preTxDetails.txType !== 'trade') return;
     let decSlippage = slippage.div(100).dp(5);
     if (!chainId || !token2.info || !token1.info || !accountId || !ocean || !config) return;
     try {
       if (ocean.isOCEAN(token1.info.address)) {
         if (exactToken === 1) {
-          console.log("exact ocean to dt");
+          console.log('exact ocean to dt');
           // console.log(accountId, token2.info.pool.toString(), token2.value.toString(), token1.value.toString());
-          txReceipt = await ocean.swapExactOceanToDt(accountId, token2.info.pool || "", token2.value.dp(5).toString(), token1.value.dp(5).toString(), decSlippage.toString());
+          txReceipt = await ocean.swapExactOceanToDt(
+            accountId,
+            token2.info.pool || '',
+            token2.value.dp(5).toString(),
+            token1.value.dp(5).toString(),
+            decSlippage.toString()
+          );
         } else {
-          console.log("ocean to exact dt");
-          txReceipt = await ocean.swapExactOceanToDt(accountId, token2.info.pool || "", token2.value.dp(5).toString(), token1.value.dp(5).toString(), decSlippage.toString());
+          console.log('ocean to exact dt');
+          txReceipt = await ocean.swapExactOceanToDt(
+            accountId,
+            token2.info.pool || '',
+            token2.value.dp(5).toString(),
+            token1.value.dp(5).toString(),
+            decSlippage.toString()
+          );
         }
       } else if (ocean.isOCEAN(token2.info.address)) {
         if (exactToken === 1) {
-          console.log("exact dt to ocean");
+          console.log('exact dt to ocean');
           // console.log(accountId, token1.info.pool, token2.value.toString(), token1.value.toString());
-          txReceipt = await ocean.swapExactDtToOcean(accountId, token1.info.pool || "", token2.value.dp(5).toString(), token1.value.dp(5).toString(), decSlippage.toString());
+          txReceipt = await ocean.swapExactDtToOcean(
+            accountId,
+            token1.info.pool || '',
+            token2.value.dp(5).toString(),
+            token1.value.dp(5).toString(),
+            decSlippage.toString()
+          );
         } else {
           //Error: Throws not enough datatokens
-          console.log("dt to exact ocean");
+          console.log('dt to exact ocean');
           // console.log(accountId, token1.info.pool, token2.value.toString(), token1.value.toString());
-          txReceipt = await ocean.swapExactDtToOcean(accountId, token1.info.pool || "", token2.value.dp(5).toString(), token1.value.dp(5).toString(), decSlippage.toString());
+          txReceipt = await ocean.swapExactDtToOcean(
+            accountId,
+            token1.info.pool || '',
+            token2.value.dp(5).toString(),
+            token1.value.dp(5).toString(),
+            decSlippage.toString()
+          );
         }
       } else {
         if (exactToken === 1) {
-          console.log("exact dt to dt");
+          console.log('exact dt to dt');
           // console.log(accountId,token1.info.address,token2.info.address,t2Val,t1Val,token1.info.pool,token2.info.pool,config.default.routerAddress,decSlippage);
           txReceipt = await ocean.swapExactDtToDt(
             accountId,
@@ -309,13 +333,13 @@ export default function Swap() {
             token2.info.address,
             token2.value.dp(5).toString(),
             token1.value.dp(5).toString(),
-            token1.info.pool || "",
-            token2.info.pool || "",
+            token1.info.pool || '',
+            token2.info.pool || '',
             config.default.routerAddress,
             decSlippage.toString()
           );
         } else {
-          console.log("dt to exact dt");
+          console.log('dt to exact dt');
           // console.log(accountId,token1.info.address,token2.info.address,t2Val, t1Val,token1.info.pool,token2.info.pool,config.default.routerAddress,decSlippage)
           txReceipt = await ocean.swapExactDtToDt(
             accountId,
@@ -323,22 +347,22 @@ export default function Swap() {
             token2.info.address,
             token2.value.dp(5).toString(),
             token1.value.dp(5).toString(),
-            token1.info.pool || "",
-            token2.info.pool || "",
+            token1.info.pool || '',
+            token2.info.pool || '',
             config.default.routerAddress,
             decSlippage.toString()
           );
         }
       }
       if (txReceipt) {
-        transactionTypeGA("Trade");
-        setLastTx({ ...preTxDetails, txReceipt, status: "Indexing" });
+        transactionTypeGA('Trade');
+        setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
         setPostExchange(new BigNumber(0));
       }
     } catch (error: any) {
-      console.log("DataX Caught an Error for Transaction:", lastTx?.txDateId);
-      setLastTx({ ...preTxDetails, status: "Failure" });
-      setSnackbarItem({ type: "error", message: error.error.message, error });
+      console.log('DataX Caught an Error for Transaction:', lastTx?.txDateId);
+      setLastTx({ ...preTxDetails, status: 'Failure' });
+      setSnackbarItem({ type: 'error', message: error.error.message, error });
     } finally {
       setBlurBG(false);
       setExecuteSwap(false);
@@ -349,21 +373,21 @@ export default function Swap() {
   function getButtonProperties() {
     if (!accountId) {
       setBtnProps({
-        text: "Connect Wallet",
+        text: 'Connect Wallet',
         disabled: false,
       });
     }
 
     if (accountId && !(token1?.info && token2?.info)) {
       setBtnProps({
-        text: "Select Tokens",
+        text: 'Select Tokens',
         disabled: true,
       });
     }
 
     if ((accountId && token1?.info && token2?.info && token1.value.eq(0)) || !token2.value.eq(0)) {
       setBtnProps({
-        text: "Enter Token Amount",
+        text: 'Enter Token Amount',
         disabled: true,
       });
     }
@@ -383,7 +407,8 @@ export default function Swap() {
         });
       } else if (
         ocean &&
-        ((ocean.isOCEAN(token1.info.address) && token1.value.lt(0.01) && token1.value.gt(0)) || (ocean.isOCEAN(token2.info.address) && token2.value.lt(0.01) && token2.value.gt(0)))
+        ((ocean.isOCEAN(token1.info.address) && token1.value.lt(0.01) && token1.value.gt(0)) ||
+          (ocean.isOCEAN(token2.info.address) && token2.value.lt(0.01) && token2.value.gt(0)))
       ) {
         setBtnProps({
           text: `Minimum trade is .01 OCEAN`,
@@ -406,7 +431,7 @@ export default function Swap() {
         });
       } else if (token1.balance.dp(5).gte(token1.value) && !token1.balance.eq(0)) {
         setBtnProps({
-          text: "Swap",
+          text: 'Swap',
           disabled: false,
         });
       }
@@ -421,7 +446,9 @@ export default function Swap() {
     if (token1?.info && token2?.info) {
       let exchangeLimit = INITIAL_MAX_EXCHANGE;
 
-      maxExchange.maxSell.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await ocean.getMaxExchange(token1, token2));
+      maxExchange.maxSell.gt(0)
+        ? (exchangeLimit = maxExchange)
+        : (exchangeLimit = await ocean.getMaxExchange(token1, token2));
 
       const { maxSell, maxBuy, maxPercent } = exchangeLimit;
 
@@ -429,7 +456,10 @@ export default function Swap() {
         setToken2({ ...token2, value: maxBuy });
         setToken1({ ...token1, value: maxSell, percentage: maxPercent });
       } else {
-        const percentage = token1.balance.lt(0.00001) && bnVal.gt(0) ? new BigNumber(100) : new BigNumber(bnVal.div(token1.balance).multipliedBy(100));
+        const percentage =
+          token1.balance.lt(0.00001) && bnVal.gt(0)
+            ? new BigNumber(100)
+            : new BigNumber(bnVal.div(token1.balance).multipliedBy(100));
         setToken1({
           ...token1,
           value: bnVal,
@@ -443,11 +473,13 @@ export default function Swap() {
   async function onPercToken1(val: string) {
     if (!ocean) return;
     setPercLoading(true);
-    if (val === "") val = "0";
+    if (val === '') val = '0';
     let bnVal = new BigNumber(val);
     let exchangeLimit = INITIAL_MAX_EXCHANGE;
 
-    maxExchange.maxPercent.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await ocean.getMaxExchange(token1, token2));
+    maxExchange.maxPercent.gt(0)
+      ? (exchangeLimit = maxExchange)
+      : (exchangeLimit = await ocean.getMaxExchange(token1, token2));
 
     console.log(exchangeLimit);
 
@@ -475,16 +507,18 @@ export default function Swap() {
     if (token1?.info && token2?.info) {
       let exchangeLimit;
 
-      maxExchange.maxBuy.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await ocean.getMaxExchange(token1, token2));
+      maxExchange.maxBuy.gt(0)
+        ? (exchangeLimit = maxExchange)
+        : (exchangeLimit = await ocean.getMaxExchange(token1, token2));
       const { maxBuy, maxSell } = exchangeLimit;
 
       if (bnVal.gt(maxBuy) && token1.balance.gte(0.00001)) {
-        console.log("Value > MaxBuy");
+        console.log('Value > MaxBuy');
         setToken2({ ...token2, value: maxBuy });
         setToken1({ ...token1, value: maxSell });
         setPostExchange(postExchange);
       } else {
-        console.log("Value < MaxBuy");
+        console.log('Value < MaxBuy');
         setToken2({ ...token2, value: bnVal });
         updateOtherTokenValue(false, bnVal);
       }
@@ -496,7 +530,7 @@ export default function Swap() {
       <DatasetDescription />
       <div
         className={`absolute w-full max-w-[32rem] top-1/2 left-1/2 transition-transform transform duration-500 ${
-          showDescModal ? "translate-x-[125%] 2lg:translate-x-0" : "-translate-x-1/2"
+          showDescModal ? 'translate-x-[125%] 2lg:translate-x-0' : '-translate-x-1/2'
         } -translate-y-1/2`}
       >
         <div className="sm:mx-4 mx-3">
@@ -504,7 +538,12 @@ export default function Swap() {
             <div id="swapModal" className="lg:w-107 bg-black bg-opacity-90 rounded-lg p-3 hm-box">
               <div className="flex justify-between relative">
                 <div className="grid grid-flow-col gap-2 items-center">
-                  <div id="tradeSettingsBtn" onClick={() => setShowSettings(true)} className="hover:bg-primary-700 px-1.5 py-1.5 rounded-lg" role="button">
+                  <div
+                    id="tradeSettingsBtn"
+                    onClick={() => setShowSettings(true)}
+                    className="hover:bg-primary-700 px-1.5 py-1.5 rounded-lg"
+                    role="button"
+                  >
                     <MdTune size="24" />
                   </div>
                 </div>
@@ -531,7 +570,12 @@ export default function Swap() {
                               <p className="text-gray-200 text-lg">%</p>
                             </div>
                             <div>
-                              <Button id="autoSlippageBtn" onClick={() => setSlippage(new BigNumber(1))} text="Auto" classes="text-gray-300 p-2 bg-primary-800 rounded-lg" />
+                              <Button
+                                id="autoSlippageBtn"
+                                onClick={() => setSlippage(new BigNumber(1))}
+                                text="Auto"
+                                classes="text-gray-300 p-2 bg-primary-800 rounded-lg"
+                              />
                             </div>
                           </div>
                         </div>
@@ -547,8 +591,8 @@ export default function Swap() {
                 token={token1}
                 max={maxExchange.maxSell}
                 onPerc={onPercToken1}
-                onMax={() => onPercToken1("100")}
-                otherToken={token2?.info ? token2.info.symbol : ""}
+                onMax={() => onPercToken1('100')}
+                otherToken={token2?.info ? token2.info.symbol : ''}
                 pos={1}
                 updateNum={dbUpdateToken1}
               />
@@ -560,30 +604,53 @@ export default function Swap() {
                   tabIndex={0}
                   className="rounded-full border-black bg-opacity-100 border-4 absolute -top-7 bg-trade-darkBlue hover:bg-gray-600 transition-colors duration-200 w-12 h-12 flex swap-center items-center justify-center"
                 >
-                  {token2?.loading || token1?.loading || percLoading ? <MoonLoader size={25} color={"white"} /> : <IoSwapVertical size="30" className="text-gray-300" />}
+                  {token2?.loading || token1?.loading || percLoading ? (
+                    <MoonLoader size={25} color={'white'} />
+                  ) : (
+                    <IoSwapVertical size="30" className="text-gray-300" />
+                  )}
                 </div>
               </div>
-              <TokenSelect setToken={setToken2} token={token2} max={maxExchange.maxBuy} otherToken={token1.info ? token1.info.symbol : ""} pos={2} updateNum={dbUpdateToken2} />
+              <TokenSelect
+                setToken={setToken2}
+                token={token2}
+                max={maxExchange.maxBuy}
+                otherToken={token1.info ? token1.info.symbol : ''}
+                pos={2}
+                updateNum={dbUpdateToken2}
+              />
 
-              <Collapse isOpened={token1?.info && token2?.info && token1.value.gt(0) && token2.value.gt(0) && postExchange.gt(0) ? true : false}>
+              <Collapse
+                isOpened={
+                  token1?.info && token2?.info && token1.value.gt(0) && token2.value.gt(0) && postExchange.gt(0)
+                    ? true
+                    : false
+                }
+              >
                 <div
                   className={`my-4 p-2 bg-black border border-city-blue border-opacity-50 transition-opacity ${
-                    token2?.loading || token1?.loading || percLoading ? "bg-opacity-10 text-gray-400" : "bg-opacity-25 text-gray-300"
+                    token2?.loading || token1?.loading || percLoading
+                      ? 'bg-opacity-10 text-gray-400'
+                      : 'bg-opacity-25 text-gray-300'
                   } flex flex-col justify-between text-sm rounded-lg`}
                 >
                   <div className="flex justify-between my-1">
                     <p>Exchange rate</p>
-                    <p className={`${token2?.loading || token1?.loading || percLoading ? "blur-xs" : ""}`}>
-                      1 {token1.info?.symbol} = {postExchange.dp(5).toString()} {`${" "}${token2.info?.symbol}`}
+                    <p className={`${token2?.loading || token1?.loading || percLoading ? 'blur-xs' : ''}`}>
+                      1 {token1.info?.symbol} = {postExchange.dp(5).toString()} {`${' '}${token2.info?.symbol}`}
                     </p>
                   </div>
                   <div className="flex justify-between my-1">
                     <p>Swap Fee</p>
-                    <p className={`${token2?.loading || token1?.loading || percLoading ? "blur-xs" : ""}`}>{swapFee?.dp(5).toString() + " " + token1.info?.symbol}</p>
-                  </div>{" "}
+                    <p className={`${token2?.loading || token1?.loading || percLoading ? 'blur-xs' : ''}`}>
+                      {swapFee?.dp(5).toString() + ' ' + token1.info?.symbol}
+                    </p>
+                  </div>{' '}
                   <div className="flex justify-between my-1">
                     <p>Minimum Received</p>
-                    <p className={`${token2?.loading || token1?.loading || percLoading ? "blur-xs" : ""}`}>{minReceived?.dp(5).toString() + " " + token2.info?.symbol}</p>
+                    <p className={`${token2?.loading || token1?.loading || percLoading ? 'blur-xs' : ''}`}>
+                      {minReceived?.dp(5).toString() + ' ' + token2.info?.symbol}
+                    </p>
                   </div>
                 </div>
               </Collapse>

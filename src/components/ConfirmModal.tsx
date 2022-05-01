@@ -1,26 +1,32 @@
-import { useContext, useEffect, useState } from "react";
-import { BsX } from "react-icons/bs";
-import OutsideClickHandler from "react-outside-click-handler";
-import { GlobalContext } from "../context/GlobalState";
-import Loader from "./Loader";
+import { useContext, useEffect, useState } from 'react';
+import { BsX } from 'react-icons/bs';
+import OutsideClickHandler from 'react-outside-click-handler';
+import { GlobalContext } from '../context/GlobalState';
+import Loader from './Loader';
 
 const ConfirmModal = () => {
-  const { showConfirmModal, setShowConfirmModal, location, token1, token2, singleLiquidityPos, setBlurBG } = useContext(GlobalContext);
-  const [txMessage, setTxMessage] = useState("Check wallet for transaction to confirm.");
+  const { showConfirmModal, setShowConfirmModal, location, token1, token2, singleLiquidityPos, setBlurBG } =
+    useContext(GlobalContext);
+  const [txMessage, setTxMessage] = useState('Check wallet for transaction to confirm.');
 
   useEffect(() => {
-    if(token1.info && token2.info)
-    switch (location) {
-      case "/stake":
-        setTxMessage(`Stake ${token1.value?.toString()} OCEAN in ${token2.info?.symbol} pool`);
-        break;
-      case "/stake/remove":
-        if (singleLiquidityPos) setTxMessage(`Unstake ${token1.value.dp(5).toString()} ${token1.info?.symbol} from the ${token2.info?.symbol} pool.`);
-        break;
-      default:
-        setTxMessage(`Swap ${token1.value.dp(5)} ${token1.info?.symbol} for ${token2.value.dp(5)} ${token2.info?.symbol}`);
-        break;
-    }
+    if (token1.info && token2.info)
+      switch (location) {
+        case '/stake':
+          setTxMessage(`Stake ${token1.value?.toString()} OCEAN in ${token2.info?.symbol} pool`);
+          break;
+        case '/stake/remove':
+          if (singleLiquidityPos)
+            setTxMessage(
+              `Unstake ${token1.value.dp(5).toString()} ${token1.info?.symbol} from the ${token2.info?.symbol} pool.`
+            );
+          break;
+        default:
+          setTxMessage(
+            `Swap ${token1.value.dp(5)} ${token1.info?.symbol} for ${token2.value.dp(5)} ${token2.info?.symbol}`
+          );
+          break;
+      }
   }, [location, token1.info, token2.info, token1.value, token2.value]);
 
   function close() {

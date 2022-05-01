@@ -1,20 +1,21 @@
-import { useContext, useEffect, useState } from "react";
-import { BsCheckCircle, BsX } from "react-icons/bs";
-import OutsideClickHandler from "react-outside-click-handler";
-import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
-import BigNumber from "bignumber.js";
+import { useContext, useEffect, useState } from 'react';
+import { BsCheckCircle, BsX } from 'react-icons/bs';
+import OutsideClickHandler from 'react-outside-click-handler';
+import { GlobalContext, INITIAL_TOKEN_STATE } from '../context/GlobalState';
+import BigNumber from 'bignumber.js';
 
 const TransactionDoneModal = () => {
   const { showTxDone, setShowTxDone, lastTx, config, setBlurBG } = useContext(GlobalContext);
-  const [lastTxUrl, setLastTxUrl] = useState<string>("");
+  const [lastTxUrl, setLastTxUrl] = useState<string>('');
 
   useEffect(() => {
-    if (config && lastTx?.txReceipt?.transactionHash) setLastTxUrl(config.default.explorerUri + "/tx/" + lastTx.txReceipt.transactionHash);
+    if (config && lastTx?.txReceipt?.transactionHash)
+      setLastTxUrl(config.default.explorerUri + '/tx/' + lastTx.txReceipt.transactionHash);
   }, [lastTx?.txReceipt?.transactionHash]);
 
   function close() {
     setShowTxDone(false);
-    setBlurBG(false)
+    setBlurBG(false);
   }
   return showTxDone ? (
     <div id="transactionDoneModal" className="fixed center sm:max-w-sm w-full z-30 shadow">

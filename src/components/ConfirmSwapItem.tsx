@@ -1,5 +1,5 @@
-import { useContext } from "react";
-import { GlobalContext } from "../context/GlobalState";
+import { useContext } from 'react';
+import { GlobalContext } from '../context/GlobalState';
 
 const ConfirmSwapItem = ({ pos }: { pos: 1 | 2 }) => {
   const { token1, token2 } = useContext(GlobalContext);

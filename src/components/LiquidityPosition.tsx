@@ -1,27 +1,27 @@
-import { useContext, useEffect, useState } from "react";
-import { GlobalContext } from "../context/GlobalState";
-import LiquidityPositionItem from "./LiquidityPositionItem";
-import UserMessage from "./UserMessage";
-import { MoonLoader } from "react-spinners";
-import { IUserMessage, ILiquidityPosition } from "../utils/types";
-import useLiquidityPos from "../hooks/useLiquidityPos";
+import { useContext, useEffect, useState } from 'react';
+import { GlobalContext } from '../context/GlobalState';
+import LiquidityPositionItem from './LiquidityPositionItem';
+import UserMessage from './UserMessage';
+import { MoonLoader } from 'react-spinners';
+import { IUserMessage, ILiquidityPosition } from '../utils/types';
+import useLiquidityPos from '../hooks/useLiquidityPos';
 
 export default function LiquidityPosition() {
   const { accountId, allStakedPools, setShowTokenModal, setBlurBG, importPool } = useContext(GlobalContext);
   const [userMessage, setUserMessage] = useState<string | IUserMessage | null>(
-    "Dont see your tokens? Import a pool by name with the import button below."
+    'Dont see your tokens? Import a pool by name with the import button below.'
   );
-  const [messageId, setMessageId] = useState<string | null>("importMessage");
+  const [messageId, setMessageId] = useState<string | null>('importMessage');
   const [updatePool, setUpdatePool] = useState<string>();
   useLiquidityPos(updatePool, setUpdatePool);
 
   useEffect(() => {
     if (!accountId) {
-      setUserMessage("Connect your wallet to see staked oceans.");
-      setMessageId("connectWalletMessage");
+      setUserMessage('Connect your wallet to see staked oceans.');
+      setMessageId('connectWalletMessage');
     } else if (accountId && !allStakedPools) {
-      setMessageId("importMessage");
-      setUserMessage("Dont see your tokens? Import a pool by name with the import button below.");
+      setMessageId('importMessage');
+      setUserMessage('Dont see your tokens? Import a pool by name with the import button below.');
     } else if (accountId && allStakedPools) {
       setUserMessage(null);
     }
@@ -43,15 +43,10 @@ export default function LiquidityPosition() {
 
           {userMessage ? (
             <div className="flex flex-row justify-center items-center p-4 lg:p-2 h-60 bg-trade-darkBlue bg-opacity-40 rounded-lg">
-              <UserMessage
-                id={messageId}
-                message={userMessage}
-                pulse={false}
-                container={false}
-              />
+              <UserMessage id={messageId} message={userMessage} pulse={false} container={false} />
             </div>
           ) : (
-            <ul className={`${updatePool ? " md:mt-1" : "md:mt-5"} pr-3 pl-3 overflow-scroll hm-hide-scrollbar`}>
+            <ul className={`${updatePool ? ' md:mt-1' : 'md:mt-5'} pr-3 pl-3 overflow-scroll hm-hide-scrollbar`}>
               {allStakedPools?.map((pool: ILiquidityPosition, index: number) => (
                 <LiquidityPositionItem singleLiqPosItem={pool} index={index} />
               ))}
@@ -66,9 +61,9 @@ export default function LiquidityPosition() {
                 disabled={accountId ? false : true}
                 onClick={() => {
                   setShowTokenModal(true);
-                  setBlurBG(true)
+                  setBlurBG(true);
                 }}
-                className={`p-2 w-full mt-2 txButton rounded-lg ${accountId ? "" : "cursor-not-allowed"}`}
+                className={`p-2 w-full mt-2 txButton rounded-lg ${accountId ? '' : 'cursor-not-allowed'}`}
               >
                 Import
               </button>

@@ -1,15 +1,15 @@
-import { MdClose } from "react-icons/md";
-import TokenModalItem from "./TokenModalItem";
-import { useEffect, useState, useContext, useRef } from "react";
-import Loader from "./Loader";
-import ReactList from "react-list";
-import { GlobalContext, INITIAL_TOKEN_STATE } from "../context/GlobalState";
-import useTokenList, { commonTokens } from "../hooks/useTokenList";
-import OutsideClickHandler from "react-outside-click-handler";
-import { ITokenInfo } from "@dataxfi/datax.js";
-import { TokenInfo as TInfo } from "@uniswap/token-lists";
-import CommonToken from "./CommonToken";
-import BigNumber from "bignumber.js";
+import { MdClose } from 'react-icons/md';
+import TokenModalItem from './TokenModalItem';
+import { useEffect, useState, useContext, useRef } from 'react';
+import Loader from './Loader';
+import ReactList from 'react-list';
+import { GlobalContext, INITIAL_TOKEN_STATE } from '../context/GlobalState';
+import useTokenList, { commonTokens } from '../hooks/useTokenList';
+import OutsideClickHandler from 'react-outside-click-handler';
+import { ITokenInfo } from '@dataxfi/datax.js';
+import { TokenInfo as TInfo } from '@uniswap/token-lists';
+import CommonToken from './CommonToken';
+import BigNumber from 'bignumber.js';
 
 export default function TokenModal() {
   const {
@@ -65,12 +65,16 @@ export default function TokenModal() {
 
   const tokenRenderer = (idx: number, key: string | number) => {
     if (datatokens && showDtks) return <TokenModalItem onClick={tokenSelected} key={key} token={datatokens[idx]} />;
-    if (ERC20Tokens && !showDtks) return <TokenModalItem onClick={tokenSelected} key={key} token={ERC20Tokens[idx] as ITokenInfo} />;
+    if (ERC20Tokens && !showDtks)
+      return <TokenModalItem onClick={tokenSelected} key={key} token={ERC20Tokens[idx] as ITokenInfo} />;
     return <></>;
   };
 
   const filterTokens = (tokenList: ITokenInfo[], val: string) => {
-    return tokenList.filter((t: ITokenInfo) => t.name.toLowerCase().indexOf(val.toLowerCase()) >= 0 || t.symbol.toLowerCase().indexOf(val.toLowerCase()) >= 0);
+    return tokenList.filter(
+      (t: ITokenInfo) =>
+        t.name.toLowerCase().indexOf(val.toLowerCase()) >= 0 || t.symbol.toLowerCase().indexOf(val.toLowerCase()) >= 0
+    );
   };
 
   const searchToken = (val: string) => {
@@ -135,20 +139,24 @@ export default function TokenModal() {
                 className="px-4 py-2 h-full w-full rounded-lg bg-primary-900 text-base outline-none focus:placeholder-gray-200 placeholder-gray-400"
               />
             </div>
-            {(location === "/stake" && selectTokenPos === 2) || location === "/stake/list" ? (
+            {(location === '/stake' && selectTokenPos === 2) || location === '/stake/list' ? (
               <></>
             ) : (
               <div className="w-full px-2 mt-2">
                 <button
                   onClick={() => setShowDtks(true)}
-                  className={`mr-2 px-2 rounded  p-1 bg-white  ${showDtks ? "bg-opacity-25" : "bg-opacity-10 text-gray-500 hover:bg-opacity-20"}`}
+                  className={`mr-2 px-2 rounded  p-1 bg-white  ${
+                    showDtks ? 'bg-opacity-25' : 'bg-opacity-10 text-gray-500 hover:bg-opacity-20'
+                  }`}
                 >
                   Datatoken
                 </button>
                 <button
                   id="ERC20-btn"
                   onClick={() => setShowDtks(false)}
-                  className={`mr-2 px-2 rounded  p-1 bg-white ${!showDtks ? "bg-opacity-25" : "bg-opacity-10 text-gray-500 hover:bg-opacity-20"}`}
+                  className={`mr-2 px-2 rounded  p-1 bg-white ${
+                    !showDtks ? 'bg-opacity-25' : 'bg-opacity-10 text-gray-500 hover:bg-opacity-20'
+                  }`}
                 >
                   ERC20
                 </button>
@@ -161,7 +169,10 @@ export default function TokenModal() {
                 There was an error loading the tokens
               </div>
             ) : datatokens && showDtks ? (
-              <div className="hm-hide-scrollbar h-full overflow-y-scroll mt-2 bg-trade-darkBlue rounded-lg border border-gray-700 p-1" id="tokenList">
+              <div
+                className="hm-hide-scrollbar h-full overflow-y-scroll mt-2 bg-trade-darkBlue rounded-lg border border-gray-700 p-1"
+                id="tokenList"
+              >
                 <ReactList itemRenderer={tokenRenderer} length={datatokens ? datatokens.length : 0} type="simple" />
               </div>
             ) : ERC20Tokens && !showDtks ? (
@@ -175,7 +186,10 @@ export default function TokenModal() {
                     <CommonToken index={index} token={token} onClick={tokenSelected} />
                   ))}
                 </ul>
-                <div className="mt-2 hm-hide-scrollbar overflow-y-scroll bg-trade-darkBlue rounded-lg border border-gray-700 p-1" id="tokenList">
+                <div
+                  className="mt-2 hm-hide-scrollbar overflow-y-scroll bg-trade-darkBlue rounded-lg border border-gray-700 p-1"
+                  id="tokenList"
+                >
                   <ReactList itemRenderer={tokenRenderer} length={ERC20Tokens ? ERC20Tokens.length : 0} type="simple" />
                 </div>
               </>

@@ -1,11 +1,21 @@
-import { useContext, useEffect, useState } from "react";
-import { GlobalContext } from "../context/GlobalState";
-import { ILiquidityPosition } from "../utils/types";
-import { BsChevronDown, BsChevronUp } from "react-icons/bs";
-import { Link } from "react-router-dom";
-import useLiquidityPos from "../hooks/useLiquidityPos";
+import { useContext, useEffect, useState } from 'react';
+import { GlobalContext } from '../context/GlobalState';
+import { ILiquidityPosition } from '../utils/types';
+import { BsChevronDown, BsChevronUp } from 'react-icons/bs';
+import { Link } from 'react-router-dom';
+import useLiquidityPos from '../hooks/useLiquidityPos';
 function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: ILiquidityPosition; index: number }) {
-  const { accountId, address, token1Info, token2Info, shares, dtAmount, oceanAmount, yourPoolSharePerc, totalPoolShares } = singleLiqPosItem;
+  const {
+    accountId,
+    address,
+    token1Info,
+    token2Info,
+    shares,
+    dtAmount,
+    oceanAmount,
+    yourPoolSharePerc,
+    totalPoolShares,
+  } = singleLiqPosItem;
   const { setSingleLiquidityPos } = useContext(GlobalContext);
   const [visible, setVisible] = useState<boolean>(false);
   const [importPool, setImportPool] = useState<string>();
@@ -21,14 +31,24 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
       <div className="w-full mx-auto z-0">
         <div
           onClick={() => setVisible(!visible)}
-          className={`flex justify-between p-2 transition-colors duration-500 ${visible ? "rounded-t-lg" : "rounded-lg mb-2"} ${
-            importPool ? "bg-city-blue bg-opacity-10" : "modalSelectBg bg-opacity-75"
-          }  select-none `}
+          className={`flex justify-between p-2 transition-colors duration-500 ${
+            visible ? 'rounded-t-lg' : 'rounded-lg mb-2'
+          } ${importPool ? 'bg-city-blue bg-opacity-10' : 'modalSelectBg bg-opacity-75'}  select-none `}
           role="button"
         >
           <div className="grid grid-flow-col gap-2 items-center justify-start">
-            <img src="https://gateway.pinata.cloud/ipfs/QmPQ13zfryc9ERuJVj7pvjCfnqJ45Km4LE5oPcFvS1SMDg/datatoken.png" className="rounded-lg" alt="" width="40px" />
-            <img src="https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY" className="rounded-lg" alt="" width="40px" />
+            <img
+              src="https://gateway.pinata.cloud/ipfs/QmPQ13zfryc9ERuJVj7pvjCfnqJ45Km4LE5oPcFvS1SMDg/datatoken.png"
+              className="rounded-lg"
+              alt=""
+              width="40px"
+            />
+            <img
+              src="https://gateway.pinata.cloud/ipfs/QmY22NH4w9ErikFyhMXj9uBHn2EnuKtDptTnb7wV6pDsaY"
+              className="rounded-lg"
+              alt=""
+              width="40px"
+            />
             <p className="text-gray-100 text-sm md:text-lg">{`${token2Info.symbol}/${token1Info.symbol}`}</p>
           </div>
           <div className="grid grid-flow-col gap-1 items-center">
@@ -39,7 +59,9 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
         {visible ? (
           <div
             id={`${token1Info.symbol}-lp-info`}
-            className={`p-2 transition-colors duration-500  ${importPool ? "bg-city-blue bg-opacity-10" : "modalSelectBg bg-opacity-75"} rounded-b-lg mb-2`}
+            className={`p-2 transition-colors duration-500  ${
+              importPool ? 'bg-city-blue bg-opacity-10' : 'modalSelectBg bg-opacity-75'
+            } rounded-b-lg mb-2`}
           >
             <div className="py-2 px-4 bg-black bg-opacity-70 rounded-lg">
               <div className="grid grid-cols-2 justify-between">
@@ -87,12 +109,23 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                   </p>
                 </div>
                 <div className="justify-self-end">
-                  <p className="text-gray-100 text-sm ">{yourPoolSharePerc?.gte(1) ? `${yourPoolSharePerc?.dp(5).toString()} %` : yourPoolSharePerc?.eq(0) ? "0" : "< 0 %"}</p>
+                  <p className="text-gray-100 text-sm ">
+                    {yourPoolSharePerc?.gte(1)
+                      ? `${yourPoolSharePerc?.dp(5).toString()} %`
+                      : yourPoolSharePerc?.eq(0)
+                      ? '0'
+                      : '< 0 %'}
+                  </p>
                 </div>
               </div>
             </div>
             <div className="flex mt-2">
-              <Link id="lp-add-link" key="stake" to={`/stake?pool=${address}`} className="modalButton rounded p-2px w-1/2 text-center mr-1">
+              <Link
+                id="lp-add-link"
+                key="stake"
+                to={`/stake?pool=${address}`}
+                className="modalButton rounded p-2px w-1/2 text-center mr-1"
+              >
                 <div className="bg-black w-full h-full rounded p-2px">Add</div>
               </Link>
               <Link
@@ -101,11 +134,11 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                 to={`/stake/remove?pool=${address}`}
                 className={`ml-1 ${
                   Number(shares) === 0
-                    ? "modalButton cursor-not-allowed pointer-events-none rounded p-2px w-1/2 text-center text-gray-500"
-                    : "modalButton rounded p-2px w-1/2 text-center"
+                    ? 'modalButton cursor-not-allowed pointer-events-none rounded p-2px w-1/2 text-center text-gray-500'
+                    : 'modalButton rounded p-2px w-1/2 text-center'
                 } `}
                 onClick={() => {
-                  console.log("Exact user shares", shares);
+                  console.log('Exact user shares', shares);
                   if (Number(shares) > 0) setSingleLiquidityPos(singleLiqPosItem);
                 }}
               >

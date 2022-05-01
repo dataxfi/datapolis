@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { BsXCircle } from "react-icons/bs";
-import { IUserMessage } from "../utils/types";
+import { useEffect, useState } from 'react';
+import { BsXCircle } from 'react-icons/bs';
+import { IUserMessage } from '../utils/types';
 
 const UserMessage = ({
   id,
@@ -18,14 +18,14 @@ const UserMessage = ({
   let type: any;
   let href;
   let desc;
-  if (!id) id = "UserMessage";
-  if (typeof message !== "string") {
+  if (!id) id = 'UserMessage';
+  if (typeof message !== 'string') {
     userMessage = message.message;
     link = message.link;
     type = message.type;
   }
 
-  if (link && typeof link !== "string") {
+  if (link && typeof link !== 'string') {
     href = link.href;
     desc = link.desc;
   }
@@ -39,14 +39,14 @@ const UserMessage = ({
 
   const stdMessageEl = (
     <div id={id} className="flex flex-col text-center">
-      {type === "error" ? (
+      {type === 'error' ? (
         <div className="flex justify-center">
-          <BsXCircle className="text-red-500 text-4xl self-center mb-4" />{" "}
+          <BsXCircle className="text-red-500 text-4xl self-center mb-4" />{' '}
         </div>
       ) : null}
       <p
-        className={` max-w-sm ${type === "error" ? "mb-4" : ""} ${
-          pulse ? "animate-pulse" : ""
+        className={` max-w-sm ${type === 'error' ? 'mb-4' : ''} ${
+          pulse ? 'animate-pulse' : ''
         } opacity-${messageOpacity} transition-opacity duration-500`}
       >
         {userMessage ? userMessage : message}
