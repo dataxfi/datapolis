@@ -6,6 +6,11 @@ import Web3 from 'web3'
 import Web3Modal from 'web3modal'
 
 export type ApprovalStates = 'approved' | 'approving' | 'pending';
+export type screenSize = 'mobile' | 'desktop'
+export type BalancePos = 1 | 2 | 'stake';
+export type ITxType = 'trade' | 'stake' | 'unstake' | 'approve';
+export type LocalStorageMethods = 'get' | 'set' | 'clear' | 'remove' | 'key' | 'length';
+export type TokenSelectTitles = 'You are buying' | 'You are selling' | 'Datatoken pool' | 'You are staking' | 'You will receive';
 
 export interface IBtnProps {
   classes?: string;
@@ -25,11 +30,6 @@ export interface IPoolLiquidity {
   dtAmount: BigNumber;
   oceanAmount: BigNumber;
 }
-
-export type BalancePos = 1 | 2 | 'stake';
-export type ITxType = 'trade' | 'stake' | 'unstake' | 'approve';
-export type LocalStorageMethods = 'get' | 'set' | 'clear' | 'remove' | 'key' | 'length';
-export type TokenSelectTitles = 'You are buying' | 'You are selling' | 'Datatoken pool' | 'You are staking' | 'You will receive';
 
 export interface ITxDetails {
   accountId: string;
