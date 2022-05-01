@@ -1,6 +1,6 @@
+import React from 'react'
 import BigNumber from 'bignumber.js'
 import { ITList, ITokenInfo, IToken, Config, Ocean, Watcher } from '@dataxfi/datax.js'
-import { TokenInfo as TInfo } from '@uniswap/token-lists'
 import { TransactionReceipt } from 'web3-core'
 import Web3 from 'web3'
 import Web3Modal from 'web3modal'
@@ -26,7 +26,23 @@ export interface IPoolLiquidity {
   oceanAmount: BigNumber;
 }
 
+export type BalancePos = 1 | 2 | 'stake';
+export type ITxType = 'trade' | 'stake' | 'unstake' | 'approve';
+export type LocalStorageMethods = 'get' | 'set' | 'clear' | 'remove' | 'key' | 'length';
 export type TokenSelectTitles = 'You are buying' | 'You are selling' | 'Datatoken pool' | 'You are staking' | 'You will receive';
+
+export interface ITxDetails {
+  accountId: string;
+  txDateId: string;
+  token1: IToken;
+  token2: IToken;
+  status: 'Pending' | 'Indexing' | 'Success' | 'Failure';
+  txType: ITxType;
+  slippage?: BigNumber;
+  shares?: BigNumber;
+  txReceipt?: TransactionReceipt;
+  postExchange?: BigNumber;
+}
 
 export interface IUserMessage {
   message?: any;
@@ -69,23 +85,6 @@ export interface ILiquidityPosition {
   totalPoolShares?: BigNumber;
   // you share percentage in pool
   yourPoolSharePerc?: BigNumber;
-}
-
-export type BalancePos = 1 | 2 | 'stake';
-export type ITxType = 'trade' | 'stake' | 'unstake' | 'approve';
-export type LocalStorageMethods = 'get' | 'set' | 'clear' | 'remove' | 'key' | 'length';
-
-export interface ITxDetails {
-  accountId: string;
-  txDateId: string;
-  token1: IToken;
-  token2: IToken;
-  status: 'Pending' | 'Indexing' | 'Success' | 'Failure';
-  txType: ITxType;
-  slippage?: BigNumber;
-  shares?: BigNumber;
-  txReceipt?: TransactionReceipt;
-  postExchange?: BigNumber;
 }
 
 export interface ITxHistory {
