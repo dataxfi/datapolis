@@ -215,13 +215,9 @@ export async function useXPath (page: puppeteer.Page, el: string, elText: string
     }
   } catch (error) {
     if (dt && metamask) {
-      try {
-        await importTokens(metamask, elText)
-        await page.waitForFunction(query, { timeout: 5000 })
-        handle = await metamask.page.$x(xpath)
-      } catch (error) {
-        throw error
-      }
+      await importTokens(metamask, elText)
+      await page.waitForFunction(query, { timeout: 5000 })
+      handle = await metamask.page.$x(xpath)
     } else {
       throw error
     }
@@ -301,23 +297,19 @@ export async function selectToken (page: puppeteer.Page, symbol: string, pos: nu
     await page.waitForTimeout(500)
     await page.click(`#${symbol}-btn`)
   } catch (error) {
-    try {
-      const selectedToken = await page.waitForSelector(`#selectedToken${pos}`, { timeout: 1200 })
-      const text = await (await selectedToken?.getProperty('innerText'))?.jsonValue()
-      console.log('Selected token:', text)
+    const selectedToken = await page.waitForSelector(`#selectedToken${pos}`, { timeout: 1200 })
+    const text = await (await selectedToken?.getProperty('innerText'))?.jsonValue()
+    console.log('Selected token:', text)
 
-      // @ts-ignore
-      if (text !== symbol) {
-        await page.waitForTimeout(1000)
-        await page.click(`#selectedToken${pos}`)
-        await page.waitForFunction(`document.querySelector('#selectedToken${pos}').innerText === "${symbol}"`)
-        // click token
-        await page.waitForSelector(`#${symbol}-btn`)
-        await page.waitForTimeout(500)
-        await page.click(`#${symbol}-btn`)
-      }
-    } catch (error) {
-      throw error
+    // @ts-ignore
+    if (text !== symbol) {
+      await page.waitForTimeout(1000)
+      await page.click(`#selectedToken${pos}`)
+      await page.waitForFunction(`document.querySelector('#selectedToken${pos}').innerText === "${symbol}"`)
+      // click token
+      await page.waitForSelector(`#${symbol}-btn`)
+      await page.waitForTimeout(500)
+      await page.click(`#${symbol}-btn`)
     }
   }
 }
@@ -330,10 +322,8 @@ export async function awaitTokenSelect (page: puppeteer.Page, symbol: string, po
 export async function swapOrSelect (page: puppeteer.Page, t1Symbol: string, t2Symbol: string) {
   await page.bringToFront()
 
-  let currentT1
-  let currentT2
-  currentT1 = await getSelectedTokens(page, 1)
-  currentT2 = await getSelectedTokens(page, 2)
+  const currentT1 = await getSelectedTokens(page, 1)
+  const currentT2 = await getSelectedTokens(page, 2)
 
   console.log(t1Symbol, t2Symbol, currentT1, currentT2)
   if (currentT1 && currentT2 && t1Symbol === currentT2 && t2Symbol === currentT1) {
@@ -596,7 +586,7 @@ export async function getBalanceInMM (metamask: dappeteer.Dappeteer, symbol: str
   throw new Error('Couldnt get balance.')
 }
 
-const afterColon = /\:\s(.*)/
+const afterColon = /\s(.*)/
 const commas = /[,]/
 export function getAfterColon (value: string) {
   const match = value.match(afterColon)
@@ -752,12 +742,8 @@ export async function selectOrImportPool (page: puppeteer.Page, pool: string, se
   try {
     await page.waitForSelector(`#${pool}-lp-item`, { timeout: 5000 })
   } catch (error) {
-    try {
-      await importStakeInfo(page, pool)
-      await page.waitForSelector(`#${pool}-lp-item`, { timeout: 5000 })
-    } catch (error) {
-      throw error
-    }
+    await importStakeInfo(page, pool)
+    await page.waitForSelector(`#${pool}-lp-item`, { timeout: 5000 })
   }
   await page.click(`#${pool}-lp-item`)
 }
@@ -803,7 +789,7 @@ export async function acceptCookies (page: puppeteer.Page) {
   await page.waitForTimeout(500)
 }
 
-export async function goToLocalHost (page:puppeteer.Page, screenSize:screenSize = 'desktop') {
+export async function goToLocalHost (page: puppeteer.Page, screenSize: screenSize = 'desktop') {
   await page.goto('http://localhost:3000')
   await page.setViewport({ width: 1039, height: 913 })
 }

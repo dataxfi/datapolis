@@ -2,45 +2,22 @@ import puppeteer from 'puppeteer'
 import * as dappeteer from '@keithers98/dappeteer-stable'
 import 'regenerator-runtime/runtime'
 import {
-  setupDappBrowser,
   setupDataX,
   closeBrowser,
   getBalanceInMM,
   acceptCookies,
-  switchAccounts,
-  setUpSwap,
-  evaluateMax,
-  getBalanceInDapp,
-  swapOrSelect,
-  clickMaxTrade,
-  selectToken,
-  awaitTokenSelect,
-  getPercInDapp,
-  typeAmount,
-  getExecuteButtonText,
-  getSelectedTokens,
   navToTradeXFromLanding,
   navToStake,
   navToLp,
-  selectOrImportPool,
   importStakeInfo,
   goToLocalHost
 } from '../utils'
-import BigNumber from 'bignumber.js'
+
 describe('Token modal should present datatokens and other ERC20 tokens as expected', () => {
   jest.setTimeout(300000)
   let page: puppeteer.Page
   let browser: puppeteer.Browser
   let metamask: dappeteer.Dappeteer
-  let acc1DapBalT1: BigNumber,
-    acc1MMBalT1: BigNumber,
-    acc2DapBalT1: BigNumber,
-    acc2MMBalT1: BigNumber,
-    acc1DapBalT2: BigNumber,
-    acc1MMBalT2: BigNumber,
-    acc2DapBalT2: BigNumber,
-    acc2MMBalT2: BigNumber,
-    acc3DapBalt1: BigNumber
 
   beforeAll(async () => {
     browser = global.browser
@@ -70,7 +47,7 @@ describe('Token modal should present datatokens and other ERC20 tokens as expect
     const tokenModal = await page.waitForSelector('#tokenModal', { timeout: 3000 })
     expect(tokenModal).toBeDefined()
     const ARCCOR20 = await page.waitForSelector('#ARCCOR-20-btn', { timeout: 3000 })
-    expect(ARCCOR20).toBeDefined
+    expect(ARCCOR20).toBeDefined()
     ARCCOR20?.click()
     // check datatoken populates field
     await page.waitForTimeout(500)
@@ -111,7 +88,7 @@ describe('Token modal should present datatokens and other ERC20 tokens as expect
 
   it('Should be able to select datatokens on stake (token 2)', async () => {
     const ARCCOR20 = await page.waitForSelector('#ARCCOR-20-btn', { timeout: 3000 })
-    expect(ARCCOR20).toBeDefined
+    expect(ARCCOR20).toBeDefined()
     ARCCOR20?.click()
     await page.waitForTimeout(500)
     const selectedToken1 = await page.waitForSelector('#selectedToken1')

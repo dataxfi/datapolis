@@ -2,21 +2,18 @@ import puppeteer from 'puppeteer'
 import * as dappeteer from '@keithers98/dappeteer-stable'
 import 'regenerator-runtime/runtime'
 import {
-  setupDappBrowser,
   setupDataX,
   closeBrowser,
   navToStake,
   getBalanceInMM,
   acceptCookies,
   getBalanceInDapp,
-  selectStakeToken,
   inputStakeAmt,
   getExecuteButtonText,
   clearInput,
   navToTradeXFromLanding,
   switchAccounts,
   selectToken,
-  quickConnectWallet,
   goToLocalHost
 } from '../utils'
 import BigNumber from 'bignumber.js'

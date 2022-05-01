@@ -1,8 +1,7 @@
 import puppeteer from 'puppeteer'
 import * as dappeteer from '@keithers98/dappeteer-stable'
 import 'regenerator-runtime/runtime'
-import { setupDappBrowser, setupDataX, closeBrowser, acceptCookies, navToTradeXFromLanding, goToLocalHost } from '../utils'
-import BigNumber from 'bignumber.js'
+import { setupDataX, closeBrowser, acceptCookies, navToTradeXFromLanding, goToLocalHost } from '../utils'
 describe('Datatoken previews should work as expected', () => {
   jest.setTimeout(300000)
   let page: puppeteer.Page
@@ -35,7 +34,7 @@ describe('Datatoken previews should work as expected', () => {
     expect(tokenModal).toBeDefined()
     await page.waitForTimeout(150)
     const ARCCOR20 = await page.waitForSelector('#ZEASEA-66-btn', { timeout: 3000 })
-    expect(ARCCOR20).toBeDefined
+    expect(ARCCOR20).toBeDefined()
     ARCCOR20?.click()
     // check datatoken populates field
     await page.waitForTimeout(500)

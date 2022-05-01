@@ -2,7 +2,7 @@ import puppeteer from 'puppeteer'
 import * as dappeteer from '@keithers98/dappeteer-stable'
 import 'regenerator-runtime/runtime'
 import {
-  setupDappBrowser,
+
   setupDataX,
   closeBrowser,
   quickConnectWallet,
@@ -13,7 +13,6 @@ import {
   getExecuteButtonText,
   inputUnstakeAmt,
   getSharesFromUnstake,
-  clearInput,
   switchAccounts,
   useXPath,
   selectRemoveStakeButton,
@@ -21,13 +20,12 @@ import {
   selectToken,
   goToLocalHost
 } from '../utils'
-import BigNumber from 'bignumber.js'
+
 describe('User Interface Works as Expected', () => {
   jest.setTimeout(300000)
   let page: puppeteer.Page
   let browser: puppeteer.Browser
   let metamask: dappeteer.Dappeteer
-  let initialShares: BigNumber
 
   beforeAll(async () => {
     browser = global.browser
@@ -38,7 +36,7 @@ describe('User Interface Works as Expected', () => {
     await navToTradeXFromLanding(page)
     await acceptCookies(page)
     await setupDataX(page, metamask, 'rinkeby', false)
-    initialShares = await navToRemoveStake(page, 'SAGKRI-94')
+    await navToRemoveStake(page, 'SAGKRI-94')
     await page.bringToFront()
   })
 

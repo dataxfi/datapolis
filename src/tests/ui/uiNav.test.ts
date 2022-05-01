@@ -2,7 +2,6 @@ import puppeteer from 'puppeteer'
 import * as dappeteer from '@keithers98/dappeteer-stable'
 import 'regenerator-runtime/runtime'
 import {
-  setupDappBrowser,
   setupDataX,
   closeBrowser,
   quickConnectWallet,

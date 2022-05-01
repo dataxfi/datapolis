@@ -1,7 +1,7 @@
 import puppeteer from 'puppeteer'
 import * as dappeteer from '@keithers98/dappeteer-stable'
 import 'regenerator-runtime/runtime'
-import { closeBrowser, navToTradeXFromLanding, quickConnectWallet, setupDappBrowser, forceSignDisclaimer, goToLocalHost } from '../utils'
+import { closeBrowser, navToTradeXFromLanding, forceSignDisclaimer, goToLocalHost } from '../utils'
 
 describe('Setup web3 and connect to wallet', () => {
   jest.setTimeout(300000)
@@ -48,7 +48,7 @@ describe('Setup web3 and connect to wallet', () => {
 
     // Check wallet address in is the button
     const walletBtn = await page.waitForSelector('#d-view-txs-btn')
-    await new Promise((res, rej) => setTimeout(res, 3000))
+    await new Promise((resolve, reject) => setTimeout(resolve, 3000))
     const btnText = await page.evaluate((el) => el.textContent, walletBtn)
     expect(btnText).toBe('0x867...DfAd')
   })

@@ -6,7 +6,6 @@ import puppeteer from 'puppeteer'
 import * as dappeteer from '@keithers98/dappeteer-stable'
 import 'regenerator-runtime/runtime'
 import {
-  setupDappBrowser,
   setupDataX,
   closeBrowser,
   approveTransactions,
@@ -25,7 +24,6 @@ describe('Execute Standard Trades on Trade', () => {
   let page: puppeteer.Page
   let browser: puppeteer.Browser
   let metamask: dappeteer.Dappeteer
-  let lastTestPassed: boolean = true
 
   beforeAll(async () => {
     browser = global.browser
@@ -43,20 +41,14 @@ describe('Execute Standard Trades on Trade', () => {
   })
 
   async function stdTradeFlow (t1Symbol: string, t2Symbol: string, amt: string, pos: number) {
-    try {
-      await setUpSwap(page, metamask, t1Symbol, t2Symbol, amt, pos)
-      await checkBalance(page, metamask, false, t2Symbol, t1Symbol)
-      await executeTransaction(page, metamask, 'trade')
-      await approveTransactions(metamask, page, 1)
-      await confirmAndCloseTxDoneModal(page)
-      await confirmTokensClearedAfterTrade(page)
-      await setUpSwap(page, metamask, t1Symbol, t2Symbol, '0', pos)
-      await checkBalance(page, metamask, true, t2Symbol, t1Symbol)
-      lastTestPassed = true
-    } catch (error) {
-      lastTestPassed = false
-      throw error
-    }
+    await setUpSwap(page, metamask, t1Symbol, t2Symbol, amt, pos)
+    await checkBalance(page, metamask, false, t2Symbol, t1Symbol)
+    await executeTransaction(page, metamask, 'trade')
+    await approveTransactions(metamask, page, 1)
+    await confirmAndCloseTxDoneModal(page)
+    await confirmTokensClearedAfterTrade(page)
+    await setUpSwap(page, metamask, t1Symbol, t2Symbol, '0', pos)
+    await checkBalance(page, metamask, true, t2Symbol, t1Symbol)
   }
 
   it('10 OCEAN -> SAGKRI-94', async () => {

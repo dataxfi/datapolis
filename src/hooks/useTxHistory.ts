@@ -7,7 +7,6 @@ export default function useTxHistory () {
   const {
     txHistory,
     pendingTxs,
-    setPendingTxs,
     accountId,
     chainId,
     watcher,
@@ -47,7 +46,6 @@ export default function useTxHistory () {
     if (lastTx && chainId && accountId) {
       let newTxs
       const { txDateId, status } = lastTx
-      let newTxHistory: ITxHistory
 
       switch (status) {
         case 'Pending':
@@ -61,15 +59,16 @@ export default function useTxHistory () {
           newTxs = pendingTxs.filter((item) => item !== txDateId)
           addHistory()
           break
-        case 'Failure':
+        case 'Failure': {
           const localTxHistory = getLocalTxHistory({ chainId, accountId })
-          newTxHistory = { ...txHistory, ...localTxHistory }
+          const newTxHistory = { ...txHistory, ...localTxHistory }
           delete newTxHistory[txDateId]
           setTxHistory({ ...newTxHistory })
           setLocalTxHistory({ txHistory: newTxHistory, accountId, chainId })
           newTxs = pendingTxs.filter((item) => item !== txDateId)
           setShowConfirmModal(false)
           break
+        }
         default:
           newTxs = pendingTxs.filter((item) => item !== txDateId)
           break

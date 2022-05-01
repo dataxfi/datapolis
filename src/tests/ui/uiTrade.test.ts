@@ -2,13 +2,11 @@ import puppeteer from 'puppeteer'
 import * as dappeteer from '@keithers98/dappeteer-stable'
 import 'regenerator-runtime/runtime'
 import {
-  setupDappBrowser,
   setupDataX,
   closeBrowser,
   getBalanceInMM,
   acceptCookies,
   switchAccounts,
-  setUpSwap,
   evaluateMax,
   getBalanceInDapp,
   swapOrSelect,
@@ -35,8 +33,7 @@ describe('Trade Platform User Interface Works as Expected', () => {
     acc1DapBalT2: BigNumber,
     acc1MMBalT2: BigNumber,
     acc2DapBalT2: BigNumber,
-    acc2MMBalT2: BigNumber,
-    acc3DapBalt1: BigNumber
+    acc2MMBalT2: BigNumber
 
   beforeAll(async () => {
     browser = global.browser

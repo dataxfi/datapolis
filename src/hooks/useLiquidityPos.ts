@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { GlobalContext } from '../context/GlobalState'
 import { ILiquidityPosition } from '../utils/types'

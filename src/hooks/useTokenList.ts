@@ -1,8 +1,6 @@
 import { useContext, useEffect, useRef } from 'react'
 import { GlobalContext } from '../context/GlobalState'
-import { Config, Ocean, TokenList } from '@dataxfi/datax.js'
-// import { TokenList as TList } from "@uniswap/token-lists";
-import { ITList, ITokenInfo } from '@dataxfi/datax.js'
+import { Config, Ocean, TokenList, ITList, ITokenInfo } from '@dataxfi/datax.js'
 import Web3 from 'web3'
 import axios from 'axios'
 import { supportedChains } from '../utils/types'
@@ -70,7 +68,6 @@ export default function useTokenList ({
     if (!ERC20TokenResponse && chainId && config?.custom[chainId]) {
       try {
         getERC20TokenList(config, chainId).then((list) => {
-          console.log('Token List Response', list)
           switch (chainId) {
             case '4':
               setERC20TokenResponse({ tokens: list as unknown as ITokenInfo[] } as ITList)
@@ -80,17 +77,15 @@ export default function useTokenList ({
               setERC20TokenResponse(list)
               setERC20Tokens(list.tokens)
               break
-
-            default:
+            default: {
               const tokens = [
                 oceanTokens[chainId],
                 ...list.tokens.filter((token) => String(token.chainId) === chainId)
               ]
-              console.log(tokens)
               setERC20Tokens(tokens)
               setERC20TokenResponse({ ...list, tokens })
-              // setERC20Tokens(list.tokens.filter((token) => String(token.chainId) === chainId));
               break
+            }
           }
         })
       } catch (error) {
