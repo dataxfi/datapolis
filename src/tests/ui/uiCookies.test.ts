@@ -1,3 +1,7 @@
+/**
+ * @jest-environment ./node_modules/@keithers98/dappeteer-stable/dist/jest/DappeteerEnvironment.js
+ */
+
 import puppeteer from 'puppeteer';
 import 'regenerator-runtime/runtime';
 import { acceptCookies, closeBrowser, goToLocalHost } from '../utils';
@@ -10,6 +14,7 @@ describe('Execute Standard Trades on Stake', () => {
   beforeAll(async () => {
     browser = global.browser;
     page = global.page;
+    console.log(!!browser, !!page)
     await goToLocalHost(page);
   });
 
