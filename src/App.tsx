@@ -43,13 +43,7 @@ function App() {
     <div className="w-full h-full relative overflow-hidden">
       <div
         className={`w-full h-full ${blurBG ? 'blur-xs' : 'blur-none'} ${
-          bgOff
-            ? ''
-            : location === '/trade'
-            ? 'lg:absolute lg:bg-dataXtrade lg:bg-cover lg:bg-top'
-            : location !== '/'
-            ? 'lg:absolute lg:bg-dataXstake lg:bg-cover lg:bg-bottom'
-            : ''
+          bgOff ? '' : location === '/trade' ? 'lg:absolute lg:bg-dataXtrade lg:bg-cover lg:bg-top' : location !== '/' ? 'lg:absolute lg:bg-dataXstake lg:bg-cover lg:bg-bottom' : ''
         }`}
       >
         <div className={`min-h-full relative overflow-hidden w-full ${blurBG ? 'bg-black bg-opacity-40' : ''}`}>

@@ -32,7 +32,7 @@
     "start": "craco start",
     "build": "craco build",
     "eject": "react-scripts eject",
-    "lint": "eslint --color src/*/**.ts src/*/**.tsx",
+    "lint": "eslint --color src/*/**.ts src/*/**.tsx src/*.ts src/*.tsx",
     "lint:fix": "yarn run lint --fix",
     "clearTestCache": "react-scripts test --clearCache",
     "test-ui": "yarn run test-uiNav && yarn run test-uiCookies && yarn run test-uiDisclaimer && yarn run test-uiLP && yarn run test-uiStake && yarn run test-uiTrade && yarn run test-uiUnstake",
