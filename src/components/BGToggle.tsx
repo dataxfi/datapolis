@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { GlobalContext } from '../context/GlobalState';
 
-export default function BGToggle({ mobile = false }) {
+export default function BGToggle({ mobile = false }: { mobile: boolean }) {
   const { bgOff, setBgOff } = useContext(GlobalContext);
   return (
     <button

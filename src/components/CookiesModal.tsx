@@ -38,8 +38,7 @@ function CookiesModal() {
     setShow(false);
   }
 
-  return cookiesAllowed === null
-    ? (
+  return cookiesAllowed === null ? (
     <div
       id="cookiesModal"
       className={`z-30 md:w-80 lg:w-96 absolute bottom-0 flex flex-col bg-black bg-opacity-90 p-5 justify-center m-4 rounded-md filter hm-box transition-all ${
@@ -49,8 +48,8 @@ function CookiesModal() {
       <h2 className="font-bold lg:text-xl self-center">Help us improve!</h2>
       <p className="my-2 xs:text-xs sm:text-sm lg:text-base">
         We collect anonymised and aggregated usage stats of DataX products. We do not collect any personally
-        identifiable data. Please select 'Confirm' to help DataX improve and enrich your user experience. You may also
-        select 'Deny' to only store information essential to the functionality of the application.
+        identifiable data. Please select &apos;Confirm&apos; to help DataX improve and enrich your user experience. You may also
+        select &apos;Deny&apos; to only store information essential to the functionality of the application.
       </p>
 
       <button onClick={confirmOrDeny} className="txButton rounded-lg text-center mb-2 p-2" id="confirmCookies">
@@ -60,10 +59,9 @@ function CookiesModal() {
         Deny
       </button>
     </div>
-      )
-    : (
+  ) : (
     <></>
-      );
+  );
 }
 
 export default CookiesModal;

@@ -447,9 +447,7 @@ export default function Swap() {
     if (token1?.info && token2?.info) {
       let exchangeLimit = INITIAL_MAX_EXCHANGE;
 
-      maxExchange.maxSell.gt(0)
-        ? (exchangeLimit = maxExchange)
-        : (exchangeLimit = await ocean.getMaxExchange(token1, token2));
+      maxExchange.maxSell.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await ocean.getMaxExchange(token1, token2));
 
       const { maxSell, maxBuy, maxPercent } = exchangeLimit;
 
@@ -458,9 +456,7 @@ export default function Swap() {
         setToken1({ ...token1, value: maxSell, percentage: maxPercent });
       } else {
         const percentage =
-          token1.balance.lt(0.00001) && bnVal.gt(0)
-            ? new BigNumber(100)
-            : new BigNumber(bnVal.div(token1.balance).multipliedBy(100));
+          token1.balance.lt(0.00001) && bnVal.gt(0) ? new BigNumber(100) : new BigNumber(bnVal.div(token1.balance).multipliedBy(100));
         setToken1({
           ...token1,
           value: bnVal,
@@ -478,9 +474,7 @@ export default function Swap() {
     const bnVal = new BigNumber(val);
     let exchangeLimit = INITIAL_MAX_EXCHANGE;
 
-    maxExchange.maxPercent.gt(0)
-      ? (exchangeLimit = maxExchange)
-      : (exchangeLimit = await ocean.getMaxExchange(token1, token2));
+    maxExchange.maxPercent.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await ocean.getMaxExchange(token1, token2));
 
     console.log(exchangeLimit);
 
@@ -508,9 +502,7 @@ export default function Swap() {
     if (token1?.info && token2?.info) {
       let exchangeLimit;
 
-      maxExchange.maxBuy.gt(0)
-        ? (exchangeLimit = maxExchange)
-        : (exchangeLimit = await ocean.getMaxExchange(token1, token2));
+      maxExchange.maxBuy.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await ocean.getMaxExchange(token1, token2));
       const { maxBuy, maxSell } = exchangeLimit;
 
       if (bnVal.gt(maxBuy) && token1.balance.gte(0.00001)) {
@@ -548,8 +540,7 @@ export default function Swap() {
                     <MdTune size="24" />
                   </div>
                 </div>
-                {showSettings
-                  ? (
+                {showSettings ? (
                   <div id="settingsModal" className="absolute top-0 left-0 max-w-sm">
                     <OutsideClickHandler
                       onOutsideClick={() => {
@@ -584,10 +575,9 @@ export default function Swap() {
                       </div>
                     </OutsideClickHandler>
                   </div>
-                    )
-                  : (
+                ) : (
                   <></>
-                    )}
+                )}
               </div>
               <TokenSelect
                 setToken={setToken1}
@@ -607,13 +597,11 @@ export default function Swap() {
                   tabIndex={0}
                   className="rounded-full border-black bg-opacity-100 border-4 absolute -top-7 bg-trade-darkBlue hover:bg-gray-600 transition-colors duration-200 w-12 h-12 flex swap-center items-center justify-center"
                 >
-                  {token2?.loading || token1?.loading || percLoading
-                    ? (
+                  {token2?.loading || token1?.loading || percLoading ? (
                     <MoonLoader size={25} color={'white'} />
-                      )
-                    : (
+                  ) : (
                     <IoSwapVertical size="30" className="text-gray-300" />
-                      )}
+                  )}
                 </div>
               </div>
               <TokenSelect
@@ -632,9 +620,7 @@ export default function Swap() {
               >
                 <div
                   className={`my-4 p-2 bg-black border border-city-blue border-opacity-50 transition-opacity ${
-                    token2?.loading || token1?.loading || percLoading
-                      ? 'bg-opacity-10 text-gray-400'
-                      : 'bg-opacity-25 text-gray-300'
+                    token2?.loading || token1?.loading || percLoading ? 'bg-opacity-10 text-gray-400' : 'bg-opacity-25 text-gray-300'
                   } flex flex-col justify-between text-sm rounded-lg`}
                 >
                   <div className="flex justify-between my-1">

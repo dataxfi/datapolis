@@ -31,7 +31,6 @@ export default function UnlockTokenModal() {
   } = useContext(GlobalContext);
   const [pool, setPool] = useState<string | null>(null);
   const [address, setAddress] = useState<string | null>(null);
-  const [allowance, setAllowance] = useState<BigNumber>();
   const remove = '/stake/remove';
 
   useEffect(() => {
@@ -48,7 +47,6 @@ export default function UnlockTokenModal() {
           getAllowance(address, accountId, pool, ocean).then((res) => {
             console.log('Response from allowance call', res);
             const allowance = new BigNumber(res);
-            setAllowance(new BigNumber(allowance));
             if (allowance.gte(token1.value)) {
               setExecuteUnlock(false);
               setPool(null);
@@ -134,10 +132,8 @@ export default function UnlockTokenModal() {
     }
   }
 
-  return token1.info && preTxDetails && showUnlockTokenModal && executeUnlock
-    ? (
-        location !== '/moo'
-          ? (
+  return token1.info && preTxDetails && showUnlockTokenModal && executeUnlock ? (
+    location !== '/moo' ? (
       <div id="transactionDoneModal" className="fixed center sm:max-w-sm w-full z-30 shadow">
         <OutsideClickHandler onOutsideClick={close}>
           <div className="bg-black border items-center flex flex-col rounded-lg pb-8 pt-2 px-4 hm-box mx-3">
@@ -147,17 +143,13 @@ export default function UnlockTokenModal() {
               </button>
             </div>
             <div className="pb-5">
-              {approving === 'pending'
-                ? (
+              {approving === 'pending' ? (
                 <BiLockAlt size="72px" className="text-city-blue" />
-                  )
-                : approving === 'approving'
-                  ? (
+              ) : approving === 'approving' ? (
                 <BiLockAlt size="72px" className="text-city-blue animate-bounce" />
-                    )
-                  : (
+              ) : (
                 <BiLockOpenAlt size="72px" className="text-city-blue animate-bounce" />
-                    )}
+              )}
             </div>
             <h3 className="text-sm lg:text-2xl pb-5">Unlock {token1.info.symbol}</h3>
             <p className="text-sm lg:text-base text-center pb-5">
@@ -189,8 +181,7 @@ export default function UnlockTokenModal() {
           </div>
         </OutsideClickHandler>
       </div>
-            )
-          : (
+    ) : (
       <div className="mt-4">
         <button
           id="confirmSwapModalBtn"
@@ -202,9 +193,8 @@ export default function UnlockTokenModal() {
           Confirm swap
         </button>
       </div>
-            )
-      )
-    : (
+    )
+  ) : (
     <></>
-      );
+  );
 }

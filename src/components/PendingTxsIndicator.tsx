@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { MoonLoader, RingLoader } from 'react-spinners';
+import { MoonLoader } from 'react-spinners';
 import { GlobalContext } from '../context/GlobalState';
 
 export default function PendingTxsIndicator() {
@@ -41,8 +41,7 @@ export default function PendingTxsIndicator() {
     }
   }, [pending, render]);
 
-  return render
-    ? (
+  return render ? (
     <div
       onClick={() => {
         setShowTxHistoryModal(true);
@@ -54,8 +53,7 @@ export default function PendingTxsIndicator() {
         <MoonLoader size="15px" color="#f3c429" />
       </div>{' '}
     </div>
-      )
-    : (
+  ) : (
     <></>
-      );
+  );
 }

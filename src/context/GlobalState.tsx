@@ -1,9 +1,8 @@
+import { createContext, PropsWithChildren, useEffect, useRef, useState } from 'react';
 import Web3 from 'web3';
 import { Ocean, Config, Watcher, IToken, ITList, ITokenInfo } from '@dataxfi/datax.js';
 import Web3Modal from 'web3modal';
 import WalletConnectProvider from '@walletconnect/web3-provider';
-import { createContext, PropsWithChildren, useEffect, useRef, useState } from 'react';
-import Core from 'web3modal';
 import { disclaimer } from '../components/DisclaimerModal';
 import {
   connectedMultipleWalletsGA,
@@ -36,7 +35,7 @@ export const GlobalContext = createContext<globalStates>({} as globalStates);
 
 export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }) => {
   // essential states for connection to web3, user wallet, ocean operations, and DataX configurations
-  const [web3Modal, setWeb3Modal] = useState<Core>();
+  const [web3Modal, setWeb3Modal] = useState<Web3Modal>();
   const [accountId, setAccountId] = useState<string>();
   const [chainId, setChainId] = useState<supportedChains>();
   const [provider, setProvider] = useState<Web3Modal>();

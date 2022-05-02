@@ -1,8 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { BsCheckCircle, BsX } from 'react-icons/bs';
 import OutsideClickHandler from 'react-outside-click-handler';
-import { GlobalContext, INITIAL_TOKEN_STATE } from '../context/GlobalState';
-import BigNumber from 'bignumber.js';
+import { GlobalContext } from '../context/GlobalState';
 
 const TransactionDoneModal = () => {
   const { showTxDone, setShowTxDone, lastTx, config, setBlurBG } = useContext(GlobalContext);
@@ -16,8 +15,7 @@ const TransactionDoneModal = () => {
     setShowTxDone(false);
     setBlurBG(false);
   }
-  return showTxDone
-    ? (
+  return showTxDone ? (
     <div id="transactionDoneModal" className="fixed center sm:max-w-sm w-full z-30 shadow">
       <OutsideClickHandler onOutsideClick={close}>
         <div className="bg-black bg-opacity-90 border rounded-lg pb-8 p-4 hm-box mx-3">
@@ -39,10 +37,9 @@ const TransactionDoneModal = () => {
         </div>
       </OutsideClickHandler>
     </div>
-      )
-    : (
+  ) : (
     <></>
-      );
+  );
 };
 
 export default TransactionDoneModal;

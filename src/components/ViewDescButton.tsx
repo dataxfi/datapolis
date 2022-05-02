@@ -1,9 +1,8 @@
 import { useContext } from 'react';
 import { GlobalContext } from '../context/GlobalState';
-import { getDID } from './DTDescriptionModal';
 
 export default function ViewDescBtn() {
-  const { setShowDescModal, token2, setT2DIDResponse, showDescModal } = useContext(GlobalContext);
+  const { setShowDescModal, token2, showDescModal } = useContext(GlobalContext);
   return (
     <button
       id="viewDescButton"

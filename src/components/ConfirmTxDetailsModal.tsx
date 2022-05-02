@@ -1,14 +1,12 @@
 import { BsArrowDown, BsShuffle, BsX } from 'react-icons/bs';
-import { useContext, useEffect, useState } from 'react';
+import { useContext } from 'react';
 import ConfirmSwapItem from './ConfirmSwapItem';
 import ConfirmSwapListItem from './ConfirmSwapListItem';
 import { GlobalContext } from '../context/GlobalState';
-import BigNumber from 'bignumber.js';
 import OutsideClickHandler from 'react-outside-click-handler';
 
 export default function ConfirmTxDetailsModal() {
   const {
-    ocean,
     token1,
     token2,
     setShowConfirmTxDetails,
@@ -20,9 +18,7 @@ export default function ConfirmTxDetailsModal() {
     setBlurBG,
     setExecuteSwap,
     swapFee,
-    setSwapFee,
     minReceived,
-    setMinReceived,
   } = useContext(GlobalContext);
 
   function confirm() {

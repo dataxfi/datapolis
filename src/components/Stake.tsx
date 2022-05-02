@@ -175,20 +175,20 @@ export default function Stake() {
     }
   }
 
-  async function setOceanBalance() {
-    if (accountId && ocean) {
-      const OCEAN_ADDRESS = ocean.config.default.oceanTokenAddress.toLowerCase();
-      setLoading(true);
-      try {
-        const balance = new BigNumber(await ocean.getBalance(OCEAN_ADDRESS, accountId));
-        setToken1({ ...token1, balance });
-      } catch (error) {
-        console.error('Error when trying to fetch Balance');
-      } finally {
-        setLoading(false);
-      }
-    }
-  }
+  // async function setOceanBalance() {
+  //   if (accountId && ocean) {
+  //     const OCEAN_ADDRESS = ocean.config.default.oceanTokenAddress.toLowerCase();
+  //     setLoading(true);
+  //     try {
+  //       const balance = new BigNumber(await ocean.getBalance(OCEAN_ADDRESS, accountId));
+  //       setToken1({ ...token1, balance });
+  //     } catch (error) {
+  //       console.error('Error when trying to fetch Balance');
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   }
+  // }
 
   async function getMaxAndAllowance() {
     getMaxStakeAmt()
@@ -312,13 +312,11 @@ export default function Stake() {
               />
               <div className="px-4 relative mt-6 mb-10">
                 <div className="rounded-full border-black border-4 absolute -top-7 bg-trade-darkBlue w-12 h-12 flex items-center justify-center swap-center">
-                  {loading
-                    ? (
+                  {loading ? (
                     <MoonLoader size={25} color={'white'} />
-                      )
-                    : (
+                  ) : (
                     <AiOutlinePlus size="30" className="text-gray-300" />
-                      )}
+                  )}
                 </div>
               </div>
               <TokenSelect

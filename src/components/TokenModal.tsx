@@ -58,6 +58,7 @@ export default function TokenModal() {
       const tokens = ERC20Tokens.filter((info) => {
         const match = commonTokens[chainId].find((token) => info.address === token);
         if (match) return info;
+        else return null;
       });
       setCommons(tokens);
     }
@@ -120,8 +121,7 @@ export default function TokenModal() {
     </div>
   );
 
-  return showTokenModal
-    ? (
+  return showTokenModal ? (
     <>
       <OutsideClickHandler onOutsideClick={closeModal}>
         <div id="tokenModal" className="fixed center z-30 w-full sm:max-w-sm p-2 md:p-0">
@@ -139,11 +139,9 @@ export default function TokenModal() {
                 className="px-4 py-2 h-full w-full rounded-lg bg-primary-900 text-base outline-none focus:placeholder-gray-200 placeholder-gray-400"
               />
             </div>
-            {(location === '/stake' && selectTokenPos === 2) || location === '/stake/list'
-              ? (
+            {(location === '/stake' && selectTokenPos === 2) || location === '/stake/list' ? (
               <></>
-                )
-              : (
+            ) : (
               <div className="w-full px-2 mt-2">
                 <button
                   onClick={() => setShowDtks(true)}
@@ -163,28 +161,21 @@ export default function TokenModal() {
                   ERC20
                 </button>
               </div>
-                )}
-            {loading
-              ? (
-                  loader
-                )
-              : error
-                ? (
+            )}
+            {loading ? (
+              loader
+            ) : error ? (
               <div id="tokenLoadError" className="text-white text-center my-4">
                 There was an error loading the tokens
               </div>
-                  )
-                : datatokens && showDtks
-                  ? (
+            ) : datatokens && showDtks ? (
               <div
                 className="hm-hide-scrollbar h-full overflow-y-scroll mt-2 bg-trade-darkBlue rounded-lg border border-gray-700 p-1"
                 id="tokenList"
               >
                 <ReactList itemRenderer={tokenRenderer} length={datatokens ? datatokens.length : 0} type="simple" />
               </div>
-                    )
-                  : ERC20Tokens && !showDtks
-                    ? (
+            ) : ERC20Tokens && !showDtks ? (
               <>
                 <div className="flex flex-col mt-2">
                   <p>Common Tokens</p>
@@ -192,7 +183,7 @@ export default function TokenModal() {
                 </div>
                 <ul className="flex flex-wrap w-full">
                   {commons.map((token, index) => (
-                    <CommonToken index={index} token={token} onClick={tokenSelected} />
+                    <CommonToken index={index} token={token} onClick={tokenSelected} key={index} />
                   ))}
                 </ul>
                 <div
@@ -202,16 +193,14 @@ export default function TokenModal() {
                   <ReactList itemRenderer={tokenRenderer} length={ERC20Tokens ? ERC20Tokens.length : 0} type="simple" />
                 </div>
               </>
-                      )
-                    : (
-                        loader
-                      )}
+            ) : (
+              loader
+            )}
           </div>
         </div>
       </OutsideClickHandler>
     </>
-      )
-    : (
+  ) : (
     <></>
-      );
+  );
 }

@@ -36,8 +36,7 @@ const ConfirmModal = () => {
     setBlurBG(false);
   }
 
-  return showConfirmModal
-    ? (
+  return showConfirmModal ? (
     <div className="fixed center md:max-w-sm w-full z-30">
       <OutsideClickHandler onOutsideClick={close}>
         <div className="bg-black bg-opacity-90 p-4 rounded-lg border padding mx-3 shadow hm-box">
@@ -64,10 +63,9 @@ const ConfirmModal = () => {
         </div>
       </OutsideClickHandler>
     </div>
-      )
-    : (
+  ) : (
     <></>
-      );
+  );
 };
 
 export default ConfirmModal;

@@ -77,13 +77,11 @@ export default function TxHistoryItem({
           <p className={`ml-1 ${txInstance.status === 'Success' ? 'text-city-blue' : 'text-primary-400'} `}>
             {txInstance.status}
           </p>
-          {txInstance.status === 'Success' || txInstance.status === 'Failure'
-            ? null
-            : (
+          {txInstance.status === 'Success' || txInstance.status === 'Failure' ? null : (
             <div className="pt-.5">
               <PulseLoader size="3px" color="white" />
             </div>
-              )}
+          )}
         </div>
         <a href={txLink} target="_blank" rel="noreferrer" className={txLink.includes('/tx/') ? 'text-city-blue' : ''}>
           <BsBoxArrowUpRight />

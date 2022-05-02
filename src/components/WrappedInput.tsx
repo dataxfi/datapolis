@@ -28,9 +28,8 @@ export default function WrappedInput(props: any) {
     // dont call db change if decimals >= 5
     if (decimals && decimals[1].length > 5) {
       result = 'dec';
-    }
-    // dont call db change if the input is the same as the current value (ie. trailing/leading zero(s))
-    else if (bnVal.toFixed(5) === internalState.toFixed(5)) {
+    } else if (bnVal.toFixed(5) === internalState.toFixed(5)) {
+      // dont call db change if the input is the same as the current value (ie. trailing/leading zero(s))
       result = 'trail';
     }
 

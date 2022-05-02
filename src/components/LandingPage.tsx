@@ -33,7 +33,7 @@ export default function LandingPage() {
           </h1>
         </div>
         <p className="text-xl  xl:text-3xl text-shadow-light mt-4 xl:mt-12 font-yantramanav">
-          Datapolis is the world's first <span className="text-yellow">Data Nation</span>{' '}
+          Datapolis is the world&apos;s first <span className="text-yellow">Data Nation</span>{' '}
         </p>
         <ul className="text-5xl py-4 inline-flex mt-4">
           <SocialLinkIcons effect="grow" />

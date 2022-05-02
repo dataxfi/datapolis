@@ -26,8 +26,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId]);
 
-  return token1Info && token2Info
-    ? (
+  return token1Info && token2Info ? (
     <li id={`${token2Info.symbol}-lp-item`} key={`LP${index}`}>
       <div className="w-full mx-auto z-0">
         <div
@@ -57,8 +56,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
             {visible ? <BsChevronDown size={14} /> : <BsChevronUp size={14} />}
           </div>
         </div>
-        {visible
-          ? (
+        {visible ? (
           <div
             id={`${token1Info.symbol}-lp-info`}
             className={`p-2 transition-colors duration-500  ${
@@ -112,11 +110,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                 </div>
                 <div className="justify-self-end">
                   <p className="text-gray-100 text-sm ">
-                    {yourPoolSharePerc?.gte(1)
-                      ? `${yourPoolSharePerc?.dp(5).toString()} %`
-                      : yourPoolSharePerc?.eq(0)
-                        ? '0'
-                        : '< 0 %'}
+                    {yourPoolSharePerc?.gte(1) ? `${yourPoolSharePerc?.dp(5).toString()} %` : yourPoolSharePerc?.eq(0) ? '0' : '< 0 %'}
                   </p>
                 </div>
               </div>
@@ -135,9 +129,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                 key="removeStake"
                 to={`/stake/remove?pool=${address}`}
                 className={`ml-1 ${
-                  Number(shares) === 0
-                    ? 'modalButton cursor-not-allowed pointer-events-none rounded p-2px w-1/2 text-center text-gray-500'
-                    : 'modalButton rounded p-2px w-1/2 text-center'
+                  Number(shares) === 0 ? 'modalButton cursor-not-allowed pointer-events-none rounded p-2px w-1/2 text-center text-gray-500' : 'modalButton rounded p-2px w-1/2 text-center'
                 } `}
                 onClick={() => {
                   console.log('Exact user shares', shares);
@@ -148,16 +140,14 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
               </Link>
             </div>
           </div>
-            )
-          : (
+        ) : (
           <></>
-            )}
+        )}
       </div>
     </li>
-      )
-    : (
+  ) : (
     <></>
-      );
+  );
 }
 
 export default LiquidityPositionItem;

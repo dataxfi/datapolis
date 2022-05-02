@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { BsArrowDown } from 'react-icons/bs';
 import { Link } from 'react-router-dom';
 import { GlobalContext } from '../context/GlobalState';
@@ -292,7 +292,9 @@ export default function Unstake() {
   }
 
   async function handleUnstake(preTxDetails: ITxDetails) {
-    if (!chainId || !singleLiquidityPos || !ocean || !accountId || !preTxDetails || !token1.info || !token2.info) { return; }
+    if (!chainId || !singleLiquidityPos || !ocean || !accountId || !preTxDetails || !token1.info || !token2.info) {
+      return;
+    }
 
     setShowConfirmModal(true);
     console.log(
@@ -349,13 +351,11 @@ export default function Unstake() {
                     alt=""
                     width="40px"
                   />
-                  {singleLiquidityPos
-                    ? (
+                  {singleLiquidityPos ? (
                     <p className="text-gray-100 text-sm md:text-lg">{token2.info.symbol}/OCEAN</p>
-                      )
-                    : (
+                  ) : (
                     <PulseLoader color="white" size="4px" margin="5px" />
-                      )}
+                  )}
                 </div>
               </div>
               <div className="md:grid md:grid-cols-5 modalSelectBg p-2 rounded">
@@ -387,13 +387,7 @@ export default function Unstake() {
                   </div>
                   <div>
                     <p id="sharesDisplay" className="text-sm text-gray-400 whitespace-nowrap text-right">
-                      {singleLiquidityPos
-                        ? Number(singleLiquidityPos?.shares) === 0
-                          ? 'Shares: 0'
-                          : Number(singleLiquidityPos?.shares) > 0.001
-                            ? `Shares: ${singleLiquidityPos?.shares.dp(5).toString()}`
-                            : 'Shares: < 0.001'
-                        : '. . .'}
+                      {singleLiquidityPos ? Number(singleLiquidityPos?.shares) === 0 ? 'Shares: 0' : Number(singleLiquidityPos?.shares) > 0.001 ? `Shares: ${singleLiquidityPos?.shares.dp(5).toString()}` : 'Shares: < 0.001' : '. . .'}
                     </p>
                     <div className="text-sm text-gray-300 grid grid-flow-col justify-end gap-2 items-center">
                       <MaxToolTip />
@@ -413,13 +407,11 @@ export default function Unstake() {
               </div>
               <div className="px-4 relative mt-6 mb-8">
                 <div className="rounded-full border-black border-4 absolute -top-7 bg-trade-darkBlue w-10 h-10 flex items-center justify-center swap-center">
-                  {calculating
-                    ? (
+                  {calculating ? (
                     <MoonLoader size={25} color={'white'} />
-                      )
-                    : (
+                  ) : (
                     <BsArrowDown size="30px" className="text-gray-300 m-0 p-0" />
-                      )}
+                  )}
                 </div>
               </div>
               <TokenSelect

@@ -27,9 +27,7 @@ export default function CenterModalContainer() {
     showTxHistoryModal ||
     showConfirmTxDetails ||
     showDisclaimer ||
-    showUnlockTokenModal
-      ? setShow(true)
-      : setShow(false);
+    showUnlockTokenModal ? setShow(true) : setShow(false);
   }, [
     showTokenModal,
     showTxDone,

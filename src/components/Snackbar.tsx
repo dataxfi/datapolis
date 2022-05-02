@@ -80,23 +80,16 @@ export default function Snackbar() {
       >
         <div className="flex justify-between items-center">
           <div className="grid grid-flow-col gap-4 items-center">
-            {txDetails && currentNot?.type === 'tx'
-              ? (
+            {txDetails && currentNot?.type === 'tx' ? (
               <>
                 <IoCheckboxOutline size="24" className="text-city-blue" />
                 <div>
                   <p>
-                    {txDetails.txType === 'stake' && txDetails.token2.info
-                      ? `Stake ${new BigNumber(txDetails.token1.value).dp(5).toString()} OCEAN in ${
+                    {txDetails.txType === 'stake' && txDetails.token2.info ? `Stake ${new BigNumber(txDetails.token1.value).dp(5).toString()} OCEAN in ${
                           txDetails.token2.info.symbol
-                        }/OCEAN pool`
-                      : txDetails.txType === 'unstake' && txDetails.shares && txDetails.token2.info
-                        ? `Unstake ${new BigNumber(txDetails.shares).dp(5).toString()} OCEAN from ${
+                        }/OCEAN pool` : txDetails.txType === 'unstake' && txDetails.shares && txDetails.token2.info ? `Unstake ${new BigNumber(txDetails.shares).dp(5).toString()} OCEAN from ${
                           txDetails.token2.info.symbol
-                        }/OCEAN pool`
-                        : txDetails.txType === 'approve'
-                          ? `Unlock ${txDetails.token1.info?.symbol}`
-                          : `Trade ${new BigNumber(txDetails.token1.value).dp(5).toString()} ${
+                        }/OCEAN pool` : txDetails.txType === 'approve' ? `Unlock ${txDetails.token1.info?.symbol}` : `Trade ${new BigNumber(txDetails.token1.value).dp(5).toString()} ${
                           txDetails.token1.info?.symbol
                         } for ${new BigNumber(txDetails.token2.value).dp(5).toString()} ${
                           txDetails.token2.info?.symbol
@@ -109,17 +102,14 @@ export default function Snackbar() {
                   </p>
                 </div>
               </>
-                )
-              : currentNot?.type === 'error'
-                ? (
+            ) : currentNot?.type === 'error' ? (
               <>
                 <BsXCircle className="text-red-500 mr-4" />
                 <p>{errorMessage(currentNot)}</p>
               </>
-                  )
-                : (
+            ) : (
               <></>
-                  )}
+            )}
           </div>
           <div>
             <BsX
