@@ -46,14 +46,13 @@ export async function setupPuppBrowser() {
 export async function forceSignDisclaimer(metamask: dappeteer.Dappeteer, page: puppeteer.Page) {
   await page.bringToFront();
   try {
-    // Check wallet address in is the button
-    console.log('starting over');
-
     await quickConnectWallet(page);
     try {
       if (await page.waitForSelector('#d-view-txs-btn', { timeout: 500 })) return;
-    } catch (error) {}
-    await page.waitForSelector('#sign-disclaimer-btn');
+    } catch (error) {
+      console.log('Disclaimer needs signed.');
+    }
+    await page.waitForSelector('#sign-disclaimer-btn', { timeout: 1500 });
     await page.click('#sign-disclaimer-btn');
     await metamask.sign();
     await page.bringToFront();
@@ -116,11 +115,17 @@ export async function setupDataX(
   page: puppeteer.Page,
   metamask: dappeteer.Dappeteer,
   network: string,
-  mobile: boolean
+  mobile: boolean,
+  acct2?: boolean
 ) {
   expect(page).toBeDefined();
   mobile ? await page.setViewport({ width: 360, height: 740 }) : await page.setViewport({ width: 1039, height: 913 });
   await metamask.switchNetwork(network);
+  if (acct2 && process.env.REACT_APP_T_ACCT2_PK) {
+    console.log('Importing Account Two');
+    await metamask.importPK(process.env.REACT_APP_T_ACCT2_PK);
+    await metamask.switchAccount(1);
+  }
   await page.bringToFront();
   await quickConnectWallet(page);
 
@@ -491,7 +496,9 @@ export async function setUpSwap(
     await page.waitForFunction('Number(document.querySelector("#token1-perc-input").value) > 0', { timeout: 3000 });
     perc = await getPercInDapp(page);
     expect(perc.toNumber()).toBeGreaterThan(0);
-    percApprox.gt(100) ? expect(perc.toString()).toEqual('100') : expect(Number(perc)).toBeCloseTo(percApprox.toNumber());
+    percApprox.gt(100)
+      ? expect(perc.toString()).toEqual('100')
+      : expect(Number(perc)).toBeCloseTo(percApprox.toNumber());
   }
 }
 
@@ -801,10 +808,10 @@ export async function closeConfirmSwapModal(page: puppeteer.Page) {
 
 export async function selectOrImportPool(page: puppeteer.Page, pool: string, select: boolean) {
   try {
-    await page.waitForSelector(`#${pool}-lp-item`, { timeout: 5000 });
+    await page.waitForSelector(`#${pool}-lp-item`, { timeout: 3000 });
   } catch (error) {
     await importStakeInfo(page, pool);
-    await page.waitForSelector(`#${pool}-lp-item`, { timeout: 5000 });
+    await page.waitForSelector(`#${pool}-lp-item`, { timeout: 3000 });
   }
   await page.click(`#${pool}-lp-item`);
 }
@@ -908,7 +915,7 @@ export async function inputUnstakeAmt(page: puppeteer.Page, unstakeAmt: string, 
   return { receive, input };
 }
 
-export async function approve(page: puppeteer.Page, selectAll: boolean = false, version?: string): Promise<void> {
+export async function approve(page: puppeteer.Page, selectAll: boolean = false): Promise<void> {
   await page.bringToFront();
   await page.reload();
 

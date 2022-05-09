@@ -37,7 +37,7 @@ describe('User Interface Works as Expected', () => {
     await page.setViewport({ width: 1039, height: 913 });
     await navToTradeXFromLanding(page);
     await acceptCookies(page);
-    await setupDataX(page, metamask, 'rinkeby', false);
+    await setupDataX(page, metamask, 'rinkeby', false, true);
     await navToRemoveStake(page, 'SAGKRI-94');
     await page.bringToFront();
   });

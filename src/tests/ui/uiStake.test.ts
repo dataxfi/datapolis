@@ -35,7 +35,7 @@ describe('Stake Platform UI works as expected.', () => {
     await navToTradeXFromLanding(page);
     await navToStake(page);
     await acceptCookies(page);
-    await setupDataX(page, metamask, 'rinkeby', false);
+    await setupDataX(page, metamask, 'rinkeby', false, true);
     await page.bringToFront();
     await selectToken(page, 'OCEAN', 1);
     acc1DapBal = new BigNumber(await getBalanceInDapp(page, 1));

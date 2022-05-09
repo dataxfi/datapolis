@@ -45,7 +45,7 @@ describe('Trade Platform User Interface Works as Expected', () => {
     await goToLocalHost(page);
     await acceptCookies(page);
     await navToTradeXFromLanding(page);
-    await setupDataX(page, metamask, 'rinkeby', false);
+    await setupDataX(page, metamask, 'rinkeby', false, true);
     await page.bringToFront();
     acc1MMBalT1 = new BigNumber(await getBalanceInMM(metamask, 'OCEAN'));
     acc1MMBalT2 = new BigNumber(await getBalanceInMM(metamask, 'SAGKRI-94'));
