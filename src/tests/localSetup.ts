@@ -5,11 +5,11 @@ import datatokensTemplate from '@oceanprotocol/contracts/artifacts/DataTokenTemp
 import bFactory from '@oceanprotocol/contracts/artifacts/BFactory.json';
 import proxy from '@dataxfi/datax.js/dist/abi/DataxRouter.json';
 import bPool from '@oceanprotocol/contracts/artifacts/BPool.json';
-import bToken from '@oceanprotocol/contracts/artifacts/BToken.json';
+// import bToken from '@oceanprotocol/contracts/artifacts/BToken.json';
 import { TestContractHandler } from '@dataxfi/datax.js/test/TestContractHandler';
 import { BalancerContractHandler } from '@dataxfi/datax.js/test/BalancerContractHandler';
 import { Ocean, Config } from '@dataxfi/datax.js';
-import { OceanPool } from '@dataxfi/datax.js/dist/balancer';
+// import { OceanPool } from '@dataxfi/datax.js/dist/balancer';
 import { DataTokens } from '@dataxfi/datax.js/dist/Datatokens';
 import { AbiItem } from 'web3-utils/types';
 import { Logger as LoggerInstance } from '@dataxfi/datax.js/dist/utils/Logger';
@@ -75,7 +75,7 @@ export default class LocalSetup {
       });
     });
 
-    //create ocean / mint ocean
+    // create ocean / mint ocean
     this.oceanAddress = '';
     this.datatoken.create(this.blob, this.tom, '1000000000000000', 'Ocean Token', 'OCEAN').then((res) => {
       this.oceanAddress = res;
@@ -144,7 +144,3 @@ export default class LocalSetup {
       });
   }
 }
-
-
-
-
