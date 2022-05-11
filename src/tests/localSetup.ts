@@ -12,8 +12,16 @@ import { DataTokens } from '@dataxfi/datax.js/dist/Datatokens';
 import { AbiItem } from 'web3-utils/types';
 import { Logger } from '@dataxfi/datax.js/dist/utils/Logger';
 
-function setupGanache(): Web3 {
-  return new Web3(ganache.provider() as any);
+async function setupGanache(): Promise<Web3> {
+  console.log('Starting ganache...');
+  const server = ganache.server({ seed: 'asd123' });
+  return await new Promise<Web3>((resolve) => {
+    server.listen(8545, () => {
+      console.log('Ganache running at http://localhost:8545');
+      // @ts-ignore
+      resolve(new Web3(server.provider));
+    });
+  });
 }
 
 function getAccounts(web3: Web3): Promise<string[]> {
@@ -70,8 +78,8 @@ async function setupPool(
 }
 
 export default class LocalSetup {
-  public web3 = setupGanache();
-  public server = ganache.server({ seed: 'asd123' });
+  public web3: Web3;
+  public server: any;
   public accounts: string[];
   public dtTemplateAddress: any;
   public dtTemplateContract: any;
@@ -95,125 +103,128 @@ export default class LocalSetup {
   private fee = '0.01';
   private oceanWeight = '3';
   constructor() {
-    getAccounts(this.web3)
-      .then((accounts) => {
-        this.accounts = accounts;
-      })
-      .then(async () => {
-        // 1: deploy all contracts
+    setupGanache().then((provider) => {
+      this.web3 = provider;
+      getAccounts(this.web3)
+        .then((accounts) => {
+          this.accounts = accounts;
+        })
+        .then(async () => {
+          // 1: deploy all contracts
 
-        // datatoken template
-        const [dtTemplateAddress, dtTemplateContract] = await deployContract(
-          this.web3,
-          datatokensTemplate.abi as AbiItem[],
-          this.accounts[0],
-          {
-            data: datatokensTemplate.bytecode,
-            arguments: [
-              'Template Contract',
-              'TEMPLATE',
-              this.accounts[0],
-              1400000000,
-              'https://something.nothing',
-              this.accounts[0],
-            ],
-          }
-        );
+          // datatoken template
+          const [dtTemplateAddress, dtTemplateContract] = await deployContract(
+            this.web3,
+            datatokensTemplate.abi as AbiItem[],
+            this.accounts[0],
+            {
+              data: datatokensTemplate.bytecode,
+              arguments: [
+                'Template Contract',
+                'TEMPLATE',
+                this.accounts[0],
+                1400000000,
+                'https://something.nothing',
+                this.accounts[0],
+              ],
+            }
+          );
 
-        this.dtTemplateAddress = dtTemplateAddress;
-        this.dtTemplateContract = dtTemplateContract;
+          this.dtTemplateAddress = dtTemplateAddress;
+          this.dtTemplateContract = dtTemplateContract;
 
-        // datatoken factory
-        const [factoryAddress, factoryContract] = await deployContract(
-          this.web3,
-          factory.abi as AbiItem[],
-          this.accounts[0],
-          {
-            data: factory.bytecode,
-            arguments: [dtTemplateAddress, this.accounts[0]],
-          }
-        );
+          // datatoken factory
+          const [factoryAddress, factoryContract] = await deployContract(
+            this.web3,
+            factory.abi as AbiItem[],
+            this.accounts[0],
+            {
+              data: factory.bytecode,
+              arguments: [dtTemplateAddress, this.accounts[0]],
+            }
+          );
 
-        this.factoryAddress = factoryAddress;
-        this.factoryContract = factoryContract;
+          this.factoryAddress = factoryAddress;
+          this.factoryContract = factoryContract;
 
-        // datatoken pool
-        const [pool1Address, pool1Contract] = await deployContract(
-          this.web3,
-          bPool.abi as AbiItem[],
-          this.accounts[1],
-          { data: bPool.bytecode }
-        );
+          // datatoken pool
+          const [pool1Address, pool1Contract] = await deployContract(
+            this.web3,
+            bPool.abi as AbiItem[],
+            this.accounts[1],
+            { data: bPool.bytecode }
+          );
 
-        this.pool1Address = pool1Address;
-        this.pool1Contract = pool1Contract;
+          this.pool1Address = pool1Address;
+          this.pool1Contract = pool1Contract;
 
-        // datatoken pool balancer factory
-        const [balancerFactoryAddress, balancerFactoryContract] = await deployContract(
-          this.web3,
-          bFactory.abi as AbiItem[],
-          this.accounts[0],
-          {
-            data: bFactory.bytecode,
-            arguments: [pool1Address],
-          }
-        );
+          // datatoken pool balancer factory
+          const [balancerFactoryAddress, balancerFactoryContract] = await deployContract(
+            this.web3,
+            bFactory.abi as AbiItem[],
+            this.accounts[0],
+            {
+              data: bFactory.bytecode,
+              arguments: [pool1Address],
+            }
+          );
 
-        this.balFactoryAddress = balancerFactoryAddress;
-        this.balFactoryContract = balancerFactoryContract;
+          this.balFactoryAddress = balancerFactoryAddress;
+          this.balFactoryContract = balancerFactoryContract;
 
-        // #2 mint tokens
-        // create ocean token
-        const Datatoken = new DataTokens(
-          this.factoryAddress,
-          factory.abi as AbiItem[],
-          datatokensTemplate.abi as AbiItem[],
-          this.web3 as Web3,
-          new Logger()
-        );
-        const oceanToken = await Datatoken.create(
-          'https://thisIsWhereMyMetadataIs.com',
-          this.accounts[0],
-          '1400000000',
-          'OCEAN Token',
-          'OCEAN'
-        ); // create a ocean token
+          // #2 mint tokens
+          // create ocean token
+          const Datatoken = new DataTokens(
+            this.factoryAddress,
+            factory.abi as AbiItem[],
+            datatokensTemplate.abi as AbiItem[],
+            this.web3 as Web3,
+            new Logger()
+          );
+          const oceanToken = await Datatoken.create(
+            'https://thisIsWhereMyMetadataIs.com',
+            this.accounts[0],
+            '1400000000',
+            'OCEAN Token',
+            'OCEAN'
+          ); // create a ocean token
 
-        // create another token
-        const coolToken = await Datatoken.create(
-          'https://thisIsWhereMyMetadataIs.com',
-          this.accounts[0],
-          '1400000000',
-          'Keith',
-          'COOL'
-        );
+          // create another token
+          const coolToken = await Datatoken.create(
+            'https://thisIsWhereMyMetadataIs.com',
+            this.accounts[0],
+            '1400000000',
+            'Keith',
+            'COOL'
+          );
 
-        const ocean = new Ocean(this.web3, 1337, this.balFactoryAddress, oceanToken);
-        this.ocean = ocean;
+          const ocean = new Ocean(this.web3, 1337, this.balFactoryAddress, oceanToken);
+          this.ocean = ocean;
 
-        // mint / approve tokens for account 2
-        await Datatoken.mint(oceanToken, this.accounts[0], '10000000', this.accounts[1]);
-        await Datatoken.mint(coolToken, this.accounts[0], '10000000', this.accounts[1]);
-        await Datatoken.mint(oceanToken, this.accounts[2], '10000000', this.accounts[2]);
+          // mint / approve tokens for account 2
+          await Datatoken.mint(oceanToken, this.accounts[0], '10000000', this.accounts[1]);
+          await Datatoken.mint(coolToken, this.accounts[0], '10000000', this.accounts[1]);
+          await Datatoken.mint(oceanToken, this.accounts[2], '10000000', this.accounts[2]);
 
-        await ocean.approve(oceanToken, this.pool1Address, '10000000', this.accounts[1]);
-        await ocean.approve(coolToken, this.pool1Address, '10000000', this.accounts[1]);
-        await ocean.approve(coolToken, this.pool1Address, '10000000', this.accounts[2]);
+          await ocean.approve(oceanToken, this.pool1Address, '10000000', this.accounts[1]);
+          await ocean.approve(coolToken, this.pool1Address, '10000000', this.accounts[1]);
+          await ocean.approve(coolToken, this.pool1Address, '10000000', this.accounts[2]);
 
-        this.pool1Contract.options.address = this.pool1Address;
+          this.pool1Contract.options.address = this.pool1Address;
 
-        // setup pool for testing
-        await setupPool(
-          this.pool1Address,
-          this.accounts[1],
-          oceanToken,
-          this.web3.utils.toWei(String(this.oceanAmount)),
-          this.web3.utils.toWei(String(this.oceanWeight)),
-          coolToken,
-          this.web3.utils.toWei(String(this.dtAmount)),
-          this.web3.utils.toWei(String(this.dtWeight)),
-          this.web3.utils.toWei(String(this.fee))
-        );
-      });
+          // setup pool for testing
+          await setupPool(
+            this.pool1Address,
+            this.accounts[1],
+            oceanToken,
+            this.web3.utils.toWei(String(this.oceanAmount)),
+            this.web3.utils.toWei(String(this.oceanWeight)),
+            coolToken,
+            this.web3.utils.toWei(String(this.dtAmount)),
+            this.web3.utils.toWei(String(this.dtWeight)),
+            this.web3.utils.toWei(String(this.fee))
+          );
+        });
+    });
   }
 }
