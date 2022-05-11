@@ -119,7 +119,7 @@ export async function setupDataX(
   acct2?: boolean
 ) {
   expect(page).toBeDefined();
-  mobile ? await page.setViewport({ width: 360, height: 740 }) : await page.setViewport({ width: 1039, height: 913 });
+  mobile ? await page.setViewport({ width: 360, height: 740 }) : await page.setViewport({ width: 1400, height: 913 });
   await metamask.switchNetwork(network);
   if (acct2 && process.env.REACT_APP_T_ACCT2_PK) {
     console.log('Importing Account Two');
@@ -857,7 +857,7 @@ export async function acceptCookies(page: puppeteer.Page) {
 
 export async function goToLocalHost(page: puppeteer.Page, screenSize: screenSize = 'desktop') {
   await page.goto('http://localhost:3000');
-  await page.setViewport({ width: 1039, height: 913 });
+  await page.setViewport({ width: 1400, height: 913 });
 }
 
 export async function setupUnstake(page: puppeteer.Page, unstakeAmt: string, initialShares?: BigNumber) {
@@ -1063,7 +1063,7 @@ export async function confirmInputClearedAfterUnstake(page: puppeteer.Page) {
 export async function reloadOrContinue(lastTestPassed: Boolean, page: puppeteer.Page, stake?: boolean) {
   if (lastTestPassed) return;
   page.reload();
-  await page.setViewport({ width: 1039, height: 913 });
+  await page.setViewport({ width: 1400, height: 913 });
   await quickConnectWallet(page);
   if (stake) navToStake(page);
 }

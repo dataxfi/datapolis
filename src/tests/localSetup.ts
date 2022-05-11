@@ -192,7 +192,7 @@ export default class LocalSetup {
   private async mintTokens() {
     // #2 mint tokens
     // create ocean token
-    this.datatoken  = new DataTokens(
+    this.datatoken = new DataTokens(
       this.DTFactory,
       factory.abi as AbiItem[],
       datatokensTemplate.abi as AbiItem[],
@@ -220,7 +220,7 @@ export default class LocalSetup {
     );
 
     // block 8
-    //create another token
+    // create another token
     const DAZORC = await this.datatoken.create(
       'https://thisIsWhereMyMetadataIs.com',
       this.accounts[0],
@@ -289,6 +289,7 @@ export default class LocalSetup {
   }
 }
 
+// TODO: generate token list with pool and token addresses created above and serve on another seperate server
+// TODO: store the token list address in the config and the dapp can get the token list as usual
 
-//TODO: generate token list with pool and token addresses created above and serve on another seperate server
-//TODO: store the token list address in the config and the dapp can get the token list as usual
+// TODO: install serve and serve latest build so test suite handles localhost, use port 5000 to ensure no collision if 3000 is running
