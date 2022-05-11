@@ -106,7 +106,6 @@ export interface IDisclaimerSigned {
 }
 
 export type supportedChains = '1' | '4' | '137' | '56' | '1285' | '246';
-
 export interface globalStates {
   ocean?: Ocean;
   handleConnect: Function;

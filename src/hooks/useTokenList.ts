@@ -217,3 +217,17 @@ const oceanTokens = {
     tags: ['oceantoken'],
   },
 };
+
+
+// get earliest block 
+// get transaction in the block 
+// get contract address for that transaction (dazorc pool)
+// get block prior (get earliest block number - 1) 
+// get contract address for that transaction (sagkri pool)
+
+// for block 6 (ocean token),7 (sagkri token),8 (dazorc token)
+// get transaction
+// get contract from transaction 
+// form the token list using datax.js 
+
+// set token list in dapp
