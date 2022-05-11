@@ -13,8 +13,7 @@ import { AbiItem } from 'web3-utils/types';
 import { Logger } from '@dataxfi/datax.js/dist/utils/Logger';
 
 async function setupGanache(): Promise<Web3> {
-  console.log('Starting ganache...');
-  const server = ganache.server({ seed: 'asd123' });
+  const server = ganache.server({ seed: 'asd123', account_keys_path: 'src/tests/privateKeys.json' });
   return await new Promise<Web3>((resolve) => {
     server.listen(8545, () => {
       console.log('Ganache running at http://localhost:8545');
