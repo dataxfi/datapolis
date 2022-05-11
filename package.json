@@ -41,7 +41,7 @@
     "clearTestCache": "react-scripts test --clearCache",
     "test-ui": "yarn run test-uiNav && yarn run test-uiCookies && yarn run test-uiDisclaimer && yarn run test-uiLP && yarn run test-uiStake && yarn run test-uiTrade && yarn run test-uiUnstake",
     "test-uiNav": "react-scripts test --preset @keithers98/dappeteer-stable src/tests/ui/uiNav.test.ts",
-    "test-local": "react-scripts test src/tests/localSetup.test.ts",
+    "test-local": "react-scripts test --preset @keithers98/dappeteer-stable src/tests/ganache/mergeTests.test.tsx",
     "test-uiStake": "react-scripts test --preset @keithers98/dappeteer-stable src/tests/ui/uiStake.test.ts",
     "test-uiTrade": "react-scripts test --preset @keithers98/dappeteer-stable --json src/tests/ui/uiTrade.test.ts",
     "test-uiUnstake": "react-scripts test --preset @keithers98/dappeteer-stable src/tests/ui/uiUnstake.test.ts",
