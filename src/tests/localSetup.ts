@@ -3,144 +3,217 @@ import Web3 from 'web3';
 import factory from '@oceanprotocol/contracts/artifacts/DTFactory.json';
 import datatokensTemplate from '@oceanprotocol/contracts/artifacts/DataTokenTemplate.json';
 import bFactory from '@oceanprotocol/contracts/artifacts/BFactory.json';
-import proxy from '@dataxfi/datax.js/dist/abi/DataxRouter.json';
+// import proxy from '@dataxfi/datax.js/dist/abi/DataxRouter.json';
 import bPool from '@oceanprotocol/contracts/artifacts/BPool.json';
 // import bToken from '@oceanprotocol/contracts/artifacts/BToken.json';
-import { TestContractHandler } from '@dataxfi/datax.js/test/TestContractHandler';
-import { BalancerContractHandler } from '@dataxfi/datax.js/test/BalancerContractHandler';
 import { Ocean, Config } from '@dataxfi/datax.js';
 // import { OceanPool } from '@dataxfi/datax.js/dist/balancer';
 import { DataTokens } from '@dataxfi/datax.js/dist/Datatokens';
 import { AbiItem } from 'web3-utils/types';
-import { Logger as LoggerInstance } from '@dataxfi/datax.js/dist/utils/Logger';
+import { Logger } from '@dataxfi/datax.js/dist/utils/Logger';
+
+function setupGanache(): Web3 {
+  return new Web3(ganache.provider() as any);
+}
+
+function getAccounts(web3: Web3): Promise<string[]> {
+  return web3.eth.getAccounts();
+}
+
+// function getBalance(address: string, web3: Web3): Promise<string> {
+//   return web3.eth.getBalance(address);
+// }
+
+async function deployContract(web3: Web3, abi: AbiItem[] | AbiItem, minter: string, options: any): Promise<any> {
+  const contract = new web3.eth.Contract(abi);
+  const deploy = contract.deploy(options);
+  const estGas = await deploy.estimateGas((err, estGas) => {
+    if (err) throw err;
+    return estGas;
+  });
+
+  console.log('ESTIMATED GAS:', estGas);
+  const address = await deploy
+    .send({
+      from: minter,
+      gas: estGas + 100000,
+      gasPrice: '3000000000',
+    })
+    .then((contract) => {
+      return contract.options.address;
+    });
+
+  return [address, contract];
+}
+
+async function setupPool(
+  contract: any,
+  acct: string,
+  baseAddress: string,
+  baseAmt: string,
+  baseWeight: string,
+  otherAddress: string,
+  otherAmt: string,
+  otherWeight: string,
+  fee: string
+) {
+  const estGas = await contract.methods
+    .setup(otherAddress, otherAmt, otherWeight, baseAddress, baseWeight, baseAmt, fee)
+    .estimateGas({ from: acct }, (err: any, estGas: any) => {
+      return err ? 10000000 : estGas + 1000;
+    });
+
+  const setupTx = await contract.methods
+    .setup(otherAddress, otherAmt, otherWeight, baseAddress, baseWeight, baseAmt, fee)
+    .send({ from: acct, gas: estGas });
+  return setupTx;
+}
 
 export default class LocalSetup {
-  public web3 = new Web3(ganache.provider() as any);
+  public web3 = setupGanache();
   public server = ganache.server({ seed: 'asd123' });
-
-  public DTContracts = new TestContractHandler(
-    factory.abi as AbiItem[],
-    datatokensTemplate.abi as AbiItem[],
-    datatokensTemplate.bytecode,
-    factory.bytecode,
-    this.web3
-  );
-
-  public tom: string;
-  public BalancerContracts: BalancerContractHandler;
-
-  public datatoken = new DataTokens(
-    this.DTContracts.factoryAddress,
-    factory.abi as AbiItem[],
-    datatokensTemplate.abi as AbiItem[],
-    this.web3,
-    new LoggerInstance()
-  );
-
+  public accounts: string[];
+  public dtTemplateAddress: any;
+  public dtTemplateContract: any;
+  public factoryAddress: any;
+  public factoryContract: any;
+  public pool1Address: any;
+  public pool1Contract: any;
+  public balFactoryAddress: any;
+  public balFactoryContract: any;
+  public datatoken = DataTokens;
   public dt1Address: string;
   public dt2Address: string;
   public oceanAddress: string;
   public config: Config | undefined;
   public ocean: Ocean | undefined;
-
   private blob = 'http://localhost:8030/api/v1/services/consume';
   private tokenAmount = 100000;
-  private dtAmount = '3000';
+  private dtAmount = '10';
   private dtWeight = '3';
   private oceanAmount = (parseFloat(this.dtAmount) * (10 - parseFloat(this.dtWeight))) / parseFloat(this.dtWeight);
   private fee = '0.01';
-  private oceanWeight = 10 - parseInt(this.dtWeight);
-
+  private oceanWeight = '3';
   constructor() {
-    this.tom = '';
-    this.DTContracts.getAccounts().then(() => {
-      this.tom = this.DTContracts.accounts[0];
-      this.DTContracts.deployContracts(this.tom);
-    });
+    getAccounts(this.web3)
+      .then((accounts) => {
+        this.accounts = accounts;
+      })
+      .then(async () => {
+        // 1: deploy all contracts
 
-    this.BalancerContracts = new BalancerContractHandler(
-      bFactory.abi as AbiItem[],
-      bFactory.bytecode,
-      bPool.abi as AbiItem[],
-      bPool.bytecode,
-      proxy.abi as AbiItem[],
-      proxy.bytecode,
-      this.web3
-    );
+        // datatoken template
+        const [dtTemplateAddress, dtTemplateContract] = await deployContract(
+          this.web3,
+          datatokensTemplate.abi as AbiItem[],
+          this.accounts[0],
+          {
+            data: datatokensTemplate.bytecode,
+            arguments: [
+              'Template Contract',
+              'TEMPLATE',
+              this.accounts[0],
+              1400000000,
+              'https://something.nothing',
+              this.accounts[0],
+            ],
+          }
+        );
 
-    this.BalancerContracts.getAccounts().then(() => {
-      console.log('BALANCER PRE-DEPLOYED');
-      this.BalancerContracts.SdeployContracts(this.tom).then(() => {
-        console.log('BALANCER DEPLOYED');
-      });
-    });
+        this.dtTemplateAddress = dtTemplateAddress;
+        this.dtTemplateContract = dtTemplateContract;
 
-    // create ocean / mint ocean
-    this.oceanAddress = '';
-    this.datatoken.create(this.blob, this.tom, '1000000000000000', 'Ocean Token', 'OCEAN').then((res) => {
-      this.oceanAddress = res;
-      this.ocean = new Ocean(this.web3, 1337, this.BalancerContracts.factoryAddress, res);
-      this.datatoken.mint(res, this.tom, '1000000000000000');
-    });
+        // datatoken factory
+        const [factoryAddress, factoryContract] = await deployContract(
+          this.web3,
+          factory.abi as AbiItem[],
+          this.accounts[0],
+          {
+            data: factory.bytecode,
+            arguments: [dtTemplateAddress, this.accounts[0]],
+          }
+        );
 
-    // create first dt / mint / make pool
-    this.dt1Address = '';
-    let estGas: number = 1000000;
-    this.datatoken.create(this.blob, this.tom, '10000000000', 'SAGACIOUS KRILL TOKEN', 'SAGKRI-94').then((res) => {
-      this.dt1Address = res;
-      this.datatoken.mint(res, this.tom, this.tokenAmount.toString());
-      this.ocean?.approve(res, this.BalancerContracts.pool1Address, this.dtAmount, this.tom);
-      this.BalancerContracts.pool1.options.address = this.BalancerContracts.pool1Address;
-      this.BalancerContracts.pool1.methods
-        .setup(
-          this.dt1Address,
-          this.web3.utils.toWei(String(this.dtAmount)),
-          this.web3.utils.toWei(String(this.dtWeight)),
-          this.oceanAddress,
+        this.factoryAddress = factoryAddress;
+        this.factoryContract = factoryContract;
+
+        // datatoken pool
+        const [pool1Address, pool1Contract] = await deployContract(
+          this.web3,
+          bPool.abi as AbiItem[],
+          this.accounts[1],
+          { data: bPool.bytecode }
+        );
+
+        this.pool1Address = pool1Address;
+        this.pool1Contract = pool1Contract;
+
+        // datatoken pool balancer factory
+        const [balancerFactoryAddress, balancerFactoryContract] = await deployContract(
+          this.web3,
+          bFactory.abi as AbiItem[],
+          this.accounts[0],
+          {
+            data: bFactory.bytecode,
+            arguments: [pool1Address],
+          }
+        );
+
+        this.balFactoryAddress = balancerFactoryAddress;
+        this.balFactoryContract = balancerFactoryContract;
+
+        // #2 mint tokens
+        // create ocean token
+        const Datatoken = new DataTokens(
+          this.factoryAddress,
+          factory.abi as AbiItem[],
+          datatokensTemplate.abi as AbiItem[],
+          this.web3 as Web3,
+          new Logger()
+        );
+        const oceanToken = await Datatoken.create(
+          'https://thisIsWhereMyMetadataIs.com',
+          this.accounts[0],
+          '1400000000',
+          'OCEAN Token',
+          'OCEAN'
+        ); // create a ocean token
+
+        // create another token
+        const coolToken = await Datatoken.create(
+          'https://thisIsWhereMyMetadataIs.com',
+          this.accounts[0],
+          '1400000000',
+          'Keith',
+          'COOL'
+        );
+
+        const ocean = new Ocean(this.web3, 1337, this.balFactoryAddress, oceanToken);
+        this.ocean = ocean;
+
+        // mint / approve tokens for account 2
+        await Datatoken.mint(oceanToken, this.accounts[0], '10000000', this.accounts[1]);
+        await Datatoken.mint(coolToken, this.accounts[0], '10000000', this.accounts[1]);
+        await Datatoken.mint(oceanToken, this.accounts[2], '10000000', this.accounts[2]);
+
+        await ocean.approve(oceanToken, this.pool1Address, '10000000', this.accounts[1]);
+        await ocean.approve(coolToken, this.pool1Address, '10000000', this.accounts[1]);
+        await ocean.approve(coolToken, this.pool1Address, '10000000', this.accounts[2]);
+
+        this.pool1Contract.options.address = this.pool1Address;
+
+        // setup pool for testing
+        await setupPool(
+          this.pool1Address,
+          this.accounts[1],
+          oceanToken,
           this.web3.utils.toWei(String(this.oceanAmount)),
           this.web3.utils.toWei(String(this.oceanWeight)),
-          this.web3.utils.toWei(this.fee)
-        )
-        .estimateGas({ from: this.tom }, (err: any, estGas: any) => (err ? 1000000 : estGas))
-        .then((res: any) => {
-          estGas = res;
-          this.BalancerContracts.pool1.methods
-            .setup(
-              this.dt1Address,
-              this.web3.utils.toWei(String(this.dtAmount)),
-              this.web3.utils.toWei(String(this.dtWeight)),
-              this.oceanAddress,
-              this.web3.utils.toWei(String(this.oceanAmount)),
-              this.web3.utils.toWei(String(this.oceanWeight)),
-              this.web3.utils.toWei(this.fee)
-            )
-            .send({
-              from: this.tom,
-              gas: res + 1,
-            });
-        });
-    });
-
-    // create second dt / mint / make pool
-    this.dt2Address = '';
-    this.datatoken.create(this.blob, this.tom, '10000000000', 'DAZZLING ORCA TOKEN', 'DAZORC-13').then((res) => {
-      this.dt2Address = res;
-      this.datatoken.mint(res, this.tom, this.tokenAmount.toString());
-    });
-
-    this.BalancerContracts.pool2.methods
-      .setup(
-        this.dt2Address,
-        this.web3.utils.toWei(String(this.dtAmount)),
-        this.web3.utils.toWei(String(this.dtWeight)),
-        this.oceanAddress,
-        this.web3.utils.toWei(String(this.oceanAmount)),
-        this.web3.utils.toWei(String(this.oceanWeight)),
-        this.web3.utils.toWei(this.fee)
-      )
-      .send({
-        from: this.tom,
-        gas: estGas + 1,
+          coolToken,
+          this.web3.utils.toWei(String(this.dtAmount)),
+          this.web3.utils.toWei(String(this.dtWeight)),
+          this.web3.utils.toWei(String(this.fee))
+        );
       });
   }
 }
