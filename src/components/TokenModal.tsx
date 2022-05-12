@@ -94,6 +94,7 @@ export default function TokenModal() {
   function closeModal() {
     setShowTokenModal(false);
     setBlurBG(false);
+    setShowDtks(true);
   }
 
   const tokenSelected = async (token: ITokenInfo) => {

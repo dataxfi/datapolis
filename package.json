@@ -47,7 +47,7 @@
     "test-uiUnstake": "react-scripts test --preset @keithers98/dappeteer-stable src/tests/ui/uiUnstake.test.ts",
     "test-uiLP": "react-scripts test --preset @keithers98/dappeteer-stable src/tests/ui/uiLP.test.ts",
     "test-uiDtDesc": "react-scripts test --preset @keithers98/dappeteer-stable src/tests/ui/uiDtDesc.test.ts",
-    "test-uiTokenList": "react-scripts test --preset @keithers98/dappeteer-stable src/tests/ui/uiDtDesc.test.ts",
+    "test-uiTokenList": "react-scripts test --preset @keithers98/dappeteer-stable src/tests/ui/uiTokenList.test.ts",
     "test-uiCookies": "react-scripts test --preset @keithers98/dappeteer-stable src/tests/ui/uiCookies.test.ts",
     "test-uiDisclaimer": "react-scripts test --preset @keithers98/dappeteer-stable src/tests/ui/uiDisclaimer.test.ts",
     "test-rinkeby-txs": "yarn run test-rinkeby-trade && yarn run test-rinkeby-stake && yarn run test-rinkeby-unstake",
