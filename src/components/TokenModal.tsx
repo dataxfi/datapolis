@@ -102,8 +102,7 @@ export default function TokenModal() {
     if (!ocean || !accountId) return;
     const balance = new BigNumber(await ocean?.getBalance(token.address, accountId));
     let setToken;
-    console.log(selectTokenPos);
-    switch (selectTokenPos) {
+    switch (selectTokenPos.current) {
       case 1:
         setToken = setToken1;
         break;
@@ -142,7 +141,7 @@ export default function TokenModal() {
                 className="px-4 py-2 h-full w-full rounded-lg bg-primary-900 text-base outline-none focus:placeholder-gray-200 placeholder-gray-400"
               />
             </div>
-            {(location === '/stake' && selectTokenPos === 2) || location === '/stake/list' ? (
+            {(location === '/stake' && selectTokenPos.current === 2) || location === '/stake/list' ? (
               <></>
             ) : (
               <div className="w-full px-2 mt-2">

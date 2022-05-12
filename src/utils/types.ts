@@ -101,8 +101,8 @@ export interface ITxSelection extends ITxDetails {
 }
 
 export interface IDisclaimerSigned {
-  client: boolean | null | 'denied';
-  wallet: boolean | null | 'denied';
+  client: boolean | null;
+  wallet: boolean | null;
 }
 
 export type supportedChains = '1' | '4' | '137' | '56' | '1285' | '246';
@@ -116,7 +116,7 @@ export interface globalStates {
   web3?: Web3;
   config?: Config;
   unsupportedNet: boolean;
-  handleSignature: Function;
+  handleSignature: (account: string, web3: Web3, bypass:boolean) => Promise<string>;
   cookiesAllowed: boolean | null;
   setCookiesAllowed: React.Dispatch<React.SetStateAction<boolean | null>>;
   showDisclaimer: boolean;
@@ -174,8 +174,7 @@ export interface globalStates {
   setBlurBG: React.Dispatch<React.SetStateAction<boolean>>;
   showTokenModal: boolean;
   setShowTokenModal: React.Dispatch<React.SetStateAction<boolean>>;
-  selectTokenPos: 1 | 2 | null;
-  setSelectTokenPos: React.Dispatch<React.SetStateAction<1 | 2 | null>>;
+  selectTokenPos: React.MutableRefObject<1 | 2 | null>;
   showConfirmTxDetails: boolean;
   setShowConfirmTxDetails: React.Dispatch<React.SetStateAction<boolean>>;
   preTxDetails?: ITxDetails;

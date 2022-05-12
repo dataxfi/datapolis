@@ -26,11 +26,11 @@ rules:
     no-use-before-define: off,
     react/react-in-jsx-scope: off,
     multiline-ternary: [2, 'never'],
-    no-async-promise-executor: off
+    no-async-promise-executor: off,
+    no-console: [1, { 'allow': ['warn', 'error'] }],
   }
-globals: 
+globals:
   React: 'readonly'
   JSX: 'readonly'
   NodeJS: 'readonly'
-ignorePatterns: ["src/assets/*"]
-  
+ignorePatterns: ['src/assets/*']

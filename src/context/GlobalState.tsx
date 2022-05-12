@@ -94,7 +94,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   // selected token states
   const [token1, setToken1] = useState<IToken>(INITIAL_TOKEN_STATE);
   const [token2, setToken2] = useState<IToken>(INITIAL_TOKEN_STATE);
-  const [selectTokenPos, setSelectTokenPos] = useState<1 | 2 | null>(null);
+  const selectTokenPos = useRef<1 | 2 | null>(null);
   const [importPool, setImportPool] = useState<string>();
 
   // bg states
@@ -109,27 +109,19 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       const key = localStorage.key(i);
       const value = localStorage.getItem(key || '');
       if (value === 'Pending') localStorage.removeItem(key || '');
-      // localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER");
+      localStorage.removeItem('WEB3_CONNECT_CACHED_PROVIDER');
     }
 
     const bgPref = localStorage.getItem('bgPref');
     if (bgPref) setBgOff(JSON.parse(bgPref));
   }, []);
 
-  // recall handle connect if the provider is set but there is no account id
-  // essential for disclaimer flow
-  useEffect(() => {
-    if (provider && !accountId && disclaimerSigned.wallet !== 'denied' && disclaimerSigned.client !== 'denied') {
-      handleConnect();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [disclaimerSigned.client, disclaimerSigned.wallet]);
-
   // intitialize web3modal to use to connect to provider
   useEffect(() => {
     async function init() {
       try {
         const web3Modal = new Web3Modal({
+          cacheProvider: true,
           network: 'mainnet', // optional
           theme: {
             background: 'rgb(0, 0, 0, 1)',
@@ -166,28 +158,42 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
    * @returns
    * signature hash from wallet
    */
-  async function handleSignature() {
-    if (!web3) return;
-    const accounts = await web3.eth.getAccounts();
-    const account = accounts[0].toLowerCase();
-
-    try {
-      localStorage.setItem(account, 'pending');
-      const signature = await web3.eth.personal.sign(disclaimer, account || '', '', () => {
-        setShowDisclaimer(false);
-        setBlurBG(false);
-      });
-      console.log(signature);
-
-      localStorage.setItem(account, signature);
-      setDisclaimerSigned({ ...disclaimerSigned, wallet: true });
-      return signature;
-    } catch (error) {
-      console.error(error);
-      localStorage.removeItem(account);
-      deniedSignatureGA();
-    }
-    return false;
+  async function handleSignature(account: string, web3: Web3, bypass?: boolean): Promise<string> {
+    return new Promise((resolve, reject) => {
+      account = account.toLowerCase();
+      const localSignature = localStorage.getItem(account || '');
+      const clientApproved = disclaimerSigned.client;
+      const walletApproved = disclaimerSigned.wallet;
+      if (localSignature) return resolve(localSignature);
+      if ((clientApproved || bypass) && !walletApproved) {
+        localStorage.setItem(account, 'pending');
+        web3.eth.personal
+          .sign(disclaimer, account || '', '')
+          .then((signature) => {
+            localStorage.setItem(account, signature);
+            setDisclaimerSigned({ ...disclaimerSigned, wallet: true });
+            // if bypass is true then this is being called from Disclaimer modal
+            if (bypass) handleConnect();
+            resolve(signature);
+          })
+          .catch((error) => {
+            console.error(error);
+            setSnackbarItem({ type: 'error', message: 'User Denied Disclaimer' });
+            localStorage.removeItem(account);
+            setDisclaimerSigned({ client: false, wallet: false });
+            deniedSignatureGA();
+            reject(error);
+          })
+          .finally(() => {
+            setShowDisclaimer(false);
+            setBlurBG(false);
+          });
+        // } catch (error) {
+      } else if (!clientApproved && !walletApproved) {
+        setShowDisclaimer(true);
+        setBlurBG(true);
+      }
+    });
   }
 
   /**
@@ -200,15 +206,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
    * @returns
    * current localSignature value
    */
-
-  async function handleDisclaimer(account: string, localSignature: string | null): Promise<string | null> {
-    account = account.toLowerCase();
-    if (!localSignature || localSignature === 'pending') {
-      setShowDisclaimer(true);
-      setBlurBG(true);
-    }
-    return localSignature;
-  }
 
   /**
    * Handles connection to web3 and user wallet.
@@ -224,26 +221,23 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
       const accounts = await web3.eth.getAccounts();
       const account = accounts[0] ? accounts[0].toLowerCase() : null;
-      const localSignature = localStorage.getItem(account || '');
+      if (!account) return;
+      await handleSignature(account, web3);
 
-      if (localSignature && localSignature !== 'pending') {
-        const _chainId = String(await web3.eth.getChainId());
-        setChainId(_chainId as supportedChains);
+      const _chainId = String(await web3.eth.getChainId());
+      setChainId(_chainId as supportedChains);
 
-        // This is required to do wallet-specific functions
-        const ocean = new Ocean(web3, String(_chainId));
-        setOcean(ocean);
-        // console.log("chainID - ", chainId);
-        // console.log("Pre chainID - ", _chainId);
-        const config = new Config(web3, String(_chainId));
-        setConfig(config);
-        console.log(config);
-        const watcher = new Watcher(web3, String(_chainId));
-        setWatcher(watcher);
-        isSupportedChain(config, String(_chainId), accounts[0] ? accounts[0] : '');
-      } else {
-        await handleDisclaimer(accounts[0], localSignature);
-      }
+      // This is required to do wallet-specific functions
+      const ocean = new Ocean(web3, String(_chainId));
+      setOcean(ocean);
+
+      const config = new Config(web3, String(_chainId));
+      setConfig(config);
+
+      const watcher = new Watcher(web3, String(_chainId));
+      setWatcher(watcher);
+
+      isSupportedChain(config, String(_chainId), accounts[0] ? accounts[0] : '');
       setListeners(provider, web3);
     } catch (error) {
       console.error(error);
@@ -269,9 +263,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setUnsupportedNet(true);
       } else {
         setUnsupportedNet(false);
-        // console.log("Account Id - ", accountId);
-        // console.log("Pre Account Id - ", account);
-        // account is null when chain changes to prevent switching to an unsigned account
         setAccountId(account);
         setButtonText(account || CONNECT_TEXT);
         connectedWalletGA();
@@ -417,7 +408,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         showTokenModal,
         setShowTokenModal,
         selectTokenPos,
-        setSelectTokenPos,
         showConfirmTxDetails,
         setShowConfirmTxDetails,
         preTxDetails,

@@ -31,11 +31,6 @@ export default function useWatchLocation() {
 
   useEffect(() => {
     setLocation(currentLocation.pathname);
-    // setToken1(INITIAL_TOKEN_STATE);
-    // setToken2(INITIAL_TOKEN_STATE);
-    // setShowDescModal(false);
-    // setSelectTokenPos(null)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentLocation]);
 
   useEffect(() => {

@@ -327,18 +327,18 @@ export async function selectToken(page: puppeteer.Page, symbol: string, pos: num
     if (text !== symbol) {
       await page.waitForTimeout(1000);
       await page.click(`#selectedToken${pos}`);
-      await page.waitForFunction(`document.querySelector('#selectedToken${pos}').innerText === "${symbol}"`);
       // click token
       await page.waitForSelector(`#${symbol}-btn`);
       await page.waitForTimeout(500);
       await page.click(`#${symbol}-btn`);
+      await page.waitForFunction(`document.querySelector('#selectedToken${pos}').innerText === "${symbol}"`);
     }
   }
 }
 
 export async function awaitTokenSelect(page: puppeteer.Page, symbol: string, pos: number) {
   await page.waitForSelector(`#selectedToken${pos}`);
-  await page.waitForFunction(`document.querySelector("#selectedToken${pos}").innerText === "${symbol}"`);
+  await page.waitForFunction(`document.querySelector('#selectedToken${pos}').innerText === "${symbol}"`);
 }
 
 export async function swapOrSelect(page: puppeteer.Page, t1Symbol: string, t2Symbol: string) {

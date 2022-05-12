@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext } from 'react';
 import OutsideClickHandler from 'react-outside-click-handler';
 import { GlobalContext } from '../context/GlobalState';
 
@@ -18,37 +18,32 @@ export const disclaimer = `Dear user,
     4. Agency disclaimer 
     No entity, including the DataX team, has control over the list of assets (ERC20 tokens) that are listed and traded on DataX. The DataX team is not responsible for failure of any trades or transactions while using DataX products.`;
 function DisclaimerModal() {
-  const { setDisclaimerSigned, disclaimerSigned, setShowDisclaimer, handleSignature, setBlurBG, showDisclaimer } =
-    useContext(GlobalContext);
-  const [showReminder, setShowReminder] = useState(false);
-
-  useEffect(() => {
-    setShowReminder(false);
-  }, []);
+  const {
+    setDisclaimerSigned,
+    disclaimerSigned,
+    setShowDisclaimer,
+    handleSignature,
+    setBlurBG,
+    showDisclaimer,
+    web3,
+    setSnackbarItem,
+  } = useContext(GlobalContext);
 
   async function approvedDisclaimer() {
-    if (!setShowDisclaimer || !setDisclaimerSigned) return;
-    if ((!disclaimerSigned?.client || disclaimerSigned.client === 'denied') && handleSignature) {
-      setDisclaimerSigned({ ...disclaimerSigned, client: true });
-      await handleSignature().then((res: string) => {
-        if (!res) {
-          setShowReminder(false);
-          setDisclaimerSigned({ client: 'denied', wallet: 'denied' });
-          setShowDisclaimer(false);
-          setBlurBG(false);
-        }
+    setDisclaimerSigned({ ...disclaimerSigned, client: true });
+    const accounts = await web3?.eth.getAccounts();
+    console.log(accounts, !!web3);
+    if (accounts && web3) {
+      await handleSignature(accounts[0].toLowerCase(), web3, true).catch(() => {
+        deniedDisclaimer();
       });
-    } else {
-      setShowReminder(true);
     }
   }
-
   function deniedDisclaimer() {
-    if (!setShowDisclaimer || !setDisclaimerSigned) return;
     setShowDisclaimer(false);
-    setShowReminder(false);
     setBlurBG(false);
-    setDisclaimerSigned({ client: 'denied', wallet: false });
+    setDisclaimerSigned({ client: false, wallet: false });
+    setSnackbarItem({ type: 'error', message: 'User Denied Disclaimer' });
   }
 
   return showDisclaimer ? (
@@ -87,11 +82,6 @@ function DisclaimerModal() {
               Agree
             </button>
           </div>
-          {showReminder ? (
-            <div className="transition-all ease-in-out duration-500 self-center animate-pulse mt-2">
-              <p>Sign in your wallet and you will be ready to go!</p>
-            </div>
-          ) : null}
         </div>
       </div>
     </OutsideClickHandler>

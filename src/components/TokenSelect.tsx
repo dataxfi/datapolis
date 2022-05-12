@@ -32,8 +32,8 @@ export default function TokenSelect({
     tokensCleared,
     location,
     config,
+    selectTokenPos,
     setBlurBG,
-    setSelectTokenPos,
     setShowTokenModal,
   } = useContext(GlobalContext);
   const [enabled, setEndabled] = useState(false);
@@ -69,7 +69,7 @@ export default function TokenSelect({
     if (accountId) {
       setShowTokenModal(true);
       setBlurBG(true);
-      setSelectTokenPos(pos);
+      selectTokenPos.current = (pos);
     } else {
       if (handleConnect) handleConnect();
     }
