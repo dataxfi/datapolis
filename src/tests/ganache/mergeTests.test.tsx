@@ -5,7 +5,7 @@
 import puppeteer from 'puppeteer';
 import * as dappeteer from '@keithers98/dappeteer-stable';
 import 'regenerator-runtime/runtime';
-import LocalSetup from '../localSetup';
+import LocalSetup from '../ganacheSetup';
 
 describe('Dapp functions without errors', () => {
   jest.setTimeout(60 * 5 * 1000);

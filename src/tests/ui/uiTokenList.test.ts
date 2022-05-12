@@ -60,14 +60,14 @@ describe('Token modal should present datatokens and other ERC20 tokens as expect
     OCEAN?.click();
   }
 
-  async function verifyToken2(token:string) {
+  async function verifyToken2(token: string) {
     await page.waitForTimeout(500);
     const selectedToken2 = await page.waitForSelector('#selectedToken2');
     const innerText = await (await selectedToken2?.getProperty('innerText'))?.jsonValue();
     expect(innerText).toBe(token);
   }
 
-  async function verifyToken1(token:string) {
+  async function verifyToken1(token: string) {
     const selectedToken1 = await page.waitForSelector('#selectedToken1');
     const innerText = await (await selectedToken1?.getProperty('innerText'))?.jsonValue();
     expect(innerText).toBe(token);
@@ -89,25 +89,31 @@ describe('Token modal should present datatokens and other ERC20 tokens as expect
     await page.waitForTimeout(500);
   }
 
-
-
   it('Should be able to select datatokens on trade', async () => {
-    await page.waitForTimeout(1000)
+    await page.waitForTimeout(1000);
     await selectToken1();
     await selectDT();
   });
 
   it('Should be able to select ERC20 tokens on trade', async () => {
+    await page.waitForTimeout(1000);
     await selectToken2();
     await selectOCEAN();
   });
 
-  it('Should not be able to select erc20 tokens on stake token 2', async () => {
+  it('Should be able to select ERC20 tokens on stake token 1', async () => {
     // click outside the token modal
     await (await page.waitForSelector('nav'))?.click();
     await page.waitForTimeout(5000);
     // nav to stake
     await navToStake(page);
+    await page.waitForTimeout(5000);
+    await selectToken1();
+    await selectOCEAN();
+    await verifyToken1('OCEAN');
+  });
+
+  it('Should not be able to select erc20 tokens on stake token 2', async () => {
     await page.waitForTimeout(5000);
     await selectToken2();
     await cannotSelectERC20();
@@ -115,16 +121,7 @@ describe('Token modal should present datatokens and other ERC20 tokens as expect
 
   it('Should be able to select datatokens on stake (token 2)', async () => {
     await selectDT();
-    await verifyToken2('BALWHA-5')
-
-  });
-
-  it('Should be able to select ERC20 tokens on stake token 1', async () => {
-        await page.waitForTimeout(1500);
-
-    await selectToken1();
-    await selectOCEAN();
-    await verifyToken1('OCEAN')
+    await verifyToken2('BALWHA-5');
   });
 
   it('Should be able to select datatokens on LP', async () => {
@@ -139,7 +136,7 @@ describe('Token modal should present datatokens and other ERC20 tokens as expect
     await page.waitForSelector('#importStakeBtn');
     await page.click('#importStakeBtn');
     await page.waitForSelector('#tokenModal');
-    await cannotSelectERC20()
+    await cannotSelectERC20();
   });
 
   // it('Should fetch a new list of tokens when network changes', async () => {

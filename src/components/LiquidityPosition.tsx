@@ -5,6 +5,7 @@ import UserMessage from './UserMessage';
 import { MoonLoader } from 'react-spinners';
 import { IUserMessage, ILiquidityPosition } from '../utils/types';
 import useLiquidityPos from '../hooks/useLiquidityPos';
+import useClearTokens from '../hooks/useClearTokens';
 
 export default function LiquidityPosition() {
   const { accountId, allStakedPools, setShowTokenModal, setBlurBG, importPool } = useContext(GlobalContext);
@@ -14,7 +15,7 @@ export default function LiquidityPosition() {
   const [messageId, setMessageId] = useState<string | null>('importMessage');
   const [updatePool, setUpdatePool] = useState<string>();
   useLiquidityPos(updatePool, setUpdatePool);
-
+  useClearTokens();
   useEffect(() => {
     if (!accountId) {
       setUserMessage('Connect your wallet to see staked oceans.');

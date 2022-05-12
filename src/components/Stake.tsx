@@ -13,6 +13,7 @@ import PositionBox from './PositionBox';
 import DatasetDescription from './DTDescriptionModal';
 import ViewDescBtn from './ViewDescButton';
 import { transactionTypeGA } from '../context/Analytics';
+import useClearTokens from '../hooks/useClearTokens';
 
 const INITIAL_BUTTON_STATE = {
   text: 'Connect wallet',
@@ -53,6 +54,7 @@ export default function Stake() {
   // hooks
   useLiquidityPos(importPool, setImportPool);
   useAutoLoadToken();
+  useClearTokens();
 
   useEffect(() => {
     if (!tokensCleared.current) return;

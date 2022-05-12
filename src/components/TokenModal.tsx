@@ -36,7 +36,6 @@ export default function TokenModal() {
   const [showDtks, setShowDtks] = useState<boolean>(true);
   const [commons, setCommons] = useState<TInfo[]>([]);
   useTokenList({ setLoading, setError });
-
   const initialChain = useRef(chainId);
   useEffect(() => {
     if (chainId !== initialChain.current) closeModal();
@@ -66,7 +65,9 @@ export default function TokenModal() {
 
   const tokenRenderer = (idx: number, key: string | number) => {
     if (datatokens && showDtks) return <TokenModalItem onClick={tokenSelected} key={key} token={datatokens[idx]} />;
-    if (ERC20Tokens && !showDtks) { return <TokenModalItem onClick={tokenSelected} key={key} token={ERC20Tokens[idx] as ITokenInfo} />; }
+    if (ERC20Tokens && !showDtks) {
+      return <TokenModalItem onClick={tokenSelected} key={key} token={ERC20Tokens[idx] as ITokenInfo} />;
+    }
     return <></>;
   };
 
@@ -101,6 +102,7 @@ export default function TokenModal() {
     if (!ocean || !accountId) return;
     const balance = new BigNumber(await ocean?.getBalance(token.address, accountId));
     let setToken;
+    console.log(selectTokenPos);
     switch (selectTokenPos) {
       case 1:
         setToken = setToken1;

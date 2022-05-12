@@ -15,6 +15,7 @@ import TokenSelect from './TokenSelect';
 import { IMaxUnstake } from '@dataxfi/datax.js';
 import MaxToolTip from './MaxToolTip';
 import { transactionTypeGA } from '../context/Analytics';
+import useClearTokens from '../hooks/useClearTokens';
 
 export default function Unstake() {
   const {
@@ -50,6 +51,7 @@ export default function Unstake() {
     shares: new BigNumber(0),
     userPerc: new BigNumber(0),
   });
+  useClearTokens();
 
   async function getMaxUnstake(signal: AbortSignal): Promise<IMaxUnstake> {
     return new Promise<IMaxUnstake>(async (resolve, reject) => {

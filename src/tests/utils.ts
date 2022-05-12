@@ -1102,7 +1102,7 @@ export async function useLocalStorage(
 export async function importStakeInfo(page: puppeteer.Page, pool: string) {
   await page.waitForSelector('#importStakeBtn');
   await page.click('#importStakeBtn');
-
+  await page.waitForTimeout(1500);
   await page.waitForSelector(`#${pool}-btn`);
   await page.click(`#${pool}-btn`);
 }
