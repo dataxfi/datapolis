@@ -32,7 +32,6 @@ function DisclaimerModal() {
   async function approvedDisclaimer() {
     setDisclaimerSigned({ ...disclaimerSigned, client: true });
     const accounts = await web3?.eth.getAccounts();
-    console.log(accounts, !!web3);
     if (accounts && web3) {
       await handleSignature(accounts[0].toLowerCase(), web3, true).catch(() => {
         deniedDisclaimer();

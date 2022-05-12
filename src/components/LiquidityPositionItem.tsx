@@ -132,7 +132,6 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                   Number(shares) === 0 ? 'modalButton cursor-not-allowed pointer-events-none rounded p-2px w-1/2 text-center text-gray-500' : 'modalButton rounded p-2px w-1/2 text-center'
                 } `}
                 onClick={() => {
-                  console.log('Exact user shares', shares);
                   if (Number(shares) > 0) setSingleLiquidityPos(singleLiqPosItem);
                 }}
               >

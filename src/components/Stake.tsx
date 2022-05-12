@@ -177,21 +177,6 @@ export default function Stake() {
     }
   }
 
-  // async function setOceanBalance() {
-  //   if (accountId && ocean) {
-  //     const OCEAN_ADDRESS = ocean.config.default.oceanTokenAddress.toLowerCase();
-  //     setLoading(true);
-  //     try {
-  //       const balance = new BigNumber(await ocean.getBalance(OCEAN_ADDRESS, accountId));
-  //       setToken1({ ...token1, balance });
-  //     } catch (error) {
-  //       console.error('Error when trying to fetch Balance');
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   }
-  // }
-
   async function getMaxAndAllowance() {
     getMaxStakeAmt()
       .then((res: BigNumber | void) => {
@@ -224,7 +209,6 @@ export default function Stake() {
 
     try {
       setLoading(true);
-      console.log(accountId, token2?.info?.pool, token1.value?.toString());
       const txReceipt = await ocean.stakeOcean(accountId, token2.info.pool || '', token1.value?.toString());
 
       setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
@@ -255,11 +239,9 @@ export default function Stake() {
         await ocean.getMaxStakeAmount(token2.info.pool || '', ocean.config.default.oceanTokenAddress)
       );
     }
-    console.log('Max Stake Amount - ', maxStake.toFixed(18));
     if (maxStake.isNaN()) {
       setToken1({ ...token1, value: new BigNumber(0) });
     } else {
-      console.log(2);
       if (token1.balance?.lt(maxStake)) {
         setToken1({ ...token1, value: token1.balance });
       } else {

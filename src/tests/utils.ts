@@ -20,7 +20,7 @@ export async function closeBrowser(browser: puppeteer.Browser) {
   try {
     await browser.close();
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 }
 export async function setupPuppBrowser() {
@@ -32,7 +32,7 @@ export async function setupPuppBrowser() {
     await page.goto('http://localhost:3000/');
     return { page, browser };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     throw error;
   }
 }
@@ -50,7 +50,7 @@ export async function forceSignDisclaimer(metamask: dappeteer.Dappeteer, page: p
     try {
       if (await page.waitForSelector('#d-view-txs-btn', { timeout: 500 })) return;
     } catch (error) {
-      console.log('Disclaimer needs signed.');
+      console.error('Disclaimer needs signed.');
     }
     await page.waitForSelector('#sign-disclaimer-btn', { timeout: 1500 });
     await page.click('#sign-disclaimer-btn');
@@ -66,7 +66,7 @@ export async function setupDappBrowser(acct2: boolean = false) {
   let page: puppeteer.Page;
   let browser: puppeteer.Browser;
   let metamask: dappeteer.Dappeteer;
-  console.log('wsEndpoint Variable:', process.env.PUPPETEER_WS_ENDPOINT);
+  // console.log('wsEndpoint Variable:', process.env.PUPPETEER_WS_ENDPOINT);
 
   try {
     browser = await dappeteer.launch(puppeteer, {
@@ -75,9 +75,9 @@ export async function setupDappBrowser(acct2: boolean = false) {
       timeout: 5000,
     });
 
-    console.log('wsEndpoint Variable:', process.env.PUPPETEER_WS_ENDPOINT);
+    console.info('wsEndpoint Variable:', process.env.PUPPETEER_WS_ENDPOINT);
 
-    console.log(
+    console.info(
       `Setting up metamask with creds: \n Password: ${process.env.REACT_APP_T_ACCT_PASS} \n Seed: ${process.env.REACT_APP_T_ACCT_SEED}`
     );
 
@@ -87,7 +87,7 @@ export async function setupDappBrowser(acct2: boolean = false) {
     });
 
     if (acct2 && process.env.REACT_APP_T_ACCT2_PK && process.env.REACT_APP_T_ACCT_PASS) {
-      console.log('Importing Account Two');
+      console.info('Importing Account Two');
       await metamask.importPK(process.env.REACT_APP_T_ACCT2_PK);
       await metamask.switchAccount(1);
     }
@@ -98,7 +98,7 @@ export async function setupDappBrowser(acct2: boolean = false) {
     await page.goto('http://localhost:3000/');
     return { page, browser, metamask };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return null;
   }
 }
@@ -321,7 +321,6 @@ export async function selectToken(page: puppeteer.Page, symbol: string, pos: num
   } catch (error) {
     const selectedToken = await page.waitForSelector(`#selectedToken${pos}`, { timeout: 1200 });
     const text = await (await selectedToken?.getProperty('innerText'))?.jsonValue();
-    console.log('Selected token:', text);
 
     // @ts-ignore
     if (text !== symbol) {
@@ -347,7 +346,6 @@ export async function swapOrSelect(page: puppeteer.Page, t1Symbol: string, t2Sym
   const currentT1 = await getSelectedTokens(page, 1);
   const currentT2 = await getSelectedTokens(page, 2);
 
-  console.log(t1Symbol, t2Symbol, currentT1, currentT2);
   if (currentT1 && currentT2 && t1Symbol === currentT2 && t2Symbol === currentT1) {
     await swapTokens(page);
     return;
@@ -387,7 +385,7 @@ export async function approveTransactions(metamask: dappeteer.Dappeteer, page: p
       await metamask.page.waitForSelector('.btn-primary');
       await metamask.confirmTransaction();
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 }
@@ -552,8 +550,6 @@ export async function incrementUntilValid(
   const t1Limit = t1Symbol === 'OCEAN' ? 0.01 : 0.001;
   const t2Limit = t2Symbol === 'OCEAN' ? 0.01 : 0.001;
   if (t1val.lt(t1Limit) || t2val.lt(t2Limit)) {
-    console.log('incrementing');
-
     amountBN = amountBN.plus(0.5);
     await clearInput(page, `#token${inputPos}-input`);
     await page.click(`#token${inputPos}-input`);
@@ -615,7 +611,6 @@ async function assertTo3(page: puppeteer.Page, truth: string | number, id: strin
   id = `#${id}`;
   await page.waitForSelector(id);
   const dappBal = await getBalanceInDapp(page, pos);
-  console.log(dappBal, truth);
   expect(Number(toFixed3(dappBal))).toBeCloseTo(Number(toFixed3(truth)), 3);
 }
 
@@ -743,7 +738,6 @@ export async function executeTransaction(
   if (btnHandle) {
     const innerTextHandle = await btnHandle.getProperty('innerText');
     const innerText: string = await innerTextHandle.jsonValue();
-    console.log(innerText);
 
     // @ts-ignore
     await btnHandle.click();
@@ -765,7 +759,6 @@ export async function executeTransaction(
 
 export async function confirmSwapModal(page: puppeteer.Page, metamask: dappeteer.Dappeteer) {
   await page.bringToFront();
-  console.log('in swap modal');
 
   await page.waitForSelector('#confirmSwapModalBtn');
   await page.click('#confirmSwapModalBtn');
@@ -872,7 +865,6 @@ export async function setupUnstake(page: puppeteer.Page, unstakeAmt: string, ini
   await page.waitForFunction('document.querySelector("#loading-lp") === null', { timeout: 6000 });
 
   const sharesString = await getSharesFromUnstake(page);
-  console.log(sharesString);
 
   let shares;
   if (sharesString) {
@@ -950,7 +942,6 @@ export async function getSharesFromUnstake(page: puppeteer.Page) {
  */
 
 export async function awaitUpdateShares(page: puppeteer.Page, initialShares: BigNumber) {
-  console.log(initialShares);
   await page.waitForFunction(
     `!document.querySelector("#sharesDisplay").innerText.includes("${initialShares.dp(5).toString()}")`
   );
@@ -1074,8 +1065,6 @@ export async function useLocalStorage(
   method: LocalStorageMethods,
   data?: { key?: string; value?: string; index?: number }
 ) {
-  console.log(data);
-
   switch (method) {
     case 'get':
       if (data) {
@@ -1132,7 +1121,6 @@ export async function hoarder(
     await metamask.page.click('.selected-account__clickable');
     await metamask.page.waitForTimeout(1000);
     const address = await metamask.page.evaluate(() => navigator.clipboard.readText());
-    console.log('Current address:', address);
     await oceanFaucet.bringToFront();
     await oceanFaucet.type('.selected-account__clickable', address);
     await oceanFaucet.click('#createBtn');

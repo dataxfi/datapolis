@@ -177,8 +177,6 @@ export default function TokenSelect({
                       <button
                         id="maxBtn"
                         onClick={() => {
-                          console.log(enabled);
-
                           if (enabled) onMax();
                         }}
                         className={'btn-dark btn-sm rounded-full text-xs'}

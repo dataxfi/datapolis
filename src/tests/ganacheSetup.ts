@@ -250,7 +250,6 @@ export default class LocalSetup {
   }
 
   private async setupTestPool() {
-    console.log(typeof this.sagkriPoolContract, this.sagkriPoolContract.options.address, this.sagkriPool);
     this.sagkriPoolContract.options.address = this.sagkriPool;
 
     // setup pool for testing

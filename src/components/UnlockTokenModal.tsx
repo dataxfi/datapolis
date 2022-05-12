@@ -45,7 +45,6 @@ export default function UnlockTokenModal() {
       id = setInterval(
         () =>
           getAllowance(address, accountId, pool, ocean).then((res) => {
-            console.log('Response from allowance call', res);
             const allowance = new BigNumber(res);
             if (allowance.gte(token1.value)) {
               setExecuteUnlock(false);

@@ -215,8 +215,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       const provider = await web3Modal?.connect();
       setProvider(provider);
       const web3 = new Web3(provider);
-      // console.log("Web3");
-      // console.log(web3);
       setWeb3(web3);
 
       const accounts = await web3.eth.getAccounts();
@@ -287,8 +285,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       const account = accounts[0] ? accounts[0].toLowerCase() : null;
       const localSignature = localStorage.getItem(account || '');
       if (localSignature && localSignature !== 'pending') {
-        // console.log("Accounts changed to - ", accounts[0]);
-        // console.log("Connected Accounts - ", JSON.stringify(accounts));
         setAccountId(accounts[0]);
         setButtonText(accounts.length && accounts[0] !== '' ? accounts[0] : CONNECT_TEXT);
         setDisclaimerSigned({ client: true, wallet: true });
@@ -315,7 +311,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       setShowDescModal(false);
       setPendingTxs([]);
       const parsedId = String(parseInt(chainId));
-      console.log(chainId);
       // console.log("Chain changed to ", parsedId);
       setChainId(parsedId as supportedChains);
       const config = new Config(web3, parsedId);
@@ -327,13 +322,13 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
     // Subscribe to provider connection
     provider.on('connect', (info: { chainId: number }) => {
-      console.log('Connect event fired');
-      console.log(info);
+      console.info('Connect event fired');
+      console.info(info);
     });
 
     // Subscribe to provider disconnection
     provider.on('disconnect', (error: { code: number; message: string }) => {
-      console.log(error);
+      console.error(error);
     });
   }
 

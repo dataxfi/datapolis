@@ -36,7 +36,6 @@ export default function Swap() {
     token2,
     setToken2,
     setLastTx,
-    lastTx,
     tokensCleared,
     setSnackbarItem,
     showDescModal,
@@ -251,7 +250,6 @@ export default function Swap() {
       updateOtherTokenValue(true, new BigNumber(100));
     } else {
       const value: BigNumber = token1.balance.multipliedBy(perc).div(100).dp(5);
-      console.log('Value from perc', value.toString());
       setToken1({ ...token1, percentage: perc, value });
       updateOtherTokenValue(true, value);
     }
@@ -268,8 +266,6 @@ export default function Swap() {
       } else {
         setToken1({ ...token1, loading: true });
         const exchange = await ocean.calculateExchange(from, inputAmount, token1, token2);
-        console.log(inputAmount.toString(), exchange.toString());
-
         setPostExchange(inputAmount.div(exchange));
         setToken1({ ...token1, value: exchange, loading: false });
         setExactToken(2);
@@ -285,7 +281,7 @@ export default function Swap() {
     try {
       if (ocean.isOCEAN(token1.info.address)) {
         if (exactToken === 1) {
-          console.log('exact ocean to dt');
+          // console.log('exact ocean to dt');
           // console.log(accountId, token2.info.pool.toString(), token2.value.toString(), token1.value.toString());
           txReceipt = await ocean.swapExactOceanToDt(
             accountId,
@@ -295,7 +291,7 @@ export default function Swap() {
             decSlippage.toString()
           );
         } else {
-          console.log('ocean to exact dt');
+          // console.log('ocean to exact dt');
           txReceipt = await ocean.swapExactOceanToDt(
             accountId,
             token2.info.pool || '',
@@ -306,7 +302,7 @@ export default function Swap() {
         }
       } else if (ocean.isOCEAN(token2.info.address)) {
         if (exactToken === 1) {
-          console.log('exact dt to ocean');
+          // console.log('exact dt to ocean');
           // console.log(accountId, token1.info.pool, token2.value.toString(), token1.value.toString());
           txReceipt = await ocean.swapExactDtToOcean(
             accountId,
@@ -317,7 +313,7 @@ export default function Swap() {
           );
         } else {
           // Error: Throws not enough datatokens
-          console.log('dt to exact ocean');
+          // console.log('dt to exact ocean');
           // console.log(accountId, token1.info.pool, token2.value.toString(), token1.value.toString());
           txReceipt = await ocean.swapExactDtToOcean(
             accountId,
@@ -329,7 +325,7 @@ export default function Swap() {
         }
       } else {
         if (exactToken === 1) {
-          console.log('exact dt to dt');
+          // console.log('exact dt to dt');
           // console.log(accountId,token1.info.address,token2.info.address,t2Val,t1Val,token1.info.pool,token2.info.pool,config.default.routerAddress,decSlippage);
           txReceipt = await ocean.swapExactDtToDt(
             accountId,
@@ -343,7 +339,7 @@ export default function Swap() {
             decSlippage.toString()
           );
         } else {
-          console.log('dt to exact dt');
+          // console.log('dt to exact dt');
           // console.log(accountId,token1.info.address,token2.info.address,t2Val, t1Val,token1.info.pool,token2.info.pool,config.default.routerAddress,decSlippage)
           txReceipt = await ocean.swapExactDtToDt(
             accountId,
@@ -364,7 +360,6 @@ export default function Swap() {
         setPostExchange(new BigNumber(0));
       }
     } catch (error: any) {
-      console.log('DataX Caught an Error for Transaction:', lastTx?.txDateId);
       setLastTx({ ...preTxDetails, status: 'Failure' });
       setSnackbarItem({ type: 'error', message: error.error.message, error });
     } finally {
@@ -479,8 +474,6 @@ export default function Swap() {
 
     maxExchange.maxPercent.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await ocean.getMaxExchange(token1, token2));
 
-    console.log(exchangeLimit);
-
     const { maxPercent, maxBuy, maxSell, postExchange } = exchangeLimit;
 
     if (bnVal.gte(maxPercent) && token1?.balance.gte(0.00001)) {
@@ -509,12 +502,10 @@ export default function Swap() {
       const { maxBuy, maxSell } = exchangeLimit;
 
       if (bnVal.gt(maxBuy) && token1.balance.gte(0.00001)) {
-        console.log('Value > MaxBuy');
         setToken2({ ...token2, value: maxBuy });
         setToken1({ ...token1, value: maxSell });
         setPostExchange(postExchange);
       } else {
-        console.log('Value < MaxBuy');
         setToken2({ ...token2, value: bnVal });
         updateOtherTokenValue(false, bnVal);
       }

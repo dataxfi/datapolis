@@ -42,7 +42,6 @@ export default function useTokenList({ setLoading, setError }: { setLoading?: Fu
         .then((res) => {
           if (res) {
             setDtTokenResponse(res);
-            console.log('Datatoken List Response', res);
             setDatatokens(res.tokens);
           }
         })

@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { GlobalContext, INITIAL_TOKEN_STATE } from '../context/GlobalState';
 import { getToken } from './useTokenList';
 export default function useAutoLoadToken() {
-  const { web3, chainId, setToken2, token1, ocean, accountId } = useContext(GlobalContext);
+  const { web3, chainId, setToken2, ocean, accountId } = useContext(GlobalContext);
 
   const url = useLocation();
   // loads token information when url has pool address
@@ -13,14 +13,11 @@ export default function useAutoLoadToken() {
 
     if (pool && web3 && chainId && ocean && accountId) {
       getToken(web3, chainId, pool, 'pool').then((info) => {
-        console.log(info);
         if (info) {
           const token = { ...INITIAL_TOKEN_STATE, info };
           setToken2(token);
         }
       });
-
-      console.log(token1.info?.symbol !== 'OCEAN');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [url, web3, chainId, ocean, accountId]);

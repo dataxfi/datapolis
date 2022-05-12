@@ -27,7 +27,7 @@ rules:
     react/react-in-jsx-scope: off,
     multiline-ternary: [2, 'never'],
     no-async-promise-executor: off,
-    no-console: [1, { 'allow': ['warn', 'error'] }],
+    no-console: [1, { 'allow': ['warn', 'error', 'info'] }],
   }
 globals:
   React: 'readonly'

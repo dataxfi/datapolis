@@ -73,7 +73,6 @@ export default function useWatchLocation() {
       if (location === '/stake/remove') {
         setToken1({ ...token1, value: new BigNumber(0), percentage: new BigNumber(0) });
       } else if (location === '/trade' || location === '/stake') {
-        console.log('capooe');
         setToken1(INITIAL_TOKEN_STATE);
         setToken2(INITIAL_TOKEN_STATE);
         setT2DIDResponse(undefined);

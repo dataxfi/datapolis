@@ -94,14 +94,11 @@ export default function Unstake() {
   }
 
   useEffect(() => {
-    console.log(token1, token2);
-
     if (ocean && singleLiquidityPos && accountId && token1.info && token2.info) {
       getMaxUnstake(getNewSignal())
         .then((res: IMaxUnstake | void) => {
           if (res) {
             setMaxUnstake(res);
-            console.log('Max unstake amount set at:', { ocean: res.OCEAN.toString(), shares: res.shares.toString() });
           }
         })
         .catch(console.error);
@@ -115,7 +112,6 @@ export default function Unstake() {
 
   useEffect(() => {
     setInputDisabled(false);
-    console.log(token1.info, token2.info);
 
     if (!ocean || !singleLiquidityPos) {
       setBtnDisabled(true);
@@ -198,15 +194,12 @@ export default function Unstake() {
     let max: IMaxUnstake | void;
 
     maxUnstake?.OCEAN.gt(0) ? (max = maxUnstake) : (max = await getMaxUnstake(getNewSignal()));
-    console.log(val, max.OCEAN.toString(), max.shares.toString());
 
     try {
       if (max && max.OCEAN.gt(0) && max.shares.gt(0) && ocean && singleLiquidityPos) {
         let percInput: BigNumber = new BigNumber(val);
         setToken1({ ...token1, percentage: percInput });
         if (percInput.lte(0)) {
-          console.log('a');
-
           setShares(new BigNumber(0));
           setToken1({ ...token1, value: new BigNumber(0), percentage: new BigNumber(0) });
           return;
@@ -214,8 +207,6 @@ export default function Unstake() {
 
         if (percInput.gte(100)) {
           val = '100';
-          console.log('b');
-
           percInput = new BigNumber(100);
           setToken1({ ...token1, percentage: new BigNumber(100) });
         }
@@ -236,7 +227,6 @@ export default function Unstake() {
           )
         );
 
-        console.log('User shares from percentage', sharesNeeded);
         if (max?.OCEAN?.gt(oceanFromPerc)) {
           setShares(sharesNeeded);
           setToken1({ ...token1, value: oceanFromPerc, percentage: new BigNumber(val) });
@@ -256,23 +246,17 @@ export default function Unstake() {
     if (!ocean || !singleLiquidityPos) return;
     setCalculating(true);
     const max: IMaxUnstake | void = maxUnstake?.OCEAN.gt(0) ? maxUnstake : await getMaxUnstake(getNewSignal());
-    console.log('Max unstake amount set at:', { ocean: max.OCEAN.toString(), shares: max.shares.toString() });
 
     try {
       const userTotalStakedOcean: BigNumber = new BigNumber(
         await ocean.getOceanRemovedforPoolShares(singleLiquidityPos.address, singleLiquidityPos.shares.toString())
       );
 
-      console.log('Total user shares in ocean', userTotalStakedOcean);
       // find whether user staked oceans is greater or lesser than max unstake
       if (userTotalStakedOcean.gt(max?.OCEAN)) {
-        console.log('setting to max max');
-
         setShares(max.shares);
         setToken1({ ...token1, value: max.OCEAN, percentage: max.OCEAN.div(userTotalStakedOcean).times(100) });
       } else {
-        console.log('setting to userMAx ');
-
         const sharesNeeded = new BigNumber(
           await ocean.getPoolSharesRequiredToUnstake(
             singleLiquidityPos.address,
@@ -299,12 +283,6 @@ export default function Unstake() {
     }
 
     setShowConfirmModal(true);
-    console.log(
-      `Unstaking from pool ${singleLiquidityPos.address}, ${
-        singleLiquidityPos.shares
-      } shares for ${token1.value?.toFixed(5)} OCEAN`
-    );
-
     try {
       const txReceipt = await ocean.unstakeOcean(
         accountId,
