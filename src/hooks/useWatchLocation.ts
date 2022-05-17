@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { GlobalContext, INITIAL_TOKEN_STATE } from '../context/GlobalState';
 import BigNumber from 'bignumber.js';
 import useLiquidityPos from './useLiquidityPos';
@@ -26,6 +26,7 @@ export default function useWatchLocation() {
   } = useContext(GlobalContext);
   const currentLocation = useLocation();
   const lastLocation = useRef(currentLocation);
+  const [, setSearchParams] = useSearchParams();
 
   useLiquidityPos(importPool, setImportPool);
 
@@ -34,8 +35,25 @@ export default function useWatchLocation() {
   }, [currentLocation]);
 
   useEffect(() => {
+    switch (currentLocation.pathname) {
+      case '/stake/remove':
+      case '/stake':
+        if (token2.info?.pool || token1.info?.address) {
+          setSearchParams({ pool: token2.info?.pool || '', in: token1.info?.address || '' }, { replace: true });
+        }
+        break;
+      default:
+        if (token1.info || token2.info) {
+          setSearchParams({ in: token1.info?.address || '', out: token2.info?.address || '' }, { replace: true });
+        }
+        break;
+    }
+  }, [token1.info?.address, token2.info?.address]);
+
+  useEffect(() => {
     if (currentLocation.pathname !== lastLocation.current.pathname) {
       tokensCleared.current = false;
+      setSearchParams({});
     }
 
     if (currentLocation.pathname === '/trade') {

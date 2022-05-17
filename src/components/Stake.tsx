@@ -58,7 +58,6 @@ export default function Stake() {
 
   useEffect(() => {
     if (!tokensCleared.current) return;
-
     if (token1.info && token2.info) {
       getMaxAndAllowance();
     }

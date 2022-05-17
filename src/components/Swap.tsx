@@ -15,6 +15,7 @@ import ViewDescBtn from './ViewDescButton';
 import { transactionTypeGA } from '../context/Analytics';
 import { Collapse } from 'react-collapse';
 import useClearTokens from '../hooks/useClearTokens';
+import useAutoLoadToken from '../hooks/useAutoLoadToken';
 
 const INITIAL_MAX_EXCHANGE: IMaxExchange = {
   maxBuy: new BigNumber(0),
@@ -67,6 +68,7 @@ export default function Swap() {
   const [maxExchange, setMaxExchange] = useState<IMaxExchange>(INITIAL_MAX_EXCHANGE);
 
   useClearTokens();
+  useAutoLoadToken();
 
   useEffect(() => {
     getButtonProperties();

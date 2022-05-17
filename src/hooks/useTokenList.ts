@@ -110,7 +110,7 @@ export async function getToken(
   web3: Web3,
   chainId: supportedChains,
   address: string,
-  addressType: 'pool' | 'reserve'
+  addressType: 'pool' | 'exchange'
 ): Promise<ITokenInfo | undefined> {
   const tokenList = await getDtTokenList(web3, chainId);
   if (addressType === 'pool') {

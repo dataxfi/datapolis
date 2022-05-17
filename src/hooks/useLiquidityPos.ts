@@ -93,7 +93,7 @@ export default function useLiquidityPos(
     try {
       poolAddress = poolAddress.toLowerCase();
       const shares = new BigNumber(await ocean.getMyPoolSharesForPool(poolAddress, accountId));
-      const token1Info = await getToken(web3, chainId, ocean.config.default.oceanTokenAddress, 'reserve');
+      const token1Info = await getToken(web3, chainId, ocean.config.default.oceanTokenAddress, 'exchange');
       const token2Info = await getToken(web3, chainId, poolAddress, 'pool');
       const totalPoolShares = new BigNumber(await ocean.getTotalPoolShares(poolAddress));
       const yourPoolSharePerc = shares.div(totalPoolShares).multipliedBy(100);
