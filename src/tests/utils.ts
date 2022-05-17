@@ -1024,6 +1024,12 @@ export async function setUpStake(page: puppeteer.Page, stakeToken: string, stake
   await inputStakeAmt(page, stakeAmt, 1);
 }
 
+export async function assertToken(page: puppeteer.Page, symbol:string, pos: 1|2) {
+  await page.waitForSelector(`#selectedToken${pos}`);
+  const text = await page.evaluate(`document.querySelector("#selectedToken${pos}").innerText`);
+  expect(text).toBe(symbol);
+}
+
 export async function confirmAndCloseTxDoneModal(page: puppeteer.Page, timeout: number = 120000) {
   await page.bringToFront();
   await page.waitForSelector('#transactionDoneModal', { timeout });
