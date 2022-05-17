@@ -494,7 +494,9 @@ export async function setUpSwap(
     await page.waitForFunction('Number(document.querySelector("#token1-perc-input").value) > 0', { timeout: 3000 });
     perc = await getPercInDapp(page);
     expect(perc.toNumber()).toBeGreaterThan(0);
-    percApprox.gt(100) ? expect(perc.toString()).toEqual('100') : expect(Number(perc)).toBeCloseTo(percApprox.toNumber());
+    percApprox.gt(100)
+      ? expect(perc.toString()).toEqual('100')
+      : expect(Number(perc)).toBeCloseTo(percApprox.toNumber());
   }
 }
 
@@ -963,6 +965,7 @@ export async function switchAccounts(
   acct: number,
   signDisclaimer: boolean
 ) {
+  console.info('switching accounts: ' + acct);
   await metamask.switchAccount(acct);
   await page.bringToFront();
   if (signDisclaimer) {

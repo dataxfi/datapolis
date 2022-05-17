@@ -22,6 +22,7 @@ import {
   getSelectedTokens,
   navToTradeXFromLanding,
   goToLocalHost,
+  quickConnectWallet,
 } from '../utils';
 import BigNumber from 'bignumber.js';
 describe('Trade Platform User Interface Works as Expected', () => {
@@ -83,9 +84,6 @@ describe('Trade Platform User Interface Works as Expected', () => {
 
   it('Should clear token modal and show disclaimer when switching to an unsigned account', async () => {
     await switchAccounts(metamask, page, 2, true);
-    await page.waitForTimeout(2500);
-    expect(await page.waitForSelector('#selectToken1')).toBeDefined();
-    expect(await page.waitForSelector('#selectToken2')).toBeDefined();
   });
 
   it('Balance should update when switching accounts', async () => {
