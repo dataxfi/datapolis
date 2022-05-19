@@ -9,7 +9,7 @@ jobs:
           yarn install
           yarn build
       - uses: amondnet/vercel-action@v20.0.1 #deploy
-      - env:
+        env:
           DISABLE_ESLINT_PLUGIN: ${{secrets.IGNORE_REACT_ESLINT}}
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
