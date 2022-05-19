@@ -431,12 +431,3 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
     </GlobalContext.Provider>
   );
 };
-
-
-
-
-
-
-
-
-
