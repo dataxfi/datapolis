@@ -165,7 +165,7 @@ export const commonTokens = {
   ],
 };
 
-const oceanTokens = {
+export const oceanTokens = {
   1: {
     chainId: 1,
     address: '0x967da4048cD07aB37855c090aAF366e4ce1b9F48',
@@ -221,16 +221,3 @@ const oceanTokens = {
     tags: ['oceantoken'],
   },
 };
-
-// get earliest block
-// get transaction in the block
-// get contract address for that transaction (dazorc pool)
-// get block prior (get earliest block number - 1)
-// get contract address for that transaction (sagkri pool)
-
-// for block 6 (ocean token),7 (sagkri token),8 (dazorc token)
-// get transaction
-// get contract from transaction
-// form the token list using datax.js
-
-// set token list in dapp
