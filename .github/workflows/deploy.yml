@@ -5,6 +5,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - env:
+          DISABLE_ESLINT_PLUGIN: ${{secrets.IGNORE_REACT_ESLINT}}
       - run: | 
           yarn install
           yarn build
