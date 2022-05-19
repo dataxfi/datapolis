@@ -5,12 +5,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - env:
-          DISABLE_ESLINT_PLUGIN: ${{secrets.IGNORE_REACT_ESLINT}}
       - run: | 
           yarn install
           yarn build
       - uses: amondnet/vercel-action@v20.0.1 #deploy
+      - env:
+          DISABLE_ESLINT_PLUGIN: ${{secrets.IGNORE_REACT_ESLINT}}
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
           vercel-org-id: ${{ secrets.ORG_ID}}  #Required
