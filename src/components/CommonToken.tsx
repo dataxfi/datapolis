@@ -1,6 +1,7 @@
 import { ITokenInfo } from '@dataxfi/datax.js';
 import { useState } from 'react';
 import { BsSlashCircle } from 'react-icons/bs';
+import useTokenImgSrc from '../hooks/useTokenImgSrc';
 export default function CommonToken({
   token,
   index,
@@ -11,6 +12,8 @@ export default function CommonToken({
   onClick: Function;
 }) {
   const [imgFailed, setImgFailed] = useState(false);
+  const [imgSrc, setImgSrc] = useState(token.logoURI);
+  useTokenImgSrc(setImgSrc, token);
   return (
     <li key={`common${index}`} className="rounded mx-1 my-1 py-2px bg-city-blue bg-opacity-25 hover:bg-opacity-40">
       <button
@@ -23,7 +26,7 @@ export default function CommonToken({
           <BsSlashCircle className="w-5 h-5 text-gray-600 mr-1" />
         ) : (
           <img
-            src={token.logoURI}
+            src={imgSrc}
             onError={() => {
               setImgFailed(true);
             }}

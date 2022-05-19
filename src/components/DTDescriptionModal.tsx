@@ -28,7 +28,7 @@ export default function DatasetDescription() {
 
   useEffect(() => {
     try {
-      if (token2.info?.address) {
+      if (token2.info?.pool) {
         getDID(setT2DIDResponse, token2);
       } else {
         setT2DIDResponse(undefined);

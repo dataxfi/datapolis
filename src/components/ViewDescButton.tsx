@@ -6,8 +6,8 @@ export default function ViewDescBtn() {
   return (
     <button
       id="viewDescButton"
-      disabled={!token2.info}
-      className={` text-gray-300 ${token2.info ? 'hover:text-white' : ''}  disabled:cursor-not-allowed`}
+      disabled={!token2.info?.pool}
+      className={` text-gray-300 ${token2.info?.pool ? 'hover:text-white' : ''}  disabled:cursor-not-allowed`}
       onClick={() => setShowDescModal(!showDescModal)}
     >
       {'<'} Dataset Description

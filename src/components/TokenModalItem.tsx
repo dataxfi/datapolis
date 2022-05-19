@@ -2,9 +2,12 @@ import { ITokenInfo } from '@dataxfi/datax.js';
 import { useContext, useState } from 'react';
 import { BsSlashCircle } from 'react-icons/bs';
 import { GlobalContext } from '../context/GlobalState';
+import useTokenImgSrc from '../hooks/useTokenImgSrc';
 export default function TokenModalItem({ token, onClick }: { token: ITokenInfo; onClick: Function }) {
   const [imagFailed, setImageFailed] = useState(false);
   const { token1, token2 } = useContext(GlobalContext);
+  const [imgSrc, setImgSrc] = useState(token.logoURI);
+  useTokenImgSrc(setImgSrc, token);
 
   return token.symbol === token1.info?.symbol || token.symbol === token2.info?.symbol ? (
     <></>
@@ -19,7 +22,7 @@ export default function TokenModalItem({ token, onClick }: { token: ITokenInfo; 
             <BsSlashCircle className="w-8 h-8 text-gray-600" />
           ) : (
             <img
-              src={token.logoURI}
+              src={imgSrc}
               onError={() => {
                 setImageFailed(true);
               }}

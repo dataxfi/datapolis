@@ -53,13 +53,17 @@ export default function TokenModal() {
   }, [dtTokenResponse, datatokens]);
 
   useEffect(() => {
-    if (chainId && ERC20Tokens) {
-      const tokens = ERC20Tokens.filter((info) => {
-        const match = commonTokens[chainId].find((token) => info.address === token);
-        if (match) return info;
-        else return null;
-      });
-      setCommons(tokens);
+    try {
+      if (chainId && ERC20Tokens) {
+        const tokens = ERC20Tokens.filter((info) => {
+          const match = commonTokens[chainId].find((token) => info.address === token);
+          if (match) return info;
+          else return null;
+        });
+        setCommons(tokens);
+      }
+    } catch (error) {
+      // console.error(error)
     }
   }, [chainId, ERC20Tokens]);
 
