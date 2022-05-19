@@ -4,6 +4,7 @@ import { GlobalContext } from '../context/GlobalState';
 import { oceanTokens } from './useTokenList';
 
 export default function useTokenImgSrc(
+  state: string | undefined,
   setState: React.Dispatch<SetStateAction<string | undefined>>,
   token: ITokenInfo | null
 ) {
@@ -18,11 +19,15 @@ export default function useTokenImgSrc(
       }
     }
 
+    if (!state) {
+      setState(token?.logoURI);
+    }
+
     // or set solarbeam uris
     if (chainId === '1285') {
       setState(
         `https://raw.githubusercontent.com/solarbeamio/solarbeam-tokenlist/main/assets/moonriver/${token?.address}/logo.png`
       );
     }
-  }, [token]);
+  }, [token?.address]);
 }

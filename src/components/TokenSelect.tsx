@@ -41,7 +41,7 @@ export default function TokenSelect({
   const [title, setTitle] = useState<TokenSelectTitles>();
   const [imgSrc, setImgSrc] = useState(token.info?.logoURI);
 
-  useTokenImgSrc(setImgSrc, token.info);
+  useTokenImgSrc(imgSrc, setImgSrc, token.info);
 
   useEffect(() => {
     if (accountId && max.gt(0) && token.balance.gt(0)) {

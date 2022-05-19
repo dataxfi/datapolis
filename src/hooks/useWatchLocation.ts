@@ -51,6 +51,8 @@ export default function useWatchLocation() {
   }, [token1.info?.address, token2.info?.address]);
 
   useEffect(() => {
+    console.log(currentLocation.pathname, lastLocation.current.pathname);
+
     if (currentLocation.pathname !== lastLocation.current.pathname) {
       tokensCleared.current = false;
       setSearchParams({});
@@ -66,7 +68,7 @@ export default function useWatchLocation() {
       lastLocation.current = currentLocation;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentLocation.pathname, token1.info, token2.info, token1, token2]);
+  }, [currentLocation.pathname, token1.info, token2.info]);
 
   const initialAccount = useRef(accountId);
   const navigate = useNavigate();

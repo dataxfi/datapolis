@@ -13,7 +13,7 @@ export default function CommonToken({
 }) {
   const [imgFailed, setImgFailed] = useState(false);
   const [imgSrc, setImgSrc] = useState(token.logoURI);
-  useTokenImgSrc(setImgSrc, token);
+  useTokenImgSrc(imgSrc, setImgSrc, token);
   return (
     <li key={`common${index}`} className="rounded mx-1 my-1 py-2px bg-city-blue bg-opacity-25 hover:bg-opacity-40">
       <button

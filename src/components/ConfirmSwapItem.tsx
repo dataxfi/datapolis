@@ -6,7 +6,7 @@ const ConfirmSwapItem = ({ pos }: { pos: 1 | 2 }) => {
   const { token1, token2 } = useContext(GlobalContext);
   const [token] = useState(pos === 1 ? token1 : token2);
   const [imgSrc, setImgSrc] = useState(token.info?.logoURI);
-  useTokenImgSrc(setImgSrc, token.info);
+  useTokenImgSrc(imgSrc, setImgSrc, token.info);
 
   return (
     <div className="flex justify-between items-center">
