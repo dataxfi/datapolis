@@ -251,7 +251,6 @@ export default function Stake() {
 
   async function updateNum(val: string | BigNumber, max?: BigNumber) {
     // initially set state to value to persist the max if the user continuously tries to enter over the max (or balance)
-
     setToken1({ ...token1, value: new BigNumber(val) });
     if (!val) {
       setToken1({ ...token1, value: new BigNumber(0) });
@@ -272,6 +271,7 @@ export default function Stake() {
         setToken1({ ...token1, value: new BigNumber(val) });
       }
     }
+    if (token2.info?.pool && token1.info?.address && val) { console.log(await ocean?.getSharesReceivedForTokenIn(token2.info?.pool, token1.info?.address, val.toString())); }
   }
 
   return (
