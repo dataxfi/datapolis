@@ -43,10 +43,15 @@ export default function Stake() {
     setExecuteStake,
     setExecuteUnlock,
     setBlurBG,
+    txApproved,
+    preTxDetails,
     showUnlockTokenModal,
+    setShowConfirmTxDetails
   } = useContext(GlobalContext);
 
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
+  const [postExchange, setPostExchange] = useState<BigNumber>(new BigNumber(0));
+  const [sharesReceived, setSharesReceived] = useState<BigNumber>(new BigNumber(0));
   const [loading, setLoading] = useState(false);
   const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
   const [importPool, setImportPool] = useState<string>();
@@ -150,7 +155,7 @@ export default function Stake() {
         setShowUnlockTokenModal(true);
         setBlurBG(true);
         setExecuteStake(false);
-      } else if (executeStake) {
+      } else if (!txApproved && executeStake) {
         const preTxDetails: ITxDetails = {
           accountId,
           status: 'Pending',
@@ -158,15 +163,18 @@ export default function Stake() {
           token2,
           txDateId: Date.now().toString(),
           txType: 'stake',
+          postExchange: postExchange,
+          shares: sharesReceived,
         };
         setPreTxDetails(preTxDetails);
-        setConfirmingTx(true);
+        setShowConfirmTxDetails(true)
         setBlurBG(true);
+      } else if (executeStake && preTxDetails) {
         setLastTx(preTxDetails);
         stake(preTxDetails);
       }
     }
-  }, [executeStake]);
+  }, [executeStake, txApproved]);
 
   async function getMaxStakeAmt() {
     if (token2.info && ocean) {
@@ -197,6 +205,11 @@ export default function Stake() {
               });
             }
           );
+          if (token2.info?.pool && token1.info?.address) {
+            ocean?.getSharesReceivedForTokenIn(token2.info?.pool, token1.info?.address, '1').then((res) => {
+              setPostExchange(new BigNumber(res).dp(5));
+            });
+          }
         }
       })
       .catch(console.error);
@@ -271,7 +284,15 @@ export default function Stake() {
         setToken1({ ...token1, value: new BigNumber(val) });
       }
     }
-    if (token2.info?.pool && token1.info?.address && val) { console.log(await ocean?.getSharesReceivedForTokenIn(token2.info?.pool, token1.info?.address, val.toString())); }
+
+    if (token2.info?.pool && token1.info?.address && val) {
+      const sharesReceived = await ocean?.getSharesReceivedForTokenIn(
+        token2.info?.pool,
+        token1.info?.address,
+        val.toString()
+      );
+      if (sharesReceived) setSharesReceived(new BigNumber(sharesReceived));
+    }
   }
 
   return (

@@ -1,7 +1,7 @@
 import { BsArrowDown, BsShuffle, BsX } from 'react-icons/bs';
 import { useContext } from 'react';
-import ConfirmSwapItem from './ConfirmSwapItem';
-import ConfirmSwapListItem from './ConfirmSwapListItem';
+import ConfirmTxItem from './ConfirmTxItem';
+import ConfirmTxListItem from './ConfirmTxListItem';
 import { GlobalContext } from '../context/GlobalState';
 import { PulseLoader } from 'react-spinners';
 import CenterModal from './CenterModal';
@@ -15,28 +15,29 @@ export default function ConfirmSwapModal() {
     preTxDetails,
     setLastTx,
     setConfirmingTx,
-    setSwapConfirmed,
+    setTxApproved,
     setBlurBG,
     setExecuteSwap,
     swapFee,
     minReceived,
     confirmingTx,
+    location,
   } = useContext(GlobalContext);
 
   function confirm() {
     if (confirmingTx) return;
     setConfirmingTx(true);
     setLastTx(preTxDetails);
-    setSwapConfirmed(true);
+    setTxApproved(true);
   }
 
   function close() {
     setExecuteSwap(false);
     setShowConfirmTxDetails(false);
     setBlurBG(false);
-    setSwapConfirmed(false);
+    setTxApproved(false);
   }
-  return showConfirmTxDetails ? (
+  return showConfirmTxDetails && location === '/trade' ? (
     <CenterModal
       className={`sm:max-w-md w-full z-30 shadow ${showConfirmTxDetails ? 'block' : 'hidden'}`}
       onOutsideClick={close}
@@ -48,9 +49,9 @@ export default function ConfirmSwapModal() {
           <BsX id="closeConfrimSwapModalbtn" onClick={close} role="button" size={28} />
         </div>
         <div className="mt-4">
-          <ConfirmSwapItem pos={1} />
+          <ConfirmTxItem pos={1} />
           <BsArrowDown className="ml-2 my-2 text-gray-300" size={24} />
-          <ConfirmSwapItem pos={2} />
+          <ConfirmTxItem pos={2} />
         </div>
         <div className="mt-6 flex justify-between">
           <p className="text-gray-400 text-sm">Exchange rate</p>
@@ -61,12 +62,12 @@ export default function ConfirmSwapModal() {
         </div>
         <div className="mt-4">
           {/* <ConfirmSwapListItem name="Route" value="ETH > KNC" /> */}
-          <ConfirmSwapListItem name="Minimum received" value={minReceived.dp(5).toString()} />
+          <ConfirmTxListItem name="Minimum received" value={minReceived.dp(5).toString()} />
           {/* <ConfirmSwapListItem name="Price impact" value="-0.62%" valueClass="text-green-500" /> */}
-          <ConfirmSwapListItem name="Swap fee" value={swapFee?.dp(5).toString() + ' ' + token1.info?.symbol} />
-          <ConfirmSwapListItem name="DataX fee" value="0" />
+          <ConfirmTxListItem name="Swap fee" value={swapFee?.dp(5).toString() + ' ' + token1.info?.symbol} />
+          <ConfirmTxListItem name="DataX fee" value="0" />
           {/* <ConfirmSwapListItem name="DataX fee" value="0.000000006 ETH" /> */}
-          <ConfirmSwapListItem name="Slippage tolerance" value={preTxDetails?.slippage + '%'} />
+          <ConfirmTxListItem name="Slippage tolerance" value={preTxDetails?.slippage + '%'} />
         </div>
         <div className="mt-4">
           <p className="text-gray-300 text-sm">

@@ -179,8 +179,8 @@ export interface globalStates {
   setShowConfirmTxDetails: React.Dispatch<React.SetStateAction<boolean>>;
   preTxDetails?: ITxDetails;
   setPreTxDetails: React.Dispatch<React.SetStateAction<ITxDetails | undefined>>;
-  swapConfirmed: boolean;
-  setSwapConfirmed: React.Dispatch<React.SetStateAction<boolean>>;
+  txApproved: boolean;
+  setTxApproved: React.Dispatch<React.SetStateAction<boolean>>;
   executeSwap: boolean;
   setExecuteSwap: React.Dispatch<React.SetStateAction<boolean>>;
   executeStake: boolean;

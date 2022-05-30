@@ -72,7 +72,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [lastTx, setLastTx] = useState<ITxDetails>();
   const [preTxDetails, setPreTxDetails] = useState<ITxDetails>();
   const [executeSwap, setExecuteSwap] = useState<boolean>(false);
-  const [swapConfirmed, setSwapConfirmed] = useState<boolean>(false);
+  const [txApproved, setTxApproved] = useState<boolean>(false);
   const [executeStake, setExecuteStake] = useState<boolean>(false);
   const [executeUnstake, setExecuteUnstake] = useState<boolean>(false);
   const [executeUnlock, setExecuteUnlock] = useState<boolean>(false);
@@ -409,8 +409,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setPreTxDetails,
         executeSwap,
         setExecuteSwap,
-        swapConfirmed,
-        setSwapConfirmed,
+        txApproved,
+        setTxApproved,
         executeStake,
         setExecuteStake,
         executeUnstake,

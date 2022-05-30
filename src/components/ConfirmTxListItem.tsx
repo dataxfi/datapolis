@@ -1,4 +1,12 @@
-const ConfirmSwapListItem = ({ name, value, valueClass }: { name: string; value: string; valueClass?: string }) => {
+export default function ConfirmTxListItem({
+  name,
+  value,
+  valueClass,
+}: {
+  name: string;
+  value: string;
+  valueClass?: string;
+}) {
   return (
     <div id={`swapListItem-${name}`} className="flex justify-between mt-2">
       <div>
@@ -11,6 +19,4 @@ const ConfirmSwapListItem = ({ name, value, valueClass }: { name: string; value:
       </div>
     </div>
   );
-};
-
-export default ConfirmSwapListItem;
+}

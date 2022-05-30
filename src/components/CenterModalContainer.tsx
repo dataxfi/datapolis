@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../context/GlobalState';
+import ConfirmStakeModal from './ConfirmStakeModal';
 import ConfirmSwapModal from './ConfirmSwapModal';
 import DisclaimerModal from './DisclaimerModal';
 import TokenModal from './TokenModal';
@@ -46,6 +47,7 @@ export default function CenterModalContainer() {
         <TokenModal />
         <TransactionDoneModal />
         <ConfirmSwapModal />
+        <ConfirmStakeModal />
       </div>
     </div>
   );
