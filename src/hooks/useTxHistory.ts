@@ -13,7 +13,7 @@ export default function useTxHistory() {
     setTxHistory,
     lastTx,
     setSnackbarItem,
-    setShowConfirmModal,
+    setConfirmingTx,
   } = useContext(GlobalContext);
 
   // initializes transaction history from local storage
@@ -66,7 +66,7 @@ export default function useTxHistory() {
           setTxHistory({ ...newTxHistory });
           setLocalTxHistory({ txHistory: newTxHistory, accountId, chainId });
           newTxs = pendingTxs.filter((item) => item !== txDateId);
-          setShowConfirmModal(false);
+          setConfirmingTx(false);
           break;
         }
         default:

@@ -149,8 +149,8 @@ export interface globalStates {
   setShowTxHistoryModal: React.Dispatch<React.SetStateAction<boolean>>;
   watcher?: Watcher;
   setWatcher: React.Dispatch<React.SetStateAction<Watcher | undefined>>;
-  showConfirmModal: boolean;
-  setShowConfirmModal: React.Dispatch<React.SetStateAction<boolean>>;
+  confirmingTx: boolean;
+  setConfirmingTx: React.Dispatch<React.SetStateAction<boolean>>;
   showTxDone: boolean;
   setShowTxDone: React.Dispatch<React.SetStateAction<boolean>>;
   showUnlockTokenModal: boolean;

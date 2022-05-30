@@ -16,10 +16,10 @@ function TxHistoryModal() {
     chainId,
     accountId,
     ocean,
-    setShowConfirmModal,
+    setConfirmingTx,
     setShowTxDone,
     showTxDone,
-    showConfirmModal,
+    confirmingTx,
     setBlurBG,
   } = useContext(GlobalContext);
 
@@ -43,11 +43,11 @@ function TxHistoryModal() {
 
   useEffect(() => {
     if (showTxHistoryModal) {
-      if (showConfirmModal) setShowConfirmModal(false);
+      if (confirmingTx) setConfirmingTx(false);
       if (showTxDone) setShowTxDone(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showConfirmModal, showTxDone, showTxHistoryModal]);
+  }, [confirmingTx, showTxDone, showTxHistoryModal]);
 
   useEffect(() => {
     if (!chainId || !accountId || !txHistory) return;

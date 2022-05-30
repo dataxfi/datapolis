@@ -5,7 +5,7 @@ import { GlobalContext } from '../context/GlobalState';
 import Loader from './Loader';
 
 const ConfirmModal = () => {
-  const { showConfirmModal, setShowConfirmModal, location, token1, token2, singleLiquidityPos, setBlurBG } =
+  const { confirmingTx, setConfirmingTx, location, token1, token2, singleLiquidityPos, setBlurBG } =
     useContext(GlobalContext);
   const [txMessage, setTxMessage] = useState('Check wallet for transaction to confirm.');
 
@@ -32,11 +32,11 @@ const ConfirmModal = () => {
   }, [location, token1.info, token2.info, token1.value, token2.value]);
 
   function close() {
-    setShowConfirmModal(false);
+    setConfirmingTx(false);
     setBlurBG(false);
   }
 
-  return showConfirmModal ? (
+  return confirmingTx ? (
     <div className="fixed center md:max-w-sm w-full z-30">
       <OutsideClickHandler onOutsideClick={close}>
         <div className="bg-black bg-opacity-90 p-4 rounded-lg border padding mx-3 shadow hm-box">

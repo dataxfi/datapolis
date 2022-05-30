@@ -27,7 +27,7 @@ export default function Stake() {
     accountId,
     chainId,
     handleConnect,
-    setShowConfirmModal,
+    setConfirmingTx,
     setShowUnlockTokenModal,
     token2,
     setToken2,
@@ -160,7 +160,7 @@ export default function Stake() {
           txType: 'stake',
         };
         setPreTxDetails(preTxDetails);
-        setShowConfirmModal(true);
+        setConfirmingTx(true);
         setBlurBG(true);
         setLastTx(preTxDetails);
         stake(preTxDetails);
@@ -216,12 +216,12 @@ export default function Stake() {
     } catch (error: any) {
       setLastTx({ ...preTxDetails, status: 'Failure' });
       setSnackbarItem({ type: 'error', message: error.error.message, error });
-      setShowConfirmModal(false);
+      setConfirmingTx(false);
       setToken1({ ...token1, value: new BigNumber(0) });
       setBlurBG(false);
     } finally {
       setLoading(false);
-      setShowConfirmModal(false);
+      setConfirmingTx(false);
       setExecuteStake(false);
       setBlurBG(false);
     }

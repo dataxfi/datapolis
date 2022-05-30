@@ -4,6 +4,7 @@ import ConfirmSwapItem from './ConfirmSwapItem';
 import ConfirmSwapListItem from './ConfirmSwapListItem';
 import { GlobalContext } from '../context/GlobalState';
 import OutsideClickHandler from 'react-outside-click-handler';
+import { PulseLoader } from 'react-spinners';
 
 export default function ConfirmTxDetailsModal() {
   const {
@@ -13,17 +14,18 @@ export default function ConfirmTxDetailsModal() {
     showConfirmTxDetails,
     preTxDetails,
     setLastTx,
-    setShowConfirmModal,
+    setConfirmingTx,
     setSwapConfirmed,
     setBlurBG,
     setExecuteSwap,
     swapFee,
     minReceived,
+    confirmingTx,
   } = useContext(GlobalContext);
 
   function confirm() {
-    setShowConfirmTxDetails(false);
-    setShowConfirmModal(true);
+    if (confirmingTx) return;
+    setConfirmingTx(true);
     setLastTx(preTxDetails);
     setSwapConfirmed(true);
   }
@@ -73,8 +75,20 @@ export default function ConfirmTxDetailsModal() {
             </p>
           </div>
           <div className="mt-4">
-            <button id="confirmSwapModalBtn" onClick={confirm} className="px-4 py-2 text-lg w-full txButton rounded-lg">
-              Confirm swap
+            <button
+              id="confirmSwapModalBtn"
+              onClick={confirm}
+              disabled={!!confirmingTx}
+              className="px-4 py-2 text-lg w-full flex justify-center items-center confirmBtn rounded-lg"
+            >
+              {confirmingTx ? (
+                <div className="h-full flex items-end">
+                  <p className="mx-1 text-gray-200">Confirming</p>
+                  <PulseLoader size="2px" color="white" />
+                </div>
+              ) : (
+                'Confirm Swap'
+              )}
             </button>
           </div>
         </div>
