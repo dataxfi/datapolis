@@ -23,7 +23,7 @@ export default function Unstake() {
     accountId,
     singleLiquidityPos,
     ocean,
-    setShowConfirmModal,
+    setConfirmingTx,
     setShowTxDone,
     setShowUnlockTokenModal,
     token1,
@@ -170,7 +170,7 @@ export default function Unstake() {
       setShowUnlockTokenModal(true);
       setBlurBG(true);
     } else if (executeUnstake) {
-      setShowConfirmModal(true);
+      setConfirmingTx(true);
       const preTxDetails: ITxDetails = {
         txDateId: Date.now().toString(),
         accountId,
@@ -183,7 +183,7 @@ export default function Unstake() {
       setPreTxDetails(preTxDetails);
       setLastTx(preTxDetails);
       handleUnstake(preTxDetails);
-      setShowConfirmModal(true);
+      setConfirmingTx(true);
       setBlurBG(true);
     }
   }, [executeUnstake]);
@@ -273,7 +273,7 @@ export default function Unstake() {
     } finally {
       setCalculating(false);
       setExecuteUnstake(false);
-      setShowConfirmModal(false);
+      setConfirmingTx(false);
     }
   }
 
@@ -282,7 +282,7 @@ export default function Unstake() {
       return;
     }
 
-    setShowConfirmModal(true);
+    setConfirmingTx(true);
     try {
       const txReceipt = await ocean.unstakeOcean(
         accountId,
@@ -300,7 +300,7 @@ export default function Unstake() {
     } catch (error: any) {
       setLastTx({ ...preTxDetails, status: 'Failure' });
       setSnackbarItem({ type: 'error', message: error.message });
-      setShowConfirmModal(false);
+      setConfirmingTx(false);
       setShowTxDone(false);
     } finally {
       setExecuteUnstake(false);

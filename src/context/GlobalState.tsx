@@ -56,7 +56,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [showTokenModal, setShowTokenModal] = useState<boolean>(false);
   const [showTxHistoryModal, setShowTxHistoryModal] = useState<boolean>(false);
   const [showDescModal, setShowDescModal] = useState<boolean>(false);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmingTx, setConfirmingTx] = useState(false);
   const [showConfirmTxDetails, setShowConfirmTxDetails] = useState(false);
   const [showTxDone, setShowTxDone] = useState(false);
   const [cookiesAllowed, setCookiesAllowed] = useState<boolean | null>(null);
@@ -72,7 +72,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [lastTx, setLastTx] = useState<ITxDetails>();
   const [preTxDetails, setPreTxDetails] = useState<ITxDetails>();
   const [executeSwap, setExecuteSwap] = useState<boolean>(false);
-  const [swapConfirmed, setSwapConfirmed] = useState<boolean>(false);
+  const [txApproved, setTxApproved] = useState<boolean>(false);
   const [executeStake, setExecuteStake] = useState<boolean>(false);
   const [executeUnstake, setExecuteUnstake] = useState<boolean>(false);
   const [executeUnlock, setExecuteUnlock] = useState<boolean>(false);
@@ -378,8 +378,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setShowTxHistoryModal,
         watcher,
         setWatcher,
-        showConfirmModal,
-        setShowConfirmModal,
+        confirmingTx,
+        setConfirmingTx,
         showTxDone,
         setShowTxDone,
         showUnlockTokenModal,
@@ -409,8 +409,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setPreTxDetails,
         executeSwap,
         setExecuteSwap,
-        swapConfirmed,
-        setSwapConfirmed,
+        txApproved,
+        setTxApproved,
         executeStake,
         setExecuteStake,
         executeUnstake,

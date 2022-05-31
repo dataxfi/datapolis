@@ -149,8 +149,8 @@ export interface globalStates {
   setShowTxHistoryModal: React.Dispatch<React.SetStateAction<boolean>>;
   watcher?: Watcher;
   setWatcher: React.Dispatch<React.SetStateAction<Watcher | undefined>>;
-  showConfirmModal: boolean;
-  setShowConfirmModal: React.Dispatch<React.SetStateAction<boolean>>;
+  confirmingTx: boolean;
+  setConfirmingTx: React.Dispatch<React.SetStateAction<boolean>>;
   showTxDone: boolean;
   setShowTxDone: React.Dispatch<React.SetStateAction<boolean>>;
   showUnlockTokenModal: boolean;
@@ -179,8 +179,8 @@ export interface globalStates {
   setShowConfirmTxDetails: React.Dispatch<React.SetStateAction<boolean>>;
   preTxDetails?: ITxDetails;
   setPreTxDetails: React.Dispatch<React.SetStateAction<ITxDetails | undefined>>;
-  swapConfirmed: boolean;
-  setSwapConfirmed: React.Dispatch<React.SetStateAction<boolean>>;
+  txApproved: boolean;
+  setTxApproved: React.Dispatch<React.SetStateAction<boolean>>;
   executeSwap: boolean;
   setExecuteSwap: React.Dispatch<React.SetStateAction<boolean>>;
   executeStake: boolean;

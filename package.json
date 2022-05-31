@@ -40,7 +40,7 @@
     "lint": "eslint --color src/*/**.ts src/*/**.tsx src/*.ts src/*.tsx",
     "lint:fix": "yarn run lint --fix",
     "clearTestCache": "react-scripts test --clearCache",
-    "test-ui": "yarn run test-uiNav && yarn run test-uiCookies && yarn run test-uiDisclaimer && yarn run test-uiLP && yarn run test-uiStake && yarn run test-uiTrade && yarn run test-uiUnstake",
+    "test-ui": "yarn run test-uiNav && yarn run test-uiCookies && yarn run test-uiTokenList && yarn run test-uiDtDesc && yarn run test-uiDisclaimer && yarn run test-uiLP && yarn run test-uiStake && yarn run test-uiTrade && yarn run test-uiUnstake",
     "test-uiNav": "react-scripts test --preset @keithers98/dappeteer-stable src/tests/ui/uiNav.test.ts",
     "test-local": "react-scripts test --preset @keithers98/dappeteer-stable src/tests/ganache/mergeTests.test.tsx",
     "test-uiStake": "react-scripts test --preset @keithers98/dappeteer-stable src/tests/ui/uiStake.test.ts",
