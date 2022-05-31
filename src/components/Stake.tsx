@@ -174,7 +174,7 @@ export default function Stake() {
         stake(preTxDetails);
       }
     }
-  }, [executeStake, txApproved]);
+  }, [executeStake]);
 
   async function getMaxStakeAmt() {
     if (token2.info && ocean) {
