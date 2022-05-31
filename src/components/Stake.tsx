@@ -27,7 +27,7 @@ export default function Stake() {
     accountId,
     chainId,
     handleConnect,
-    setShowConfirmModal,
+    setConfirmingTx,
     setShowUnlockTokenModal,
     token2,
     setToken2,
@@ -43,10 +43,15 @@ export default function Stake() {
     setExecuteStake,
     setExecuteUnlock,
     setBlurBG,
+    txApproved,
+    preTxDetails,
     showUnlockTokenModal,
+    setShowConfirmTxDetails
   } = useContext(GlobalContext);
 
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
+  const [postExchange, setPostExchange] = useState<BigNumber>(new BigNumber(0));
+  const [sharesReceived, setSharesReceived] = useState<BigNumber>(new BigNumber(0));
   const [loading, setLoading] = useState(false);
   const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
   const [importPool, setImportPool] = useState<string>();
@@ -150,7 +155,7 @@ export default function Stake() {
         setShowUnlockTokenModal(true);
         setBlurBG(true);
         setExecuteStake(false);
-      } else if (executeStake) {
+      } else if (!txApproved && executeStake) {
         const preTxDetails: ITxDetails = {
           accountId,
           status: 'Pending',
@@ -158,10 +163,13 @@ export default function Stake() {
           token2,
           txDateId: Date.now().toString(),
           txType: 'stake',
+          postExchange,
+          shares: sharesReceived,
         };
         setPreTxDetails(preTxDetails);
-        setShowConfirmModal(true);
+        setShowConfirmTxDetails(true);
         setBlurBG(true);
+      } else if (executeStake && preTxDetails) {
         setLastTx(preTxDetails);
         stake(preTxDetails);
       }
@@ -197,6 +205,11 @@ export default function Stake() {
               });
             }
           );
+          if (token2.info?.pool && token1.info?.address) {
+            ocean?.getSharesReceivedForTokenIn(token2.info?.pool, token1.info?.address, '1').then((res) => {
+              setPostExchange(new BigNumber(res).dp(5));
+            });
+          }
         }
       })
       .catch(console.error);
@@ -216,12 +229,12 @@ export default function Stake() {
     } catch (error: any) {
       setLastTx({ ...preTxDetails, status: 'Failure' });
       setSnackbarItem({ type: 'error', message: error.error.message, error });
-      setShowConfirmModal(false);
+      setConfirmingTx(false);
       setToken1({ ...token1, value: new BigNumber(0) });
       setBlurBG(false);
     } finally {
       setLoading(false);
-      setShowConfirmModal(false);
+      setConfirmingTx(false);
       setExecuteStake(false);
       setBlurBG(false);
     }
@@ -251,7 +264,6 @@ export default function Stake() {
 
   async function updateNum(val: string | BigNumber, max?: BigNumber) {
     // initially set state to value to persist the max if the user continuously tries to enter over the max (or balance)
-
     setToken1({ ...token1, value: new BigNumber(val) });
     if (!val) {
       setToken1({ ...token1, value: new BigNumber(0) });
@@ -271,6 +283,15 @@ export default function Stake() {
       } else {
         setToken1({ ...token1, value: new BigNumber(val) });
       }
+    }
+
+    if (token2.info?.pool && token1.info?.address && val) {
+      const sharesReceived = await ocean?.getSharesReceivedForTokenIn(
+        token2.info?.pool,
+        token1.info?.address,
+        val.toString()
+      );
+      if (sharesReceived) setSharesReceived(new BigNumber(sharesReceived));
     }
   }
 

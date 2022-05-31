@@ -133,14 +133,14 @@ html:empty {
   background: linear-gradient(90deg, rgba(49, 59, 101, 1) 0%, rgba(58, 123, 191, 1) 100%);
 }
 
-.txButton {
+.txButton, .confirmBtn {
   @apply p-2 rounded-lg w-full relative;
   background-image: rgb(10, 69, 110);
   background-image: linear-gradient(90deg, rgba(10, 69, 110, 1) 0%, rgba(26, 38, 70, 1) 100%);
   z-index: 1;
 }
 
-.txButton::before {
+.txButton::before, .confirmBtn::before {
   @apply absolute top-0 right-0 bottom-0 left-0 opacity-0 rounded-lg;
   content: '';
   background-image: rgb(49, 59, 101);
@@ -148,7 +148,7 @@ html:empty {
   z-index: -1;
   transition: opacity 0.1s linear;
 }
-.txButton:hover::before {
+.txButton:hover::before, .confirmBtn:hover::before {
   @apply opacity-100;
 }
 

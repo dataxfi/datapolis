@@ -1,9 +1,9 @@
 import { useContext, useEffect, useState } from 'react';
 import { BsX } from 'react-icons/bs';
-import OutsideClickHandler from 'react-outside-click-handler';
 import { GlobalContext } from '../context/GlobalState';
 import { getLocalTxHistory, getTxUrl, setLocalTxHistory } from '../hooks/useTxHistory';
 import { ITxSelection, ITxHistory, ITxDetails } from '../utils/types';
+import CenterModal from './CenterModal';
 import TxHistoryItem from './TxHistoryItem';
 
 function TxHistoryModal() {
@@ -16,10 +16,10 @@ function TxHistoryModal() {
     chainId,
     accountId,
     ocean,
-    setShowConfirmModal,
+    setConfirmingTx,
     setShowTxDone,
     showTxDone,
-    showConfirmModal,
+    confirmingTx,
     setBlurBG,
   } = useContext(GlobalContext);
 
@@ -43,11 +43,11 @@ function TxHistoryModal() {
 
   useEffect(() => {
     if (showTxHistoryModal) {
-      if (showConfirmModal) setShowConfirmModal(false);
+      if (confirmingTx) setConfirmingTx(false);
       if (showTxDone) setShowTxDone(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showConfirmModal, showTxDone, showTxHistoryModal]);
+  }, [confirmingTx, showTxDone, showTxHistoryModal]);
 
   useEffect(() => {
     if (!chainId || !accountId || !txHistory) return;
@@ -142,41 +142,39 @@ function TxHistoryModal() {
   }
 
   return showTxHistoryModal ? (
-    <div className="fixed center sm:max-w-md w-full z-30 shadow">
-      <OutsideClickHandler onOutsideClick={handleClose}>
-        <div className="bg-black bg-opacity-95 border rounded-lg p-4 hm-box mx-3">
-          <div className="flex justify-between mb-2">
-            <h3>Recent Transactions</h3>
-            <BsX onClick={handleClose} size={28} className="text-gray-200" role="button" />
-          </div>
-          {noTxHistory ? (
-            <div className="px-5 pb-10 pt-5 w-full text-center text-gray-400">
-              There is no transaction history for your account on this chain.
-              {/* <button>Fetch From Chain</button> */}
-            </div>
-          ) : (
-            <>
-              <ul>
-                {txSelection[0] ? <TxHistoryItem tx={txSelection[0]} index={0} setTx={setTx1} /> : <></>}
-                {txSelection[1] ? <TxHistoryItem tx={txSelection[1]} index={1} setTx={setTx2} /> : <></>}
-                {txSelection[2] ? <TxHistoryItem tx={txSelection[2]} index={2} setTx={setTx3} /> : <></>}
-                {txSelection[3] ? <TxHistoryItem tx={txSelection[3]} index={3} setTx={setTx4} /> : <></>}
-                {txSelection[4] ? <TxHistoryItem tx={txSelection[4]} index={4} setTx={setTx5} /> : <></>}
-              </ul>{' '}
-              <div className="flex justify-between">
-                <button className="text-lg" onClick={lastPage}>
-                  {'<'}
-                </button>
-                <p>{pageRange()}</p>
-                <button className="text-lg" onClick={nextPage}>
-                  {'>'}
-                </button>
-              </div>
-            </>
-          )}
+    <CenterModal className="sm:max-w-md w-full z-30 shadow" onOutsideClick={handleClose} id="txHistory-modal">
+      <div className="bg-black bg-opacity-95 border rounded-lg p-4 hm-box mx-3">
+        <div className="flex justify-between mb-2">
+          <h3>Recent Transactions</h3>
+          <BsX onClick={handleClose} size={28} className="text-gray-200" role="button" />
         </div>
-      </OutsideClickHandler>
-    </div>
+        {noTxHistory ? (
+          <div className="px-5 pb-10 pt-5 w-full text-center text-gray-400">
+            There is no transaction history for your account on this chain.
+            {/* <button>Fetch From Chain</button> */}
+          </div>
+        ) : (
+          <>
+            <ul>
+              {txSelection[0] ? <TxHistoryItem tx={txSelection[0]} index={0} setTx={setTx1} /> : <></>}
+              {txSelection[1] ? <TxHistoryItem tx={txSelection[1]} index={1} setTx={setTx2} /> : <></>}
+              {txSelection[2] ? <TxHistoryItem tx={txSelection[2]} index={2} setTx={setTx3} /> : <></>}
+              {txSelection[3] ? <TxHistoryItem tx={txSelection[3]} index={3} setTx={setTx4} /> : <></>}
+              {txSelection[4] ? <TxHistoryItem tx={txSelection[4]} index={4} setTx={setTx5} /> : <></>}
+            </ul>{' '}
+            <div className="flex justify-between">
+              <button className="text-lg" onClick={lastPage}>
+                {'<'}
+              </button>
+              <p>{pageRange()}</p>
+              <button className="text-lg" onClick={nextPage}>
+                {'>'}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </CenterModal>
   ) : (
     <></>
   );

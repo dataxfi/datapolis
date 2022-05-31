@@ -1,0 +1,20 @@
+name: Deploy to Vercel
+on: push
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: | 
+          yarn install
+          yarn run lint
+          yarn build
+        env:
+          DISABLE_ESLINT_PLUGIN: true 
+          CI: false 
+      - uses: amondnet/vercel-action@v20.0.1 #deploy
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
+          vercel-org-id: ${{ secrets.ORG_ID}}  #Required
+          vercel-project-id: ${{ secrets.PROJECT_ID}} #Required 
+          working-directory: ../

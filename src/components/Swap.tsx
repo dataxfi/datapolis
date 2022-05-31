@@ -45,11 +45,11 @@ export default function Swap() {
     setBlurBG,
     executeSwap,
     setExecuteSwap,
-    swapConfirmed,
+    txApproved,
     preTxDetails,
     setExecuteUnlock,
     showUnlockTokenModal,
-    setSwapConfirmed,
+    setTxApproved,
     swapFee,
     setSwapFee,
     minReceived,
@@ -210,7 +210,7 @@ export default function Swap() {
         setShowUnlockTokenModal(true);
         setBlurBG(true);
         setExecuteSwap(false);
-      } else if (!swapConfirmed && executeSwap) {
+      } else if (!txApproved && executeSwap) {
         setPreTxDetails({
           accountId,
           status: 'Pending',
@@ -228,7 +228,7 @@ export default function Swap() {
         swap();
       }
     }
-  }, [swapConfirmed, executeSwap]);
+  }, [txApproved, executeSwap]);
 
   async function updateBalance(address: string) {
     if (!ocean || !accountId) return;
@@ -367,7 +367,7 @@ export default function Swap() {
     } finally {
       setBlurBG(false);
       setExecuteSwap(false);
-      setSwapConfirmed(false);
+      setTxApproved(false);
     }
   }
 

@@ -12,8 +12,8 @@ export default function useWatchLocation() {
     token2,
     tokensCleared,
     accountId,
-    showConfirmModal,
-    setShowConfirmModal,
+    confirmingTx,
+    setConfirmingTx,
     setShowTxDone,
     lastTx,
     setToken1,
@@ -86,8 +86,8 @@ export default function useWatchLocation() {
 
   useEffect(() => {
     if (lastTx && lastTx.status === 'Indexing' && lastTx.txType !== 'approve') {
-      if (showConfirmModal) {
-        setShowConfirmModal(false);
+      if (confirmingTx) {
+        setConfirmingTx(false);
         setShowTxDone(true);
       }
       if (location === '/stake/remove') {

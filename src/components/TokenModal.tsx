@@ -5,11 +5,11 @@ import Loader from './Loader';
 import ReactList from 'react-list';
 import { GlobalContext, INITIAL_TOKEN_STATE } from '../context/GlobalState';
 import useTokenList, { commonTokens } from '../hooks/useTokenList';
-import OutsideClickHandler from 'react-outside-click-handler';
 import { ITokenInfo } from '@dataxfi/datax.js';
 import { TokenInfo as TInfo } from '@uniswap/token-lists';
 import CommonToken from './CommonToken';
 import BigNumber from 'bignumber.js';
+import CenterModal from './CenterModal';
 
 export default function TokenModal() {
   const {
@@ -129,82 +129,80 @@ export default function TokenModal() {
 
   return showTokenModal ? (
     <>
-      <OutsideClickHandler onOutsideClick={closeModal}>
-        <div id="tokenModal" className="fixed center z-30 w-full sm:max-w-sm p-2 md:p-0">
-          <div className="hm-box flex flex-col p-2 w-full h-109 bg-background border-primary-500 border rounded-lg">
-            <div className="flex justify-between items-center">
-              <p className="mb-0 text-gray-100 text-xl pl-2">Select a token</p>
-              <MdClose id="closeTokenModalBtn" role="button" onClick={closeModal} className="text-gray-100 text-2xl" />
+      <CenterModal className="z-30 w-full sm:max-w-sm p-2 md:p-0" onOutsideClick={closeModal} id="tokenModal">
+        <div className="hm-box flex flex-col p-2 w-full h-109 bg-background border-primary-500 border rounded-lg">
+          <div className="flex justify-between items-center">
+            <p className="mb-0 text-gray-100 text-xl pl-2">Select a token</p>
+            <MdClose id="closeTokenModalBtn" role="button" onClick={closeModal} className="text-gray-100 text-2xl" />
+          </div>
+          <div className="mt-2">
+            <input
+              id="tokenSearch"
+              onChange={(e) => searchToken(e.target.value)}
+              type="text"
+              placeholder="Search token"
+              className="px-4 py-2 h-full w-full rounded-lg bg-primary-900 text-base outline-none focus:placeholder-gray-200 placeholder-gray-400"
+            />
+          </div>
+          {(location === '/stake' && selectTokenPos.current === 2) || location === '/stake/list' ? (
+            <></>
+          ) : (
+            <div className="w-full px-2 mt-2">
+              <button
+                onClick={() => setShowDtks(true)}
+                className={`mr-2 px-2 rounded  p-1 bg-white  ${
+                  showDtks ? 'bg-opacity-25' : 'bg-opacity-10 text-gray-500 hover:bg-opacity-20'
+                }`}
+              >
+                Datatoken
+              </button>
+              <button
+                id="ERC20-btn"
+                onClick={() => setShowDtks(false)}
+                className={`mr-2 px-2 rounded  p-1 bg-white ${
+                  !showDtks ? 'bg-opacity-25' : 'bg-opacity-10 text-gray-500 hover:bg-opacity-20'
+                }`}
+              >
+                ERC20
+              </button>
             </div>
-            <div className="mt-2">
-              <input
-                id="tokenSearch"
-                onChange={(e) => searchToken(e.target.value)}
-                type="text"
-                placeholder="Search token"
-                className="px-4 py-2 h-full w-full rounded-lg bg-primary-900 text-base outline-none focus:placeholder-gray-200 placeholder-gray-400"
-              />
+          )}
+          {loading ? (
+            loader
+          ) : error ? (
+            <div id="tokenLoadError" className="text-white text-center my-4">
+              There was an error loading the tokens
             </div>
-            {(location === '/stake' && selectTokenPos.current === 2) || location === '/stake/list' ? (
-              <></>
-            ) : (
-              <div className="w-full px-2 mt-2">
-                <button
-                  onClick={() => setShowDtks(true)}
-                  className={`mr-2 px-2 rounded  p-1 bg-white  ${
-                    showDtks ? 'bg-opacity-25' : 'bg-opacity-10 text-gray-500 hover:bg-opacity-20'
-                  }`}
-                >
-                  Datatoken
-                </button>
-                <button
-                  id="ERC20-btn"
-                  onClick={() => setShowDtks(false)}
-                  className={`mr-2 px-2 rounded  p-1 bg-white ${
-                    !showDtks ? 'bg-opacity-25' : 'bg-opacity-10 text-gray-500 hover:bg-opacity-20'
-                  }`}
-                >
-                  ERC20
-                </button>
+          ) : datatokens && showDtks ? (
+            <div
+              className="hm-hide-scrollbar h-full overflow-y-scroll mt-2 bg-trade-darkBlue rounded-lg border border-gray-700 p-1"
+              id="tokenList"
+            >
+              <ReactList itemRenderer={tokenRenderer} length={datatokens ? datatokens.length : 0} type="simple" />
+            </div>
+          ) : ERC20Tokens && !showDtks ? (
+            <>
+              <div className="flex flex-col mt-2">
+                <p>Common Tokens</p>
+                <hr className="py-1" />
               </div>
-            )}
-            {loading ? (
-              loader
-            ) : error ? (
-              <div id="tokenLoadError" className="text-white text-center my-4">
-                There was an error loading the tokens
-              </div>
-            ) : datatokens && showDtks ? (
+              <ul className="flex flex-wrap w-full">
+                {commons.map((token, index) => (
+                  <CommonToken index={index} token={token} onClick={tokenSelected} key={index} />
+                ))}
+              </ul>
               <div
-                className="hm-hide-scrollbar h-full overflow-y-scroll mt-2 bg-trade-darkBlue rounded-lg border border-gray-700 p-1"
+                className="mt-2 hm-hide-scrollbar overflow-y-scroll bg-trade-darkBlue rounded-lg border border-gray-700 p-1"
                 id="tokenList"
               >
-                <ReactList itemRenderer={tokenRenderer} length={datatokens ? datatokens.length : 0} type="simple" />
+                <ReactList itemRenderer={tokenRenderer} length={ERC20Tokens ? ERC20Tokens.length : 0} type="simple" />
               </div>
-            ) : ERC20Tokens && !showDtks ? (
-              <>
-                <div className="flex flex-col mt-2">
-                  <p>Common Tokens</p>
-                  <hr className="py-1" />
-                </div>
-                <ul className="flex flex-wrap w-full">
-                  {commons.map((token, index) => (
-                    <CommonToken index={index} token={token} onClick={tokenSelected} key={index} />
-                  ))}
-                </ul>
-                <div
-                  className="mt-2 hm-hide-scrollbar overflow-y-scroll bg-trade-darkBlue rounded-lg border border-gray-700 p-1"
-                  id="tokenList"
-                >
-                  <ReactList itemRenderer={tokenRenderer} length={ERC20Tokens ? ERC20Tokens.length : 0} type="simple" />
-                </div>
-              </>
-            ) : (
-              loader
-            )}
-          </div>
+            </>
+          ) : (
+            loader
+          )}
         </div>
-      </OutsideClickHandler>
+      </CenterModal>
     </>
   ) : (
     <></>
