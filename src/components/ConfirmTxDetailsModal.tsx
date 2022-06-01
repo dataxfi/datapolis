@@ -29,7 +29,7 @@ export default function ConfirmTxDetailsModal() {
     executeUnstake,
     executeUnlock,
     exactToken,
-    slippage
+    slippage,
   } = useContext(GlobalContext);
 
   const [txTitle, setTxTitle] = useState<'Stake' | 'Stake Removal' | 'Swap'>('Swap');
@@ -50,7 +50,7 @@ export default function ConfirmTxDetailsModal() {
         break;
       case '/stake/remove':
         setTxTitle('Stake Removal');
-        setPostExchangeString(`1 Share = ${preTxDetails?.postExchange?.dp(5).toString()} ${token2.info?.symbol}`);
+        setPostExchangeString(`1 Share = ${preTxDetails?.postExchange?.dp(5).toString()} OCEAN`);
         setAfterSlippageString(swapAfterSlippageString);
         break;
       default:
@@ -105,7 +105,7 @@ export default function ConfirmTxDetailsModal() {
       <div className="py-8 px-4 md:px-8 bg-black bg-opacity-95 border rounded-lg hm-box mx-3 md:mx-auto">
         <div className="flex justify-between items-center">
           <p className="text-gray-300 text-xl">Confirm {txTitle}</p>
-          <BsX id="closeConfrimSwapModalbtn" onClick={close} role="button" size={28} />
+          <BsX id="closeConfirmTxDetails" onClick={close} role="button" size={28} />
         </div>
         <div className="mt-4">
           <ConfirmTxItem pos={1} />
@@ -123,7 +123,10 @@ export default function ConfirmTxDetailsModal() {
           {/* <ConfirmSwapListItem name="Route" value="ETH > KNC" /> */}
           <ConfirmTxListItem name={minOrMax} value={afterSlippage.dp(5).toString()} />
           {/* <ConfirmSwapListItem name="Price impact" value="-0.62%" valueClass="text-green-500" /> */}
-          <ConfirmTxListItem name={`${txTitle} Fee`} value={swapFee?.dp(5).toString() + ' ' + token1.info?.symbol} />
+          <ConfirmTxListItem
+            name={`${txTitle} Fee`}
+            value={swapFee?.dp(5).toString() + ' ' + (token1.info?.symbol || 'OCEAN')}
+          />
           <ConfirmTxListItem name="DataX Fee" value="0" />
           {/* <ConfirmSwapListItem name="DataX fee" value="0.000000006 ETH" /> */}
           <ConfirmTxListItem name="Slippage Tolerance" value={slippage + '%'} />

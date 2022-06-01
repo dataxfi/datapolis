@@ -23,6 +23,7 @@ export default function useWatchLocation() {
     setT2DIDResponse,
     importPool,
     setImportPool,
+    setExactToken,
   } = useContext(GlobalContext);
   const currentLocation = useLocation();
   const lastLocation = useRef(currentLocation);
@@ -90,6 +91,7 @@ export default function useWatchLocation() {
       }
       if (location === '/stake/remove') {
         setToken1({ ...token1, value: new BigNumber(0), percentage: new BigNumber(0) });
+        setExactToken(2);
       } else if (location === '/trade' || location === '/stake') {
         setToken1(INITIAL_TOKEN_STATE);
         setToken2(INITIAL_TOKEN_STATE);

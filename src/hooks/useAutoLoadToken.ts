@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { GlobalContext, INITIAL_TOKEN_STATE } from '../context/GlobalState';
 import { getToken } from './useTokenList';
 export default function useAutoLoadToken() {
-  const { web3, chainId, setToken2, ocean, accountId, setToken1 } = useContext(GlobalContext);
+  const { web3, chainId, setToken2, ocean, accountId, setToken1, location } = useContext(GlobalContext);
 
   const url = useLocation();
   // loads token information when url has pool address
@@ -25,7 +25,7 @@ export default function useAutoLoadToken() {
       });
     }
 
-    if (pool) {
+    if (pool && location === '/stake') {
       setToken(pool, true, 2);
     }
 
@@ -37,5 +37,5 @@ export default function useAutoLoadToken() {
       setToken(outAddress, false, 2);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [web3, chainId, ocean, accountId]);
+  }, [web3, chainId, ocean, accountId, location]);
 }

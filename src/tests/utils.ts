@@ -793,7 +793,7 @@ export async function navToTrade(page: puppeteer.Page) {
   await page.click('#Trade-link');
 }
 export async function closeConfirmSwapModal(page: puppeteer.Page) {
-  const button = await page.waitForSelector('#closeConfrimSwapModalbtn');
+  const button = await page.waitForSelector('#closeConfirmTxDetails');
   await button?.click();
 }
 
