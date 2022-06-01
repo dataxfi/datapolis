@@ -3,17 +3,17 @@ import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../context/GlobalState';
 
 export default function useCalcSlippage(valueOveride?: BigNumber) {
-  const { setAfterSlippage, slippage, token1, exactToken, token2, showConfirmTxDetails } = useContext(GlobalContext);
+  const { setAfterSlippage, slippage, tokenIn, exactToken, tokenOut, showConfirmTxDetails } = useContext(GlobalContext);
 
-  const [outVal, setOutVal] = useState<BigNumber>(token1.value);
+  const [outVal, setOutVal] = useState<BigNumber>(tokenIn.value);
 
   useEffect(() => {
     if (valueOveride) {
       setOutVal(valueOveride);
     } else if (exactToken === 1) {
-      setOutVal(token2.value);
+      setOutVal(tokenOut.value);
     } else {
-      setOutVal(token1.value);
+      setOutVal(tokenIn.value);
     }
 
     const slip = outVal.times(slippage).div(100);
@@ -21,5 +21,5 @@ export default function useCalcSlippage(valueOveride?: BigNumber) {
 
     setAfterSlippage(min);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slippage, outVal, token1.value, token2.value, valueOveride, exactToken, showConfirmTxDetails]);
+  }, [slippage, outVal, tokenIn.value, tokenOut.value, valueOveride, exactToken, showConfirmTxDetails]);
 }

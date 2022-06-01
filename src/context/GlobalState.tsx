@@ -96,8 +96,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [exactToken, setExactToken] = useState<1 | 2>(1);
 
   // selected token states
-  const [token1, setToken1] = useState<IToken>(INITIAL_TOKEN_STATE);
-  const [token2, setToken2] = useState<IToken>(INITIAL_TOKEN_STATE);
+  const [tokenIn, setTokenIn] = useState<IToken>(INITIAL_TOKEN_STATE);
+  const [tokenOut, setTokenOut] = useState<IToken>(INITIAL_TOKEN_STATE);
   const selectTokenPos = useRef<1 | 2 | null>(null);
   const [importPool, setImportPool] = useState<string>();
 
@@ -306,8 +306,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
     // Subscribe to chainId change
     provider.on('chainChanged', async (chainId: supportedChains) => {
-      setToken1(INITIAL_TOKEN_STATE);
-      setToken2(INITIAL_TOKEN_STATE);
+      setTokenIn(INITIAL_TOKEN_STATE);
+      setTokenOut(INITIAL_TOKEN_STATE);
       setDtTokenResponse(undefined);
       setTxHistory(undefined);
       setERC20TokenResponse(undefined);
@@ -392,10 +392,10 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setLocation,
         bgOff,
         setBgOff,
-        token1,
-        setToken1,
-        token2,
-        setToken2,
+        tokenIn,
+        setTokenIn,
+        tokenOut,
+        setTokenOut,
         snackbarItem,
         setSnackbarItem,
         showDescModal,

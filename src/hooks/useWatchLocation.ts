@@ -9,16 +9,16 @@ import useLiquidityPos from './useLiquidityPos';
 export default function useWatchLocation() {
   const {
     setLocation,
-    token2,
+    tokenOut,
     tokensCleared,
     accountId,
     confirmingTx,
     setConfirmingTx,
     setShowTxDone,
     lastTx,
-    setToken1,
-    token1,
-    setToken2,
+    setTokenIn,
+    tokenIn,
+    setTokenOut,
     location,
     setT2DIDResponse,
     importPool,
@@ -39,17 +39,17 @@ export default function useWatchLocation() {
     switch (currentLocation.pathname) {
       case '/stake/remove':
       case '/stake':
-        if (token2.info?.pool || token1.info?.address) {
-          setSearchParams({ pool: token2.info?.pool || '', in: token1.info?.address || '' }, { replace: true });
+        if (tokenOut.info?.pool || tokenIn.info?.address) {
+          setSearchParams({ pool: tokenOut.info?.pool || '', in: tokenIn.info?.address || '' }, { replace: true });
         }
         break;
       default:
-        if (token1.info || token2.info) {
-          setSearchParams({ in: token1.info?.address || '', out: token2.info?.address || '' }, { replace: true });
+        if (tokenIn.info || tokenOut.info) {
+          setSearchParams({ in: tokenIn.info?.address || '', out: tokenOut.info?.address || '' }, { replace: true });
         }
         break;
     }
-  }, [token1.info?.address, token2.info?.address]);
+  }, [tokenIn.info?.address, tokenOut.info?.address]);
 
   useEffect(() => {
     if (currentLocation.pathname !== lastLocation.current.pathname) {
@@ -58,16 +58,16 @@ export default function useWatchLocation() {
     }
 
     if (currentLocation.pathname === '/trade') {
-      if (!token1.info && !token2.info) {
+      if (!tokenIn.info && !tokenOut.info) {
         tokensCleared.current = true;
         lastLocation.current = currentLocation;
       }
-    } else if (!token2.info) {
+    } else if (!tokenOut.info) {
       tokensCleared.current = true;
       lastLocation.current = currentLocation;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentLocation.pathname, token1.info, token2.info]);
+  }, [currentLocation.pathname, tokenIn.info, tokenOut.info]);
 
   const initialAccount = useRef(accountId);
   const navigate = useNavigate();
@@ -90,11 +90,11 @@ export default function useWatchLocation() {
         setShowTxDone(true);
       }
       if (location === '/stake/remove') {
-        setToken1({ ...token1, value: new BigNumber(0), percentage: new BigNumber(0) });
+        setTokenIn({ ...tokenIn, value: new BigNumber(0), percentage: new BigNumber(0) });
         setExactToken(2);
       } else if (location === '/trade' || location === '/stake') {
-        setToken1(INITIAL_TOKEN_STATE);
-        setToken2(INITIAL_TOKEN_STATE);
+        setTokenIn(INITIAL_TOKEN_STATE);
+        setTokenOut(INITIAL_TOKEN_STATE);
         setT2DIDResponse(undefined);
       }
     }

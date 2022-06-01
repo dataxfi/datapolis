@@ -124,7 +124,7 @@ describe('Trade Platform User Interface Works as Expected', () => {
     await selectToken(page, 'ZEASEA-66', 1);
     await awaitTokenSelect(page, 'ZEASEA-66', 1);
     expect(await page.waitForSelector('#maxBtn[disabled]')).toBeDefined();
-    expect(await page.waitForSelector('#token1-perc-input[disabled]')).toBeDefined();
+    expect(await page.waitForSelector('#tokenIn-perc-input[disabled]')).toBeDefined();
   });
 
   it('If balance is 0 the execute transaction button says not enough token', async () => {

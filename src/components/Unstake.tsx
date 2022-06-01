@@ -29,8 +29,8 @@ export default function Unstake() {
     setConfirmingTx,
     setShowTxDone,
     setShowUnlockTokenModal,
-    token2,
-    setToken2,
+    tokenOut,
+    setTokenOut,
     setLastTx,
     lastTx,
     setSingleLiquidityPos,
@@ -56,7 +56,7 @@ export default function Unstake() {
   });
 
   // hooks
-  // token1.info?.pool update pool in useLiquidityPos hook below
+  // tokenIn.info?.pool update pool in useLiquidityPos hook below
   useLiquidityPos();
   useAutoLoadToken();
   useClearTokens();
@@ -100,7 +100,7 @@ export default function Unstake() {
   }
 
   useEffect(() => {
-    if (ocean && singleLiquidityPos && accountId && token2.info) {
+    if (ocean && singleLiquidityPos && accountId && tokenOut.info) {
       getMaxUnstake(getNewSignal())
         .then((res: IMaxUnstake | void) => {
           if (res) {
@@ -109,8 +109,8 @@ export default function Unstake() {
         })
         .catch(console.error);
 
-      getAllowance(token2.info.address, accountId, singleLiquidityPos.address || '', ocean).then((res) => {
-        setToken2({ ...token2, allowance: new BigNumber(res) });
+      getAllowance(tokenOut.info.address, accountId, singleLiquidityPos.address || '', ocean).then((res) => {
+        setTokenOut({ ...tokenOut, allowance: new BigNumber(res) });
       });
     }
 
@@ -121,7 +121,7 @@ export default function Unstake() {
         .catch(console.error);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ocean, singleLiquidityPos?.address, token2.info, accountId]);
+  }, [ocean, singleLiquidityPos?.address, tokenOut.info, accountId]);
 
   useEffect(() => {
     setInputDisabled(false);
@@ -130,7 +130,7 @@ export default function Unstake() {
       setBtnDisabled(true);
       setInputDisabled(true);
       setBtnText('Loading Liquidity Information');
-    } else if (!token2.info) {
+    } else if (!tokenOut.info) {
       setBtnDisabled(true);
       setInputDisabled(true);
       setBtnText('Select a Token');
@@ -145,26 +145,26 @@ export default function Unstake() {
     } else if (sharesToRemove.eq(0) || removePercent.eq(0)) {
       setBtnDisabled(true);
       setBtnText('Enter Amount to Remove');
-    } else if (token2.value.lt(0.01)) {
+    } else if (tokenOut.value.lt(0.01)) {
       setBtnDisabled(true);
       setBtnText('Minimum Removal is .01 OCEAN');
-    } else if (token2.allowance?.lt(token2.value)) {
+    } else if (tokenOut.allowance?.lt(tokenOut.value)) {
       setBtnDisabled(false);
-      setBtnText(`Unlock ${token2.info?.symbol}`);
+      setBtnText(`Unlock ${tokenOut.info?.symbol}`);
     } else {
       setBtnDisabled(false);
       setBtnText('Withdrawal');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token2.value, lastTx, singleLiquidityPos, maxUnstake, token2.allowance, token2.info, token2.info, ocean]);
+  }, [tokenOut.value, lastTx, singleLiquidityPos, maxUnstake, tokenOut.allowance, tokenOut.info, tokenOut.info, ocean]);
 
   useEffect(() => {
-    if (showUnlockTokenModal && token2.allowance?.gt(token2.value)) {
+    if (showUnlockTokenModal && tokenOut.allowance?.gt(tokenOut.value)) {
       setBlurBG(false);
       setShowUnlockTokenModal(false);
       setExecuteUnstake(true);
     }
-  }, [token2.allowance]);
+  }, [tokenOut.allowance]);
 
   const updateNum = async (val: string) => {
     setCalculating(true);
@@ -180,7 +180,7 @@ export default function Unstake() {
         if (percInput.lte(0)) {
           setSharesToRemove(new BigNumber(0));
           setRemovePercent(new BigNumber(0));
-          setToken2({ ...token2, value: new BigNumber(0) });
+          setTokenOut({ ...tokenOut, value: new BigNumber(0) });
           return;
         }
 
@@ -209,11 +209,11 @@ export default function Unstake() {
         if (max?.OCEAN?.gt(oceanFromPerc)) {
           setSharesToRemove(sharesNeeded);
           setRemovePercent(new BigNumber(val));
-          setToken2({ ...token2, value: oceanFromPerc });
+          setTokenOut({ ...tokenOut, value: oceanFromPerc });
         } else {
           setSharesToRemove(max.shares);
           setRemovePercent(max.OCEAN.div(userTotalStakedOcean).times(100));
-          setToken2({ ...token2, value: max.OCEAN });
+          setTokenOut({ ...tokenOut, value: max.OCEAN });
         }
       }
     } catch (error) {
@@ -237,7 +237,7 @@ export default function Unstake() {
       if (userTotalStakedOcean.gt(max?.OCEAN)) {
         setSharesToRemove(max.shares);
         setRemovePercent(max.OCEAN.div(userTotalStakedOcean).times(100));
-        setToken2({ ...token2, value: max.OCEAN });
+        setTokenOut({ ...tokenOut, value: max.OCEAN });
       } else {
         const sharesNeeded = new BigNumber(
           await ocean.getPoolSharesRequiredToUnstake(
@@ -249,7 +249,7 @@ export default function Unstake() {
 
         setSharesToRemove(sharesNeeded);
         setRemovePercent(new BigNumber(100));
-        setToken2({ ...token2, value: userTotalStakedOcean });
+        setTokenOut({ ...tokenOut, value: userTotalStakedOcean });
       }
     } catch (error) {
       console.error(error);
@@ -261,7 +261,7 @@ export default function Unstake() {
   }
 
   async function unstake(preTxDetails: ITxDetails) {
-    if (!chainId || !singleLiquidityPos || !ocean || !accountId || !preTxDetails || !token2.info) {
+    if (!chainId || !singleLiquidityPos || !ocean || !accountId || !preTxDetails || !tokenOut.info) {
       return;
     }
 
@@ -270,7 +270,7 @@ export default function Unstake() {
       const txReceipt = await ocean.unstakeOcean(
         accountId,
         singleLiquidityPos.address,
-        token2.value.dp(5).toString(),
+        tokenOut.value.dp(5).toString(),
         singleLiquidityPos.shares.toString()
       );
 
@@ -289,7 +289,7 @@ export default function Unstake() {
       setExecuteUnstake(false);
       setSharesToRemove(new BigNumber(0));
       setRemovePercent(new BigNumber(0));
-      setToken2({ ...token2, value: new BigNumber(0) });
+      setTokenOut({ ...tokenOut, value: new BigNumber(0) });
     }
   }
 
@@ -385,8 +385,8 @@ export default function Unstake() {
                 max={maxUnstake.OCEAN}
                 otherToken={singleLiquidityPos?.token2Info.symbol}
                 pos={2}
-                setToken={setToken2}
-                token={token2}
+                setToken={setTokenOut}
+                token={tokenOut}
                 updateNum={updateNum}
               />
               <div className="flex mt-4">

@@ -85,14 +85,14 @@ export default function Snackbar() {
                 <IoCheckboxOutline size="24" className="text-city-blue" />
                 <div>
                   <p>
-                    {txDetails.txType === 'stake' && txDetails.token2.info ? `Stake ${new BigNumber(txDetails.token1.value).dp(5).toString()} OCEAN in ${
-                          txDetails.token2.info.symbol
-                        }/OCEAN pool` : txDetails.txType === 'unstake' && txDetails.shares && txDetails.token2.info ? `Unstake ${new BigNumber(txDetails.shares).dp(5).toString()} OCEAN from ${
-                          txDetails.token2.info.symbol
-                        }/OCEAN pool` : txDetails.txType === 'approve' ? `Unlock ${txDetails.token1.info?.symbol}` : `Trade ${new BigNumber(txDetails.token1.value).dp(5).toString()} ${
-                          txDetails.token1.info?.symbol
-                        } for ${new BigNumber(txDetails.token2.value).dp(5).toString()} ${
-                          txDetails.token2.info?.symbol
+                    {txDetails.txType === 'stake' && txDetails.tokenOut.info ? `Stake ${new BigNumber(txDetails.tokenIn.value).dp(5).toString()} OCEAN in ${
+                          txDetails.tokenOut.info.symbol
+                        }/OCEAN pool` : txDetails.txType === 'unstake' && txDetails.shares && txDetails.tokenOut.info ? `Unstake ${new BigNumber(txDetails.shares).dp(5).toString()} OCEAN from ${
+                          txDetails.tokenOut.info.symbol
+                        }/OCEAN pool` : txDetails.txType === 'approve' ? `Unlock ${txDetails.tokenIn.info?.symbol}` : `Trade ${new BigNumber(txDetails.tokenIn.value).dp(5).toString()} ${
+                          txDetails.tokenIn.info?.symbol
+                        } for ${new BigNumber(txDetails.tokenOut.value).dp(5).toString()} ${
+                          txDetails.tokenOut.info?.symbol
                         }`}
                   </p>
                   <p className="text-gray-300 text-sm">

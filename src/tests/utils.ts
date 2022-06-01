@@ -299,8 +299,8 @@ export async function swapTokens(page: puppeteer.Page) {
   await page.waitForSelector('#swapTokensBtn');
   await page.click('#swapTokensBtn');
 
-  await page.waitForFunction(`document.querySelector("#token1-balance").innerText.includes("${t2Bal}")`);
-  await page.waitForFunction(`document.querySelector("#token2-balance").innerText.includes("${t1Bal}")`);
+  await page.waitForFunction(`document.querySelector("#tokenIn-balance").innerText.includes("${t2Bal}")`);
+  await page.waitForFunction(`document.querySelector("#tokenOut-balance").innerText.includes("${t1Bal}")`);
   expect(t1Bal).toBe(await getBalanceInDapp(page, 2));
   expect(t2Bal).toBe(await getBalanceInDapp(page, 1));
 }
@@ -395,7 +395,7 @@ export async function clickMaxTrade(page: puppeteer.Page) {
   await page.waitForFunction('document.querySelector("#maxBtn[disabled]") === null');
   await page.waitForSelector('#maxBtn');
   await page.click('#maxBtn');
-  await page.waitForFunction('Number(document.querySelector("#token1-input").value) > 0', { timeout: 8000 });
+  await page.waitForFunction('Number(document.querySelector("#tokenIn-input").value) > 0', { timeout: 8000 });
 }
 
 export async function typeAmount(
@@ -430,10 +430,10 @@ export async function typeAmount(
  *
  * @param page - puppeteer page
  * @param metamask
- * @param t1Symbol - token1 (sell) symbol
- * @param t2Symbol - token2 (buy) symbol
+ * @param t1Symbol - tokenIn (sell) symbol
+ * @param t2Symbol - tokenOut (buy) symbol
  * @param amount - amount to input
- * @param inputLoc - input location (token1 field = 1 OR token2 field = 2) defaults to 1
+ * @param inputLoc - input location (tokenIn field = 1 OR tokenOut field = 2) defaults to 1
  *
  * Tests:
  *  - Inputs work
@@ -485,13 +485,13 @@ export async function setUpSwap(
   await page.bringToFront();
 
   // perc should have no decimals, be greater than 0, should be correct
-  await page.waitForSelector('#token1-perc-input');
+  await page.waitForSelector('#tokenIn-perc-input');
 
   const percApprox: BigNumber = t1Input.div(balance).times(100).dp(3);
 
   let perc;
   if (percApprox.gt(0)) {
-    await page.waitForFunction('Number(document.querySelector("#token1-perc-input").value) > 0', { timeout: 3000 });
+    await page.waitForFunction('Number(document.querySelector("#tokenIn-perc-input").value) > 0', { timeout: 3000 });
     perc = await getPercInDapp(page);
     expect(perc.toNumber()).toBeGreaterThan(0);
     percApprox.gt(100) ? expect(perc.toString()).toEqual('100') : expect(Number(perc)).toBeCloseTo(percApprox.toNumber());
@@ -499,7 +499,7 @@ export async function setUpSwap(
 }
 
 export async function getPercInDapp(page: puppeteer.Page) {
-  return new BigNumber(await page.evaluate('document.querySelector("#token1-perc-input").value'));
+  return new BigNumber(await page.evaluate('document.querySelector("#tokenIn-perc-input").value'));
 }
 
 export async function evaluateMax(page: puppeteer.Page, t1Bal: BigNumber): Promise<IMaxEval> {
@@ -514,8 +514,8 @@ export async function evaluateMax(page: puppeteer.Page, t1Bal: BigNumber): Promi
   );
 
   // get values in each input field
-  let t1Input: BigNumber = new BigNumber(await page.evaluate('document.querySelector("#token1-input").value'));
-  let t2Input: BigNumber = new BigNumber(await page.evaluate('document.querySelector("#token2-input").value'));
+  let t1Input: BigNumber = new BigNumber(await page.evaluate('document.querySelector("#tokenIn-input").value'));
+  let t2Input: BigNumber = new BigNumber(await page.evaluate('document.querySelector("#tokenOut-input").value'));
 
   if (t1Input.isNaN()) t1Input = new BigNumber(0);
   if (t2Input.isNaN()) t2Input = new BigNumber(0);
@@ -544,8 +544,8 @@ export async function incrementUntilValid(
   t2Symbol: string,
   inputPos: number
 ) {
-  const t1val = new BigNumber(await page.evaluate('document.querySelector("#token1-input").value'));
-  const t2val = new BigNumber(await page.evaluate('document.querySelector("#token2-input").value'));
+  const t1val = new BigNumber(await page.evaluate('document.querySelector("#tokenIn-input").value'));
+  const t2val = new BigNumber(await page.evaluate('document.querySelector("#tokenOut-input").value'));
   let amountBN = new BigNumber(amount);
   const t1Limit = t1Symbol === 'OCEAN' ? 0.01 : 0.001;
   const t2Limit = t2Symbol === 'OCEAN' ? 0.01 : 0.001;
@@ -591,11 +591,11 @@ export async function checkBalance(
 ) {
   const t1Bal = await getBalanceInMM(metamask, t1Symbol);
   // @ts-ignore
-  await assertTo3(page, t1Bal, 'token1-balance', 1, updating);
+  await assertTo3(page, t1Bal, 'tokenIn-balance', 1, updating);
   if (t2Symbol) {
     const t2Bal = await getBalanceInMM(metamask, t2Symbol);
     // @ts-ignore
-    await assertTo3(page, t2Bal, 'token2-balance', 2, updating);
+    await assertTo3(page, t2Bal, 'tokenOut-balance', 2, updating);
   }
   await page.bringToFront();
 }
@@ -890,15 +890,15 @@ export async function inputUnstakeAmt(page: puppeteer.Page, unstakeAmt: string, 
     await page.waitForSelector('#unstakeAmtInput');
     await page.waitForFunction('Number(document.querySelector("#unstakeAmtInput").value) > 0');
     input = await page.evaluate('document.querySelector("#unstakeAmtInput").value');
-    await page.waitForSelector('#token1-input');
-    await page.waitForFunction('Number(document.querySelector("#token1-input").value) > 0');
-    receive = await page.evaluate('document.querySelector("#token1-input").value');
+    await page.waitForSelector('#tokenIn-input');
+    await page.waitForFunction('Number(document.querySelector("#tokenIn-input").value) > 0');
+    receive = await page.evaluate('document.querySelector("#tokenIn-input").value');
   } else {
     await page.waitForSelector('#unstakeAmtInput');
     await page.type('#unstakeAmtInput', unstakeAmt, { delay: 150 });
-    await page.waitForSelector('#token1-input');
-    if (Number(shares) > 0) await page.waitForFunction('Number(document.querySelector("#token1-input").value) > 0');
-    receive = await page.evaluate('Number(document.querySelector("#token1-input").value)');
+    await page.waitForSelector('#tokenIn-input');
+    if (Number(shares) > 0) await page.waitForFunction('Number(document.querySelector("#tokenIn-input").value) > 0');
+    receive = await page.evaluate('Number(document.querySelector("#tokenIn-input").value)');
     input = await page.evaluate('document.querySelector("#unstakeAmtInput").value');
   }
 
@@ -1047,8 +1047,8 @@ export async function confirmInputClearedAfterStake(page: puppeteer.Page) {
   await page.waitForFunction("document.querySelector('#executeStake').innerText === 'Select a Token'", {
     timeout: 3000,
   });
-  await page.waitForSelector('#token1-input');
-  await page.waitForFunction("document.querySelector('#token1-input').value === ''", { timeout: 3000 });
+  await page.waitForSelector('#tokenIn-input');
+  await page.waitForFunction("document.querySelector('#tokenIn-input').value === ''", { timeout: 3000 });
 }
 
 export async function confirmInputClearedAfterUnstake(page: puppeteer.Page) {

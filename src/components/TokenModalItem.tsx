@@ -5,11 +5,11 @@ import { GlobalContext } from '../context/GlobalState';
 import useTokenImgSrc from '../hooks/useTokenImgSrc';
 export default function TokenModalItem({ token, onClick }: { token: ITokenInfo; onClick: Function }) {
   const [imagFailed, setImageFailed] = useState(false);
-  const { token1, token2 } = useContext(GlobalContext);
+  const { tokenIn, tokenOut } = useContext(GlobalContext);
   const [imgSrc, setImgSrc] = useState(token.logoURI);
   useTokenImgSrc(imgSrc, setImgSrc, token);
 
-  return token.symbol === token1.info?.symbol || token.symbol === token2.info?.symbol ? (
+  return token.symbol === tokenIn.info?.symbol || token.symbol === tokenOut.info?.symbol ? (
     <></>
   ) : (
     <div

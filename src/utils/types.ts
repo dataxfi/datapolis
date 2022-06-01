@@ -39,8 +39,8 @@ export interface IPoolLiquidity {
 export interface ITxDetails {
   accountId: string;
   txDateId: string;
-  token1: IToken;
-  token2: IToken;
+  tokenIn: IToken;
+  tokenOut: IToken;
   status: 'Pending' | 'Indexing' | 'Success' | 'Failure';
   txType: ITxType;
   slippage?: BigNumber;
@@ -159,10 +159,10 @@ export interface globalStates {
   setLocation: React.Dispatch<React.SetStateAction<string>>;
   bgOff: boolean;
   setBgOff: React.Dispatch<React.SetStateAction<boolean>>;
-  token1: IToken;
-  setToken1: React.Dispatch<React.SetStateAction<IToken>>;
-  token2: IToken;
-  setToken2: React.Dispatch<React.SetStateAction<IToken>>;
+  tokenIn: IToken;
+  setTokenIn: React.Dispatch<React.SetStateAction<IToken>>;
+  tokenOut: IToken;
+  setTokenOut: React.Dispatch<React.SetStateAction<IToken>>;
   tokensCleared: React.MutableRefObject<boolean>;
   snackbarItem?: ISnackbarItem;
   setSnackbarItem: React.Dispatch<React.SetStateAction<ISnackbarItem | undefined>>;

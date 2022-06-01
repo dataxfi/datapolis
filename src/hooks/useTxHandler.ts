@@ -13,8 +13,8 @@ export default function useTxHandler(
     accountId,
     handleConnect,
     setPreTxDetails,
-    token1,
-    token2,
+    tokenIn,
+    tokenOut,
     setExecuteUnlock,
     setShowConfirmTxDetails,
     setShowUnlockTokenModal,
@@ -33,12 +33,12 @@ export default function useTxHandler(
     }
 
     if (accountId) {
-      if (token1.allowance?.lt(token1.value)) {
+      if (tokenIn.allowance?.lt(tokenIn.value)) {
         setPreTxDetails({
           accountId,
           status: 'Pending',
-          token1,
-          token2,
+          tokenIn,
+          tokenOut,
           txDateId: Date.now().toString(),
           txType: 'approve',
         });
@@ -63,8 +63,8 @@ export default function useTxHandler(
         const preTxDetails: ITxDetails = {
           accountId,
           status: 'Pending',
-          token1,
-          token2,
+          tokenIn,
+          tokenOut,
           txDateId: Date.now().toString(),
           txType,
           ...txDetails,

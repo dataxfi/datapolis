@@ -17,19 +17,19 @@ export default function DatasetDescription() {
   const [dateCreated, setDateCreate] = useState<string>();
   const [author, setAuthor] = useState<string>();
   const [did, setDID] = useState<string>();
-  const { setSnackbarItem, ocean, token2, showDescModal, setShowDescModal, t2DIDResponse, setT2DIDResponse, location } =
+  const { setSnackbarItem, ocean, tokenOut, showDescModal, setShowDescModal, t2DIDResponse, setT2DIDResponse, location } =
     useContext(GlobalContext);
 
   useEffect(() => {
     if (showDescModal && !t2DIDResponse) {
-      getDID(setT2DIDResponse, token2);
+      getDID(setT2DIDResponse, tokenOut);
     }
   }, [showDescModal]);
 
   useEffect(() => {
     try {
-      if (token2.info?.pool) {
-        getDID(setT2DIDResponse, token2);
+      if (tokenOut.info?.pool) {
+        getDID(setT2DIDResponse, tokenOut);
       } else {
         setT2DIDResponse(undefined);
       }
@@ -37,7 +37,7 @@ export default function DatasetDescription() {
       console.error(error);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token2.info?.address, location]);
+  }, [tokenOut.info?.address, location]);
 
   useEffect(() => {
     if (t2DIDResponse) {
@@ -58,13 +58,13 @@ export default function DatasetDescription() {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [t2DIDResponse, token2.info]);
+  }, [t2DIDResponse, tokenOut.info]);
 
   return (
     <div
-      id={`${showDescModal && t2DIDResponse && token2.info ? 'dataset-desc-vis' : 'dataset-desc-invis'}`}
+      id={`${showDescModal && t2DIDResponse && tokenOut.info ? 'dataset-desc-vis' : 'dataset-desc-invis'}`}
       className={`absolute max-w-[550px] top-1/2 left-1/2 ${
-        showDescModal && t2DIDResponse && token2.info ? '-translate-x-1/2 2lg:-translate-x-full' : 'translate-x-[-225%] 2lg:translate-x-[-260%] 3xl:translate-x-[-400%]'
+        showDescModal && t2DIDResponse && tokenOut.info ? '-translate-x-1/2 2lg:-translate-x-full' : 'translate-x-[-225%] 2lg:translate-x-[-260%] 3xl:translate-x-[-400%]'
       } -translate-y-1/2 items-center w-full transition-transform transform duration-500 px-2`}
     >
       <div className="flex flex-col max-h-[750px] bg-black bg-opacity-90 rounded-lg p-4">
@@ -102,18 +102,18 @@ export default function DatasetDescription() {
               ) : (
                 <></>
               )}
-              {token2.info ? (
+              {tokenOut.info ? (
                 <>
                   <div className="flex justify-between">
                     <div>
-                      <h3 className="text-blue-300 md:text-xl text-sm">{token2.info?.name}</h3>
-                      <h4 className="text-primary-600 text-sm">{token2.info?.symbol}</h4>
+                      <h3 className="text-blue-300 md:text-xl text-sm">{tokenOut.info?.name}</h3>
+                      <h4 className="text-primary-600 text-sm">{tokenOut.info?.symbol}</h4>
                     </div>
                     <div className="flex flex-col items-end">
                       <div className="flex items-center w-full justify-end text-sm md:text-base">
                         <a
                           rel="noreferrer"
-                          href={ocean?.config.default.explorerUri + '/address/' + token2.info?.pool}
+                          href={ocean?.config.default.explorerUri + '/address/' + tokenOut.info?.pool}
                           target="_blank"
                           className="hover:text-gray-400 flex items-center mr-4"
                         >
@@ -121,7 +121,7 @@ export default function DatasetDescription() {
                         </a>
                         <a
                           rel="noreferrer"
-                          href={ocean?.config.default.explorerUri + '/address/' + token2.info?.address}
+                          href={ocean?.config.default.explorerUri + '/address/' + tokenOut.info?.address}
                           target="_blank"
                           className="hover:text-gray-400 flex items-center"
                         >
@@ -168,7 +168,7 @@ export default function DatasetDescription() {
                 <></>
               )}
 
-              {token2.info ? (
+              {tokenOut.info ? (
                 <>
                   {author ? (
                     <p className="text-blue-300 test-sm">
@@ -197,9 +197,9 @@ export default function DatasetDescription() {
   );
 }
 
-export async function getDID(setT2DIDResponse: React.Dispatch<any>, token2: IToken) {
+export async function getDID(setT2DIDResponse: React.Dispatch<any>, tokenOut: IToken) {
   axios
-    .get(`https://aquarius.oceanprotocol.com/api/v1/aquarius/assets/ddo/did:op:${token2.info?.address.substring(2)}`)
+    .get(`https://aquarius.oceanprotocol.com/api/v1/aquarius/assets/ddo/did:op:${tokenOut.info?.address.substring(2)}`)
     .then(setT2DIDResponse)
     .catch(console.error);
 }

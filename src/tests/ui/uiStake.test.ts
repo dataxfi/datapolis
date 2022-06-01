@@ -109,7 +109,7 @@ describe('Stake Platform UI works as expected.', () => {
   });
 
   it('Check transactions for less than .01 ocean are not allowed', async () => {
-    await clearInput(page, '#token1-input');
+    await clearInput(page, '#tokenIn-input');
     await page.waitForTimeout(1000);
     await inputStakeAmt(page, '.001', 1);
     await page.waitForSelector('#executeStake[disabled]');
@@ -127,7 +127,7 @@ describe('Stake Platform UI works as expected.', () => {
     await switchAccounts(metamask, page, 2, true);
     await page.bringToFront();
     // await quickConnectWallet(page)
-    await page.waitForFunction('document.querySelector("#token1-input").value === ""', { timeout: 5000 });
+    await page.waitForFunction('document.querySelector("#tokenIn-input").value === ""', { timeout: 5000 });
     acc2MMbal = new BigNumber(await getBalanceInMM(metamask, 'OCEAN'));
     expect(acc2MMbal.toNumber()).not.toBeCloseTo(acc1MMBal.toNumber());
     acc2DapBal = new BigNumber(await getBalanceInDapp(page, 1));

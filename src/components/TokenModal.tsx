@@ -26,8 +26,8 @@ export default function TokenModal() {
     accountId,
     selectTokenPos,
     ocean,
-    setToken1,
-    setToken2,
+    setTokenIn,
+    setTokenOut,
     showTokenModal,
     setImportPool,
   } = useContext(GlobalContext);
@@ -108,10 +108,10 @@ export default function TokenModal() {
     let setToken;
     switch (selectTokenPos.current) {
       case 1:
-        setToken = setToken1;
+        setToken = setTokenIn;
         break;
       case 2:
-        setToken = setToken2;
+        setToken = setTokenOut;
         break;
       default:
         if (token.pool) setImportPool(token.pool);

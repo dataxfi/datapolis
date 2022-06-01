@@ -31,10 +31,10 @@ export default function Swap() {
     chainId,
     config,
     setShowUnlockTokenModal,
-    token1,
-    setToken1,
-    token2,
-    setToken2,
+    tokenIn,
+    setTokenIn,
+    tokenOut,
+    setTokenOut,
     setLastTx,
     tokensCleared,
     setSnackbarItem,
@@ -72,40 +72,40 @@ export default function Swap() {
   useEffect(() => {
     getButtonProperties();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token1, token2, accountId, executeSwap, executeUnlock]);
+  }, [tokenIn, tokenOut, accountId, executeSwap, executeUnlock]);
 
   let controller = new AbortController();
   useEffect(() => {
     if (!tokensCleared.current) return;
     try {
-      if (token1.info && token2.info && accountId && ocean) {
-        updateBalance(token1.info.address)
+      if (tokenIn.info && tokenOut.info && accountId && ocean) {
+        updateBalance(tokenIn.info.address)
           .then((balance) => {
             if (!balance) return;
-            if (token1.info && token2.info && ocean.isOCEAN(token1.info.address)) {
-              getAllowance(token1.info.address, accountId, token2.info.pool || '', ocean).then((res) => {
-                setToken1({
-                  ...token1,
+            if (tokenIn.info && tokenOut.info && ocean.isOCEAN(tokenIn.info.address)) {
+              getAllowance(tokenIn.info.address, accountId, tokenOut.info.pool || '', ocean).then((res) => {
+                setTokenIn({
+                  ...tokenIn,
                   allowance: new BigNumber(res),
                   balance,
                   value: new BigNumber(0),
                   percentage: new BigNumber(0),
                 });
               });
-            } else if (token1.info && token2.info && ocean.isOCEAN(token2.info.address)) {
-              getAllowance(token1.info.address, accountId, token1.info.pool || '', ocean).then((res) => {
-                setToken1({
-                  ...token1,
+            } else if (tokenIn.info && tokenOut.info && ocean.isOCEAN(tokenOut.info.address)) {
+              getAllowance(tokenIn.info.address, accountId, tokenIn.info.pool || '', ocean).then((res) => {
+                setTokenIn({
+                  ...tokenIn,
                   allowance: new BigNumber(res),
                   balance,
                   value: new BigNumber(0),
                   percentage: new BigNumber(0),
                 });
               });
-            } else if (token1.info) {
-              getAllowance(token1.info.address, accountId, config?.default.routerAddress, ocean).then((res) => {
-                setToken1({
-                  ...token1,
+            } else if (tokenIn.info) {
+              getAllowance(tokenIn.info.address, accountId, config?.default.routerAddress, ocean).then((res) => {
+                setTokenIn({
+                  ...tokenIn,
                   allowance: new BigNumber(res),
                   balance,
                   value: new BigNumber(0),
@@ -125,10 +125,10 @@ export default function Swap() {
             // console.log(balance?.toString());
 
             let updatedToken1;
-            balance ? (updatedToken1 = { ...token1, balance }) : (updatedToken1 = token1);
+            balance ? (updatedToken1 = { ...tokenIn, balance }) : (updatedToken1 = tokenIn);
 
             ocean
-              .getMaxExchange(updatedToken1, token2, signal)
+              .getMaxExchange(updatedToken1, tokenOut, signal)
               .then((res: IMaxExchange | void) => {
                 if (res) {
                   setMaxExchange(res);
@@ -138,15 +138,15 @@ export default function Swap() {
           });
       }
 
-      if (token2.info) {
-        updateBalance(token2.info.address).then((balance) => {
-          if (balance) setToken2({ ...token2, balance, value: new BigNumber(0) });
+      if (tokenOut.info) {
+        updateBalance(tokenOut.info.address).then((balance) => {
+          if (balance) setTokenOut({ ...tokenOut, balance, value: new BigNumber(0) });
         });
       }
 
-      if (token1.info && !token2.info) {
-        updateBalance(token1.info.address).then((balance) => {
-          if (balance) setToken1({ ...token1, balance, value: new BigNumber(0) });
+      if (tokenIn.info && !tokenOut.info) {
+        updateBalance(tokenIn.info.address).then((balance) => {
+          if (balance) setTokenIn({ ...tokenIn, balance, value: new BigNumber(0) });
         });
       }
     } catch (error) {
@@ -155,22 +155,22 @@ export default function Swap() {
 
     return () => controller.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token1.info, token2.info, ocean, accountId]);
+  }, [tokenIn.info, tokenOut.info, ocean, accountId]);
 
   useEffect(() => {
-    if (showUnlockTokenModal && token1.allowance?.gt(token1.value)) {
+    if (showUnlockTokenModal && tokenIn.allowance?.gt(tokenIn.value)) {
       setBlurBG(false);
       setShowUnlockTokenModal(false);
       setExecuteSwap(true);
     }
-  }, [token1.allowance]);
+  }, [tokenIn.allowance]);
 
   useEffect(() => {
-    if (ocean && token1.info && token1.value.gt(0) && token2.info) {
+    if (ocean && tokenIn.info && tokenIn.value.gt(0) && tokenOut.info) {
       (async () => {
-        const pool = token1.info?.symbol === 'OCEAN' ? token2.info?.pool : token1.info?.pool;
+        const pool = tokenIn.info?.symbol === 'OCEAN' ? tokenOut.info?.pool : tokenIn.info?.pool;
         if (!pool) return;
-        const swapFee = new BigNumber(await ocean.calculateSwapFee(pool, token1.value.dp(5).toString()));
+        const swapFee = new BigNumber(await ocean.calculateSwapFee(pool, tokenIn.value.dp(5).toString()));
         setSwapFee(swapFee);
       })();
     }
@@ -182,39 +182,39 @@ export default function Swap() {
   }
 
   async function swapTokens() {
-    setToken1({ ...token2, info: token2.info });
-    setToken2({ ...token1, info: token1.info });
+    setTokenIn({ ...tokenOut, info: tokenOut.info });
+    setTokenOut({ ...tokenIn, info: tokenIn.info });
   }
 
   function updateValueFromPercentage(value: string) {
-    // max case is handled in onPerc for token1
+    // max case is handled in onPerc for tokenIn
     const perc = new BigNumber(value);
     if (perc.isNaN()) {
-      setToken1({ ...token1, percentage: new BigNumber(0) });
+      setTokenIn({ ...tokenIn, percentage: new BigNumber(0) });
     } else if (perc.gte(100)) {
-      setToken1({ ...token1, percentage: new BigNumber(100), value: token1?.balance });
-      setToken2({ ...token2, percentage: new BigNumber(0) });
+      setTokenIn({ ...tokenIn, percentage: new BigNumber(100), value: tokenIn?.balance });
+      setTokenOut({ ...tokenOut, percentage: new BigNumber(0) });
       updateOtherTokenValue(true, new BigNumber(100));
     } else {
-      const value: BigNumber = token1.balance.multipliedBy(perc).div(100).dp(5);
-      setToken1({ ...token1, percentage: perc, value });
+      const value: BigNumber = tokenIn.balance.multipliedBy(perc).div(100).dp(5);
+      setTokenIn({ ...tokenIn, percentage: perc, value });
       updateOtherTokenValue(true, value);
     }
   }
 
   async function updateOtherTokenValue(from: boolean, inputAmount: BigNumber) {
-    if (token1?.info && token2?.info && ocean) {
+    if (tokenIn?.info && tokenOut?.info && ocean) {
       if (from) {
-        setToken2({ ...token2, loading: true });
-        const exchange = await ocean.calculateExchange(from, inputAmount, token1, token2);
+        setTokenOut({ ...tokenOut, loading: true });
+        const exchange = await ocean.calculateExchange(from, inputAmount, tokenIn, tokenOut);
         setPostExchange(exchange.div(inputAmount));
-        setToken2({ ...token2, value: exchange, loading: false });
+        setTokenOut({ ...tokenOut, value: exchange, loading: false });
         setExactToken(1);
       } else {
-        setToken1({ ...token1, loading: true });
-        const exchange = await ocean.calculateExchange(from, inputAmount, token1, token2);
+        setTokenIn({ ...tokenIn, loading: true });
+        const exchange = await ocean.calculateExchange(from, inputAmount, tokenIn, tokenOut);
         setPostExchange(inputAmount.div(exchange));
-        setToken1({ ...token1, value: exchange, loading: false });
+        setTokenIn({ ...tokenIn, value: exchange, loading: false });
         setExactToken(2);
       }
     }
@@ -224,78 +224,78 @@ export default function Swap() {
     let txReceipt = null;
     if (!preTxDetails || preTxDetails.txType !== 'swap') return;
     const decSlippage = slippage.div(100).dp(5);
-    if (!chainId || !token2.info || !token1.info || !accountId || !ocean || !config) return;
+    if (!chainId || !tokenOut.info || !tokenIn.info || !accountId || !ocean || !config) return;
     try {
-      if (ocean.isOCEAN(token1.info.address)) {
+      if (ocean.isOCEAN(tokenIn.info.address)) {
         if (exactToken === 1) {
           // console.log('exact ocean to dt');
-          // console.log(accountId, token2.info.pool.toString(), token2.value.toString(), token1.value.toString());
+          // console.log(accountId, tokenOut.info.pool.toString(), tokenOut.value.toString(), tokenIn.value.toString());
           txReceipt = await ocean.swapExactOceanToDt(
             accountId,
-            token2.info.pool || '',
-            token2.value.dp(5).toString(),
-            token1.value.dp(5).toString(),
+            tokenOut.info.pool || '',
+            tokenOut.value.dp(5).toString(),
+            tokenIn.value.dp(5).toString(),
             decSlippage.toString()
           );
         } else {
           // console.log('ocean to exact dt');
           txReceipt = await ocean.swapExactOceanToDt(
             accountId,
-            token2.info.pool || '',
-            token2.value.dp(5).toString(),
-            token1.value.dp(5).toString(),
+            tokenOut.info.pool || '',
+            tokenOut.value.dp(5).toString(),
+            tokenIn.value.dp(5).toString(),
             decSlippage.toString()
           );
         }
-      } else if (ocean.isOCEAN(token2.info.address)) {
+      } else if (ocean.isOCEAN(tokenOut.info.address)) {
         if (exactToken === 1) {
           // console.log('exact dt to ocean');
-          // console.log(accountId, token1.info.pool, token2.value.toString(), token1.value.toString());
+          // console.log(accountId, tokenIn.info.pool, tokenOut.value.toString(), tokenIn.value.toString());
           txReceipt = await ocean.swapExactDtToOcean(
             accountId,
-            token1.info.pool || '',
-            token2.value.dp(5).toString(),
-            token1.value.dp(5).toString(),
+            tokenIn.info.pool || '',
+            tokenOut.value.dp(5).toString(),
+            tokenIn.value.dp(5).toString(),
             decSlippage.toString()
           );
         } else {
           // Error: Throws not enough datatokens
           // console.log('dt to exact ocean');
-          // console.log(accountId, token1.info.pool, token2.value.toString(), token1.value.toString());
+          // console.log(accountId, tokenIn.info.pool, tokenOut.value.toString(), tokenIn.value.toString());
           txReceipt = await ocean.swapExactDtToOcean(
             accountId,
-            token1.info.pool || '',
-            token2.value.dp(5).toString(),
-            token1.value.dp(5).toString(),
+            tokenIn.info.pool || '',
+            tokenOut.value.dp(5).toString(),
+            tokenIn.value.dp(5).toString(),
             decSlippage.toString()
           );
         }
       } else {
         if (exactToken === 1) {
           // console.log('exact dt to dt');
-          // console.log(accountId,token1.info.address,token2.info.address,t2Val,t1Val,token1.info.pool,token2.info.pool,config.default.routerAddress,decSlippage);
+          // console.log(accountId,tokenIn.info.address,tokenOut.info.address,t2Val,t1Val,tokenIn.info.pool,tokenOut.info.pool,config.default.routerAddress,decSlippage);
           txReceipt = await ocean.swapExactDtToDt(
             accountId,
-            token1.info.address,
-            token2.info.address,
-            token2.value.dp(5).toString(),
-            token1.value.dp(5).toString(),
-            token1.info.pool || '',
-            token2.info.pool || '',
+            tokenIn.info.address,
+            tokenOut.info.address,
+            tokenOut.value.dp(5).toString(),
+            tokenIn.value.dp(5).toString(),
+            tokenIn.info.pool || '',
+            tokenOut.info.pool || '',
             config.default.routerAddress,
             decSlippage.toString()
           );
         } else {
           // console.log('dt to exact dt');
-          // console.log(accountId,token1.info.address,token2.info.address,t2Val, t1Val,token1.info.pool,token2.info.pool,config.default.routerAddress,decSlippage)
+          // console.log(accountId,tokenIn.info.address,tokenOut.info.address,t2Val, t1Val,tokenIn.info.pool,tokenOut.info.pool,config.default.routerAddress,decSlippage)
           txReceipt = await ocean.swapExactDtToDt(
             accountId,
-            token1.info.address,
-            token2.info.address,
-            token2.value.dp(5).toString(),
-            token1.value.dp(5).toString(),
-            token1.info.pool || '',
-            token2.info.pool || '',
+            tokenIn.info.address,
+            tokenOut.info.address,
+            tokenOut.value.dp(5).toString(),
+            tokenIn.value.dp(5).toString(),
+            tokenIn.info.pool || '',
+            tokenOut.info.pool || '',
             config.default.routerAddress,
             decSlippage.toString()
           );
@@ -325,14 +325,14 @@ export default function Swap() {
       });
     }
 
-    if (accountId && !(token1?.info && token2?.info)) {
+    if (accountId && !(tokenIn?.info && tokenOut?.info)) {
       setBtnProps({
         text: 'Select Tokens',
         disabled: true,
       });
     }
 
-    if ((accountId && token1?.info && token2?.info && token1.value.eq(0)) || !token2.value.eq(0)) {
+    if ((accountId && tokenIn?.info && tokenOut?.info && tokenIn.value.eq(0)) || !tokenOut.value.eq(0)) {
       setBtnProps({
         text: 'Enter Token Amount',
         disabled: true,
@@ -346,37 +346,37 @@ export default function Swap() {
       return;
     }
 
-    if (accountId && token1?.info && token2?.info && token1.value.gt(0) && token1.value.gt(0)) {
-      if (token1.balance.lt(token1.value)) {
+    if (accountId && tokenIn?.info && tokenOut?.info && tokenIn.value.gt(0) && tokenIn.value.gt(0)) {
+      if (tokenIn.balance.lt(tokenIn.value)) {
         setBtnProps({
-          text: `Not Enough ${token1.info.symbol}`,
+          text: `Not Enough ${tokenIn.info.symbol}`,
           disabled: true,
         });
       } else if (
         ocean &&
-        ((ocean.isOCEAN(token1.info.address) && token1.value.lt(0.01) && token1.value.gt(0)) ||
-          (ocean.isOCEAN(token2.info.address) && token2.value.lt(0.01) && token2.value.gt(0)))
+        ((ocean.isOCEAN(tokenIn.info.address) && tokenIn.value.lt(0.01) && tokenIn.value.gt(0)) ||
+          (ocean.isOCEAN(tokenOut.info.address) && tokenOut.value.lt(0.01) && tokenOut.value.gt(0)))
       ) {
         setBtnProps({
           text: 'Minimum trade is .01 OCEAN',
           disabled: true,
         });
-      } else if (token1.value.lt(0.001) && token1.value.gt(0)) {
+      } else if (tokenIn.value.lt(0.001) && tokenIn.value.gt(0)) {
         setBtnProps({
-          text: `Minimum trade is .001 ${token1.info.symbol}`,
+          text: `Minimum trade is .001 ${tokenIn.info.symbol}`,
           disabled: true,
         });
-      } else if (token2.value.lt(0.001) && token2.value.gt(0)) {
+      } else if (tokenOut.value.lt(0.001) && tokenOut.value.gt(0)) {
         setBtnProps({
-          text: `Minimum trade is .001 ${token2.info.symbol}`,
+          text: `Minimum trade is .001 ${tokenOut.info.symbol}`,
           disabled: true,
         });
-      } else if (token1.allowance?.lt(token1.value)) {
+      } else if (tokenIn.allowance?.lt(tokenIn.value)) {
         setBtnProps({
-          text: `Unlock ${token1.info.symbol}`,
+          text: `Unlock ${tokenIn.info.symbol}`,
           disabled: false,
         });
-      } else if (token1.balance.dp(5).gte(token1.value) && !token1.balance.eq(0)) {
+      } else if (tokenIn.balance.dp(5).gte(tokenIn.value) && !tokenIn.balance.eq(0)) {
         setBtnProps({
           text: 'Swap',
           disabled: false,
@@ -390,22 +390,22 @@ export default function Swap() {
     setExactToken(1);
     const bnVal = new BigNumber(value);
     // Setting state here allows for max to be persisted in the input
-    setToken1({ ...token1, value: bnVal });
-    if (token1?.info && token2?.info) {
+    setTokenIn({ ...tokenIn, value: bnVal });
+    if (tokenIn?.info && tokenOut?.info) {
       let exchangeLimit = INITIAL_MAX_EXCHANGE;
 
-      maxExchange.maxSell.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await ocean.getMaxExchange(token1, token2));
+      maxExchange.maxSell.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await ocean.getMaxExchange(tokenIn, tokenOut));
 
       const { maxSell, maxBuy, maxPercent } = exchangeLimit;
 
-      if (bnVal.gt(maxSell) && token1.balance.gte(0.00001)) {
-        setToken2({ ...token2, value: maxBuy });
-        setToken1({ ...token1, value: maxSell, percentage: maxPercent });
+      if (bnVal.gt(maxSell) && tokenIn.balance.gte(0.00001)) {
+        setTokenOut({ ...tokenOut, value: maxBuy });
+        setTokenIn({ ...tokenIn, value: maxSell, percentage: maxPercent });
       } else {
         const percentage =
-          token1.balance.lt(0.00001) && bnVal.gt(0) ? new BigNumber(100) : new BigNumber(bnVal.div(token1.balance).multipliedBy(100));
-        setToken1({
-          ...token1,
+          tokenIn.balance.lt(0.00001) && bnVal.gt(0) ? new BigNumber(100) : new BigNumber(bnVal.div(tokenIn.balance).multipliedBy(100));
+        setTokenIn({
+          ...tokenIn,
           value: bnVal,
           percentage,
         });
@@ -422,17 +422,17 @@ export default function Swap() {
     const bnVal = new BigNumber(val);
     let exchangeLimit = INITIAL_MAX_EXCHANGE;
 
-    maxExchange.maxPercent.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await ocean.getMaxExchange(token1, token2));
+    maxExchange.maxPercent.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await ocean.getMaxExchange(tokenIn, tokenOut));
 
     const { maxPercent, maxBuy, maxSell, postExchange } = exchangeLimit;
 
-    if (bnVal.gte(maxPercent) && token1?.balance.gte(0.00001)) {
-      setToken1({
-        ...token1,
+    if (bnVal.gte(maxPercent) && tokenIn?.balance.gte(0.00001)) {
+      setTokenIn({
+        ...tokenIn,
         value: maxSell,
         percentage: maxPercent,
       });
-      setToken2({ ...token2, value: maxBuy });
+      setTokenOut({ ...tokenOut, value: maxBuy });
       setPostExchange(postExchange);
     } else {
       updateValueFromPercentage(val);
@@ -445,19 +445,19 @@ export default function Swap() {
     setExactToken(2);
     const bnVal = new BigNumber(value);
     // Setting state here allows for max to be persisted in the input
-    setToken2({ ...token2, value: bnVal });
-    if (token1?.info && token2?.info) {
+    setTokenOut({ ...tokenOut, value: bnVal });
+    if (tokenIn?.info && tokenOut?.info) {
       let exchangeLimit;
 
-      maxExchange.maxBuy.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await ocean.getMaxExchange(token1, token2));
+      maxExchange.maxBuy.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await ocean.getMaxExchange(tokenIn, tokenOut));
       const { maxBuy, maxSell } = exchangeLimit;
 
-      if (bnVal.gt(maxBuy) && token1.balance.gte(0.00001)) {
-        setToken2({ ...token2, value: maxBuy });
-        setToken1({ ...token1, value: maxSell });
+      if (bnVal.gt(maxBuy) && tokenIn.balance.gte(0.00001)) {
+        setTokenOut({ ...tokenOut, value: maxBuy });
+        setTokenIn({ ...tokenIn, value: maxSell });
         setPostExchange(postExchange);
       } else {
-        setToken2({ ...token2, value: bnVal });
+        setTokenOut({ ...tokenOut, value: bnVal });
         updateOtherTokenValue(false, bnVal);
       }
     }
@@ -468,7 +468,7 @@ export default function Swap() {
       <DatasetDescription />
       <div
         className={`absolute w-full max-w-[32rem] top-1/2 left-1/2 transition-transform transform duration-500 ${
-          showDescModal && token2.info?.pool ? 'translate-x-[125%] 2lg:translate-x-0' : '-translate-x-1/2'
+          showDescModal && tokenOut.info?.pool ? 'translate-x-[125%] 2lg:translate-x-0' : '-translate-x-1/2'
         } -translate-y-1/2`}
       >
         <div className="sm:mx-4 mx-3">
@@ -476,12 +476,12 @@ export default function Swap() {
             <div id="swapModal" className="lg:w-107 bg-black bg-opacity-90 rounded-lg p-3 hm-box">
               <TxSettings />
               <TokenSelect
-                setToken={setToken1}
-                token={token1}
+                setToken={setTokenIn}
+                token={tokenIn}
                 max={maxExchange.maxSell}
                 onPerc={onPercToken1}
                 onMax={() => onPercToken1('100')}
-                otherToken={token2?.info ? token2.info.symbol : ''}
+                otherToken={tokenOut?.info ? tokenOut.info.symbol : ''}
                 pos={1}
                 updateNum={dbUpdateToken1}
               />
@@ -493,7 +493,7 @@ export default function Swap() {
                   tabIndex={0}
                   className="rounded-full border-black bg-opacity-100 border-4 absolute -top-7 bg-trade-darkBlue hover:bg-gray-600 transition-colors duration-200 w-12 h-12 flex swap-center items-center justify-center"
                 >
-                  {token2?.loading || token1?.loading || percLoading ? (
+                  {tokenOut?.loading || tokenIn?.loading || percLoading ? (
                     <MoonLoader size={25} color={'white'} />
                   ) : (
                     <IoSwapVertical size="30" className="text-gray-300" />
@@ -501,40 +501,40 @@ export default function Swap() {
                 </div>
               </div>
               <TokenSelect
-                setToken={setToken2}
-                token={token2}
+                setToken={setTokenOut}
+                token={tokenOut}
                 max={maxExchange.maxBuy}
-                otherToken={token1.info ? token1.info.symbol : ''}
+                otherToken={tokenIn.info ? tokenIn.info.symbol : ''}
                 pos={2}
                 updateNum={dbUpdateToken2}
               />
 
               <Collapse
                 isOpened={
-                  !!(token1?.info && token2?.info && token1.value.gt(0) && token2.value.gt(0) && postExchange.gt(0))
+                  !!(tokenIn?.info && tokenOut?.info && tokenIn.value.gt(0) && tokenOut.value.gt(0) && postExchange.gt(0))
                 }
               >
                 <div
                   className={`my-4 p-2 bg-black border border-city-blue border-opacity-50 transition-opacity ${
-                    token2?.loading || token1?.loading || percLoading ? 'bg-opacity-10 text-gray-400' : 'bg-opacity-25 text-gray-300'
+                    tokenOut?.loading || tokenIn?.loading || percLoading ? 'bg-opacity-10 text-gray-400' : 'bg-opacity-25 text-gray-300'
                   } flex flex-col justify-between text-sm rounded-lg`}
                 >
                   <div className="flex justify-between my-1">
                     <p>Exchange rate</p>
-                    <p className={`${token2?.loading || token1?.loading || percLoading ? 'blur-xs' : ''}`}>
-                      1 {token1.info?.symbol} = {postExchange.dp(5).toString()} {`${' '}${token2.info?.symbol}`}
+                    <p className={`${tokenOut?.loading || tokenIn?.loading || percLoading ? 'blur-xs' : ''}`}>
+                      1 {tokenIn.info?.symbol} = {postExchange.dp(5).toString()} {`${' '}${tokenOut.info?.symbol}`}
                     </p>
                   </div>
                   <div className="flex justify-between my-1">
                     <p>Swap Fee</p>
-                    <p className={`${token2?.loading || token1?.loading || percLoading ? 'blur-xs' : ''}`}>
-                      {swapFee?.dp(5).toString() + ' ' + token1.info?.symbol}
+                    <p className={`${tokenOut?.loading || tokenIn?.loading || percLoading ? 'blur-xs' : ''}`}>
+                      {swapFee?.dp(5).toString() + ' ' + tokenIn.info?.symbol}
                     </p>
                   </div>{' '}
                   <div className="flex justify-between my-1">
                     <p>{exactToken === 1 ? 'Minimum Received' : 'Maximum Spent'}</p>
-                    <p className={`${token2?.loading || token1?.loading || percLoading ? 'blur-xs' : ''}`}>
-                      {afterSlippage?.dp(5).toString() + ' ' + token2.info?.symbol}
+                    <p className={`${tokenOut?.loading || tokenIn?.loading || percLoading ? 'blur-xs' : ''}`}>
+                      {afterSlippage?.dp(5).toString() + ' ' + tokenOut.info?.symbol}
                     </p>
                   </div>
                 </div>
@@ -547,7 +547,7 @@ export default function Swap() {
                     setExecuteSwap(true);
                   }}
                   className="txButton"
-                  disabled={btnProps.disabled || token2.loading || token1.loading || percLoading}
+                  disabled={btnProps.disabled || tokenOut.loading || tokenIn.loading || percLoading}
                 >
                   {btnProps.text}
                 </button>

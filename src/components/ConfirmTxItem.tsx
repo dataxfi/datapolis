@@ -4,8 +4,8 @@ import useTokenImgSrc from '../hooks/useTokenImgSrc';
 import BigNumber from 'bignumber.js';
 
 export default function ConfirmTxItem({ pos }: { pos: 1 | 2 }) {
-  const { token1, token2, location, preTxDetails } = useContext(GlobalContext);
-  const [token] = useState(pos === 1 ? token1 : token2);
+  const { tokenIn, tokenOut, location, preTxDetails } = useContext(GlobalContext);
+  const [token] = useState(pos === 1 ? tokenIn : tokenOut);
   const [imgSrc, setImgSrc] = useState(token.info?.logoURI);
   const [shares, setShares] = useState(new BigNumber(0));
   useTokenImgSrc(imgSrc, setImgSrc, token.info);
@@ -33,14 +33,14 @@ export default function ConfirmTxItem({ pos }: { pos: 1 | 2 }) {
           </>
         )}
         <p className="text-gray-100 text-lg">
-          {location === '/stake/remove' && pos === 1 ? shares.dp(5).toString() : pos === 1 ? token1.value.dp(5).toString() : location === '/stake' ? preTxDetails?.shares?.dp(5).toString() : token2.value.dp(5).toString()}
+          {location === '/stake/remove' && pos === 1 ? shares.dp(5).toString() : pos === 1 ? tokenIn.value.dp(5).toString() : location === '/stake' ? preTxDetails?.shares?.dp(5).toString() : tokenOut.value.dp(5).toString()}
         </p>
       </div>
       <p
-        id={`confirmSwapItem${pos === 1 ? token1.info?.symbol : token2.info?.symbol}`}
+        id={`confirmSwapItem${pos === 1 ? tokenIn.info?.symbol : tokenOut.info?.symbol}`}
         className="justify-self-end text-gray-100 text-lg pr-2"
       >
-        {location === '/stake/remove' && pos === 1 ? 'Shares' : pos === 1 ? token1.info?.symbol : token2.info?.symbol}
+        {location === '/stake/remove' && pos === 1 ? 'Shares' : pos === 1 ? tokenIn.info?.symbol : tokenOut.info?.symbol}
         {location === '/stake' && pos === 2 ? '/OCEAN Shares' : ''}
       </p>
     </div>

@@ -8,8 +8,8 @@ import CenterModal from './CenterModal';
 
 export default function ConfirmTxDetailsModal() {
   const {
-    token1,
-    token2,
+    tokenIn,
+    tokenOut,
     setShowConfirmTxDetails,
     showConfirmTxDetails,
     preTxDetails,
@@ -33,11 +33,11 @@ export default function ConfirmTxDetailsModal() {
   } = useContext(GlobalContext);
 
   const [txTitle, setTxTitle] = useState<'Stake' | 'Stake Removal' | 'Swap'>('Swap');
-  const swapPostExchangeString = `1 ${token1.info?.symbol} = ${preTxDetails?.postExchange?.dp(5).toString()} ${
-    token2.info?.symbol
+  const swapPostExchangeString = `1 ${tokenIn.info?.symbol} = ${preTxDetails?.postExchange?.dp(5).toString()} ${
+    tokenOut.info?.symbol
   }`;
   const [postExchangeString, setPostExchangeString] = useState<string>(swapPostExchangeString);
-  const swapAfterSlippageString = `${afterSlippage.dp(5).toString()} ${token2.info?.symbol}`;
+  const swapAfterSlippageString = `${afterSlippage.dp(5).toString()} ${tokenOut.info?.symbol}`;
   const [afterSlippageString, setAfterSlippageString] = useState<string>(swapAfterSlippageString);
   const [minOrMax, setMinOrMax] = useState<'Minimum Received' | 'Maximum Spent'>('Minimum Received');
 
@@ -45,7 +45,7 @@ export default function ConfirmTxDetailsModal() {
     switch (location) {
       case '/stake':
         setTxTitle('Stake');
-        setPostExchangeString(`1 ${token1.info?.symbol} = ${preTxDetails?.postExchange?.dp(5).toString()} Shares`);
+        setPostExchangeString(`1 ${tokenIn.info?.symbol} = ${preTxDetails?.postExchange?.dp(5).toString()} Shares`);
         setAfterSlippageString(`${afterSlippage.dp(5).toString()} Shares`);
         break;
       case '/stake/remove':
@@ -125,7 +125,7 @@ export default function ConfirmTxDetailsModal() {
           {/* <ConfirmSwapListItem name="Price impact" value="-0.62%" valueClass="text-green-500" /> */}
           <ConfirmTxListItem
             name={`${txTitle} Fee`}
-            value={swapFee?.dp(5).toString() + ' ' + (token1.info?.symbol || 'OCEAN')}
+            value={swapFee?.dp(5).toString() + ' ' + (tokenIn.info?.symbol || 'OCEAN')}
           />
           <ConfirmTxListItem name="DataX Fee" value="0" />
           {/* <ConfirmSwapListItem name="DataX fee" value="0.000000006 ETH" /> */}
