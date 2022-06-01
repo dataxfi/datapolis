@@ -323,11 +323,10 @@ export default function Unstake() {
                     <PulseLoader color="white" size="4px" margin="5px" />
                   )}
                 </div>
-                <TxSettings />
               </div>
               <div className="md:grid md:grid-cols-5 modalSelectBg p-2 rounded">
                 <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center">
-                  <p className="text-gray-100">Amount to unstake</p>
+                  <p className="text-gray-100">Amount to Unstake</p>
                 </div>
                 <div className="col-span-3 flex justify-between mt-3 md:mt-0 bg-black bg-opacity-70 rounded-lg p-1">
                   <div className="flex w-full items-center">
@@ -399,6 +398,8 @@ export default function Unstake() {
                 >
                   {btnText}
                 </button>
+                <TxSettings />
+
               </div>
             </div>
             <div className="pt-3 pl-3">

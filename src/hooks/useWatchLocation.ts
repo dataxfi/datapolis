@@ -27,7 +27,7 @@ export default function useWatchLocation() {
   } = useContext(GlobalContext);
   const currentLocation = useLocation();
   const lastLocation = useRef(currentLocation);
-  const [, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   useLiquidityPos(importPool, setImportPool);
 
@@ -36,25 +36,8 @@ export default function useWatchLocation() {
   }, [currentLocation]);
 
   useEffect(() => {
-    switch (currentLocation.pathname) {
-      case '/stake/remove':
-      case '/stake':
-        if (tokenOut.info?.pool || tokenIn.info?.address) {
-          setSearchParams({ pool: tokenOut.info?.pool || '', in: tokenIn.info?.address || '' }, { replace: true });
-        }
-        break;
-      default:
-        if (tokenIn.info || tokenOut.info) {
-          setSearchParams({ in: tokenIn.info?.address || '', out: tokenOut.info?.address || '' }, { replace: true });
-        }
-        break;
-    }
-  }, [tokenIn.info?.address, tokenOut.info?.address]);
-
-  useEffect(() => {
     if (currentLocation.pathname !== lastLocation.current.pathname) {
       tokensCleared.current = false;
-      setSearchParams({});
     }
 
     if (currentLocation.pathname === '/trade') {
@@ -66,16 +49,38 @@ export default function useWatchLocation() {
       tokensCleared.current = true;
       lastLocation.current = currentLocation;
     }
+
+    switch (currentLocation.pathname) {
+      case '/stake/remove':
+        if (tokenOut.info?.pool || tokenIn.info?.address) {
+          setSearchParams({ pool: tokenOut.info?.pool || '', out: tokenIn.info?.address || '' }, { replace: true });
+        }
+        break;
+      case '/stake':
+        if (tokenOut.info?.pool || tokenIn.info?.address) {
+          setSearchParams({ pool: tokenOut.info?.pool || '', in: tokenIn.info?.address || '' }, { replace: true });
+        }
+        break;
+      case '/stake/list':
+        setSearchParams({});
+        break;
+      default:
+        if (tokenIn.info || tokenOut.info) {
+          setSearchParams({ in: tokenIn.info?.address || '', out: tokenOut.info?.address || '' }, { replace: true });
+        }
+        break;
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentLocation.pathname, tokenIn.info, tokenOut.info]);
+  }, [currentLocation.pathname, tokenIn.info?.address, tokenOut.info?.address]);
 
   const initialAccount = useRef(accountId);
   const navigate = useNavigate();
   useEffect(() => {
     if (
-      initialAccount.current &&
-      accountId !== initialAccount.current &&
-      currentLocation.pathname === '/stake/remove'
+      (initialAccount.current &&
+        accountId !== initialAccount.current &&
+        currentLocation.pathname === '/stake/remove') ||
+      (currentLocation.pathname === '/stake/remove' && !searchParams.get('pool'))
     ) {
       navigate('/stake/list');
     }

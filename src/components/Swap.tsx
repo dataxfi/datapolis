@@ -474,7 +474,6 @@ export default function Swap() {
         <div className="sm:mx-4 mx-3">
           <div className="flex mt-6 w-full h-full items-center justify-center">
             <div id="swapModal" className="lg:w-107 bg-black bg-opacity-90 rounded-lg p-3 hm-box">
-              <TxSettings />
               <TokenSelect
                 setToken={setTokenIn}
                 token={tokenIn}
@@ -540,7 +539,7 @@ export default function Swap() {
                 </div>
               </Collapse>
 
-              <div className="mt-4">
+              <div className="mt-4 flex">
                 <button
                   id="executeTradeBtn"
                   onClick={() => {
@@ -551,6 +550,8 @@ export default function Swap() {
                 >
                   {btnProps.text}
                 </button>
+                <TxSettings />
+
               </div>
             </div>
           </div>

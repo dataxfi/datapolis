@@ -265,7 +265,6 @@ export default function Stake() {
         <div className="flex h-full w-full items-center justify-center">
           <div className="lg:mx-auto sm:mx-4 mx-3">
             <div id="stakeModal" className="lg:w-107  bg-black bg-opacity-90 rounded-lg p-3 hm-box">
-              <TxSettings />
               <TokenSelect
                 max={maxStakeAmt}
                 otherToken={'OCEAN'}
@@ -295,16 +294,19 @@ export default function Stake() {
                 onMax={setMaxStake}
               />
               <PositionBox loading={loading} setLoading={setLoading} />
-              <button
-                id="executeStake"
-                onClick={() => setExecuteStake(true)}
-                className="txButton mt-3"
-                disabled={btnProps.disabled}
-              >
-                {btnProps.text}
-              </button>
+              <div className="flex mt-3">
+                <button
+                  id="executeStake"
+                  onClick={() => setExecuteStake(true)}
+                  className="txButton"
+                  disabled={btnProps.disabled}
+                >
+                  {btnProps.text}
+                </button>
+                <TxSettings />
+              </div>
             </div>
-            <div className=" flex justify-between">
+            <div className="flex justify-between">
               <ViewDescBtn />
               <Link id="lpLink" to="/stake/list" className="text-gray-300 hover:text-gray-100 transition-colors">
                 Your stake positions {'>'}

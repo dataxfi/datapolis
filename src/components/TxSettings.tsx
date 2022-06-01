@@ -7,7 +7,7 @@ import { GlobalContext } from '../context/GlobalState';
 export default function TxSettings() {
   const { showTxSettings, setShowTxSettings, slippage, setSlippage } = useContext(GlobalContext);
   return (
-    <div className="flex relative">
+    <div className="flex relative ml-2">
       <div className="grid grid-flow-col gap-2 items-center">
         <div
           id="tradeSettingsBtn"

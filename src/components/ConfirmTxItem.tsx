@@ -40,8 +40,7 @@ export default function ConfirmTxItem({ pos }: { pos: 1 | 2 }) {
         id={`confirmSwapItem${pos === 1 ? tokenIn.info?.symbol : tokenOut.info?.symbol}`}
         className="justify-self-end text-gray-100 text-lg pr-2"
       >
-        {location === '/stake/remove' && pos === 1 ? 'Shares' : pos === 1 ? tokenIn.info?.symbol : tokenOut.info?.symbol}
-        {location === '/stake' && pos === 2 ? '/OCEAN Shares' : ''}
+        {(location === '/stake/remove' && pos === 1) || (location === '/stake' && pos === 2) ? 'Shares' : pos === 1 ? tokenIn.info?.symbol : tokenOut.info?.symbol}
       </p>
     </div>
   );
