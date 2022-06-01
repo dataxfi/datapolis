@@ -15,7 +15,7 @@ import useClearTokens from '../hooks/useClearTokens';
 import useAutoLoadToken from '../hooks/useAutoLoadToken';
 import useTxHandler from '../hooks/useTxHandler';
 import TxSettings from './TxSettings';
-import useMinReceived from '../hooks/useMinReceived';
+import useCalcSlippage from '../hooks/useCalcSlippage';
 
 const INITIAL_MAX_EXCHANGE: IMaxExchange = {
   maxBuy: new BigNumber(0),
@@ -47,14 +47,14 @@ export default function Swap() {
     setTxApproved,
     swapFee,
     setSwapFee,
-    minReceived,
+    afterSlippage,
     executeUnlock,
     slippage,
     setShowConfirmTxDetails,
     exactToken,
     setExactToken,
   } = useContext(GlobalContext);
-  
+
   const [postExchange, setPostExchange] = useState<BigNumber>(new BigNumber(0));
   const [btnProps, setBtnProps] = useState<IBtnProps>({
     text: 'Select Tokens',
@@ -67,7 +67,7 @@ export default function Swap() {
   useClearTokens();
   useAutoLoadToken();
   useTxHandler(swap, executeSwap, setExecuteSwap, { slippage, postExchange });
-  useMinReceived();
+  useCalcSlippage();
 
   useEffect(() => {
     getButtonProperties();
@@ -534,7 +534,7 @@ export default function Swap() {
                   <div className="flex justify-between my-1">
                     <p>{exactToken === 1 ? 'Minimum Received' : 'Maximum Spent'}</p>
                     <p className={`${token2?.loading || token1?.loading || percLoading ? 'blur-xs' : ''}`}>
-                      {minReceived?.dp(5).toString() + ' ' + token2.info?.symbol}
+                      {afterSlippage?.dp(5).toString() + ' ' + token2.info?.symbol}
                     </p>
                   </div>
                 </div>

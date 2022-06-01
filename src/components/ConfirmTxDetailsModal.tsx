@@ -19,7 +19,7 @@ export default function ConfirmTxDetailsModal() {
     setBlurBG,
     setExecuteSwap,
     swapFee,
-    minReceived,
+    afterSlippage,
     confirmingTx,
     location,
     setExecuteStake,
@@ -29,6 +29,7 @@ export default function ConfirmTxDetailsModal() {
     executeUnstake,
     executeUnlock,
     exactToken,
+    slippage
   } = useContext(GlobalContext);
 
   const [txTitle, setTxTitle] = useState<'Stake' | 'Stake Removal' | 'Swap'>('Swap');
@@ -36,8 +37,8 @@ export default function ConfirmTxDetailsModal() {
     token2.info?.symbol
   }`;
   const [postExchangeString, setPostExchangeString] = useState<string>(swapPostExchangeString);
-  const swapMinReceivedString = `${minReceived.dp(5).toString()} ${token2.info?.symbol}`;
-  const [minReceivedString, setMinReceivedString] = useState<string>(swapMinReceivedString);
+  const swapAfterSlippageString = `${afterSlippage.dp(5).toString()} ${token2.info?.symbol}`;
+  const [afterSlippageString, setAfterSlippageString] = useState<string>(swapAfterSlippageString);
   const [minOrMax, setMinOrMax] = useState<'Minimum Received' | 'Maximum Spent'>('Minimum Received');
 
   useEffect(() => {
@@ -45,17 +46,17 @@ export default function ConfirmTxDetailsModal() {
       case '/stake':
         setTxTitle('Stake');
         setPostExchangeString(`1 ${token1.info?.symbol} = ${preTxDetails?.postExchange?.dp(5).toString()} Shares`);
-        setMinReceivedString(`${preTxDetails?.shares?.dp(5).toString()} Shares`);
+        setAfterSlippageString(`${afterSlippage.dp(5).toString()} Shares`);
         break;
       case '/stake/remove':
         setTxTitle('Stake Removal');
         setPostExchangeString(`1 Share = ${preTxDetails?.postExchange?.dp(5).toString()} ${token2.info?.symbol}`);
-        setMinReceivedString(swapMinReceivedString);
+        setAfterSlippageString(swapAfterSlippageString);
         break;
       default:
         setTxTitle('Swap');
         setPostExchangeString(swapPostExchangeString);
-        setMinReceivedString(swapMinReceivedString);
+        setAfterSlippageString(swapAfterSlippageString);
         break;
     }
 
@@ -120,16 +121,16 @@ export default function ConfirmTxDetailsModal() {
         </div>
         <div className="mt-4">
           {/* <ConfirmSwapListItem name="Route" value="ETH > KNC" /> */}
-          <ConfirmTxListItem name={minOrMax} value={minReceived.dp(5).toString()} />
+          <ConfirmTxListItem name={minOrMax} value={afterSlippage.dp(5).toString()} />
           {/* <ConfirmSwapListItem name="Price impact" value="-0.62%" valueClass="text-green-500" /> */}
           <ConfirmTxListItem name={`${txTitle} Fee`} value={swapFee?.dp(5).toString() + ' ' + token1.info?.symbol} />
           <ConfirmTxListItem name="DataX Fee" value="0" />
           {/* <ConfirmSwapListItem name="DataX fee" value="0.000000006 ETH" /> */}
-          <ConfirmTxListItem name="Slippage Tolerance" value={preTxDetails?.slippage + '%'} />
+          <ConfirmTxListItem name="Slippage Tolerance" value={slippage + '%'} />
         </div>
         <div className="mt-4">
           <p className="text-gray-300 text-sm">
-            You will receive at least {minReceivedString} or the transaction will revert.
+            You will receive at least {afterSlippageString} or the transaction will revert.
           </p>
         </div>
         <div className="mt-4">

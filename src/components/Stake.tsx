@@ -16,6 +16,7 @@ import { transactionTypeGA } from '../context/Analytics';
 import useClearTokens from '../hooks/useClearTokens';
 import useTxHandler from '../hooks/useTxHandler';
 import TxSettings from './TxSettings';
+import useCalcSlippage from '../hooks/useCalcSlippage';
 
 const INITIAL_BUTTON_STATE = {
   text: 'Connect wallet',
@@ -58,6 +59,7 @@ export default function Stake() {
   useAutoLoadToken();
   useClearTokens();
   useTxHandler(stake, executeStake, setExecuteStake, { shares: sharesReceived, postExchange });
+  useCalcSlippage(sharesReceived);
 
   useEffect(() => {
     if (!tokensCleared.current) return;

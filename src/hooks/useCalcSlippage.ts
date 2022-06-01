@@ -2,8 +2,8 @@ import BigNumber from 'bignumber.js';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../context/GlobalState';
 
-export default function useMinReceived(valueOveride?: BigNumber) {
-  const { setMinReceived, slippage, token1, exactToken, token2, showConfirmTxDetails } = useContext(GlobalContext);
+export default function useCalcSlippage(valueOveride?: BigNumber) {
+  const { setAfterSlippage, slippage, token1, exactToken, token2, showConfirmTxDetails } = useContext(GlobalContext);
 
   const [outVal, setOutVal] = useState<BigNumber>(token1.value);
 
@@ -15,11 +15,11 @@ export default function useMinReceived(valueOveride?: BigNumber) {
     } else {
       setOutVal(token1.value);
     }
-    const slip = outVal.times(slippage).div(100);
-    const min = outVal.minus(slip);
 
-    setMinReceived(min);
-    
+    const slip = outVal.times(slippage).div(100);
+    const min = exactToken === 1 ? outVal.minus(slip) : outVal.plus(slip);
+
+    setAfterSlippage(min);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slippage, outVal, token1.value, token2.value, valueOveride, exactToken, showConfirmTxDetails]);
 }

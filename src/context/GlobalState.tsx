@@ -79,7 +79,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [executeUnlock, setExecuteUnlock] = useState<boolean>(false);
   const [approving, setApproving] = useState<ApprovalStates>('pending');
   const [swapFee, setSwapFee] = useState<BigNumber>(new BigNumber(0));
-  const [minReceived, setMinReceived] = useState<BigNumber>(new BigNumber(0));
+  const [afterSlippage, setAfterSlippage] = useState<BigNumber>(new BigNumber(0));
   const [slippage, setSlippage] = useState<BigNumber>(new BigNumber(1));
 
   // user pool information states
@@ -427,8 +427,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setImportPool,
         swapFee,
         setSwapFee,
-        minReceived,
-        setMinReceived,
+        afterSlippage,
+        setAfterSlippage,
         showTxSettings,
         setShowTxSettings,
         slippage,

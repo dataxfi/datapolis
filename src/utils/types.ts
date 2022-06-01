@@ -197,8 +197,8 @@ export interface globalStates {
   setImportPool: React.Dispatch<React.SetStateAction<string | undefined>>;
   swapFee: BigNumber;
   setSwapFee: React.Dispatch<React.SetStateAction<BigNumber>>;
-  minReceived: BigNumber;
-  setMinReceived: React.Dispatch<React.SetStateAction<BigNumber>>;
+  afterSlippage: BigNumber;
+  setAfterSlippage: React.Dispatch<React.SetStateAction<BigNumber>>;
   slippage: BigNumber;
   setSlippage: React.Dispatch<React.SetStateAction<BigNumber>>;
   exactToken: 1 | 2;
