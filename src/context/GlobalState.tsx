@@ -73,12 +73,15 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [preTxDetails, setPreTxDetails] = useState<ITxDetails>();
   const [executeSwap, setExecuteSwap] = useState<boolean>(false);
   const [txApproved, setTxApproved] = useState<boolean>(false);
+  const [showTxSettings, setShowTxSettings] = useState<boolean>(false);
   const [executeStake, setExecuteStake] = useState<boolean>(false);
   const [executeUnstake, setExecuteUnstake] = useState<boolean>(false);
   const [executeUnlock, setExecuteUnlock] = useState<boolean>(false);
   const [approving, setApproving] = useState<ApprovalStates>('pending');
   const [swapFee, setSwapFee] = useState<BigNumber>(new BigNumber(0));
   const [minReceived, setMinReceived] = useState<BigNumber>(new BigNumber(0));
+  const [slippage, setSlippage] = useState<BigNumber>(new BigNumber(1));
+
   // user pool information states
   const [allStakedPools, setAllStakedPools] = useState<ILiquidityPosition[]>();
   const [singleLiquidityPos, setSingleLiquidityPos] = useState<ILiquidityPosition>();
@@ -425,6 +428,10 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setSwapFee,
         minReceived,
         setMinReceived,
+        showTxSettings,
+        setShowTxSettings,
+        slippage,
+        setSlippage,
       }}
     >
       <>{children}</>

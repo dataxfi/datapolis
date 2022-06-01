@@ -743,7 +743,7 @@ export async function executeTransaction(
     await btnHandle.click();
     if (innerText.includes('Unlock')) {
       await unlockTokens(page, metamask, unlock);
-      if (txType === 'trade') {
+      if (txType === 'swap') {
         await confirmSwapModal(page, metamask);
       } else {
         // console.log("recalling execute transaction");
@@ -751,7 +751,7 @@ export async function executeTransaction(
       }
       await metamask.page.bringToFront();
     } else {
-      if (txType === 'trade') await confirmSwapModal(page, metamask);
+      if (txType === 'swap') await confirmSwapModal(page, metamask);
       await metamask.page.bringToFront();
     }
   }

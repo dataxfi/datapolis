@@ -14,6 +14,8 @@ import DatasetDescription from './DTDescriptionModal';
 import ViewDescBtn from './ViewDescButton';
 import { transactionTypeGA } from '../context/Analytics';
 import useClearTokens from '../hooks/useClearTokens';
+import useTxHandler from '../hooks/useTxHandler';
+import TxSettings from './TxSettings';
 
 const INITIAL_BUTTON_STATE = {
   text: 'Connect wallet',
@@ -26,7 +28,6 @@ export default function Stake() {
     ocean,
     accountId,
     chainId,
-    handleConnect,
     setConfirmingTx,
     setShowUnlockTokenModal,
     token2,
@@ -38,15 +39,11 @@ export default function Stake() {
     tokensCleared,
     setSnackbarItem,
     showDescModal,
-    setPreTxDetails,
     executeStake,
     setExecuteStake,
-    setExecuteUnlock,
     setBlurBG,
-    txApproved,
-    preTxDetails,
     showUnlockTokenModal,
-    setShowConfirmTxDetails
+    setShowConfirmTxDetails,
   } = useContext(GlobalContext);
 
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
@@ -60,6 +57,7 @@ export default function Stake() {
   useLiquidityPos(importPool, setImportPool);
   useAutoLoadToken();
   useClearTokens();
+  useTxHandler(stake, executeStake, setExecuteStake, { shares: sharesReceived, postExchange });
 
   useEffect(() => {
     if (!tokensCleared.current) return;
@@ -134,48 +132,6 @@ export default function Stake() {
     }
   }, [token1.allowance]);
 
-  useEffect(() => {
-    if (!accountId && executeStake) {
-      handleConnect();
-      setExecuteStake(false);
-      return;
-    }
-
-    if (accountId) {
-      if (token1.allowance?.lt(token1.value)) {
-        setPreTxDetails({
-          accountId,
-          status: 'Pending',
-          token1,
-          token2,
-          txDateId: Date.now().toString(),
-          txType: 'approve',
-        });
-        setExecuteUnlock(true);
-        setShowUnlockTokenModal(true);
-        setBlurBG(true);
-        setExecuteStake(false);
-      } else if (!txApproved && executeStake) {
-        const preTxDetails: ITxDetails = {
-          accountId,
-          status: 'Pending',
-          token1,
-          token2,
-          txDateId: Date.now().toString(),
-          txType: 'stake',
-          postExchange,
-          shares: sharesReceived,
-        };
-        setPreTxDetails(preTxDetails);
-        setShowConfirmTxDetails(true);
-        setBlurBG(true);
-      } else if (executeStake && preTxDetails) {
-        setLastTx(preTxDetails);
-        stake(preTxDetails);
-      }
-    }
-  }, [executeStake]);
-
   async function getMaxStakeAmt() {
     if (token2.info && ocean) {
       return new BigNumber(
@@ -237,6 +193,7 @@ export default function Stake() {
       setConfirmingTx(false);
       setExecuteStake(false);
       setBlurBG(false);
+      setShowConfirmTxDetails(false);
     }
   }
 
@@ -306,6 +263,7 @@ export default function Stake() {
         <div className="flex h-full w-full items-center justify-center">
           <div className="lg:mx-auto sm:mx-4 mx-3">
             <div id="stakeModal" className="lg:w-107  bg-black bg-opacity-90 rounded-lg p-3 hm-box">
+              <TxSettings />
               <TokenSelect
                 max={maxStakeAmt}
                 otherToken={'OCEAN'}

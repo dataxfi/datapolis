@@ -8,7 +8,7 @@ import Web3Modal from 'web3modal';
 export type ApprovalStates = 'approved' | 'approving' | 'pending';
 export type screenSize = 'mobile' | 'desktop';
 export type BalancePos = 1 | 2 | 'stake';
-export type ITxType = 'trade' | 'stake' | 'unstake' | 'approve';
+export type ITxType = 'swap' | 'stake' | 'unstake' | 'approve';
 export type LocalStorageMethods = 'get' | 'set' | 'clear' | 'remove' | 'key' | 'length';
 export type TokenSelectTitles =
   | 'You are buying'
@@ -116,7 +116,7 @@ export interface globalStates {
   web3?: Web3;
   config?: Config;
   unsupportedNet: boolean;
-  handleSignature: (account: string, web3: Web3, bypass:boolean) => Promise<string>;
+  handleSignature: (account: string, web3: Web3, bypass: boolean) => Promise<string>;
   cookiesAllowed: boolean | null;
   setCookiesAllowed: React.Dispatch<React.SetStateAction<boolean | null>>;
   showDisclaimer: boolean;
@@ -181,6 +181,8 @@ export interface globalStates {
   setPreTxDetails: React.Dispatch<React.SetStateAction<ITxDetails | undefined>>;
   txApproved: boolean;
   setTxApproved: React.Dispatch<React.SetStateAction<boolean>>;
+  showTxSettings: boolean;
+  setShowTxSettings: React.Dispatch<React.SetStateAction<boolean>>;
   executeSwap: boolean;
   setExecuteSwap: React.Dispatch<React.SetStateAction<boolean>>;
   executeStake: boolean;
@@ -197,4 +199,6 @@ export interface globalStates {
   setSwapFee: React.Dispatch<React.SetStateAction<BigNumber>>;
   minReceived: BigNumber;
   setMinReceived: React.Dispatch<React.SetStateAction<BigNumber>>;
+  slippage: BigNumber;
+  setSlippage: React.Dispatch<React.SetStateAction<BigNumber>>;
 }

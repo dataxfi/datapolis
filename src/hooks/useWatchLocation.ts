@@ -51,8 +51,6 @@ export default function useWatchLocation() {
   }, [token1.info?.address, token2.info?.address]);
 
   useEffect(() => {
-    console.log(currentLocation.pathname, lastLocation.current.pathname);
-
     if (currentLocation.pathname !== lastLocation.current.pathname) {
       tokensCleared.current = false;
       setSearchParams({});

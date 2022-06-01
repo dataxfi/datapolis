@@ -16,6 +16,8 @@ import { IMaxUnstake } from '@dataxfi/datax.js';
 import MaxToolTip from './MaxToolTip';
 import { transactionTypeGA } from '../context/Analytics';
 import useClearTokens from '../hooks/useClearTokens';
+import useTxHandler from '../hooks/useTxHandler';
+import TxSettings from './TxSettings';
 
 export default function Unstake() {
   const {
@@ -36,7 +38,6 @@ export default function Unstake() {
     setBlurBG,
     setExecuteUnstake,
     executeUnstake,
-    setPreTxDetails,
     setExecuteUnlock,
     showUnlockTokenModal,
   } = useContext(GlobalContext);
@@ -51,7 +52,12 @@ export default function Unstake() {
     shares: new BigNumber(0),
     userPerc: new BigNumber(0),
   });
+
+  // hooks
+  useLiquidityPos(token1.info?.pool);
+  useAutoLoadToken();
   useClearTokens();
+  useTxHandler(unstake, executeUnstake, setExecuteUnlock, { shares });
 
   async function getMaxUnstake(signal: AbortSignal): Promise<IMaxUnstake> {
     return new Promise<IMaxUnstake>(async (resolve, reject) => {
@@ -81,10 +87,6 @@ export default function Unstake() {
       }
     });
   }
-
-  // hooks
-  useLiquidityPos(token1.info?.pool);
-  useAutoLoadToken();
 
   let controller = new AbortController();
   function getNewSignal() {
@@ -152,41 +154,6 @@ export default function Unstake() {
       setExecuteUnstake(true);
     }
   }, [token1.allowance]);
-
-  useEffect(() => {
-    if (!accountId || !token1.info || !token2.info) return;
-    if (token1.allowance?.lt(token1.value)) {
-      setPreTxDetails({
-        txDateId: Date.now().toString(),
-        accountId,
-        status: 'Pending',
-        token1,
-        token2,
-        txType: 'approve',
-        shares,
-      });
-      setExecuteUnstake(false);
-      setExecuteUnlock(true);
-      setShowUnlockTokenModal(true);
-      setBlurBG(true);
-    } else if (executeUnstake) {
-      setConfirmingTx(true);
-      const preTxDetails: ITxDetails = {
-        txDateId: Date.now().toString(),
-        accountId,
-        status: 'Pending',
-        token1,
-        token2,
-        txType: 'unstake',
-        shares,
-      };
-      setPreTxDetails(preTxDetails);
-      setLastTx(preTxDetails);
-      handleUnstake(preTxDetails);
-      setConfirmingTx(true);
-      setBlurBG(true);
-    }
-  }, [executeUnstake]);
 
   const updateNum = async (val: string) => {
     setCalculating(true);
@@ -277,7 +244,7 @@ export default function Unstake() {
     }
   }
 
-  async function handleUnstake(preTxDetails: ITxDetails) {
+  async function unstake(preTxDetails: ITxDetails) {
     if (!chainId || !singleLiquidityPos || !ocean || !accountId || !preTxDetails || !token1.info || !token2.info) {
       return;
     }
@@ -318,7 +285,7 @@ export default function Unstake() {
           <div id="removeStakeModal" className="w-107 mx-auto">
             <div className="mx-auto bg-black opacity-90 w-full rounded-lg p-3 hm-box">
               <div className="flex flex-row pb-2 justify-between">
-                <div className="flex flex-row">
+                <div className="flex flex-row items-center ">
                   <img
                     src="https://gateway.pinata.cloud/ipfs/QmPQ13zfryc9ERuJVj7pvjCfnqJ45Km4LE5oPcFvS1SMDg/datatoken.png"
                     className="rounded-lg mr-2"
@@ -337,6 +304,7 @@ export default function Unstake() {
                     <PulseLoader color="white" size="4px" margin="5px" />
                   )}
                 </div>
+                <TxSettings />
               </div>
               <div className="md:grid md:grid-cols-5 modalSelectBg p-2 rounded">
                 <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center">

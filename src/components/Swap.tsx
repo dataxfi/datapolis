@@ -1,10 +1,7 @@
 import TokenSelect from './TokenSelect';
 import { IoSwapVertical } from 'react-icons/io5';
-import { MdTune } from 'react-icons/md';
 import { useState, useContext, useEffect } from 'react';
 import { GlobalContext } from '../context/GlobalState';
-import Button from './Button';
-import OutsideClickHandler from 'react-outside-click-handler';
 import { MoonLoader } from 'react-spinners';
 import BigNumber from 'bignumber.js';
 import { getAllowance } from '../hooks/useTokenList';
@@ -16,6 +13,8 @@ import { transactionTypeGA } from '../context/Analytics';
 import { Collapse } from 'react-collapse';
 import useClearTokens from '../hooks/useClearTokens';
 import useAutoLoadToken from '../hooks/useAutoLoadToken';
+import useTxHandler from '../hooks/useTxHandler';
+import TxSettings from './TxSettings';
 
 const INITIAL_MAX_EXCHANGE: IMaxExchange = {
   maxBuy: new BigNumber(0),
@@ -26,7 +25,6 @@ const INITIAL_MAX_EXCHANGE: IMaxExchange = {
 
 export default function Swap() {
   const {
-    handleConnect,
     accountId,
     ocean,
     chainId,
@@ -40,14 +38,10 @@ export default function Swap() {
     tokensCleared,
     setSnackbarItem,
     showDescModal,
-    setShowConfirmTxDetails,
-    setPreTxDetails,
     setBlurBG,
     executeSwap,
     setExecuteSwap,
-    txApproved,
     preTxDetails,
-    setExecuteUnlock,
     showUnlockTokenModal,
     setTxApproved,
     swapFee,
@@ -55,11 +49,11 @@ export default function Swap() {
     minReceived,
     setMinReceived,
     executeUnlock,
+    slippage,
+    setShowConfirmTxDetails
   } = useContext(GlobalContext);
-  const [showSettings, setShowSettings] = useState(false);
   const [exactToken, setExactToken] = useState<number>(1);
   const [postExchange, setPostExchange] = useState<BigNumber>(new BigNumber(0));
-  const [slippage, setSlippage] = useState<BigNumber>(new BigNumber(1));
   const [btnProps, setBtnProps] = useState<IBtnProps>({
     text: 'Select Tokens',
     disabled: true,
@@ -69,6 +63,7 @@ export default function Swap() {
 
   useClearTokens();
   useAutoLoadToken();
+  useTxHandler(swap, executeSwap, setExecuteSwap, { slippage, postExchange });
 
   useEffect(() => {
     getButtonProperties();
@@ -187,49 +182,6 @@ export default function Swap() {
     }
   });
 
-  useEffect(() => {
-    if (!accountId && executeSwap) {
-      handleConnect();
-      setExecuteSwap(false);
-      return;
-    }
-
-    if (accountId) {
-      if (token1.allowance?.lt(token1.value)) {
-        setPreTxDetails({
-          accountId,
-          status: 'Pending',
-          token1,
-          token2,
-          txDateId: Date.now().toString(),
-          txType: 'approve',
-          slippage,
-          postExchange,
-        });
-        setExecuteUnlock(true);
-        setShowUnlockTokenModal(true);
-        setBlurBG(true);
-        setExecuteSwap(false);
-      } else if (!txApproved && executeSwap) {
-        setPreTxDetails({
-          accountId,
-          status: 'Pending',
-          token1,
-          token2,
-          txDateId: Date.now().toString(),
-          txType: 'trade',
-          slippage,
-          postExchange,
-        });
-        setShowConfirmTxDetails(true);
-        setBlurBG(true);
-      } else if (executeSwap) {
-        setLastTx(preTxDetails);
-        swap();
-      }
-    }
-  }, [txApproved, executeSwap]);
-
   async function updateBalance(address: string) {
     if (!ocean || !accountId) return;
     return new BigNumber(await ocean.getBalance(address, accountId));
@@ -277,7 +229,7 @@ export default function Swap() {
 
   async function swap() {
     let txReceipt = null;
-    if (!preTxDetails || preTxDetails.txType !== 'trade') return;
+    if (!preTxDetails || preTxDetails.txType !== 'swap') return;
     const decSlippage = slippage.div(100).dp(5);
     if (!chainId || !token2.info || !token1.info || !accountId || !ocean || !config) return;
     try {
@@ -368,6 +320,7 @@ export default function Swap() {
       setBlurBG(false);
       setExecuteSwap(false);
       setTxApproved(false);
+      setShowConfirmTxDetails(false);
     }
   }
 
@@ -525,56 +478,7 @@ export default function Swap() {
         <div className="sm:mx-4 mx-3">
           <div className="flex mt-6 w-full h-full items-center justify-center">
             <div id="swapModal" className="lg:w-107 bg-black bg-opacity-90 rounded-lg p-3 hm-box">
-              <div className="flex justify-between relative">
-                <div className="grid grid-flow-col gap-2 items-center">
-                  <div
-                    id="tradeSettingsBtn"
-                    onClick={() => setShowSettings(true)}
-                    className="hover:bg-primary-700 px-1.5 py-1.5 rounded-lg"
-                    role="button"
-                  >
-                    <MdTune size="24" />
-                  </div>
-                </div>
-                {showSettings ? (
-                  <div id="settingsModal" className="absolute top-0 left-0 max-w-sm">
-                    <OutsideClickHandler
-                      onOutsideClick={() => {
-                        setShowSettings(false);
-                      }}
-                    >
-                      <div className="bg-black rounded-lg border bg-opacity-90 border-primary-500 p-2 w-full">
-                        <p className="text-gray-100">Transaction settings</p>
-                        <div className="mt-2">
-                          <p className="text-gray-300 text-sm">Slippage tolerance</p>
-                          <div className="grid grid-flow-col gap-2 items-center">
-                            <div className="flex justify-between focus:border-white bg-primary-700 rounded-lg items-center px-2 py-1">
-                              <input
-                                id="slippageInput"
-                                type="number"
-                                onChange={(e) => setSlippage(new BigNumber(e.target.value))}
-                                value={slippage.dp(5).toString()}
-                                className="text-lg bg-primary-700 outline-none rounded-l-lg w-32"
-                              />
-                              <p className="text-gray-200 text-lg">%</p>
-                            </div>
-                            <div>
-                              <Button
-                                id="autoSlippageBtn"
-                                onClick={() => setSlippage(new BigNumber(1))}
-                                text="Auto"
-                                classes="text-gray-300 p-2 bg-primary-800 rounded-lg"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </OutsideClickHandler>
-                  </div>
-                ) : (
-                  <></>
-                )}
-              </div>
+              <TxSettings />
               <TokenSelect
                 setToken={setToken1}
                 token={token1}
