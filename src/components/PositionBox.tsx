@@ -1,9 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { GlobalContext } from '../context/GlobalState';
+import { GlobalContext, placeHolderOrContent } from '../context/GlobalState';
 import BigNumber from 'bignumber.js';
 import { IPoolLiquidity } from '../utils/types';
 import { IToken } from '@dataxfi/datax.js';
-import { Collapse } from 'react-collapse';
 
 export default function PositionBox({
   loading,
@@ -55,48 +54,47 @@ export default function PositionBox({
   }
 
   return (
-    <Collapse isOpened={!!(tokenOut.info && !loading && oceanToDt.gt(0) && dtToOcean.gt(0))}>
-      <div className="flex border border-city-blue border-opacity-50 mt-4 rounded-lg p-2 w-full">
-        <div className="my-1 mr-4">
-          <p className="text-gray-300 text-xs">Swap Rate</p>
-          {tokenOut.info && oceanToDt.gt(0) && dtToOcean.gt(0) && !loading ? (
-            <div id="swapRate">
-              <p className="text-gray-200 text-xs">
-                {oceanToDt.dp(5).toString()} OCEAN per {tokenOut.info.symbol}
-              </p>
-              <p className="text-gray-200 text-xs">
-                {dtToOcean.dp(5).toString()} {tokenOut.info.symbol} per OCEAN
-              </p>
-            </div>
-          ) : (
-            <div> - </div>
-          )}
-        </div>
-        <div className="my-1 mr-4">
-          <p className="text-gray-300 text-xs">Pool liquidity</p>
-          {tokenOut.info && poolLiquidity && !loading ? (
-            <div id="poolLiquidity">
-              <p className="text-gray-200 text-xs">{poolLiquidity?.oceanAmount.dp(5).toString()} OCEAN</p>
-              <p className="text-gray-200 text-xs">
-                {poolLiquidity?.dtAmount.dp(5).toString()} {tokenOut.info.symbol}
-              </p>
-            </div>
-          ) : (
-            <div> - </div>
-          )}
-        </div>
-        <div className="my-1">
-          <p className="text-gray-300 text-xs">Your liquidity</p>
-          {tokenOut.info && yourLiquidity && !loading ? (
-            <div id="yourLiquidity">
-              <p className="text-gray-200 text-xs">{yourShares.dp(5).toString()} Shares</p>
-              <p className="text-gray-200 text-xs">{yourLiquidity.dp(5).toString()} OCEAN</p>
-            </div>
-          ) : (
-            <div> - </div>
-          )}
-        </div>
+    <div className="flex border border-city-blue border-opacity-50 mt-4 rounded-lg p-2 w-full">
+      <div className="my-1 mr-4">
+        <p className="text-gray-300 text-xs mb-1">Swap Rate</p>
+
+        {placeHolderOrContent(
+          <div id="swapRate" className={`${loading ? 'blur-xs' : ''}`}>
+            <p className="text-gray-200 text-xs">
+              {oceanToDt.dp(5).toString()} OCEAN per {tokenOut.info?.symbol}
+            </p>
+            <p className="text-gray-200 text-xs">
+              {dtToOcean.dp(5).toString()} {tokenOut.info?.symbol} per OCEAN
+            </p>
+          </div>,
+          '12rem',
+          !!(tokenOut.info && oceanToDt.gt(0) && dtToOcean.gt(0))
+        )}
       </div>
-    </Collapse>
+      <div className="my-1 mr-4">
+        <p className="text-gray-300 text-xs mb-1">Pool liquidity</p>
+        {placeHolderOrContent(
+          <div id="poolLiquidity" className={`${loading ? 'blur-xs' : ''}`}>
+            <p className="text-gray-200 text-xs">{poolLiquidity?.oceanAmount.dp(5).toString()} OCEAN</p>
+            <p className="text-gray-200 text-xs">
+              {poolLiquidity?.dtAmount.dp(5).toString()} {tokenOut.info?.symbol}
+            </p>
+          </div>,
+          '6rem',
+          !!(tokenOut.info && poolLiquidity)
+        )}
+      </div>
+      <div className="my-1">
+        <p className="text-gray-300 text-xs mb-1">Your liquidity</p>
+        {placeHolderOrContent(
+          <div id="yourLiquidity" className={`${loading ? 'blur-xs' : ''}`}>
+            <p className="text-gray-200 text-xs">{yourShares.dp(5).toString()} Shares</p>
+            <p className="text-gray-200 text-xs">{yourLiquidity.dp(5).toString()} OCEAN</p>
+          </div>,
+          '8rem',
+          !!(tokenOut.info && yourLiquidity)
+        )}
+      </div>
+    </div>
   );
 }

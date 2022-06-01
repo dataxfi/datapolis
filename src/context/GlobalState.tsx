@@ -31,6 +31,14 @@ export const INITIAL_TOKEN_STATE: IToken = {
   percentage: new BigNumber(0),
   loading: false,
 };
+
+export function placeHolderOrContent(content: JSX.Element, placeholderSize: string, conditional: boolean) {
+  if (conditional) return content;
+  return (
+    <div style={{ width: placeholderSize, height: '15px', borderRadius: '4px', backgroundColor: '#1b1b1b' }} />
+  );
+}
+
 export const GlobalContext = createContext<globalStates>({} as globalStates);
 
 export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }) => {

@@ -1,7 +1,7 @@
 import TokenSelect from './TokenSelect';
 import { IoSwapVertical } from 'react-icons/io5';
 import { useState, useContext, useEffect } from 'react';
-import { GlobalContext } from '../context/GlobalState';
+import { GlobalContext, placeHolderOrContent } from '../context/GlobalState';
 import { MoonLoader } from 'react-spinners';
 import BigNumber from 'bignumber.js';
 import { getAllowance } from '../hooks/useTokenList';
@@ -10,7 +10,6 @@ import { IMaxExchange } from '@dataxfi/datax.js';
 import DatasetDescription from './DTDescriptionModal';
 import ViewDescBtn from './ViewDescButton';
 import { transactionTypeGA } from '../context/Analytics';
-import { Collapse } from 'react-collapse';
 import useClearTokens from '../hooks/useClearTokens';
 import useAutoLoadToken from '../hooks/useAutoLoadToken';
 import useTxHandler from '../hooks/useTxHandler';
@@ -463,6 +462,8 @@ export default function Swap() {
     }
   }
 
+  const detailsConditional = !!(tokenIn.info?.symbol && postExchange.gt(0) && tokenOut.info?.symbol);
+
   return (
     <>
       <DatasetDescription />
@@ -508,36 +509,42 @@ export default function Swap() {
                 updateNum={dbUpdateToken2}
               />
 
-              <Collapse
-                isOpened={
-                  !!(tokenIn?.info && tokenOut?.info && tokenIn.value.gt(0) && tokenOut.value.gt(0) && postExchange.gt(0))
-                }
+              <div
+                className={`my-4 p-2 bg-black border border-city-blue border-opacity-50 transition-opacity ${
+                  tokenOut?.loading || tokenIn?.loading || percLoading ? 'bg-opacity-10 text-gray-400' : 'bg-opacity-25 text-gray-300'
+                } flex flex-col justify-between text-sm rounded-lg`}
               >
-                <div
-                  className={`my-4 p-2 bg-black border border-city-blue border-opacity-50 transition-opacity ${
-                    tokenOut?.loading || tokenIn?.loading || percLoading ? 'bg-opacity-10 text-gray-400' : 'bg-opacity-25 text-gray-300'
-                  } flex flex-col justify-between text-sm rounded-lg`}
-                >
-                  <div className="flex justify-between my-1">
-                    <p>Exchange rate</p>
+                <div className="flex justify-between my-1">
+                  <p>Exchange rate</p>
+                  {placeHolderOrContent(
                     <p className={`${tokenOut?.loading || tokenIn?.loading || percLoading ? 'blur-xs' : ''}`}>
                       1 {tokenIn.info?.symbol} = {postExchange.dp(5).toString()} {`${' '}${tokenOut.info?.symbol}`}
-                    </p>
-                  </div>
-                  <div className="flex justify-between my-1">
-                    <p>Swap Fee</p>
+                    </p>,
+                    '40%',
+                    detailsConditional
+                  )}
+                </div>
+                <div className="flex justify-between my-1">
+                  <p>Swap Fee</p>
+                  {placeHolderOrContent(
                     <p className={`${tokenOut?.loading || tokenIn?.loading || percLoading ? 'blur-xs' : ''}`}>
                       {swapFee?.dp(5).toString() + ' ' + tokenIn.info?.symbol}
-                    </p>
-                  </div>{' '}
-                  <div className="flex justify-between my-1">
-                    <p>{exactToken === 1 ? 'Minimum Received' : 'Maximum Spent'}</p>
+                    </p>,
+                    '25%',
+                    detailsConditional
+                  )}
+                </div>{' '}
+                <div className="flex justify-between my-1">
+                  <p>{exactToken === 1 ? 'Minimum Received' : 'Maximum Spent'}</p>
+                  {placeHolderOrContent(
                     <p className={`${tokenOut?.loading || tokenIn?.loading || percLoading ? 'blur-xs' : ''}`}>
                       {afterSlippage?.dp(5).toString() + ' ' + tokenOut.info?.symbol}
-                    </p>
-                  </div>
+                    </p>,
+                    '30%',
+                    detailsConditional
+                  )}
                 </div>
-              </Collapse>
+              </div>
 
               <div className="mt-4 flex">
                 <button
@@ -551,7 +558,6 @@ export default function Swap() {
                   {btnProps.text}
                 </button>
                 <TxSettings />
-
               </div>
             </div>
           </div>
