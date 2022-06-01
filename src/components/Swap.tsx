@@ -54,11 +54,13 @@ export default function Swap() {
     exactToken,
     setExactToken,
   } = useContext(GlobalContext);
+  
   const [postExchange, setPostExchange] = useState<BigNumber>(new BigNumber(0));
   const [btnProps, setBtnProps] = useState<IBtnProps>({
     text: 'Select Tokens',
     disabled: true,
   });
+
   const [percLoading, setPercLoading] = useState(false);
   const [maxExchange, setMaxExchange] = useState<IMaxExchange>(INITIAL_MAX_EXCHANGE);
 
