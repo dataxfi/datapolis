@@ -201,4 +201,6 @@ export interface globalStates {
   setMinReceived: React.Dispatch<React.SetStateAction<BigNumber>>;
   slippage: BigNumber;
   setSlippage: React.Dispatch<React.SetStateAction<BigNumber>>;
+  exactToken: 1 | 2;
+  setExactToken: React.Dispatch<React.SetStateAction<1 | 2>>;
 }

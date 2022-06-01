@@ -1033,8 +1033,8 @@ export async function assertToken(page: puppeteer.Page, symbol:string, pos: 1|2)
 export async function confirmAndCloseTxDoneModal(page: puppeteer.Page, timeout: number = 120000) {
   await page.bringToFront();
   await page.waitForSelector('#transactionDoneModal', { timeout });
-  await page.waitForSelector('#transactionDoneModalCloseBtn');
-  await page.click('#transactionDoneModalCloseBtn');
+  await page.waitForSelector('#txDoneModalCloseBtn');
+  await page.click('#txDoneModalCloseBtn');
 }
 
 export async function confirmTokensClearedAfterTrade(page: puppeteer.Page) {

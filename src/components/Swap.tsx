@@ -15,6 +15,7 @@ import useClearTokens from '../hooks/useClearTokens';
 import useAutoLoadToken from '../hooks/useAutoLoadToken';
 import useTxHandler from '../hooks/useTxHandler';
 import TxSettings from './TxSettings';
+import useMinReceived from '../hooks/useMinReceived';
 
 const INITIAL_MAX_EXCHANGE: IMaxExchange = {
   maxBuy: new BigNumber(0),
@@ -47,12 +48,12 @@ export default function Swap() {
     swapFee,
     setSwapFee,
     minReceived,
-    setMinReceived,
     executeUnlock,
     slippage,
-    setShowConfirmTxDetails
+    setShowConfirmTxDetails,
+    exactToken,
+    setExactToken,
   } = useContext(GlobalContext);
-  const [exactToken, setExactToken] = useState<number>(1);
   const [postExchange, setPostExchange] = useState<BigNumber>(new BigNumber(0));
   const [btnProps, setBtnProps] = useState<IBtnProps>({
     text: 'Select Tokens',
@@ -64,6 +65,7 @@ export default function Swap() {
   useClearTokens();
   useAutoLoadToken();
   useTxHandler(swap, executeSwap, setExecuteSwap, { slippage, postExchange });
+  useMinReceived();
 
   useEffect(() => {
     getButtonProperties();
@@ -162,16 +164,6 @@ export default function Swap() {
   }, [token1.allowance]);
 
   useEffect(() => {
-    if (token2.value.gt(0)) {
-      const exchange: BigNumber = token2.value;
-      const slip = new BigNumber(exchange).times(slippage).div(100);
-      const min = new BigNumber(exchange).minus(slip);
-      setMinReceived(min);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token2.value, slippage]);
-
-  useEffect(() => {
     if (ocean && token1.info && token1.value.gt(0) && token2.info) {
       (async () => {
         const pool = token1.info?.symbol === 'OCEAN' ? token2.info?.pool : token1.info?.pool;
@@ -190,7 +182,6 @@ export default function Swap() {
   async function swapTokens() {
     setToken1({ ...token2, info: token2.info });
     setToken2({ ...token1, info: token1.info });
-    setExactToken(1);
   }
 
   function updateValueFromPercentage(value: string) {
@@ -394,6 +385,7 @@ export default function Swap() {
 
   async function dbUpdateToken1(value: string) {
     if (!ocean) return;
+    setExactToken(1);
     const bnVal = new BigNumber(value);
     // Setting state here allows for max to be persisted in the input
     setToken1({ ...token1, value: bnVal });
@@ -422,6 +414,7 @@ export default function Swap() {
 
   async function onPercToken1(val: string) {
     if (!ocean) return;
+    setExactToken(1);
     setPercLoading(true);
     if (val === '') val = '0';
     const bnVal = new BigNumber(val);
@@ -447,6 +440,7 @@ export default function Swap() {
 
   async function dbUpdateToken2(value: string) {
     if (!ocean) return;
+    setExactToken(2);
     const bnVal = new BigNumber(value);
     // Setting state here allows for max to be persisted in the input
     setToken2({ ...token2, value: bnVal });
@@ -536,7 +530,7 @@ export default function Swap() {
                     </p>
                   </div>{' '}
                   <div className="flex justify-between my-1">
-                    <p>Minimum Received</p>
+                    <p>{exactToken === 1 ? 'Minimum Received' : 'Maximum Spent'}</p>
                     <p className={`${token2?.loading || token1?.loading || percLoading ? 'blur-xs' : ''}`}>
                       {minReceived?.dp(5).toString() + ' ' + token2.info?.symbol}
                     </p>

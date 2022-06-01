@@ -28,6 +28,7 @@ export default function ConfirmTxDetailsModal() {
     executeSwap,
     executeUnstake,
     executeUnlock,
+    exactToken,
   } = useContext(GlobalContext);
 
   const [txTitle, setTxTitle] = useState<'Stake' | 'Stake Removal' | 'Swap'>('Swap');
@@ -37,6 +38,7 @@ export default function ConfirmTxDetailsModal() {
   const [postExchangeString, setPostExchangeString] = useState<string>(swapPostExchangeString);
   const swapMinReceivedString = `${minReceived.dp(5).toString()} ${token2.info?.symbol}`;
   const [minReceivedString, setMinReceivedString] = useState<string>(swapMinReceivedString);
+  const [minOrMax, setMinOrMax] = useState<'Minimum Received' | 'Maximum Spent'>('Minimum Received');
 
   useEffect(() => {
     switch (location) {
@@ -56,7 +58,13 @@ export default function ConfirmTxDetailsModal() {
         setMinReceivedString(swapMinReceivedString);
         break;
     }
-  }, [location, executeStake, executeSwap, executeUnstake, executeUnlock]);
+
+    if (exactToken === 1) {
+      setMinOrMax('Minimum Received');
+    } else {
+      setMinOrMax('Maximum Spent');
+    }
+  }, [location, executeStake, executeSwap, executeUnstake, executeUnlock, preTxDetails?.postExchange, exactToken]);
 
   function confirm() {
     if (confirmingTx) return;
@@ -112,7 +120,7 @@ export default function ConfirmTxDetailsModal() {
         </div>
         <div className="mt-4">
           {/* <ConfirmSwapListItem name="Route" value="ETH > KNC" /> */}
-          <ConfirmTxListItem name="Minimum Received" value={minReceived.dp(5).toString()} />
+          <ConfirmTxListItem name={minOrMax} value={minReceived.dp(5).toString()} />
           {/* <ConfirmSwapListItem name="Price impact" value="-0.62%" valueClass="text-green-500" /> */}
           <ConfirmTxListItem name={`${txTitle} Fee`} value={swapFee?.dp(5).toString() + ' ' + token1.info?.symbol} />
           <ConfirmTxListItem name="DataX Fee" value="0" />

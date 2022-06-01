@@ -93,6 +93,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [dtTokenResponse, setDtTokenResponse] = useState<ITList>();
   const [t2DIDResponse, setT2DIDResponse] = useState<any>();
   const [buttonText, setButtonText] = useState<string>(CONNECT_TEXT);
+  const [exactToken, setExactToken] = useState<1 | 2>(1);
 
   // selected token states
   const [token1, setToken1] = useState<IToken>(INITIAL_TOKEN_STATE);
@@ -432,6 +433,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setShowTxSettings,
         slippage,
         setSlippage,
+        exactToken,
+        setExactToken,
       }}
     >
       <>{children}</>

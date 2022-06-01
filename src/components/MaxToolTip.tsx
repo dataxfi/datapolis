@@ -8,7 +8,7 @@ export default function MaxToolTip() {
   const stakeToolTip =
     'Max stake or unstake is your total balance of tokens or shares, respectively, and is never more than 1/3 of the pool liquidity. ';
   const exchangeToolTip =
-    'Max exchange amounts are determined by AMMs to mitigate dramatic fluctuation of token values.';
+    'Max exchange amounts are determined by AMMs to mitigate price impact.';
 
   return (
     <div className="relative group z-10">
