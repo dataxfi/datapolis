@@ -32,11 +32,21 @@ export const INITIAL_TOKEN_STATE: IToken = {
   loading: false,
 };
 
-export function placeHolderOrContent(content: JSX.Element, placeholderSize: string, conditional: boolean) {
+export function placeHolderOrContent(
+  content: JSX.Element,
+  placeholderSize: string,
+  conditional: boolean,
+  rows: number = 1
+) {
   if (conditional) return content;
-  return (
-    <div style={{ width: placeholderSize, height: '15px', borderRadius: '4px', backgroundColor: '#1b1b1b' }} />
-  );
+  const elements = [];
+  while (rows) {
+    elements.push(
+      <div style={{ width: placeholderSize, height: '12px', borderRadius: '4px', backgroundColor: '#1b1b1b', margin: '4px 0' }} />
+    );
+    rows = rows - 1;
+  }
+  return elements.map((e) => e);
 }
 
 export const GlobalContext = createContext<globalStates>({} as globalStates);

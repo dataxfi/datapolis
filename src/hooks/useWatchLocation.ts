@@ -35,21 +35,7 @@ export default function useWatchLocation() {
     setLocation(currentLocation.pathname);
   }, [currentLocation]);
 
-  useEffect(() => {
-    if (currentLocation.pathname !== lastLocation.current.pathname) {
-      tokensCleared.current = false;
-    }
-
-    if (currentLocation.pathname === '/trade') {
-      if (!tokenIn.info && !tokenOut.info) {
-        tokensCleared.current = true;
-        lastLocation.current = currentLocation;
-      }
-    } else if (!tokenOut.info) {
-      tokensCleared.current = true;
-      lastLocation.current = currentLocation;
-    }
-
+  function switchOnPathParams() {
     switch (currentLocation.pathname) {
       case '/stake/remove':
         if (tokenOut.info?.pool || tokenIn.info?.address) {
@@ -70,6 +56,27 @@ export default function useWatchLocation() {
         }
         break;
     }
+  }
+
+  useEffect(() => {
+    if (currentLocation.pathname !== lastLocation.current.pathname) {
+      tokensCleared.current = false;
+    }
+
+    if (currentLocation.pathname === '/trade') {
+      if (!tokenIn.info && !tokenOut.info) {
+        tokensCleared.current = true;
+        lastLocation.current = currentLocation;
+      }
+    } else if (!tokenOut.info) {
+      tokensCleared.current = true;
+      lastLocation.current = currentLocation;
+    }
+
+    if (tokensCleared && currentLocation.pathname === lastLocation.current.pathname) {
+      switchOnPathParams();
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentLocation.pathname, tokenIn.info?.address, tokenOut.info?.address]);
 

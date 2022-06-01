@@ -68,7 +68,8 @@ export default function PositionBox({
             </p>
           </div>,
           '12rem',
-          !!(tokenOut.info && oceanToDt.gt(0) && dtToOcean.gt(0))
+          !!(tokenOut.info && oceanToDt.gt(0) && dtToOcean.gt(0)),
+          2
         )}
       </div>
       <div className="my-1 mr-4">
@@ -81,7 +82,8 @@ export default function PositionBox({
             </p>
           </div>,
           '6rem',
-          !!(tokenOut.info && poolLiquidity)
+          !!(tokenOut.info && poolLiquidity),
+          2
         )}
       </div>
       <div className="my-1">
@@ -92,7 +94,8 @@ export default function PositionBox({
             <p className="text-gray-200 text-xs">{yourLiquidity.dp(5).toString()} OCEAN</p>
           </div>,
           '8rem',
-          !!(tokenOut.info && yourLiquidity)
+          !!(tokenOut.info && yourLiquidity),
+          2
         )}
       </div>
     </div>
