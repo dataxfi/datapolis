@@ -509,12 +509,12 @@ export default function Swap() {
                 updateNum={dbUpdateToken2}
               />
 
-              <div
+              <ul
                 className={`my-4 p-2 bg-black border border-city-blue border-opacity-50 transition-opacity ${
                   tokenOut?.loading || tokenIn?.loading || percLoading ? 'bg-opacity-10 text-gray-400' : 'bg-opacity-25 text-gray-300'
                 } flex flex-col justify-between text-sm rounded-lg`}
               >
-                <div className="flex justify-between my-1">
+                <li key="exchangeRate" className="flex justify-between my-1">
                   <p>Exchange rate</p>
                   {placeHolderOrContent(
                     <p className={`${tokenOut?.loading || tokenIn?.loading || percLoading ? 'blur-xs' : ''}`}>
@@ -523,8 +523,8 @@ export default function Swap() {
                     '40%',
                     detailsConditional
                   )}
-                </div>
-                <div className="flex justify-between my-1">
+                </li>
+                <li key="swapFee" className="flex justify-between my-1">
                   <p>Swap Fee</p>
                   {placeHolderOrContent(
                     <p className={`${tokenOut?.loading || tokenIn?.loading || percLoading ? 'blur-xs' : ''}`}>
@@ -533,8 +533,8 @@ export default function Swap() {
                     '25%',
                     detailsConditional
                   )}
-                </div>{' '}
-                <div className="flex justify-between my-1">
+                </li>{' '}
+                <li key="afterSlippage" className="flex justify-between my-1">
                   <p>{exactToken === 1 ? 'Minimum Received' : 'Maximum Spent'}</p>
                   {placeHolderOrContent(
                     <p className={`${tokenOut?.loading || tokenIn?.loading || percLoading ? 'blur-xs' : ''}`}>
@@ -543,8 +543,8 @@ export default function Swap() {
                     '30%',
                     detailsConditional
                   )}
-                </div>
-              </div>
+                </li>
+              </ul>
 
               <div className="mt-4 flex">
                 <button

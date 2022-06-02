@@ -42,7 +42,7 @@ export function placeHolderOrContent(
   const elements = [];
   while (rows) {
     elements.push(
-      <div style={{ width: placeholderSize, height: '12px', borderRadius: '4px', backgroundColor: '#1b1b1b', margin: '4px 0' }} />
+      <div key={`placholder-${rows}`} style={{ width: placeholderSize, height: '12px', borderRadius: '4px', backgroundColor: '#1b1b1b', margin: '4px 0' }} />
     );
     rows = rows - 1;
   }

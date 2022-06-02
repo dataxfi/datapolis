@@ -52,6 +52,8 @@ export default function TxHistoryItem({
   }
 
   function txItemTitle(tx: ITxDetails) {
+    console.log(tx);
+
     if (tx.tokenIn.info && tx.tokenOut.info) {
       switch (tx.txType) {
         case 'stake':

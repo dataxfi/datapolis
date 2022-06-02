@@ -24,6 +24,7 @@ export default function useWatchLocation() {
     importPool,
     setImportPool,
     setExactToken,
+    chainId,
   } = useContext(GlobalContext);
   const currentLocation = useLocation();
   const lastLocation = useRef(currentLocation);
@@ -36,15 +37,23 @@ export default function useWatchLocation() {
   }, [currentLocation]);
 
   function switchOnPathParams() {
+    if (!chainId) return;
+    if (searchParams.get('on') !== chainId) return setSearchParams({});
     switch (currentLocation.pathname) {
       case '/stake/remove':
         if (tokenOut.info?.pool || tokenIn.info?.address) {
-          setSearchParams({ pool: tokenOut.info?.pool || '', out: tokenIn.info?.address || '' }, { replace: true });
+          setSearchParams(
+            { on: chainId, pool: tokenOut.info?.pool || '', out: tokenIn.info?.address || '' },
+            { replace: true }
+          );
         }
         break;
       case '/stake':
         if (tokenOut.info?.pool || tokenIn.info?.address) {
-          setSearchParams({ pool: tokenOut.info?.pool || '', in: tokenIn.info?.address || '' }, { replace: true });
+          setSearchParams(
+            { on: chainId, pool: tokenOut.info?.pool || '', in: tokenIn.info?.address || '' },
+            { replace: true }
+          );
         }
         break;
       case '/stake/list':
@@ -52,7 +61,10 @@ export default function useWatchLocation() {
         break;
       default:
         if (tokenIn.info || tokenOut.info) {
-          setSearchParams({ in: tokenIn.info?.address || '', out: tokenOut.info?.address || '' }, { replace: true });
+          setSearchParams(
+            { on: chainId, in: tokenIn.info?.address || '', out: tokenOut.info?.address || '' },
+            { replace: true }
+          );
         }
         break;
     }
@@ -78,7 +90,7 @@ export default function useWatchLocation() {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentLocation.pathname, tokenIn.info?.address, tokenOut.info?.address]);
+  }, [currentLocation.pathname, tokenIn.info?.address, tokenOut.info?.address, chainId]);
 
   const initialAccount = useRef(accountId);
   const navigate = useNavigate();
