@@ -42,7 +42,7 @@ export default function TxHistoryItem({
   function exactTime(tx: ITxDetails) {
     const stamp = new Date(Number(tx.txDateId));
     const hours24 = stamp.getHours();
-    const amPm = hours24 > 12 ? 'Pm' : 'Am';
+    const amPm = hours24 >= 12 ? 'Pm' : 'Am';
     const hours12 = hours24 > 12 ? hours24 - 12 : hours24;
     let minutes: string | number = stamp.getMinutes();
     if (Number(minutes) < 10) {
