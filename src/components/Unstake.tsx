@@ -9,7 +9,7 @@ import useLiquidityPos from '../hooks/useLiquidityPos';
 import BigNumber from 'bignumber.js';
 import WrappedInput from './WrappedInput';
 import { getAllowance } from '../hooks/useTokenList';
-import { ITxDetails } from '../utils/types';
+import { IPoolMetaData, ITxDetails } from '../utils/types';
 import useAutoLoadToken from '../hooks/useAutoLoadToken';
 import TokenSelect from './TokenSelect';
 import { IMaxUnstake } from '@dataxfi/datax.js';
@@ -40,6 +40,7 @@ export default function Unstake() {
     setExecuteUnlock,
     setTxApproved,
     setShowConfirmTxDetails,
+    setBlurBG
   } = useContext(GlobalContext);
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
   const [btnText, setBtnText] = useState('Enter Amount to Remove');
@@ -49,6 +50,8 @@ export default function Unstake() {
   const [calculating, setCalculating] = useState<boolean>(false);
   const [postExchange, setPostExchange] = useState<BigNumber>(new BigNumber(0));
   const [abortCalculation, setAbortCalculation] = useState<AbortController>(new AbortController());
+  const [poolMetaData, setPoolMetaData] = useState<IPoolMetaData>();
+
   // Max possible amount of OCEAN to remove
   const [maxUnstake, setMaxUnstake] = useState<IMaxUnstake>({
     OCEAN: new BigNumber(0),
@@ -61,8 +64,18 @@ export default function Unstake() {
   useLiquidityPos();
   useAutoLoadToken();
   useClearTokens();
-  useTxHandler(unstake, executeUnstake, setExecuteUnlock, { shares: sharesToRemove, postExchange });
-  useCalcSlippage();
+  useTxHandler(unstake, executeUnstake, setExecuteUnlock, { shares: sharesToRemove, postExchange, pool: poolMetaData });
+  useCalcSlippage(sharesToRemove);
+
+  useEffect(() => {
+    if (singleLiquidityPos) {
+      setPoolMetaData({
+        baseToken: singleLiquidityPos.token1Info,
+        otherToken: singleLiquidityPos.token2Info,
+        address: singleLiquidityPos.address,
+      });
+    }
+  }, [singleLiquidityPos]);
 
   async function getMaxUnstake(signal: AbortSignal): Promise<IMaxUnstake> {
     return new Promise<IMaxUnstake>(async (resolve, reject) => {
@@ -289,7 +302,7 @@ export default function Unstake() {
       }
     } catch (error: any) {
       setLastTx({ ...preTxDetails, status: 'Failure' });
-      setSnackbarItem({ type: 'error', message: error.message });
+      setSnackbarItem({ type: 'error', message: error.error.message, error });
       setConfirmingTx(false);
       setShowTxDone(false);
     } finally {
@@ -299,6 +312,7 @@ export default function Unstake() {
       setTokenOut({ ...tokenOut, value: new BigNumber(0) });
       setTxApproved(false);
       setShowConfirmTxDetails(false);
+      setBlurBG(false);
     }
   }
 

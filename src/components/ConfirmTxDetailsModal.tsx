@@ -53,7 +53,7 @@ export default function ConfirmTxDetailsModal() {
       case '/stake/remove':
         setTxTitle('Stake Removal');
         setPostExchangeString(`1 Share = ${preTxDetails?.postExchange?.dp(5).toString()} OCEAN`);
-        setAfterSlippageString(swapAfterSlippageString);
+        setAfterSlippageString('Shares');
         break;
       default:
         setTxTitle('Swap');
@@ -114,7 +114,7 @@ export default function ConfirmTxDetailsModal() {
           <BsArrowDown className="ml-2 my-2 text-gray-300" size={24} />
           <ConfirmTxItem pos={2} />
         </div>
-        <div className='w-full h-1px bg-city-blue rounded-full my-3'/>
+        <div className="w-full h-1px bg-city-blue rounded-full my-3" />
         <div className="mt-6 flex justify-between">
           <p className="text-gray-400 text-sm">Exchange rate</p>
           <p id="confirmSwapModalSwapRate" className="text-gray-400 text-sm grid grid-flow-col items-center gap-2">
@@ -124,14 +124,13 @@ export default function ConfirmTxDetailsModal() {
         </div>
         <div className="my-2 p-2 bg-city-blue bg-opacity-30 rounded-lg">
           {/* <ConfirmSwapListItem name="Route" value="ETH > KNC" /> */}
-          <ConfirmTxListItem name={minOrMax} value={afterSlippage.dp(5).toString()} />
+          <ConfirmTxListItem name={minOrMax} value={`${afterSlippage.dp(5).toString()} ${location === '/stake/remove' ? 'Shares' : ''}`} />
           {/* <ConfirmSwapListItem name="Price impact" value="-0.62%" valueClass="text-green-500" /> */}
           <ConfirmTxListItem
             name={`${txTitle} Fee`}
             value={swapFee?.dp(5).toString() + ' ' + (tokenIn.info?.symbol || 'OCEAN')}
           />
           <ConfirmTxListItem name="DataX Fee" value="0" />
-          {/* <ConfirmSwapListItem name="DataX fee" value="0.000000006 ETH" /> */}
           <ConfirmTxListItem name="Slippage Tolerance" value={slippage + ' %'} />
         </div>
         <div className="mt-4">

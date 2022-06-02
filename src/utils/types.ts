@@ -36,6 +36,12 @@ export interface IPoolLiquidity {
   oceanAmount: BigNumber;
 }
 
+export interface IPoolMetaData {
+  address: string
+  baseToken: ITokenInfo
+  otherToken: ITokenInfo
+}
+
 export interface ITxDetails {
   accountId: string;
   txDateId: string;
@@ -47,6 +53,7 @@ export interface ITxDetails {
   shares?: BigNumber;
   txReceipt?: TransactionReceipt;
   postExchange?: BigNumber;
+  pool?: IPoolMetaData
 }
 
 export interface IUserMessage {

@@ -1,13 +1,13 @@
 import React, { SetStateAction, useContext, useEffect } from 'react';
 import { GlobalContext } from '../context/GlobalState';
-import { ITxDetails, ITxType } from '../utils/types';
+import { IPoolMetaData, ITxDetails, ITxType } from '../utils/types';
 import BigNumber from 'bignumber.js';
 
 export default function useTxHandler(
   txFunction: Function,
   executeTx: boolean,
   setExecuteTx: React.Dispatch<SetStateAction<boolean>>,
-  txDetails: { slippage?: BigNumber; postExchange?: BigNumber; shares?: BigNumber }
+  txDetails: { slippage?: BigNumber; postExchange?: BigNumber; shares?: BigNumber; pool?: IPoolMetaData }
 ) {
   const {
     accountId,
@@ -23,7 +23,7 @@ export default function useTxHandler(
     setLastTx,
     preTxDetails,
     location,
-    showUnlockTokenModal
+    showUnlockTokenModal,
   } = useContext(GlobalContext);
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export default function useTxHandler(
           case '/stake':
             txType = 'stake';
             break;
-          case '/unstake':
+          case '/stake/remove':
             txType = 'unstake';
             break;
           default:

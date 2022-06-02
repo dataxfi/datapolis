@@ -52,19 +52,16 @@ export default function TxHistoryItem({
   }
 
   function txItemTitle(tx: ITxDetails) {
-    console.log(tx);
-
-    if (tx.tokenIn.info && tx.tokenOut.info) {
-      switch (tx.txType) {
-        case 'stake':
-          return `Stake ${tx.tokenOut.info.symbol}/${tx.tokenIn.info.symbol}`;
-        case 'unstake':
-          return `Unstake ${tx.tokenOut.info.symbol}/${tx.tokenIn.info.symbol}`;
-        case 'approve':
-          return `Unlock ${tx.tokenIn.info.symbol}`;
-        default:
-          return `${tx.tokenIn.info.symbol} to ${tx.tokenOut.info.symbol}`;
-      }
+    switch (tx.txType) {
+      case 'stake':
+        return `Stake ${tx.tokenOut.info?.symbol}/${tx.tokenIn.info?.symbol}`;
+      case 'unstake':
+        console.log('asdhjf');
+        return `Unstake ${tx.pool?.otherToken.symbol}/${tx.pool?.baseToken.symbol}`;
+      case 'approve':
+        return `Unlock ${tx.tokenIn.info?.symbol}`;
+      default:
+        return `${tx.tokenIn.info?.symbol} to ${tx.tokenOut.info?.symbol}`;
     }
   }
 

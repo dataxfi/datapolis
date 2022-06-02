@@ -27,7 +27,9 @@ export default function Snackbar() {
   }, [snackbarItem, currentNot]);
 
   useEffect(() => {
-    if (ocean && accountId && currentNot?.newTx) { setUrl(getTxUrl({ ocean, accountId, txHash: currentNot.newTx.txReceipt?.transactionHash })); }
+    if (ocean && accountId && currentNot?.newTx) {
+      setUrl(getTxUrl({ ocean, accountId, txHash: currentNot.newTx.txReceipt?.transactionHash }));
+    }
     setTxDetails(currentNot?.newTx);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ocean, accountId, currentNot]);
@@ -87,9 +89,9 @@ export default function Snackbar() {
                   <p>
                     {txDetails.txType === 'stake' && txDetails.tokenOut.info ? `Stake ${new BigNumber(txDetails.tokenIn.value).dp(5).toString()} OCEAN in ${
                           txDetails.tokenOut.info.symbol
-                        }/OCEAN pool` : txDetails.txType === 'unstake' && txDetails.shares && txDetails.tokenOut.info ? `Unstake ${new BigNumber(txDetails.shares).dp(5).toString()} OCEAN from ${
-                          txDetails.tokenOut.info.symbol
-                        }/OCEAN pool` : txDetails.txType === 'approve' ? `Unlock ${txDetails.tokenIn.info?.symbol}` : `Trade ${new BigNumber(txDetails.tokenIn.value).dp(5).toString()} ${
+                        }/OCEAN pool` : txDetails.txType === 'unstake' && txDetails.shares && txDetails.pool ? `Unstake ${new BigNumber(txDetails.shares).dp(5).toString()} ${
+                          txDetails.tokenOut.info?.symbol
+                        } from ${txDetails.pool?.otherToken.symbol}/${txDetails.pool?.baseToken.symbol} pool` : txDetails.txType === 'approve' ? `Unlock ${txDetails.tokenIn.info?.symbol}` : `Trade ${new BigNumber(txDetails.tokenIn.value).dp(5).toString()} ${
                           txDetails.tokenIn.info?.symbol
                         } for ${new BigNumber(txDetails.tokenOut.value).dp(5).toString()} ${
                           txDetails.tokenOut.info?.symbol
