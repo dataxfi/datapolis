@@ -23,7 +23,16 @@ export default function useTxHandler(
     setLastTx,
     preTxDetails,
     location,
+    showUnlockTokenModal
   } = useContext(GlobalContext);
+
+  useEffect(() => {
+    if (showUnlockTokenModal && tokenIn.allowance?.gt(tokenIn.value)) {
+      setBlurBG(false);
+      setShowUnlockTokenModal(false);
+      txFunction(true);
+    }
+  }, [tokenIn.allowance]);
 
   useEffect(() => {
     if (!accountId && executeTx) {

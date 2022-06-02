@@ -29,7 +29,6 @@ export default function Swap() {
     ocean,
     chainId,
     config,
-    setShowUnlockTokenModal,
     tokenIn,
     setTokenIn,
     tokenOut,
@@ -42,7 +41,6 @@ export default function Swap() {
     executeSwap,
     setExecuteSwap,
     preTxDetails,
-    showUnlockTokenModal,
     setTxApproved,
     swapFee,
     setSwapFee,
@@ -155,14 +153,6 @@ export default function Swap() {
     return () => controller.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokenIn.info, tokenOut.info, ocean, accountId]);
-
-  useEffect(() => {
-    if (showUnlockTokenModal && tokenIn.allowance?.gt(tokenIn.value)) {
-      setBlurBG(false);
-      setShowUnlockTokenModal(false);
-      setExecuteSwap(true);
-    }
-  }, [tokenIn.allowance]);
 
   useEffect(() => {
     if (ocean && tokenIn.info && tokenIn.value.gt(0) && tokenOut.info) {

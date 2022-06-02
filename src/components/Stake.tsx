@@ -30,7 +30,6 @@ export default function Stake() {
     accountId,
     chainId,
     setConfirmingTx,
-    setShowUnlockTokenModal,
     tokenOut,
     setTokenOut,
     tokenIn,
@@ -43,8 +42,8 @@ export default function Stake() {
     executeStake,
     setExecuteStake,
     setBlurBG,
-    showUnlockTokenModal,
     setShowConfirmTxDetails,
+    setTxApproved,
   } = useContext(GlobalContext);
 
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
@@ -126,14 +125,6 @@ export default function Stake() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId, ocean, chainId, tokenOut, tokenIn.value, tokenIn.balance, loading, tokenIn.info, lastTx?.status]);
 
-  useEffect(() => {
-    if (showUnlockTokenModal && tokenIn.allowance?.gt(tokenIn.value)) {
-      setBlurBG(false);
-      setShowUnlockTokenModal(false);
-      setExecuteStake(true);
-    }
-  }, [tokenIn.allowance]);
-
   async function getMaxStakeAmt() {
     if (tokenOut.info && ocean) {
       return new BigNumber(
@@ -184,6 +175,7 @@ export default function Stake() {
         tokenIn.info?.address,
         tokenIn.value.toString()
       );
+      // this function needs to be changed to a joinswap function that takes a max token in so slippage can be applied to the shares instead of the tokenIn
       const txReceipt = await ocean.stakeOcean(
         accountId,
         tokenOut.info.pool || '',
@@ -206,6 +198,7 @@ export default function Stake() {
       setExecuteStake(false);
       setBlurBG(false);
       setShowConfirmTxDetails(false);
+      setTxApproved(false);
     }
   }
 

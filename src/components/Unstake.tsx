@@ -29,18 +29,17 @@ export default function Unstake() {
     ocean,
     setConfirmingTx,
     setShowTxDone,
-    setShowUnlockTokenModal,
     tokenOut,
     setTokenOut,
     setLastTx,
     lastTx,
     setSingleLiquidityPos,
     setSnackbarItem,
-    setBlurBG,
     setExecuteUnstake,
     executeUnstake,
     setExecuteUnlock,
-    showUnlockTokenModal,
+    setTxApproved,
+    setShowConfirmTxDetails,
   } = useContext(GlobalContext);
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
   const [btnText, setBtnText] = useState('Enter Amount to Remove');
@@ -49,6 +48,7 @@ export default function Unstake() {
   const [removePercent, setRemovePercent] = useState<BigNumber>(new BigNumber(0));
   const [calculating, setCalculating] = useState<boolean>(false);
   const [postExchange, setPostExchange] = useState<BigNumber>(new BigNumber(0));
+  const [abortCalculation, setAbortCalculation] = useState<AbortController>(new AbortController());
   // Max possible amount of OCEAN to remove
   const [maxUnstake, setMaxUnstake] = useState<IMaxUnstake>({
     OCEAN: new BigNumber(0),
@@ -159,68 +159,74 @@ export default function Unstake() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokenOut.value, lastTx, singleLiquidityPos, maxUnstake, tokenOut.allowance, tokenOut.info, tokenOut.info, ocean]);
 
-  useEffect(() => {
-    if (showUnlockTokenModal && tokenOut.allowance?.gt(tokenOut.value)) {
-      setBlurBG(false);
-      setShowUnlockTokenModal(false);
-      setExecuteUnstake(true);
-    }
-  }, [tokenOut.allowance]);
-
   const updateNum = async (val: string) => {
+    abortCalculation.abort();
+    const newController = new AbortController();
+    const signal = newController.signal;
+    setAbortCalculation(newController);
     setCalculating(true);
-    if (val === '') val = '0';
-    let max: IMaxUnstake | void;
-
-    maxUnstake?.OCEAN.gt(0) ? (max = maxUnstake) : (max = await getMaxUnstake(getNewSignal()));
 
     try {
-      if (max && max.OCEAN.gt(0) && max.shares.gt(0) && ocean && singleLiquidityPos) {
-        let percInput: BigNumber = new BigNumber(val);
-        setRemovePercent(percInput);
-        if (percInput.lte(0)) {
-          setSharesToRemove(new BigNumber(0));
-          setRemovePercent(new BigNumber(0));
-          setTokenOut({ ...tokenOut, value: new BigNumber(0) });
-          return;
+      return await new Promise(async (resolve, reject) => {
+        signal.addEventListener('abort', () => {
+          console.error('Aborted calculation');
+          return reject(new Error('User entered a new value.'));
+        });
+        if (val === '') val = '0';
+        let max: IMaxUnstake | void;
+
+        maxUnstake?.OCEAN.gt(0) ? (max = maxUnstake) : (max = await getMaxUnstake(getNewSignal()));
+
+        if (max && max.OCEAN.gt(0) && max.shares.gt(0) && ocean && singleLiquidityPos) {
+          let percInput: BigNumber = new BigNumber(val);
+          setRemovePercent(percInput);
+          if (percInput.lte(0)) {
+            setSharesToRemove(new BigNumber(0));
+            setRemovePercent(new BigNumber(0));
+            setTokenOut({ ...tokenOut, value: new BigNumber(0) });
+            setCalculating(false);
+            return resolve(0);
+          }
+
+          if (percInput.gte(100)) {
+            val = '100';
+            percInput = new BigNumber(100);
+            setRemovePercent(new BigNumber(100));
+          }
+
+          if (percInput.gt(0) && percInput.lte(100)) setRemovePercent(percInput);
+
+          const userTotalStakedOcean: BigNumber = new BigNumber(
+            await ocean.getOceanRemovedforPoolShares(singleLiquidityPos.address, singleLiquidityPos.shares.toString())
+          );
+
+          const oceanFromPerc: BigNumber = userTotalStakedOcean.times(percInput).div(100);
+
+          const sharesNeeded = new BigNumber(
+            await ocean.getPoolSharesRequiredToUnstake(
+              singleLiquidityPos.address,
+              ocean.config.default.oceanTokenAddress,
+              oceanFromPerc.toFixed(18)
+            )
+          );
+
+          if (max?.OCEAN?.gt(oceanFromPerc)) {
+            setSharesToRemove(sharesNeeded);
+            setRemovePercent(new BigNumber(val));
+            setTokenOut({ ...tokenOut, value: oceanFromPerc });
+            resolve(oceanFromPerc);
+          } else {
+            setSharesToRemove(max.shares);
+            setRemovePercent(max.OCEAN.div(userTotalStakedOcean).times(100));
+            setTokenOut({ ...tokenOut, value: max.OCEAN });
+            resolve(max.OCEAN);
+          }
+
+          setCalculating(false);
         }
-
-        if (percInput.gte(100)) {
-          val = '100';
-          percInput = new BigNumber(100);
-          setRemovePercent(new BigNumber(100));
-        }
-
-        if (percInput.gt(0) && percInput.lte(100)) setRemovePercent(percInput);
-
-        const userTotalStakedOcean: BigNumber = new BigNumber(
-          await ocean.getOceanRemovedforPoolShares(singleLiquidityPos.address, singleLiquidityPos.shares.toString())
-        );
-
-        const oceanFromPerc: BigNumber = userTotalStakedOcean.times(percInput).div(100);
-
-        const sharesNeeded = new BigNumber(
-          await ocean.getPoolSharesRequiredToUnstake(
-            singleLiquidityPos.address,
-            ocean.config.default.oceanTokenAddress,
-            oceanFromPerc.toFixed(18)
-          )
-        );
-
-        if (max?.OCEAN?.gt(oceanFromPerc)) {
-          setSharesToRemove(sharesNeeded);
-          setRemovePercent(new BigNumber(val));
-          setTokenOut({ ...tokenOut, value: oceanFromPerc });
-        } else {
-          setSharesToRemove(max.shares);
-          setRemovePercent(max.OCEAN.div(userTotalStakedOcean).times(100));
-          setTokenOut({ ...tokenOut, value: max.OCEAN });
-        }
-      }
+      });
     } catch (error) {
       console.error(error);
-    } finally {
-      setCalculating(false);
     }
   };
 
@@ -291,6 +297,8 @@ export default function Unstake() {
       setSharesToRemove(new BigNumber(0));
       setRemovePercent(new BigNumber(0));
       setTokenOut({ ...tokenOut, value: new BigNumber(0) });
+      setTxApproved(false);
+      setShowConfirmTxDetails(false);
     }
   }
 
@@ -332,7 +340,7 @@ export default function Unstake() {
                 <div className="col-span-3 flex justify-between mt-3 md:mt-0 bg-black bg-opacity-70 rounded-lg p-1">
                   <div className="flex w-full items-center">
                     {/* https://stackoverflow.com/a/58097342/6513036 and https://stackoverflow.com/a/62275278/6513036 */}
-                    <span className={'text-2xl hover:text-white focus-within:text-white text-primary-400'}>
+                    <span className="text-2xl disabled:hover:text-gray-400 disabled:text-gray-400 focus:text-white focus:placeholder-gray-200 placeholder-gray-400 disabled:cursor-not-allowed">
                       <DebounceInput
                         id="unstakeAmtInput"
                         step="1"
@@ -341,7 +349,7 @@ export default function Unstake() {
                         onWheel={(event: React.MouseEvent<HTMLButtonElement>) => event.currentTarget.blur()}
                         onKeyDown={(evt) => ['e', 'E', '+', '-'].includes(evt.key) && evt.preventDefault()}
                         type="number"
-                        className="h-full w-24 rounded-lg bg-black  focus:text-white bg-opacity-0 text-2xl px-1 outline-none focus:placeholder-gray-200 placeholder-gray-400 text-right"
+                        className="h-full w-24 rounded-lg bg-black bg-opacity-0 outline-none  text-2xl px-1  text-right"
                         placeholder="0.00"
                         value={removePercent.dp(2).toString()}
                         disabled={inputDisabled}
