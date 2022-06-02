@@ -8,7 +8,7 @@ export default function ConfirmTxListItem({
   valueClass?: string;
 }) {
   return (
-    <div id={`swapListItem-${name}`} className="flex justify-between mt-2">
+    <div id={`swapListItem-${name}`} className="flex justify-between my-1">
       <div>
         <p className="text-gray-300 text-sm">{name}</p>
       </div>

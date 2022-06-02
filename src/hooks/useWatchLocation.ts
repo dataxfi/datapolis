@@ -108,6 +108,7 @@ export default function useWatchLocation() {
         setTokenIn(INITIAL_TOKEN_STATE);
         setTokenOut(INITIAL_TOKEN_STATE);
         setT2DIDResponse(undefined);
+        setExactToken(1);
       }
     }
 

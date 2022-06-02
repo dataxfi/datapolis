@@ -8,8 +8,8 @@ export default function PositionBox({
   loading,
   setLoading,
 }: {
-  loading: boolean;
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  loading?: boolean;
+  setLoading?: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const [dtToOcean, setDtToOcean] = useState<BigNumber>(new BigNumber(''));
   const [oceanToDt, setOceanToDt] = useState<BigNumber>(new BigNumber(''));
@@ -30,7 +30,7 @@ export default function PositionBox({
     if (!accountId || !ocean) return;
     try {
       if (!token.info?.pool) throw new Error('Pool attribute is missing from token.');
-      setLoading(true);
+      if (setLoading) setLoading(true);
       const { pool } = token.info;
       setTokenOut(token);
       const [res1, res2, myPoolShares, totalPoolShares] = await Promise.all([
@@ -49,7 +49,7 @@ export default function PositionBox({
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      if (setLoading) setLoading(false);
     }
   }
 

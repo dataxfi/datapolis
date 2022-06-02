@@ -19,6 +19,7 @@ import useClearTokens from '../hooks/useClearTokens';
 import useTxHandler from '../hooks/useTxHandler';
 import TxSettings from './TxSettings';
 import useCalcSlippage from '../hooks/useCalcSlippage';
+// import PositionBox from './PositionBox';
 
 export default function Unstake() {
   const {
@@ -388,6 +389,7 @@ export default function Unstake() {
                 token={tokenOut}
                 updateNum={updateNum}
               />
+              {/* <PositionBox /> */}
               <div className="flex mt-4">
                 {/* <div className="bg-gradient"></div> */}
                 <button
@@ -399,7 +401,6 @@ export default function Unstake() {
                   {btnText}
                 </button>
                 <TxSettings />
-
               </div>
             </div>
             <div className="pt-3 pl-3">

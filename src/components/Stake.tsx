@@ -174,12 +174,22 @@ export default function Stake() {
   }
 
   async function stake(preTxDetails: ITxDetails) {
-    if (!tokenOut.info?.pool || !chainId || !ocean || !accountId) return;
+    if (!tokenOut.info?.pool || !chainId || !ocean || !accountId || !tokenIn.info?.address) return;
     if (!preTxDetails || preTxDetails.txType !== 'stake') return;
 
     try {
       setLoading(true);
-      const txReceipt = await ocean.stakeOcean(accountId, tokenOut.info.pool || '', tokenIn.value?.toString());
+      const sharesOut = await ocean.getSharesReceivedForTokenIn(
+        tokenOut.info?.pool,
+        tokenIn.info?.address,
+        tokenIn.value.toString()
+      );
+      const txReceipt = await ocean.stakeOcean(
+        accountId,
+        tokenOut.info.pool || '',
+        tokenIn.value?.toString(),
+        sharesOut
+      );
 
       setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
       transactionTypeGA('stake');

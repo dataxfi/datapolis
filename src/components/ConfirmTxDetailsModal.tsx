@@ -37,7 +37,9 @@ export default function ConfirmTxDetailsModal() {
     tokenOut.info?.symbol
   }`;
   const [postExchangeString, setPostExchangeString] = useState<string>(swapPostExchangeString);
-  const swapAfterSlippageString = `${afterSlippage.dp(5).toString()} ${tokenOut.info?.symbol}`;
+  const swapAfterSlippageString = `${afterSlippage.dp(5).toString()} ${
+    exactToken === 1 ? tokenOut.info?.symbol : tokenIn.info?.symbol
+  }`;
   const [afterSlippageString, setAfterSlippageString] = useState<string>(swapAfterSlippageString);
   const [minOrMax, setMinOrMax] = useState<'Minimum Received' | 'Maximum Spent'>('Minimum Received');
 
@@ -112,6 +114,7 @@ export default function ConfirmTxDetailsModal() {
           <BsArrowDown className="ml-2 my-2 text-gray-300" size={24} />
           <ConfirmTxItem pos={2} />
         </div>
+        <div className='w-full h-1px bg-city-blue rounded-full my-3'/>
         <div className="mt-6 flex justify-between">
           <p className="text-gray-400 text-sm">Exchange rate</p>
           <p id="confirmSwapModalSwapRate" className="text-gray-400 text-sm grid grid-flow-col items-center gap-2">
@@ -119,7 +122,7 @@ export default function ConfirmTxDetailsModal() {
             <BsShuffle size={12} />
           </p>
         </div>
-        <div className="mt-4">
+        <div className="my-2 p-2 bg-city-blue bg-opacity-30 rounded-lg">
           {/* <ConfirmSwapListItem name="Route" value="ETH > KNC" /> */}
           <ConfirmTxListItem name={minOrMax} value={afterSlippage.dp(5).toString()} />
           {/* <ConfirmSwapListItem name="Price impact" value="-0.62%" valueClass="text-green-500" /> */}
@@ -129,11 +132,11 @@ export default function ConfirmTxDetailsModal() {
           />
           <ConfirmTxListItem name="DataX Fee" value="0" />
           {/* <ConfirmSwapListItem name="DataX fee" value="0.000000006 ETH" /> */}
-          <ConfirmTxListItem name="Slippage Tolerance" value={slippage + '%'} />
+          <ConfirmTxListItem name="Slippage Tolerance" value={slippage + ' %'} />
         </div>
         <div className="mt-4">
           <p className="text-gray-300 text-sm">
-            You will receive at least {afterSlippageString} or the transaction will revert.
+            {exactToken === 1 ? `You will receive at least ${afterSlippageString} or the transaction will revert.` : `You will spend at most ${afterSlippageString} or the transaction will revert.`}
           </p>
         </div>
         <div className="mt-4">
