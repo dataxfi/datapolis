@@ -23,7 +23,6 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
 
   useEffect(() => {
     setImportPool(address);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId]);
 
   return token1Info && token2Info ? (

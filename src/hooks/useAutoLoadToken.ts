@@ -35,6 +35,5 @@ export default function useAutoLoadToken() {
     if (outAddress) {
       setToken(outAddress, false, 2);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [web3, chainId, ocean, location, accountId]);
 }

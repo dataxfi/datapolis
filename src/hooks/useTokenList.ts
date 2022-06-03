@@ -21,7 +21,6 @@ export default function useTokenList({ setLoading, setError }: { setLoading?: Fu
 
   useEffect(() => {
     setDtTokenResponse(undefined);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
 
   const initialChain = useRef(chainId);
@@ -32,7 +31,6 @@ export default function useTokenList({ setLoading, setError }: { setLoading?: Fu
       setERC20TokenResponse(undefined);
       setERC20Tokens(undefined);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, setDatatokens, setDtTokenResponse]);
 
   useEffect(() => {
@@ -54,7 +52,6 @@ export default function useTokenList({ setLoading, setError }: { setLoading?: Fu
           if (setLoading) setLoading(false);
         });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location, dtTokenResponse, web3, chainId, accountId]);
 
   useEffect(() => {
@@ -82,7 +79,6 @@ export default function useTokenList({ setLoading, setError }: { setLoading?: Fu
           console.error(error);
         });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location, ERC20TokenResponse, web3, chainId, config]);
 }
 

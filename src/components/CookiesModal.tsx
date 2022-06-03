@@ -20,7 +20,6 @@ function CookiesModal() {
         setShow(true);
         break;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setCookiesAllowed]);
 
   function confirmOrDeny(e: React.MouseEvent<HTMLButtonElement>) {

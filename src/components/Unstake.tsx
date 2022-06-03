@@ -40,7 +40,7 @@ export default function Unstake() {
     setExecuteUnlock,
     setTxApproved,
     setShowConfirmTxDetails,
-    setBlurBG
+    setBlurBG,
   } = useContext(GlobalContext);
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
   const [btnText, setBtnText] = useState('Enter Amount to Remove');
@@ -134,8 +134,7 @@ export default function Unstake() {
         .then((res) => setPostExchange(new BigNumber(res)))
         .catch(console.error);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ocean, singleLiquidityPos?.address, tokenOut.info, accountId]);
+  }, [ocean, singleLiquidityPos?.address, tokenOut.info?.address, accountId]);
 
   useEffect(() => {
     setInputDisabled(false);
@@ -169,8 +168,7 @@ export default function Unstake() {
       setBtnDisabled(false);
       setBtnText('Withdrawal');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tokenOut.value, lastTx, singleLiquidityPos, maxUnstake, tokenOut.allowance, tokenOut.info, tokenOut.info, ocean]);
+  }, [tokenOut.value, lastTx, singleLiquidityPos, maxUnstake, tokenOut.allowance, tokenOut.info?.address, ocean]);
 
   const updateNum = async (val: string) => {
     abortCalculation.abort();

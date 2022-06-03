@@ -168,7 +168,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
     }
 
     init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [web3, chainId]);
 
   /**

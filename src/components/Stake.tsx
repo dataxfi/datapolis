@@ -65,8 +65,7 @@ export default function Stake() {
     if (tokenIn.info && tokenOut.info) {
       getMaxAndAllowance();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tokenIn.info, tokenOut.info, tokensCleared, accountId]);
+  }, [tokenIn.info?.address, tokenOut.info?.address, tokensCleared, accountId]);
 
   useEffect(() => {
     if (tokenIn.info && !tokenOut.info && ocean && accountId) {
@@ -74,7 +73,7 @@ export default function Stake() {
         setTokenIn({ ...tokenIn, balance: new BigNumber(res) });
       });
     }
-  }, [tokenIn.info, accountId]);
+  }, [tokenIn.info?.address, accountId]);
 
   useEffect(() => {
     if (!accountId) {
@@ -122,7 +121,6 @@ export default function Stake() {
         text: 'Stake',
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId, ocean, chainId, tokenOut, tokenIn.value, tokenIn.balance, loading, tokenIn.info, lastTx?.status]);
 
   async function getMaxStakeAmt() {

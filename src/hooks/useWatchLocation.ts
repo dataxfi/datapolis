@@ -87,8 +87,6 @@ export default function useWatchLocation() {
     if (tokensCleared && currentLocation.pathname === lastLocation.current.pathname) {
       switchOnPathParams();
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentLocation.pathname, tokenIn.info?.address, tokenOut.info?.address, chainId]);
 
   const initialAccount = useRef(accountId);
@@ -103,7 +101,6 @@ export default function useWatchLocation() {
       navigate('/stake/list');
     }
     initialAccount.current = accountId;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId]);
 
   useEffect(() => {
@@ -122,7 +119,5 @@ export default function useWatchLocation() {
         setExactToken(1);
       }
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastTx]);
 }

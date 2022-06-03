@@ -59,7 +59,6 @@ export default function UnlockTokenModal() {
       );
     }
     return () => clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, accountId, pool, ocean]);
 
   async function unlockTokens(amount: 'perm' | 'once') {

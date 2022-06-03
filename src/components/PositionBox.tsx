@@ -23,8 +23,7 @@ export default function PositionBox({
     if (tokenOut.info && !ocean.isOCEAN(tokenOut.info.address)) {
       updateToken(tokenOut);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ocean, chainId, web3, ocean, accountId, tokenOut.info, tokensCleared]);
+  }, [ocean, chainId, web3, ocean, accountId, tokenOut.info?.address, tokensCleared]);
 
   async function updateToken(token: IToken) {
     if (!accountId || !ocean) return;

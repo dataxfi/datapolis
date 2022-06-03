@@ -23,7 +23,6 @@ export default function Snackbar() {
       setCurrentNot(snackbarItem);
       setSnackbarItem(undefined);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [snackbarItem, currentNot]);
 
   useEffect(() => {
@@ -31,7 +30,6 @@ export default function Snackbar() {
       setUrl(getTxUrl({ ocean, accountId, txHash: currentNot.newTx.txReceipt?.transactionHash }));
     }
     setTxDetails(currentNot?.newTx);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ocean, accountId, currentNot]);
 
   useEffect(() => {
@@ -42,8 +40,6 @@ export default function Snackbar() {
     return () => {
       setCleanup(true);
     };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [txDetails, currentNot]);
 
   function errorMessage(currentNot: any) {

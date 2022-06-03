@@ -69,7 +69,6 @@ export default function Swap() {
 
   useEffect(() => {
     getButtonProperties();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokenIn, tokenOut, accountId, executeSwap, executeUnlock]);
 
   let controller = new AbortController();
@@ -151,7 +150,6 @@ export default function Swap() {
     }
 
     return () => controller.abort();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokenIn.info?.address, tokenOut.info?.address, ocean, accountId]);
 
   useEffect(() => {
@@ -176,6 +174,7 @@ export default function Swap() {
 
   async function swapTokens() {
     setSwapDisabled(true);
+    // states are locked in functions, so storing one tokens state in a variable is uneccesarry
     setTokenIn({ ...tokenOut });
     setTokenOut({ ...tokenIn });
     // timeout to avoid spamming ergo race conditions

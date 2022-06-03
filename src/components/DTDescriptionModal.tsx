@@ -36,7 +36,6 @@ export default function DatasetDescription() {
     } catch (error) {
       console.error(error);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokenOut.info?.address, location]);
 
   useEffect(() => {
@@ -57,7 +56,6 @@ export default function DatasetDescription() {
         });
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [t2DIDResponse, tokenOut.info]);
 
   return (

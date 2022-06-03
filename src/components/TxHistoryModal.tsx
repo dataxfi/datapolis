@@ -37,8 +37,6 @@ function TxHistoryModal() {
     if (tx1 && tx2 && tx3 && tx4 && tx5 && accountId && chainId) {
       setNewTxHistory();
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tx1, tx2, tx3, tx4, tx5]);
 
   useEffect(() => {
@@ -46,7 +44,6 @@ function TxHistoryModal() {
       if (confirmingTx) setConfirmingTx(false);
       if (showTxDone) setShowTxDone(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [confirmingTx, showTxDone, showTxHistoryModal]);
 
   useEffect(() => {
@@ -76,8 +73,6 @@ function TxHistoryModal() {
     } catch (error) {
       console.error(error);
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [txHistory, pendingTxs, chainId, accountId, page, ocean]);
 
   function setNewTxHistory() {

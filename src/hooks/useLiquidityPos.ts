@@ -9,8 +9,17 @@ export default function useLiquidityPos(
   updatePool?: string | undefined,
   setUpdatePool?: React.Dispatch<React.SetStateAction<string | undefined>>
 ) {
-  const { allStakedPools, setSingleLiquidityPos, chainId, accountId, ocean, setAllStakedPools, tokenIn, tokenOut, web3 } =
-    useContext(GlobalContext);
+  const {
+    allStakedPools,
+    setSingleLiquidityPos,
+    chainId,
+    accountId,
+    ocean,
+    setAllStakedPools,
+    tokenIn,
+    tokenOut,
+    web3,
+  } = useContext(GlobalContext);
   const location = useLocation();
   const [loading, setLoading] = useState(false);
 
@@ -58,8 +67,7 @@ export default function useLiquidityPos(
         });
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tokenIn.info, tokenOut.info, ocean, accountId, web3]);
+  }, [tokenIn.info?.address, tokenOut.info?.address, ocean, accountId, web3]);
 
   const nextToImport = useRef(updatePool);
   useEffect(() => {
@@ -85,7 +93,6 @@ export default function useLiquidityPos(
     } else if (loading) {
       nextToImport.current = updatePool;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [updatePool, loading]);
 
   async function updateSingleStakePool(poolAddress: string): Promise<ILiquidityPosition | void> {

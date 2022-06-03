@@ -40,7 +40,6 @@ export default function TokenModal() {
   const initialChain = useRef(chainId);
   useEffect(() => {
     if (chainId !== initialChain.current) closeModal();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId]);
 
   useEffect(() => {
@@ -50,7 +49,6 @@ export default function TokenModal() {
     } else {
       closeModal();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dtTokenResponse, datatokens]);
 
   useEffect(() => {
