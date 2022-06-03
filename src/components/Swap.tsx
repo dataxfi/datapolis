@@ -167,7 +167,11 @@ export default function Swap() {
 
   async function updateBalance(address: string) {
     if (!ocean || !accountId) return;
-    return new BigNumber(await ocean.getBalance(address, accountId));
+    try {
+      return new BigNumber(await ocean.getBalance(address, accountId));
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   async function swapTokens() {

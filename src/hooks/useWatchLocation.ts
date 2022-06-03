@@ -38,15 +38,13 @@ export default function useWatchLocation() {
 
   function switchOnPathParams() {
     if (!chainId) return;
-    if (searchParams.get('on') !== chainId) return setSearchParams({});
+    const chainInParams = searchParams.get('on');
+    if (chainInParams && chainInParams !== chainId) return setSearchParams({});
     switch (currentLocation.pathname) {
       case '/stake/remove':
         if (tokenOut.info?.address) {
           const pool = searchParams.get('pool');
-          setSearchParams(
-            { on: chainId, pool: pool || '', out: tokenOut.info?.address || '' },
-            { replace: true }
-          );
+          setSearchParams({ on: chainId, pool: pool || '', out: tokenOut.info?.address || '' }, { replace: true });
         }
         break;
       case '/stake':
