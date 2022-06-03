@@ -20,6 +20,7 @@ import Swap from './components/Swap';
 BigNumber.config({ DECIMAL_PLACES: 18, ROUNDING_MODE: BigNumber.ROUND_DOWN, EXPONENTIAL_AT: 18 });
 
 function App() {
+  //some comment
   const { unsupportedNet, cookiesAllowed, location, bgOff, blurBG } = useContext(GlobalContext);
 
   document.getElementById('loader');
