@@ -395,7 +395,7 @@ export async function clickMaxTrade(page: puppeteer.Page) {
   await page.waitForFunction('document.querySelector("#maxBtn[disabled]") === null');
   await page.waitForSelector('#maxBtn');
   await page.click('#maxBtn');
-  await page.waitForFunction('Number(document.querySelector("#tokenIn-input").value) > 0', { timeout: 8000 });
+  await page.waitForFunction('Number(document.querySelector("#token1-input").value) > 0', { timeout: 8000 });
 }
 
 export async function typeAmount(
@@ -514,8 +514,8 @@ export async function evaluateMax(page: puppeteer.Page, t1Bal: BigNumber): Promi
   );
 
   // get values in each input field
-  let t1Input: BigNumber = new BigNumber(await page.evaluate('document.querySelector("#tokenIn-input").value'));
-  let t2Input: BigNumber = new BigNumber(await page.evaluate('document.querySelector("#tokenOut-input").value'));
+  let t1Input: BigNumber = new BigNumber(await page.evaluate('document.querySelector("#token1-input").value'));
+  let t2Input: BigNumber = new BigNumber(await page.evaluate('document.querySelector("#token2-input").value'));
 
   if (t1Input.isNaN()) t1Input = new BigNumber(0);
   if (t2Input.isNaN()) t2Input = new BigNumber(0);
@@ -544,8 +544,8 @@ export async function incrementUntilValid(
   t2Symbol: string,
   inputPos: number
 ) {
-  const t1val = new BigNumber(await page.evaluate('document.querySelector("#tokenIn-input").value'));
-  const t2val = new BigNumber(await page.evaluate('document.querySelector("#tokenOut-input").value'));
+  const t1val = new BigNumber(await page.evaluate('document.querySelector("#token1-input").value'));
+  const t2val = new BigNumber(await page.evaluate('document.querySelector("#token2-input").value'));
   let amountBN = new BigNumber(amount);
   const t1Limit = t1Symbol === 'OCEAN' ? 0.01 : 0.001;
   const t2Limit = t2Symbol === 'OCEAN' ? 0.01 : 0.001;
@@ -890,15 +890,15 @@ export async function inputUnstakeAmt(page: puppeteer.Page, unstakeAmt: string, 
     await page.waitForSelector('#unstakeAmtInput');
     await page.waitForFunction('Number(document.querySelector("#unstakeAmtInput").value) > 0');
     input = await page.evaluate('document.querySelector("#unstakeAmtInput").value');
-    await page.waitForSelector('#tokenIn-input');
-    await page.waitForFunction('Number(document.querySelector("#tokenIn-input").value) > 0');
-    receive = await page.evaluate('document.querySelector("#tokenIn-input").value');
+    await page.waitForSelector('#token1-input');
+    await page.waitForFunction('Number(document.querySelector("#token1-input").value) > 0');
+    receive = await page.evaluate('document.querySelector("#token1-input").value');
   } else {
     await page.waitForSelector('#unstakeAmtInput');
     await page.type('#unstakeAmtInput', unstakeAmt, { delay: 150 });
-    await page.waitForSelector('#tokenIn-input');
-    if (Number(shares) > 0) await page.waitForFunction('Number(document.querySelector("#tokenIn-input").value) > 0');
-    receive = await page.evaluate('Number(document.querySelector("#tokenIn-input").value)');
+    await page.waitForSelector('#token1-input');
+    if (Number(shares) > 0) await page.waitForFunction('Number(document.querySelector("#token1-input").value) > 0');
+    receive = await page.evaluate('Number(document.querySelector("#token1-input").value)');
     input = await page.evaluate('document.querySelector("#unstakeAmtInput").value');
   }
 
@@ -1047,8 +1047,8 @@ export async function confirmInputClearedAfterStake(page: puppeteer.Page) {
   await page.waitForFunction("document.querySelector('#executeStake').innerText === 'Select a Token'", {
     timeout: 3000,
   });
-  await page.waitForSelector('#tokenIn-input');
-  await page.waitForFunction("document.querySelector('#tokenIn-input').value === ''", { timeout: 3000 });
+  await page.waitForSelector('#token1-input');
+  await page.waitForFunction("document.querySelector('#token1-input').value === ''", { timeout: 3000 });
 }
 
 export async function confirmInputClearedAfterUnstake(page: puppeteer.Page) {

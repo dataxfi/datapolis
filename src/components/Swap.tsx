@@ -60,6 +60,7 @@ export default function Swap() {
 
   const [percLoading, setPercLoading] = useState(false);
   const [maxExchange, setMaxExchange] = useState<IMaxExchange>(INITIAL_MAX_EXCHANGE);
+  const [swapDisabled, setSwapDisabled] = useState<boolean>(false);
 
   useClearTokens();
   useAutoLoadToken();
@@ -115,12 +116,9 @@ export default function Swap() {
           })
           .then((balance) => {
             controller.abort();
-            // eslint-disable-next-line react-hooks/exhaustive-deps
             controller = new AbortController();
             const signal = controller.signal;
             setMaxExchange(INITIAL_MAX_EXCHANGE);
-            // console.log(balance?.toString());
-
             let updatedToken1;
             balance ? (updatedToken1 = { ...tokenIn, balance }) : (updatedToken1 = tokenIn);
 
@@ -133,6 +131,8 @@ export default function Swap() {
               })
               .catch(console.error);
           });
+
+        return () => controller.abort();
       }
 
       if (tokenOut.info) {
@@ -152,7 +152,7 @@ export default function Swap() {
 
     return () => controller.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tokenIn.info, tokenOut.info, ocean, accountId]);
+  }, [tokenIn.info?.address, tokenOut.info?.address, ocean, accountId]);
 
   useEffect(() => {
     if (ocean && tokenIn.info && tokenIn.value.gt(0) && tokenOut.info) {
@@ -175,8 +175,13 @@ export default function Swap() {
   }
 
   async function swapTokens() {
-    setTokenIn({ ...tokenOut, info: tokenOut.info });
-    setTokenOut({ ...tokenIn, info: tokenIn.info });
+    setSwapDisabled(true);
+    setTokenIn({ ...tokenOut });
+    setTokenOut({ ...tokenIn });
+    // timeout to avoid spamming ergo race conditions
+    await setTimeout(() => {
+      setSwapDisabled(false);
+    }, 750);
   }
 
   function updateValueFromPercentage(value: string) {
@@ -480,19 +485,20 @@ export default function Swap() {
                 updateNum={dbUpdateToken1}
               />
               <div className="px-4 relative mt-6 mb-10">
-                <div
+                <button
                   id="swapTokensBtn"
                   onClick={swapTokens}
                   role="button"
                   tabIndex={0}
-                  className="rounded-full border-black bg-opacity-100 border-4 absolute -top-7 bg-trade-darkBlue hover:bg-gray-600 transition-colors duration-200 w-12 h-12 flex swap-center items-center justify-center"
+                  className="rounded-full border-black bg-opacity-100 border-4 absolute -top-7 bg-trade-darkBlue hover:bg-gray-600 transition-colors duration-200 w-12 h-12 flex swap-center items-center justify-center disabled:cursor-not-allowed"
+                  disabled={swapDisabled}
                 >
                   {tokenOut?.loading || tokenIn?.loading || percLoading ? (
                     <MoonLoader size={25} color={'white'} />
                   ) : (
                     <IoSwapVertical size="30" className="text-gray-300" />
                   )}
-                </div>
+                </button>
               </div>
               <TokenSelect
                 setToken={setTokenOut}
