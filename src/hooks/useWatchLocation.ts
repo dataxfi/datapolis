@@ -41,9 +41,10 @@ export default function useWatchLocation() {
     if (searchParams.get('on') !== chainId) return setSearchParams({});
     switch (currentLocation.pathname) {
       case '/stake/remove':
-        if (tokenOut.info?.pool || tokenIn.info?.address) {
+        if (tokenOut.info?.address) {
+          const pool = searchParams.get('pool');
           setSearchParams(
-            { on: chainId, pool: tokenOut.info?.pool || '', out: tokenIn.info?.address || '' },
+            { on: chainId, pool: pool || '', out: tokenOut.info?.address || '' },
             { replace: true }
           );
         }

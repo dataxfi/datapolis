@@ -320,6 +320,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setChainId(undefined);
         setDisclaimerSigned({ client: false, wallet: false });
       }
+      setAllStakedPools(undefined);
     });
 
     // Subscribe to chainId change
@@ -332,6 +333,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       setERC20Tokens(undefined);
       setShowDescModal(false);
       setPendingTxs([]);
+      setAllStakedPools(undefined);
       const parsedId = String(parseInt(chainId));
       // console.log("Chain changed to ", parsedId);
       setChainId(parsedId as supportedChains);
