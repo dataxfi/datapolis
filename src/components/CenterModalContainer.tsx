@@ -1,10 +1,9 @@
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../context/GlobalState';
-import ConfirmModal from './ConfirmModal';
 import ConfirmTxDetailsModal from './ConfirmTxDetailsModal';
 import DisclaimerModal from './DisclaimerModal';
 import TokenModal from './TokenModal';
-import TransactionDoneModal from './TransactionDoneModal';
+import TxDoneModal from './TxDoneModal';
 import TxHistoryModal from './TxHistoryModal';
 import UnlockTokenModal from './UnlockTokenModal';
 
@@ -12,7 +11,7 @@ export default function CenterModalContainer() {
   const {
     showTokenModal,
     showTxDone,
-    showConfirmModal,
+    confirmingTx,
     showTxHistoryModal,
     showConfirmTxDetails,
     showDisclaimer,
@@ -23,7 +22,7 @@ export default function CenterModalContainer() {
   useEffect(() => {
     showTokenModal ||
     showTxDone ||
-    showConfirmModal ||
+    confirmingTx ||
     showTxHistoryModal ||
     showConfirmTxDetails ||
     showDisclaimer ||
@@ -31,7 +30,7 @@ export default function CenterModalContainer() {
   }, [
     showTokenModal,
     showTxDone,
-    showConfirmModal,
+    confirmingTx,
     showTxHistoryModal,
     showConfirmTxDetails,
     showDisclaimer,
@@ -45,8 +44,7 @@ export default function CenterModalContainer() {
         <DisclaimerModal />
         <TxHistoryModal />
         <TokenModal />
-        <ConfirmModal />
-        <TransactionDoneModal />
+        <TxDoneModal />
         <ConfirmTxDetailsModal />
       </div>
     </div>

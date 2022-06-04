@@ -3,10 +3,10 @@ import { useLocation } from 'react-router-dom';
 import { GlobalContext, INITIAL_TOKEN_STATE } from '../context/GlobalState';
 import { getToken } from './useTokenList';
 export default function useAutoLoadToken() {
-  const { web3, chainId, setToken2, ocean, accountId, setToken1 } = useContext(GlobalContext);
+  const { web3, chainId, setTokenOut, ocean, accountId, setTokenIn, location } =
+    useContext(GlobalContext);
 
   const url = useLocation();
-  // loads token information when url has pool address
   useEffect(() => {
     // cannot use useSearchParams() here
     const queryParams = new URLSearchParams(url.search);
@@ -16,16 +16,15 @@ export default function useAutoLoadToken() {
 
     function setToken(address: string, isPool: boolean, pos: 1 | 2) {
       if (!web3 || !chainId || !ocean || !accountId) return;
-
       getToken(web3, chainId, address, isPool ? 'pool' : 'exchange').then((info) => {
         if (info) {
           const token = { ...INITIAL_TOKEN_STATE, info };
-          pos === 1 ? setToken1(token) : setToken2(token);
+          pos === 1 ? setTokenIn(token) : setTokenOut(token);
         }
       });
     }
 
-    if (pool) {
+    if (pool && location === '/stake') {
       setToken(pool, true, 2);
     }
 
@@ -36,6 +35,5 @@ export default function useAutoLoadToken() {
     if (outAddress) {
       setToken(outAddress, false, 2);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [web3, chainId, ocean, accountId]);
+  }, [web3, chainId, ocean, location, accountId]);
 }

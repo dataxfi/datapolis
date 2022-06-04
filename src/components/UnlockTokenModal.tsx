@@ -4,7 +4,8 @@ import { BiLockAlt, BiLockOpenAlt } from 'react-icons/bi';
 import { MdClose } from 'react-icons/md';
 import BigNumber from 'bignumber.js';
 import { getAllowance } from '../hooks/useTokenList';
-import OutsideClickHandler from 'react-outside-click-handler';
+import CenterModal from './CenterModal';
+
 export default function UnlockTokenModal() {
   const {
     accountId,
@@ -13,10 +14,10 @@ export default function UnlockTokenModal() {
     setShowUnlockTokenModal,
     setSnackbarItem,
     lastTx,
-    token1,
-    token2,
+    tokenIn,
+    tokenOut,
     setLastTx,
-    setToken1,
+    setTokenIn,
     location,
     showUnlockTokenModal,
     setExecuteStake,
@@ -46,7 +47,7 @@ export default function UnlockTokenModal() {
         () =>
           getAllowance(address, accountId, pool, ocean).then((res) => {
             const allowance = new BigNumber(res);
-            if (allowance.gte(token1.value)) {
+            if (allowance.gte(tokenIn.value)) {
               setExecuteUnlock(false);
               setPool(null);
               setAddress(null);
@@ -58,7 +59,6 @@ export default function UnlockTokenModal() {
       );
     }
     return () => clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, accountId, pool, ocean]);
 
   async function unlockTokens(amount: 'perm' | 'once') {
@@ -70,15 +70,15 @@ export default function UnlockTokenModal() {
       let pool: string = '';
       let address: string = '';
 
-      if (token1.info && token2.info && ocean.isOCEAN(token1.info.address)) {
-        pool = token2.info.pool || '';
-        address = token1.info.address;
-      } else if (token1.info && token2.info && ocean.isOCEAN(token2.info.address)) {
-        pool = token1.info.pool || '';
-        address = token1.info.address;
-      } else if (token1.info) {
+      if (tokenIn.info && tokenOut.info && ocean.isOCEAN(tokenIn.info.address)) {
+        pool = tokenOut.info.pool || '';
+        address = tokenIn.info.address;
+      } else if (tokenIn.info && tokenOut.info && ocean.isOCEAN(tokenOut.info.address)) {
+        pool = tokenIn.info.pool || '';
+        address = tokenIn.info.address;
+      } else if (tokenIn.info) {
         pool = config?.default.routerAddress;
-        address = token1.info.address;
+        address = tokenIn.info.address;
       }
 
       try {
@@ -86,10 +86,10 @@ export default function UnlockTokenModal() {
         let txReceipt;
         if (amount === 'perm') {
           txReceipt = await ocean.approve(address, pool, new BigNumber(18e10).toString(), accountId);
-          setToken1({ ...token1, allowance: new BigNumber(18e10) });
+          setTokenIn({ ...tokenIn, allowance: new BigNumber(18e10) });
         } else {
-          txReceipt = await ocean.approve(address, pool, token1.value.plus(0.001).toString(), accountId);
-          setToken1({ ...token1, allowance: token1.value.plus(0.001) });
+          txReceipt = await ocean.approve(address, pool, tokenIn.value.plus(0.001).toString(), accountId);
+          setTokenIn({ ...tokenIn, allowance: tokenIn.value.plus(0.001) });
         }
 
         setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
@@ -131,55 +131,53 @@ export default function UnlockTokenModal() {
     }
   }
 
-  return token1.info && preTxDetails && showUnlockTokenModal && executeUnlock ? (
+  return tokenIn.info && preTxDetails && showUnlockTokenModal && executeUnlock ? (
     location !== '/moo' ? (
-      <div id="transactionDoneModal" className="fixed center sm:max-w-sm w-full z-30 shadow">
-        <OutsideClickHandler onOutsideClick={close}>
-          <div className="bg-black border items-center flex flex-col rounded-lg pb-8 pt-2 px-4 hm-box mx-3">
-            <div className="flex w-full  justify-end">
-              <button onClick={close}>
-                <MdClose id="closeTokenModalBtn" className="text-gray-100 text-2xl" />
-              </button>
-            </div>
-            <div className="pb-5">
-              {approving === 'pending' ? (
-                <BiLockAlt size="72px" className="text-city-blue" />
-              ) : approving === 'approving' ? (
-                <BiLockAlt size="72px" className="text-city-blue animate-bounce" />
-              ) : (
-                <BiLockOpenAlt size="72px" className="text-city-blue animate-bounce" />
-              )}
-            </div>
-            <h3 className="text-sm lg:text-2xl pb-5">Unlock {token1.info.symbol}</h3>
-            <p className="text-sm lg:text-base text-center pb-5">
-              DataX needs your permission to spend{' '}
-              {location === remove ? preTxDetails.shares?.dp(5).toString() : token1.value.dp(5).toString()}{' '}
-              {location === remove ? 'shares' : token1.info.symbol}.
-            </p>
-
-            <button
-              id="perm-unlock-btn"
-              onClick={() => {
-                unlockTokens('perm');
-              }}
-              className="w-full p-2 rounded-lg mb-2 bg-opacity-20 txButton"
-              disabled={!!(approving === 'approving' || pool || address)}
-            >
-              Unlock Permanently
-            </button>
-            <button
-              id="unlock-once-btn"
-              onClick={() => {
-                unlockTokens('once');
-              }}
-              disabled={!!(approving === 'approving' || pool || address)}
-              className="w-full p-2 rounded-lg mb-2 bg-opacity-20 txButton"
-            >
-              Unlock this time only
+      <CenterModal id="transactionDoneModal" onOutsideClick={close} className="sm:max-w-sm w-full z-30 shadow">
+        <div className="bg-black border items-center flex flex-col rounded-lg pb-8 pt-2 px-4 hm-box mx-3">
+          <div className="flex w-full  justify-end">
+            <button onClick={close}>
+              <MdClose id="closeTokenModalBtn" className="text-gray-100 text-2xl" />
             </button>
           </div>
-        </OutsideClickHandler>
-      </div>
+          <div className="pb-5">
+            {approving === 'pending' ? (
+              <BiLockAlt size="72px" className="text-city-blue" />
+            ) : approving === 'approving' ? (
+              <BiLockAlt size="72px" className="text-city-blue animate-bounce" />
+            ) : (
+              <BiLockOpenAlt size="72px" className="text-city-blue animate-bounce" />
+            )}
+          </div>
+          <h3 className="text-sm lg:text-2xl pb-5">Unlock {tokenIn.info.symbol}</h3>
+          <p className="text-sm lg:text-base text-center pb-5">
+            DataX needs your permission to spend{' '}
+            {location === remove ? preTxDetails.shares?.dp(5).toString() : tokenIn.value.dp(5).toString()}{' '}
+            {location === remove ? 'shares' : tokenIn.info.symbol}.
+          </p>
+
+          <button
+            id="perm-unlock-btn"
+            onClick={() => {
+              unlockTokens('perm');
+            }}
+            className="w-full p-2 rounded-lg mb-2 bg-opacity-20 txButton"
+            disabled={!!(approving === 'approving' || pool || address)}
+          >
+            Unlock Permanently
+          </button>
+          <button
+            id="unlock-once-btn"
+            onClick={() => {
+              unlockTokens('once');
+            }}
+            disabled={!!(approving === 'approving' || pool || address)}
+            className="w-full p-2 rounded-lg mb-2 bg-opacity-20 txButton"
+          >
+            Unlock this time only
+          </button>
+        </div>
+      </CenterModal>
     ) : (
       <div className="mt-4">
         <button

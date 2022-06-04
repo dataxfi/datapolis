@@ -8,7 +8,7 @@ import Web3Modal from 'web3modal';
 export type ApprovalStates = 'approved' | 'approving' | 'pending';
 export type screenSize = 'mobile' | 'desktop';
 export type BalancePos = 1 | 2 | 'stake';
-export type ITxType = 'trade' | 'stake' | 'unstake' | 'approve';
+export type ITxType = 'swap' | 'stake' | 'unstake' | 'approve';
 export type LocalStorageMethods = 'get' | 'set' | 'clear' | 'remove' | 'key' | 'length';
 export type TokenSelectTitles =
   | 'You are buying'
@@ -36,17 +36,24 @@ export interface IPoolLiquidity {
   oceanAmount: BigNumber;
 }
 
+export interface IPoolMetaData {
+  address: string
+  baseToken: ITokenInfo
+  otherToken: ITokenInfo
+}
+
 export interface ITxDetails {
   accountId: string;
   txDateId: string;
-  token1: IToken;
-  token2: IToken;
+  tokenIn: IToken;
+  tokenOut: IToken;
   status: 'Pending' | 'Indexing' | 'Success' | 'Failure';
   txType: ITxType;
   slippage?: BigNumber;
   shares?: BigNumber;
   txReceipt?: TransactionReceipt;
   postExchange?: BigNumber;
+  pool?: IPoolMetaData
 }
 
 export interface IUserMessage {
@@ -116,7 +123,7 @@ export interface globalStates {
   web3?: Web3;
   config?: Config;
   unsupportedNet: boolean;
-  handleSignature: (account: string, web3: Web3, bypass:boolean) => Promise<string>;
+  handleSignature: (account: string, web3: Web3, bypass: boolean) => Promise<string>;
   cookiesAllowed: boolean | null;
   setCookiesAllowed: React.Dispatch<React.SetStateAction<boolean | null>>;
   showDisclaimer: boolean;
@@ -149,8 +156,8 @@ export interface globalStates {
   setShowTxHistoryModal: React.Dispatch<React.SetStateAction<boolean>>;
   watcher?: Watcher;
   setWatcher: React.Dispatch<React.SetStateAction<Watcher | undefined>>;
-  showConfirmModal: boolean;
-  setShowConfirmModal: React.Dispatch<React.SetStateAction<boolean>>;
+  confirmingTx: boolean;
+  setConfirmingTx: React.Dispatch<React.SetStateAction<boolean>>;
   showTxDone: boolean;
   setShowTxDone: React.Dispatch<React.SetStateAction<boolean>>;
   showUnlockTokenModal: boolean;
@@ -159,10 +166,10 @@ export interface globalStates {
   setLocation: React.Dispatch<React.SetStateAction<string>>;
   bgOff: boolean;
   setBgOff: React.Dispatch<React.SetStateAction<boolean>>;
-  token1: IToken;
-  setToken1: React.Dispatch<React.SetStateAction<IToken>>;
-  token2: IToken;
-  setToken2: React.Dispatch<React.SetStateAction<IToken>>;
+  tokenIn: IToken;
+  setTokenIn: React.Dispatch<React.SetStateAction<IToken>>;
+  tokenOut: IToken;
+  setTokenOut: React.Dispatch<React.SetStateAction<IToken>>;
   tokensCleared: React.MutableRefObject<boolean>;
   snackbarItem?: ISnackbarItem;
   setSnackbarItem: React.Dispatch<React.SetStateAction<ISnackbarItem | undefined>>;
@@ -179,8 +186,10 @@ export interface globalStates {
   setShowConfirmTxDetails: React.Dispatch<React.SetStateAction<boolean>>;
   preTxDetails?: ITxDetails;
   setPreTxDetails: React.Dispatch<React.SetStateAction<ITxDetails | undefined>>;
-  swapConfirmed: boolean;
-  setSwapConfirmed: React.Dispatch<React.SetStateAction<boolean>>;
+  txApproved: boolean;
+  setTxApproved: React.Dispatch<React.SetStateAction<boolean>>;
+  showTxSettings: boolean;
+  setShowTxSettings: React.Dispatch<React.SetStateAction<boolean>>;
   executeSwap: boolean;
   setExecuteSwap: React.Dispatch<React.SetStateAction<boolean>>;
   executeStake: boolean;
@@ -195,6 +204,10 @@ export interface globalStates {
   setImportPool: React.Dispatch<React.SetStateAction<string | undefined>>;
   swapFee: BigNumber;
   setSwapFee: React.Dispatch<React.SetStateAction<BigNumber>>;
-  minReceived: BigNumber;
-  setMinReceived: React.Dispatch<React.SetStateAction<BigNumber>>;
+  afterSlippage: BigNumber;
+  setAfterSlippage: React.Dispatch<React.SetStateAction<BigNumber>>;
+  slippage: BigNumber;
+  setSlippage: React.Dispatch<React.SetStateAction<BigNumber>>;
+  exactToken: 1 | 2;
+  setExactToken: React.Dispatch<React.SetStateAction<1 | 2>>;
 }

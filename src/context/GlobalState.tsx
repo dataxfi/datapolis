@@ -31,6 +31,24 @@ export const INITIAL_TOKEN_STATE: IToken = {
   percentage: new BigNumber(0),
   loading: false,
 };
+
+export function placeHolderOrContent(
+  content: JSX.Element,
+  placeholderSize: string,
+  conditional: boolean,
+  rows: number = 1
+) {
+  if (conditional) return content;
+  const elements = [];
+  while (rows) {
+    elements.push(
+      <div key={`placholder-${rows}`} style={{ width: placeholderSize, height: '12px', borderRadius: '4px', backgroundColor: '#1b1b1b', margin: '4px 0' }} />
+    );
+    rows = rows - 1;
+  }
+  return elements.map((e) => e);
+}
+
 export const GlobalContext = createContext<globalStates>({} as globalStates);
 
 export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }) => {
@@ -56,7 +74,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [showTokenModal, setShowTokenModal] = useState<boolean>(false);
   const [showTxHistoryModal, setShowTxHistoryModal] = useState<boolean>(false);
   const [showDescModal, setShowDescModal] = useState<boolean>(false);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmingTx, setConfirmingTx] = useState(false);
   const [showConfirmTxDetails, setShowConfirmTxDetails] = useState(false);
   const [showTxDone, setShowTxDone] = useState(false);
   const [cookiesAllowed, setCookiesAllowed] = useState<boolean | null>(null);
@@ -72,13 +90,16 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [lastTx, setLastTx] = useState<ITxDetails>();
   const [preTxDetails, setPreTxDetails] = useState<ITxDetails>();
   const [executeSwap, setExecuteSwap] = useState<boolean>(false);
-  const [swapConfirmed, setSwapConfirmed] = useState<boolean>(false);
+  const [txApproved, setTxApproved] = useState<boolean>(false);
+  const [showTxSettings, setShowTxSettings] = useState<boolean>(false);
   const [executeStake, setExecuteStake] = useState<boolean>(false);
   const [executeUnstake, setExecuteUnstake] = useState<boolean>(false);
   const [executeUnlock, setExecuteUnlock] = useState<boolean>(false);
   const [approving, setApproving] = useState<ApprovalStates>('pending');
   const [swapFee, setSwapFee] = useState<BigNumber>(new BigNumber(0));
-  const [minReceived, setMinReceived] = useState<BigNumber>(new BigNumber(0));
+  const [afterSlippage, setAfterSlippage] = useState<BigNumber>(new BigNumber(0));
+  const [slippage, setSlippage] = useState<BigNumber>(new BigNumber(1));
+
   // user pool information states
   const [allStakedPools, setAllStakedPools] = useState<ILiquidityPosition[]>();
   const [singleLiquidityPos, setSingleLiquidityPos] = useState<ILiquidityPosition>();
@@ -90,10 +111,11 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [dtTokenResponse, setDtTokenResponse] = useState<ITList>();
   const [t2DIDResponse, setT2DIDResponse] = useState<any>();
   const [buttonText, setButtonText] = useState<string>(CONNECT_TEXT);
+  const [exactToken, setExactToken] = useState<1 | 2>(1);
 
   // selected token states
-  const [token1, setToken1] = useState<IToken>(INITIAL_TOKEN_STATE);
-  const [token2, setToken2] = useState<IToken>(INITIAL_TOKEN_STATE);
+  const [tokenIn, setTokenIn] = useState<IToken>(INITIAL_TOKEN_STATE);
+  const [tokenOut, setTokenOut] = useState<IToken>(INITIAL_TOKEN_STATE);
   const selectTokenPos = useRef<1 | 2 | null>(null);
   const [importPool, setImportPool] = useState<string>();
 
@@ -146,7 +168,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
     }
 
     init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [web3, chainId]);
 
   /**
@@ -298,18 +319,20 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setChainId(undefined);
         setDisclaimerSigned({ client: false, wallet: false });
       }
+      setAllStakedPools(undefined);
     });
 
     // Subscribe to chainId change
     provider.on('chainChanged', async (chainId: supportedChains) => {
-      setToken1(INITIAL_TOKEN_STATE);
-      setToken2(INITIAL_TOKEN_STATE);
+      setTokenIn(INITIAL_TOKEN_STATE);
+      setTokenOut(INITIAL_TOKEN_STATE);
       setDtTokenResponse(undefined);
       setTxHistory(undefined);
       setERC20TokenResponse(undefined);
       setERC20Tokens(undefined);
       setShowDescModal(false);
       setPendingTxs([]);
+      setAllStakedPools(undefined);
       const parsedId = String(parseInt(chainId));
       // console.log("Chain changed to ", parsedId);
       setChainId(parsedId as supportedChains);
@@ -378,8 +401,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setShowTxHistoryModal,
         watcher,
         setWatcher,
-        showConfirmModal,
-        setShowConfirmModal,
+        confirmingTx,
+        setConfirmingTx,
         showTxDone,
         setShowTxDone,
         showUnlockTokenModal,
@@ -388,10 +411,10 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setLocation,
         bgOff,
         setBgOff,
-        token1,
-        setToken1,
-        token2,
-        setToken2,
+        tokenIn,
+        setTokenIn,
+        tokenOut,
+        setTokenOut,
         snackbarItem,
         setSnackbarItem,
         showDescModal,
@@ -409,8 +432,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setPreTxDetails,
         executeSwap,
         setExecuteSwap,
-        swapConfirmed,
-        setSwapConfirmed,
+        txApproved,
+        setTxApproved,
         executeStake,
         setExecuteStake,
         executeUnstake,
@@ -423,8 +446,14 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setImportPool,
         swapFee,
         setSwapFee,
-        minReceived,
-        setMinReceived,
+        afterSlippage,
+        setAfterSlippage,
+        showTxSettings,
+        setShowTxSettings,
+        slippage,
+        setSlippage,
+        exactToken,
+        setExactToken,
       }}
     >
       <>{children}</>

@@ -13,7 +13,7 @@ export default function useTxHistory() {
     setTxHistory,
     lastTx,
     setSnackbarItem,
-    setShowConfirmModal,
+    setConfirmingTx,
   } = useContext(GlobalContext);
 
   // initializes transaction history from local storage
@@ -29,7 +29,6 @@ export default function useTxHistory() {
         setTxHistory(localHistory);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, accountId]);
 
   // manages pending transaction indicator
@@ -66,7 +65,7 @@ export default function useTxHistory() {
           setTxHistory({ ...newTxHistory });
           setLocalTxHistory({ txHistory: newTxHistory, accountId, chainId });
           newTxs = pendingTxs.filter((item) => item !== txDateId);
-          setShowConfirmModal(false);
+          setConfirmingTx(false);
           break;
         }
         default:
@@ -76,7 +75,6 @@ export default function useTxHistory() {
 
       // setPendingTxs(newTxs);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastTx]);
 }
 
