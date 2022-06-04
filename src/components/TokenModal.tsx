@@ -1,11 +1,11 @@
 import { MdClose } from 'react-icons/md';
 import TokenModalItem from './TokenModalItem';
-import { useEffect, useState, useContext, useRef } from 'react';
+import { useEffect, useState, useContext, useRef, SetStateAction } from 'react';
 import Loader from './Loader';
 import ReactList from 'react-list';
 import { GlobalContext, INITIAL_TOKEN_STATE } from '../context/GlobalState';
 import useTokenList, { commonTokens } from '../hooks/useTokenList';
-import { ITokenInfo } from '@dataxfi/datax.js';
+import { IToken, ITokenInfo } from '@dataxfi/datax.js';
 import { TokenInfo as TInfo } from '@uniswap/token-lists';
 import CommonToken from './CommonToken';
 import BigNumber from 'bignumber.js';
@@ -26,8 +26,8 @@ export default function TokenModal() {
     accountId,
     selectTokenPos,
     ocean,
-    setToken1,
-    setToken2,
+    setTokenIn,
+    setTokenOut,
     showTokenModal,
     setImportPool,
   } = useContext(GlobalContext);
@@ -35,11 +35,11 @@ export default function TokenModal() {
   const [error, setError] = useState(false);
   const [showDtks, setShowDtks] = useState<boolean>(true);
   const [commons, setCommons] = useState<TInfo[]>([]);
+  const [controller, setController] = useState(new AbortController());
   useTokenList({ setLoading, setError });
   const initialChain = useRef(chainId);
   useEffect(() => {
     if (chainId !== initialChain.current) closeModal();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId]);
 
   useEffect(() => {
@@ -49,7 +49,6 @@ export default function TokenModal() {
     } else {
       closeModal();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dtTokenResponse, datatokens]);
 
   useEffect(() => {
@@ -103,22 +102,35 @@ export default function TokenModal() {
   }
 
   const tokenSelected = async (token: ITokenInfo) => {
+    controller.abort();
+    const newController = new AbortController();
+    const signal = newController.signal;
     if (!ocean || !accountId) return;
-    const balance = new BigNumber(await ocean?.getBalance(token.address, accountId));
-    let setToken;
-    switch (selectTokenPos.current) {
-      case 1:
-        setToken = setToken1;
-        break;
-      case 2:
-        setToken = setToken2;
-        break;
-      default:
-        if (token.pool) setImportPool(token.pool);
-        break;
-    }
-    if (setToken) setToken({ ...INITIAL_TOKEN_STATE, info: token, balance });
-    closeModal();
+
+    return new Promise((resolve, reject) => {
+      signal.addEventListener('abort', () => {
+        return reject(new Error('New token selected.'));
+      });
+
+      closeModal();
+      let setToken: React.Dispatch<SetStateAction<IToken>> = setTokenIn;
+      switch (selectTokenPos.current) {
+        case 1:
+          setToken = setTokenIn;
+          break;
+        case 2:
+          setToken = setTokenOut;
+          break;
+        default:
+          if (token.pool) setImportPool(token.pool);
+          break;
+      }
+      if (setToken) setToken({ ...INITIAL_TOKEN_STATE, info: token });
+      ocean?.getBalance(token.address, accountId).then((balance) => {
+        if (setToken) setToken({ ...INITIAL_TOKEN_STATE, info: token, balance: new BigNumber(balance) });
+      });
+      resolve(setController(newController));
+    });
   };
 
   const loader = (

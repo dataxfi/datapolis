@@ -8,7 +8,7 @@
   "license": "MIT",
   "dependencies": {
     "@craco/craco": "^6.2.0",
-    "@dataxfi/datax.js": "^1.1.36",
+    "@dataxfi/datax.js": "^1.1.42",
     "@walletconnect/web3-provider": "^1.7.3",
     "axios": "^0.21.1",
     "big-number": "^2.0.0",
@@ -96,6 +96,7 @@
     "postcss": "^7",
     "prettier": "^2.6.2",
     "puppeteer": "^13.0.1",
-    "tailwindcss": "npm:@tailwindcss/postcss7-compat"
+    "tailwindcss": "npm:@tailwindcss/postcss7-compat",
+    "yarn-audit-fix": "^9.3.1"
   }
 }

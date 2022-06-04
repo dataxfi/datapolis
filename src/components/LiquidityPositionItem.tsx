@@ -16,14 +16,13 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
     yourPoolSharePerc,
     totalPoolShares,
   } = singleLiqPosItem;
-  const { setSingleLiquidityPos } = useContext(GlobalContext);
+  const { setSingleLiquidityPos, chainId } = useContext(GlobalContext);
   const [visible, setVisible] = useState<boolean>(false);
   const [importPool, setImportPool] = useState<string>();
   useLiquidityPos(importPool, setImportPool);
 
   useEffect(() => {
     setImportPool(address);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId]);
 
   return token1Info && token2Info ? (
@@ -119,7 +118,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
               <Link
                 id="lp-add-link"
                 key="stake"
-                to={`/stake?pool=${address}`}
+                to={`/stake?on=${chainId}&pool=${address}`}
                 className="modalButton rounded p-2px w-1/2 text-center mr-1"
               >
                 <div className="bg-black w-full h-full rounded p-2px">Add</div>
@@ -127,7 +126,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
               <Link
                 id="lp-remove-link"
                 key="removeStake"
-                to={`/stake/remove?pool=${address}`}
+                to={`/stake/remove?on=${chainId}&pool=${address}`}
                 className={`ml-1 ${
                   Number(shares) === 0 ? 'modalButton cursor-not-allowed pointer-events-none rounded p-2px w-1/2 text-center text-gray-500' : 'modalButton rounded p-2px w-1/2 text-center'
                 } `}

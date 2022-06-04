@@ -299,8 +299,8 @@ export async function swapTokens(page: puppeteer.Page) {
   await page.waitForSelector('#swapTokensBtn');
   await page.click('#swapTokensBtn');
 
-  await page.waitForFunction(`document.querySelector("#token1-balance").innerText.includes("${t2Bal}")`);
-  await page.waitForFunction(`document.querySelector("#token2-balance").innerText.includes("${t1Bal}")`);
+  await page.waitForFunction(`document.querySelector("#tokenIn-balance").innerText.includes("${t2Bal}")`);
+  await page.waitForFunction(`document.querySelector("#tokenOut-balance").innerText.includes("${t1Bal}")`);
   expect(t1Bal).toBe(await getBalanceInDapp(page, 2));
   expect(t2Bal).toBe(await getBalanceInDapp(page, 1));
 }
@@ -430,10 +430,10 @@ export async function typeAmount(
  *
  * @param page - puppeteer page
  * @param metamask
- * @param t1Symbol - token1 (sell) symbol
- * @param t2Symbol - token2 (buy) symbol
+ * @param t1Symbol - tokenIn (sell) symbol
+ * @param t2Symbol - tokenOut (buy) symbol
  * @param amount - amount to input
- * @param inputLoc - input location (token1 field = 1 OR token2 field = 2) defaults to 1
+ * @param inputLoc - input location (tokenIn field = 1 OR tokenOut field = 2) defaults to 1
  *
  * Tests:
  *  - Inputs work
@@ -485,13 +485,13 @@ export async function setUpSwap(
   await page.bringToFront();
 
   // perc should have no decimals, be greater than 0, should be correct
-  await page.waitForSelector('#token1-perc-input');
+  await page.waitForSelector('#tokenIn-perc-input');
 
   const percApprox: BigNumber = t1Input.div(balance).times(100).dp(3);
 
   let perc;
   if (percApprox.gt(0)) {
-    await page.waitForFunction('Number(document.querySelector("#token1-perc-input").value) > 0', { timeout: 3000 });
+    await page.waitForFunction('Number(document.querySelector("#tokenIn-perc-input").value) > 0', { timeout: 3000 });
     perc = await getPercInDapp(page);
     expect(perc.toNumber()).toBeGreaterThan(0);
     percApprox.gt(100) ? expect(perc.toString()).toEqual('100') : expect(Number(perc)).toBeCloseTo(percApprox.toNumber());
@@ -499,7 +499,7 @@ export async function setUpSwap(
 }
 
 export async function getPercInDapp(page: puppeteer.Page) {
-  return new BigNumber(await page.evaluate('document.querySelector("#token1-perc-input").value'));
+  return new BigNumber(await page.evaluate('document.querySelector("#tokenIn-perc-input").value'));
 }
 
 export async function evaluateMax(page: puppeteer.Page, t1Bal: BigNumber): Promise<IMaxEval> {
@@ -591,11 +591,11 @@ export async function checkBalance(
 ) {
   const t1Bal = await getBalanceInMM(metamask, t1Symbol);
   // @ts-ignore
-  await assertTo3(page, t1Bal, 'token1-balance', 1, updating);
+  await assertTo3(page, t1Bal, 'tokenIn-balance', 1, updating);
   if (t2Symbol) {
     const t2Bal = await getBalanceInMM(metamask, t2Symbol);
     // @ts-ignore
-    await assertTo3(page, t2Bal, 'token2-balance', 2, updating);
+    await assertTo3(page, t2Bal, 'tokenOut-balance', 2, updating);
   }
   await page.bringToFront();
 }
@@ -743,7 +743,7 @@ export async function executeTransaction(
     await btnHandle.click();
     if (innerText.includes('Unlock')) {
       await unlockTokens(page, metamask, unlock);
-      if (txType === 'trade') {
+      if (txType === 'swap') {
         await confirmSwapModal(page, metamask);
       } else {
         // console.log("recalling execute transaction");
@@ -751,7 +751,7 @@ export async function executeTransaction(
       }
       await metamask.page.bringToFront();
     } else {
-      if (txType === 'trade') await confirmSwapModal(page, metamask);
+      if (txType === 'swap') await confirmSwapModal(page, metamask);
       await metamask.page.bringToFront();
     }
   }
@@ -793,7 +793,7 @@ export async function navToTrade(page: puppeteer.Page) {
   await page.click('#Trade-link');
 }
 export async function closeConfirmSwapModal(page: puppeteer.Page) {
-  const button = await page.waitForSelector('#closeConfrimSwapModalbtn');
+  const button = await page.waitForSelector('#closeConfirmTxDetails');
   await button?.click();
 }
 
@@ -1033,8 +1033,8 @@ export async function assertToken(page: puppeteer.Page, symbol:string, pos: 1|2)
 export async function confirmAndCloseTxDoneModal(page: puppeteer.Page, timeout: number = 120000) {
   await page.bringToFront();
   await page.waitForSelector('#transactionDoneModal', { timeout });
-  await page.waitForSelector('#transactionDoneModalCloseBtn');
-  await page.click('#transactionDoneModalCloseBtn');
+  await page.waitForSelector('#txDoneModalCloseBtn');
+  await page.click('#txDoneModalCloseBtn');
 }
 
 export async function confirmTokensClearedAfterTrade(page: puppeteer.Page) {

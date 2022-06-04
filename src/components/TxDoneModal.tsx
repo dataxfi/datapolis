@@ -3,7 +3,7 @@ import { BsCheckCircle, BsX } from 'react-icons/bs';
 import { GlobalContext } from '../context/GlobalState';
 import CenterModal from './CenterModal';
 
-const TransactionDoneModal = () => {
+export default function TxDoneModal() {
   const { showTxDone, setShowTxDone, lastTx, config, setBlurBG } = useContext(GlobalContext);
   const [lastTxUrl, setLastTxUrl] = useState<string>('');
 
@@ -21,7 +21,7 @@ const TransactionDoneModal = () => {
     <CenterModal className="sm:max-w-sm w-full z-30 shadow" onOutsideClick={close} id="transactionDoneModal">
       <div className="bg-black bg-opacity-90 border rounded-lg pb-8 p-4 hm-box mx-3">
         <div className="flex justify-end">
-          <BsX id="transactionDoneModalCloseBtn" onClick={close} size={28} className="text-gray-200" role="button" />
+          <BsX id="txDoneModalCloseBtn" onClick={close} size={28} className="text-gray-200" role="button" />
         </div>
 
         <div className="mt-4 flex justify-center">
@@ -40,6 +40,4 @@ const TransactionDoneModal = () => {
   ) : (
     <></>
   );
-};
-
-export default TransactionDoneModal;
+}

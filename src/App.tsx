@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { useEffect, useContext } from 'react';
 import { initializeGA } from './context/Analytics';
 import { GlobalContext } from './context/GlobalState';
+import CenterModalContainer from './components/CenterModalContainer';
 import UnsupportedNetwork from './components/UnsupportedNetwork';
 import LiquidityPosition from './components/LiquidityPosition';
 import WatchLocation from './components/WatchLocation';
@@ -15,11 +16,11 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Stake from './components/Stake';
 import Swap from './components/Swap';
-import CenterModalContainer from './components/CenterModalContainer';
 
 BigNumber.config({ DECIMAL_PLACES: 18, ROUNDING_MODE: BigNumber.ROUND_DOWN, EXPONENTIAL_AT: 18 });
 
 function App() {
+  // some comment
   const { unsupportedNet, cookiesAllowed, location, bgOff, blurBG } = useContext(GlobalContext);
 
   document.getElementById('loader');
@@ -29,14 +30,12 @@ function App() {
     if (cookiesAllowed) {
       initializeGA();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cookiesAllowed]);
 
   useEffect(() => {
     document.getElementById('loadText')?.remove();
     document.getElementById('loadCenter')?.remove();
     document.getElementById('loader')?.remove();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

@@ -36,13 +36,12 @@ export default function TxHistoryItem({
     } else if (config) {
       setTxLink(`${config?.default.explorerUri}/address/${accountId}`);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tx]);
 
   function exactTime(tx: ITxDetails) {
     const stamp = new Date(Number(tx.txDateId));
     const hours24 = stamp.getHours();
-    const amPm = hours24 > 12 ? 'Pm' : 'Am';
+    const amPm = hours24 >= 12 ? 'Pm' : 'Am';
     const hours12 = hours24 > 12 ? hours24 - 12 : hours24;
     let minutes: string | number = stamp.getMinutes();
     if (Number(minutes) < 10) {
@@ -52,17 +51,16 @@ export default function TxHistoryItem({
   }
 
   function txItemTitle(tx: ITxDetails) {
-    if (tx.token1.info && tx.token2.info) {
-      switch (tx.txType) {
-        case 'stake':
-          return `Stake ${tx.token2.info.symbol}/${tx.token1.info.symbol}`;
-        case 'unstake':
-          return `Unstake ${tx.token2.info.symbol}/${tx.token1.info.symbol}`;
-        case 'approve':
-          return `Unlock ${tx.token1.info.symbol}`;
-        default:
-          return `${tx.token1.info.symbol} to ${tx.token2.info.symbol}`;
-      }
+    switch (tx.txType) {
+      case 'stake':
+        return `Stake ${tx.tokenOut.info?.symbol}/${tx.tokenIn.info?.symbol}`;
+      case 'unstake':
+        console.log('asdhjf');
+        return `Unstake ${tx.pool?.otherToken.symbol}/${tx.pool?.baseToken.symbol}`;
+      case 'approve':
+        return `Unlock ${tx.tokenIn.info?.symbol}`;
+      default:
+        return `${tx.tokenIn.info?.symbol} to ${tx.tokenOut.info?.symbol}`;
     }
   }
 

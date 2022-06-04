@@ -29,7 +29,6 @@ export default function useTxHistory() {
         setTxHistory(localHistory);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, accountId]);
 
   // manages pending transaction indicator
@@ -76,7 +75,6 @@ export default function useTxHistory() {
 
       // setPendingTxs(newTxs);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastTx]);
 }
 
