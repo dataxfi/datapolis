@@ -15,10 +15,10 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '14'
-      - uses: keithfrazier98/actions-yarn@v3.4
+      - uses: keithfrazier98/actions-yarn@v3.5
         with:
           cmd: install 
-      - uses: keithfrazier98/actions-yarn@v3.4
+      - uses: keithfrazier98/actions-yarn@v3.5
         with:
           cmd: build 
         env:
