@@ -1,59 +1,26 @@
 name: Deploy to Vercel
 on: [push, pull_request]
 jobs:
-  build: 
+  vercel: 
     runs-on: ubuntu-latest
+    name: "Deploy front-end"
+    
     steps:
-      - uses: actions/checkout@v2.4.2
-        with:
-          repository: dataxfi/dapp
-          token: ${{ secrets.PAT_GITHUB }}
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
         with:
           node-version: '14'
-      - uses: keithfrazier98/actions-yarn@v3.9
-        with:
-          cmd: install 
-      - uses: keithfrazier98/actions-yarn@v3.9
-        with:
-          cmd: build 
+          registry-url: https://registry.npmjs.org/
+
+      - name: "Deploy to Vercel"
+        run: |
+          prodRun=""
+          if [[ ${GITHUB_REF} == "refs/heads/main" ]]; then
+            prodRun="--prod"
+          fi
+
+          npx vercel --token ${VERCEL_TOKEN} $prodRun
         env:
-          DISABLE_ESLINT_PLUGIN: true 
-          CI: false
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions: 
-      deployments: write
-    steps: 
-      - name: start deployment
-        uses: bobheadxi/deployments@v0.4.3
-        id: deployment
-        with:   
-          step: start
-          token: ${{secrets.GITHUB_TOKEN}}
-          env: ${{ fromJSON('["Production", "Preview"]')[github.ref != 'refs/heads/main'] }}
-      
-      - uses: actions/checkout@v2.4.2
-        with:
-          repository: dataxfi/dapp
-          token: ${{ secrets.PAT_GITHUB }}
-
-
-      - uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
-          vercel-args: ${{ fromJSON('["--prod", ""]')[github.ref != 'refs/heads/main'] }}
-          vercel-org-id: ${{ secrets.ORG_ID}}  #Required
-          vercel-project-id: ${{ secrets.PROJECT_ID}} #Required
-          scope: ${{secrets.VERCEL_ORG_ID}}
-          working-directory: ./
-    
-      - name: update deployment status
-        uses: bobheadxi/deployments@v0.4.3
-        if: always()
-        with: 
-          step: finish
-          token: ${{secrets.GITHUB_TOKEN}}
-          status: ${{ job.status }}
-          deployment_id: ${{ steps.deployment.outputs.deployment_id}}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
