@@ -12,12 +12,12 @@ jobs:
       # - uses: Borales/actions-yarn@v2.3.0
         with:
           node-version: '14'
-      - run: | 
-          yarn install
-          yarn build
+      - run: yarn install
+      - run : yarn run build 
         env:
           DISABLE_ESLINT_PLUGIN: true 
           CI: false
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
