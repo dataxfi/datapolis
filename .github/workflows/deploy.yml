@@ -5,6 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: work around permission issue
+        run: echo "$GITHUB_WORKSPACE"
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - uses: actions/checkout@v2.4.2
         with:
