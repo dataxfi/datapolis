@@ -5,6 +5,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          repository: dataxfi/dapp
+          token: ${{ secrets.PAT_GITHUB }}
       - uses: actions/setup-node@v2
       # - uses: Borales/actions-yarn@v2.3.0
         with:
@@ -30,6 +33,10 @@ jobs:
           env: ${{ fromJSON('["Production", "Preview"]')[github.ref != 'refs/heads/main'] }}
       
       - uses: actions/checkout@v2
+        with:
+          repository: dataxfi/dapp
+          token: ${{ secrets.PAT_GITHUB }}
+
 
       - uses: amondnet/vercel-action@v20
         with:
