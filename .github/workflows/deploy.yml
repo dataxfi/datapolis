@@ -4,8 +4,8 @@ jobs:
   build: 
     runs-on: ubuntu-latest
     steps:
-      - name: log workspace
-        run: echo "$GITHUB_WORKSPACE"
+      - name: log 
+        run: echo git version
       - name: work around permission issue
         run: git config --global --add safe.directory  /home/runner/work/dapp/dapp
       - uses: actions/checkout@v2.4.2
