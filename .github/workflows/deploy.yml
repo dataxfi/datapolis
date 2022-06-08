@@ -4,8 +4,8 @@ jobs:
   build: 
     runs-on: ubuntu-latest
     steps:
-      # - name: work around permission issue
-      #   run: git config --global --add safe.directory /__w/dataxfi/dapp
+      - name: work around permission issue
+        run: git config --global --add safe.directory /__w/dataxfi/dapp
       - uses: actions/checkout@v2.4.2
         with:
           repository: dataxfi/dapp
@@ -15,12 +15,10 @@ jobs:
           node-version: '14'
       - uses: borales/actions-yarn@v3.0.0
         with:
-          cmd: install # will run `yarn install` command
+          cmd: install 
       - uses: borales/actions-yarn@v3.0.0
         with:
-          cmd: build # will run `yarn build` command
-      # - run: yarn install
-      # - run: yarn run build 
+          cmd: build 
         env:
           DISABLE_ESLINT_PLUGIN: true 
           CI: false
