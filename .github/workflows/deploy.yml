@@ -9,11 +9,16 @@ jobs:
           repository: dataxfi/dapp
           token: ${{ secrets.PAT_GITHUB }}
       - uses: actions/setup-node@v2
-      # - uses: Borales/actions-yarn@v2.3.0
         with:
           node-version: '14'
-      - run: yarn install
-      - run : yarn run build 
+      - uses: borales/actions-yarn@v3.0.0
+        with:
+          cmd: install # will run `yarn install` command
+      - uses: borales/actions-yarn@v3.0.0
+        with:
+          cmd: build # will run `yarn build` command
+      # - run: yarn install
+      # - run: yarn run build 
         env:
           DISABLE_ESLINT_PLUGIN: true 
           CI: false
