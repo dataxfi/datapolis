@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: log 
-        run: echo git version
+        run: git version
       - name: work around permission issue
         run: git config --global --add safe.directory  /home/runner/work/dapp/dapp
       - uses: actions/checkout@v2.4.2
