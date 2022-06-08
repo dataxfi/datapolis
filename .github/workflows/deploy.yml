@@ -7,7 +7,7 @@ jobs:
       - name: log 
         run: git version
       - name: work around permission issue
-        run: git config --global --add safe.directory  /home/runner/work/dapp/dapp
+        run: git config --global --add safe.directory *
       - uses: actions/checkout@v2.4.2
         with:
           repository: dataxfi/dapp
@@ -15,10 +15,10 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '14'
-      - uses: keithfrazier98/actions-yarn@v3.3
+      - uses: keithfrazier98/actions-yarn@v3.4
         with:
           cmd: install 
-      - uses: keithfrazier98/actions-yarn@v3.3
+      - uses: keithfrazier98/actions-yarn@v3.4
         with:
           cmd: build 
         env:
