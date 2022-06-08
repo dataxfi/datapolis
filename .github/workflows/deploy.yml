@@ -4,10 +4,6 @@ jobs:
   build: 
     runs-on: ubuntu-latest
     steps:
-      - name: log 
-        run: echo "$GITHUB_WORKSPACE"
-      - name: work around permission issue
-        run: git config --global --add safe.directory *
       - uses: actions/checkout@v2.4.2
         with:
           repository: dataxfi/dapp
@@ -15,12 +11,14 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '14'
-      - uses: keithfrazier98/actions-yarn@v3.9
-        with:
-          cmd: install 
-      - uses: keithfrazier98/actions-yarn@v3.9
-        with:
-          cmd: build 
+#       - uses: keithfrazier98/actions-yarn@v3.9
+#         with:
+#           cmd: install 
+#       - uses: keithfrazier98/actions-yarn@v3.9
+#         with:
+#           cmd: build 
+      - run: npm install
+      - run : npm run build 
         env:
           DISABLE_ESLINT_PLUGIN: true 
           CI: false
