@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: work around permission issue
-        run: git config --global --add safe.directory /__w/dataxfi/dapp
+        run: git config --global --add safe.directory /dataxfi/dapp
       - uses: actions/checkout@v2.4.2
         with:
           repository: dataxfi/dapp
