@@ -7,9 +7,7 @@ jobs:
       - name: log 
         run: echo "$GITHUB_WORKSPACE"
       - name: work around permission issue
-        run: git config --global --add safe.directory /home/runner/work/dapp/dapp
-      - name: work around permission issue
-        run: git config --global --add safe.directory /github/workspace
+        run: git config --global --add safe.directory *
       - uses: actions/checkout@v2.4.2
         with:
           repository: dataxfi/dapp
@@ -17,10 +15,10 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '14'
-      - uses: keithfrazier98/actions-yarn@v3.7
+      - uses: keithfrazier98/actions-yarn@latest
         with:
           cmd: install 
-      - uses: keithfrazier98/actions-yarn@v3.7
+      - uses: keithfrazier98/actions-yarn@latest
         with:
           cmd: build 
         env:
