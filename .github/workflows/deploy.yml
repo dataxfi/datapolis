@@ -2,39 +2,31 @@ name: Deploy to Vercel
 on: [push, pull_request]
 jobs:
 
-  setup: 
+  vercel-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: cache dependencies
+
+      - name: Cache Dependencies
         uses: actions/cache@v1
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.json') }}
           restore-keys: ${{ runner.os }}-node-
-      - name: install deps
+
+      - name: Install deps
         run: yarn install
 
-      - name: run lint Test
+      - name: Run Lint Test
         run: yarn run lint
 
-  build:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: build
+      - name: Build
         run: yarn build
         env:
           DISABLE_ESLINT_PLUGIN: true 
           CI: false
 
-  deploy-staging: 
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: deploy staging 
+      - name: Deploy to Staging 
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
@@ -43,12 +35,7 @@ jobs:
           vercel-project-id: ${{ secrets.PROJECT_ID}}
           working-directory: ./build
 
-  deploy-prod:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: deploy to production 
+      - name: Deploy to production 
         uses: amondnet/vercel-action@v25
         if: github.event_name == 'pull_request' && github.ref == 'refs/heads/main'
         with:
