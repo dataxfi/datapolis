@@ -22,6 +22,7 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: build
         run: yarn build
         env:
@@ -32,6 +33,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: deploy staging 
         uses: amondnet/vercel-action@v25
         with:
@@ -45,6 +47,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: deploy to production 
         uses: amondnet/vercel-action@v25
         if: github.event_name == 'pull_request' && github.ref == 'refs/heads/main'
