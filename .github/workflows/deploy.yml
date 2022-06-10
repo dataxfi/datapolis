@@ -27,7 +27,7 @@ jobs:
           DISABLE_ESLINT_PLUGIN: true 
           CI: false
 
-  deploy staging: 
+  deploy-staging: 
     runs-on: ubuntu-latest
     steps:
       - name: deploy staging 
@@ -39,7 +39,7 @@ jobs:
           vercel-project-id: ${{ secrets.PROJECT_ID}}
           working-directory: ./build
 
-  deploy prod:
+  deploy-prod:
     runs-on: ubuntu-latest
     steps:
       - name: deploy to production 
