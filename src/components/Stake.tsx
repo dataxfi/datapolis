@@ -16,7 +16,9 @@ import { transactionTypeGA } from '../context/Analytics';
 import useClearTokens from '../hooks/useClearTokens';
 import useTxHandler from '../hooks/useTxHandler';
 import TxSettings from './TxSettings';
+//, { calcSlippage }
 import useCalcSlippage from '../hooks/useCalcSlippage';
+import { IStakeInfo } from '@dataxfi/datax.js/dist/@types/stake';
 
 const INITIAL_BUTTON_STATE = {
   text: 'Connect wallet',
@@ -44,11 +46,17 @@ export default function Stake() {
     setBlurBG,
     setShowConfirmTxDetails,
     setTxApproved,
+    stake,
+    refAddress,
+    config,
+    // slippage,
+    trade,
+    // pathfinder,
   } = useContext(GlobalContext);
 
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
-  const [postExchange, setPostExchange] = useState<BigNumber>(new BigNumber(0));
-  const [sharesReceived, setSharesReceived] = useState<BigNumber>(new BigNumber(0));
+  const [postExchange] = useState<BigNumber>(new BigNumber(0));
+  const [sharesReceived] = useState<BigNumber>(new BigNumber(0));
   const [loading, setLoading] = useState(false);
   const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
   const [importPool, setImportPool] = useState<string>();
@@ -57,7 +65,7 @@ export default function Stake() {
   useLiquidityPos(importPool, setImportPool);
   useAutoLoadToken();
   useClearTokens();
-  useTxHandler(stake, executeStake, setExecuteStake, { shares: sharesReceived, postExchange });
+  useTxHandler(stakeHandler, executeStake, setExecuteStake, { shares: sharesReceived, postExchange });
   useCalcSlippage(sharesReceived);
 
   useEffect(() => {
@@ -69,6 +77,8 @@ export default function Stake() {
 
   useEffect(() => {
     if (tokenIn.info && !tokenOut.info && ocean && accountId) {
+      console.log(2);
+
       ocean.getBalance(tokenIn.info.address, accountId).then((res) => {
         setTokenIn({ ...tokenIn, balance: new BigNumber(res) });
       });
@@ -139,52 +149,85 @@ export default function Stake() {
         }
       })
       .then(() => {
-        if (tokenOut.info && accountId && chainId && ocean) {
-          getAllowance(ocean.config.default.oceanTokenAddress, accountId, tokenOut.info.pool || '', ocean).then(
-            async (res) => {
-              if (!tokenIn.info) return;
-              const balance = new BigNumber(await ocean.getBalance(tokenIn.info.address, accountId));
-              setTokenIn({
-                ...tokenIn,
-                allowance: new BigNumber(res),
-                balance,
-                value: new BigNumber(0),
-              });
-            }
-          );
-          if (tokenOut.info?.pool && tokenIn.info?.address) {
-            ocean?.getSharesReceivedForTokenIn(tokenOut.info?.pool, tokenIn.info?.address, '1').then((res) => {
-              setPostExchange(new BigNumber(res).dp(5));
+        if (tokenOut.info && accountId && chainId && ocean && config?.custom[chainId]) {
+          getAllowance(
+            ocean.config.default.oceanTokenAddress,
+            accountId,
+            config?.custom[chainId].uniV2AdapterAddress,
+            ocean
+          ).then(async (res) => {
+            console.log(res);
+
+            if (!tokenIn.info) return;
+            const balance = new BigNumber(await ocean.getBalance(tokenIn.info.address, accountId));
+            setTokenIn({
+              ...tokenIn,
+              allowance: new BigNumber(res),
+              balance,
+              value: new BigNumber(0),
             });
-          }
+          });
+          // TODO: set post exchange
+          //   if (tokenOut.info?.pool && tokenIn.info?.address) {
+          //     ocean?.getSharesReceivedForTokenIn(tokenOut.info?.pool, tokenIn.info?.address, '1').then((res) => {
+          //       setPostExchange(new BigNumber(res).dp(5));
+          //     });
+          //   }
         }
       })
       .catch(console.error);
   }
 
-  async function stake(preTxDetails: ITxDetails) {
-    if (!tokenOut.info?.pool || !chainId || !ocean || !accountId || !tokenIn.info?.address) return;
+  async function stakeHandler(preTxDetails: ITxDetails) {
+    if (
+      !tokenOut.info?.pool ||
+      !chainId ||
+      !ocean ||
+      !accountId ||
+      !tokenIn.info?.address ||
+      !refAddress ||
+      !config ||
+      !stake ||
+      !trade
+    ) { return; }
+    // TODO: treat this conditional as an error and resolve whatever is falsy
     if (!preTxDetails || preTxDetails.txType !== 'stake') return;
 
     try {
       setLoading(true);
+      // "0xc778417E063141139Fce010982780140Aa0cD5Ab",
+      const path: string[] = [config.default.oceanTokenAddress];
+      const oceanAmt = await trade?.getAmountsOut(tokenIn.value.toString(), path);
       const sharesOut = await ocean.getSharesReceivedForTokenIn(
         tokenOut.info?.pool,
-        tokenIn.info?.address,
-        tokenIn.value.toString()
+        config.default.oceanTokenAddress,
+        oceanAmt[0] || '1'
       );
-      // this function needs to be changed to a joinswap function that takes a max token in so slippage can be applied to the shares instead of the tokenIn
-      const txReceipt = await ocean.stakeOcean(
-        accountId,
-        tokenOut.info.pool || '',
-        tokenIn.value?.toString(),
-        sharesOut
-      );
+      const stakeInfo: IStakeInfo = {
+        meta: [tokenOut.info.pool, accountId, refAddress, config.custom[chainId].uniV2AdapterAddress],
+        uints: [sharesOut, '.01', tokenIn.value.toString()],
+        path,
+      };
 
-      setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
+      const a = await stake.calcPoolOutGivenTokenIn(stakeInfo);
+      console.log('Calc: ', a);
+
+      // pathfinder?.getTokenPath()
+
+      // const outAfterSlip = String(calcSlippage(new BigNumber(sharesOut), slippage, 1));
+
+      console.log(stakeInfo);
+
+      // const txReceipt =
+      //   tokenIn.info?.address === config?.custom[chainId].nativeAddress
+      //     ? await stake.stakeETHInDTPool(stakeInfo, accountId)
+      //     : await stake.stakeTokenInDTPool(stakeInfo, accountId);
+
+      // setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
       transactionTypeGA('stake');
       setImportPool(tokenOut.info.pool);
     } catch (error: any) {
+      console.error(error);
       setLastTx({ ...preTxDetails, status: 'Failure' });
       setSnackbarItem({ type: 'error', message: error.error.message, error });
       setConfirmingTx(false);
@@ -225,34 +268,34 @@ export default function Stake() {
   async function updateNum(val: string | BigNumber, max?: BigNumber) {
     // initially set state to value to persist the max if the user continuously tries to enter over the max (or balance)
     setTokenIn({ ...tokenIn, value: new BigNumber(val) });
-    if (!val) {
-      setTokenIn({ ...tokenIn, value: new BigNumber(0) });
-      return;
-    }
-    val = new BigNumber(val);
+    // if (!val) {
+    //   setTokenIn({ ...tokenIn, value: new BigNumber(0) });
+    //   return;
+    // }
+    // val = new BigNumber(val);
 
-    if (!max) {
-      maxStakeAmt.gt(0) ? (max = maxStakeAmt) : (max = await getMaxStakeAmt());
-    }
+    // if (!max) {
+    //   maxStakeAmt.gt(0) ? (max = maxStakeAmt) : (max = await getMaxStakeAmt());
+    // }
 
-    if (max) {
-      if (tokenIn.balance.lt(val)) {
-        setTokenIn({ ...tokenIn, value: tokenIn.balance.dp(5) });
-      } else if (max.minus(1).lt(val)) {
-        setTokenIn({ ...tokenIn, value: max.dp(5).minus(1) });
-      } else {
-        setTokenIn({ ...tokenIn, value: new BigNumber(val) });
-      }
-    }
+    // if (max) {
+    //   if (tokenIn.balance.lt(val)) {
+    //     setTokenIn({ ...tokenIn, value: tokenIn.balance.dp(5) });
+    //   } else if (max.minus(1).lt(val)) {
+    //     setTokenIn({ ...tokenIn, value: max.dp(5).minus(1) });
+    //   } else {
+    //     setTokenIn({ ...tokenIn, value: new BigNumber(val) });
+    //   }
+    // }
 
-    if (tokenOut.info?.pool && tokenIn.info?.address && val) {
-      const sharesReceived = await ocean?.getSharesReceivedForTokenIn(
-        tokenOut.info?.pool,
-        tokenIn.info?.address,
-        val.toString()
-      );
-      if (sharesReceived) setSharesReceived(new BigNumber(sharesReceived));
-    }
+    // if (tokenOut.info?.pool && tokenIn.info?.address && val) {
+    //   const sharesReceived = await ocean?.getSharesReceivedForTokenIn(
+    //     tokenOut.info?.pool,
+    //     tokenIn.info?.address,
+    //     val.toString()
+    //   );
+    //   if (sharesReceived) setSharesReceived(new BigNumber(sharesReceived));
+    // }
   }
 
   return (

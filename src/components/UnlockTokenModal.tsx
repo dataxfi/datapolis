@@ -28,7 +28,7 @@ export default function UnlockTokenModal() {
     executeUnlock,
     setExecuteUnlock,
     approving,
-    setApproving,
+    setApproving, chainId
   } = useContext(GlobalContext);
   const [pool, setPool] = useState<string | null>(null);
   const [address, setAddress] = useState<string | null>(null);
@@ -62,7 +62,7 @@ export default function UnlockTokenModal() {
   }, [address, accountId, pool, ocean]);
 
   async function unlockTokens(amount: 'perm' | 'once') {
-    if (!preTxDetails) return;
+    if (!preTxDetails || !chainId || !config?.custom[chainId]) return;
     setApproving('approving');
     setLastTx({ ...preTxDetails, status: 'Pending' });
 
@@ -79,6 +79,11 @@ export default function UnlockTokenModal() {
       } else if (tokenIn.info) {
         pool = config?.default.routerAddress;
         address = tokenIn.info.address;
+      }
+
+      if (location === '/stake') {
+        pool = config?.custom[chainId].stakeRouterAddress;
+        console.log(config?.custom[chainId].stakeRouterAddress, pool);
       }
 
       try {

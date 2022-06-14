@@ -16,9 +16,13 @@ export default function useCalcSlippage(valueOveride?: BigNumber) {
       setOutVal(tokenIn.value);
     }
 
-    const slip = outVal.times(slippage).div(100);
-    const min = exactToken === 1 ? outVal.minus(slip) : outVal.plus(slip);
+    const min = calcSlippage(outVal, slippage, exactToken);
 
     setAfterSlippage(min);
   }, [slippage, outVal, tokenIn.value, tokenOut.value, valueOveride, exactToken, showConfirmTxDetails]);
+}
+
+export function calcSlippage(amt: BigNumber, slippage: BigNumber, exactToken: 1 | 2) {
+  const slip = amt.times(slippage).div(100);
+  return exactToken === 1 ? amt.minus(slip) : amt.plus(slip);
 }

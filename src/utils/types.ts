@@ -1,9 +1,10 @@
 import React from 'react';
 import BigNumber from 'bignumber.js';
-import { ITList, ITokenInfo, IToken, Config, Ocean, Watcher } from '@dataxfi/datax.js';
+import { ITList, ITokenInfo, IToken, Config, Ocean, Watcher, Stake, Trade } from '@dataxfi/datax.js';
 import { TransactionReceipt } from 'web3-core';
 import Web3 from 'web3';
 import Web3Modal from 'web3modal';
+import { Pathfinder } from '@dataxfi/pathfinder';
 
 export type ApprovalStates = 'approved' | 'approving' | 'pending';
 export type screenSize = 'mobile' | 'desktop';
@@ -37,9 +38,9 @@ export interface IPoolLiquidity {
 }
 
 export interface IPoolMetaData {
-  address: string
-  baseToken: ITokenInfo
-  otherToken: ITokenInfo
+  address: string;
+  baseToken: ITokenInfo;
+  otherToken: ITokenInfo;
 }
 
 export interface ITxDetails {
@@ -53,7 +54,7 @@ export interface ITxDetails {
   shares?: BigNumber;
   txReceipt?: TransactionReceipt;
   postExchange?: BigNumber;
-  pool?: IPoolMetaData
+  pool?: IPoolMetaData;
 }
 
 export interface IUserMessage {
@@ -123,6 +124,10 @@ export interface globalStates {
   web3?: Web3;
   config?: Config;
   unsupportedNet: boolean;
+  stake: Stake | undefined;
+  refAddress: string | undefined;
+  trade: Trade | undefined;
+  pathfinder: Pathfinder | undefined;
   handleSignature: (account: string, web3: Web3, bypass: boolean) => Promise<string>;
   cookiesAllowed: boolean | null;
   setCookiesAllowed: React.Dispatch<React.SetStateAction<boolean | null>>;
@@ -210,4 +215,6 @@ export interface globalStates {
   setSlippage: React.Dispatch<React.SetStateAction<BigNumber>>;
   exactToken: 1 | 2;
   setExactToken: React.Dispatch<React.SetStateAction<1 | 2>>;
+  path: string[] | undefined;
+  setPath: React.Dispatch<React.SetStateAction<string[] | undefined>>;
 }

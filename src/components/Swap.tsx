@@ -15,6 +15,7 @@ import useAutoLoadToken from '../hooks/useAutoLoadToken';
 import useTxHandler from '../hooks/useTxHandler';
 import TxSettings from './TxSettings';
 import useCalcSlippage from '../hooks/useCalcSlippage';
+import useSwapPath from '../hooks/useSwapPath';
 
 const INITIAL_MAX_EXCHANGE: IMaxExchange = {
   maxBuy: new BigNumber(0),
@@ -50,6 +51,7 @@ export default function Swap() {
     setShowConfirmTxDetails,
     exactToken,
     setExactToken,
+    trade
   } = useContext(GlobalContext);
 
   const [postExchange, setPostExchange] = useState<BigNumber>(new BigNumber(0));
@@ -66,6 +68,7 @@ export default function Swap() {
   useAutoLoadToken();
   useTxHandler(swap, executeSwap, setExecuteSwap, { slippage, postExchange });
   useCalcSlippage();
+  useSwapPath(tokenIn, tokenOut);
 
   useEffect(() => {
     getButtonProperties();
@@ -116,19 +119,22 @@ export default function Swap() {
           .then((balance) => {
             controller.abort();
             controller = new AbortController();
-            const signal = controller.signal;
+            // const signal = controller.signal;
             setMaxExchange(INITIAL_MAX_EXCHANGE);
-            let updatedToken1;
-            balance ? (updatedToken1 = { ...tokenIn, balance }) : (updatedToken1 = tokenIn);
+            // let updatedToken1;
+            // balance ? (updatedToken1 = { ...tokenIn, balance }) : (updatedToken1 = tokenIn);
+            // TODO: fix this ship
 
-            ocean
-              .getMaxExchange(updatedToken1, tokenOut, signal)
-              .then((res: IMaxExchange | void) => {
-                if (res) {
-                  setMaxExchange(res);
-                }
-              })
-              .catch(console.error);
+            // ocean.getMaxInAndOut({address})
+
+            // ocean
+            //   .getMaxExchange(updatedToken1, tokenOut, signal)
+            //   .then((res: IMaxExchange | void) => {
+            //     if (res) {
+            //       setMaxExchange(res);
+            //     }
+            //   })
+            //   .catch(console.error);
           });
 
         return () => controller.abort();
@@ -200,103 +206,107 @@ export default function Swap() {
   }
 
   async function updateOtherTokenValue(from: boolean, inputAmount: BigNumber) {
-    if (tokenIn?.info && tokenOut?.info && ocean) {
+    // TODO: fix this ship
+    if (tokenIn?.info && tokenOut?.info && ocean && trade) {
       if (from) {
         setTokenOut({ ...tokenOut, loading: true });
-        const exchange = await ocean.calculateExchange(from, inputAmount, tokenIn, tokenOut);
-        setPostExchange(exchange.div(inputAmount));
-        setTokenOut({ ...tokenOut, value: exchange, loading: false });
-        setExactToken(1);
+        // const exchange = await ocean.calculateExchange(from, inputAmount, tokenIn, tokenOut);
+        // setPostExchange(exchange.div(inputAmount));
+        // setTokenOut({ ...tokenOut, value: exchange, loading: false });
+        // setExactToken(1);
       } else {
         setTokenIn({ ...tokenIn, loading: true });
-        const exchange = await ocean.calculateExchange(from, inputAmount, tokenIn, tokenOut);
-        setPostExchange(inputAmount.div(exchange));
-        setTokenIn({ ...tokenIn, value: exchange, loading: false });
-        setExactToken(2);
+        // const exchange = await ocean.calculateExchange(from, inputAmount, tokenIn, tokenOut);
+        // setPostExchange(inputAmount.div(exchange));
+        // setTokenIn({ ...tokenIn, value: exchange, loading: false });
+        // setExactToken(2);
       }
     }
   }
 
   async function swap() {
-    let txReceipt = null;
+    // TODO: fix this ship
+
+    const txReceipt = null;
     if (!preTxDetails || preTxDetails.txType !== 'swap') return;
-    const decSlippage = slippage.div(100).dp(5);
+    // const decSlippage = slippage.div(100).dp(5);
+    // TODO: treat this conditional as an error and resolve whatever is falsy
     if (!chainId || !tokenOut.info || !tokenIn.info || !accountId || !ocean || !config) return;
     try {
       if (ocean.isOCEAN(tokenIn.info.address)) {
-        if (exactToken === 1) {
-          // console.log('exact ocean to dt');
-          // console.log(accountId, tokenOut.info.pool.toString(), tokenOut.value.toString(), tokenIn.value.toString());
-          txReceipt = await ocean.swapExactOceanToDt(
-            accountId,
-            tokenOut.info.pool || '',
-            tokenOut.value.dp(5).toString(),
-            tokenIn.value.dp(5).toString(),
-            decSlippage.toString()
-          );
-        } else {
-          // console.log('ocean to exact dt');
-          txReceipt = await ocean.swapExactOceanToDt(
-            accountId,
-            tokenOut.info.pool || '',
-            tokenOut.value.dp(5).toString(),
-            tokenIn.value.dp(5).toString(),
-            decSlippage.toString()
-          );
-        }
+        // if (exactToken === 1) {
+        //   // console.log('exact ocean to dt');
+        //   // console.log(accountId, tokenOut.info.pool.toString(), tokenOut.value.toString(), tokenIn.value.toString());
+        //   txReceipt = await ocean.swapExactOceanToDt(
+        //     accountId,
+        //     tokenOut.info.pool || '',
+        //     tokenOut.value.dp(5).toString(),
+        //     tokenIn.value.dp(5).toString(),
+        //     decSlippage.toString()
+        //   );
+        // } else {
+        //   // console.log('ocean to exact dt');
+        //   txReceipt = await ocean.swapExactOceanToDt(
+        //     accountId,
+        //     tokenOut.info.pool || '',
+        //     tokenOut.value.dp(5).toString(),
+        //     tokenIn.value.dp(5).toString(),
+        //     decSlippage.toString()
+        //   );
+        // }
       } else if (ocean.isOCEAN(tokenOut.info.address)) {
-        if (exactToken === 1) {
-          // console.log('exact dt to ocean');
-          // console.log(accountId, tokenIn.info.pool, tokenOut.value.toString(), tokenIn.value.toString());
-          txReceipt = await ocean.swapExactDtToOcean(
-            accountId,
-            tokenIn.info.pool || '',
-            tokenOut.value.dp(5).toString(),
-            tokenIn.value.dp(5).toString(),
-            decSlippage.toString()
-          );
-        } else {
-          // Error: Throws not enough datatokens
-          // console.log('dt to exact ocean');
-          // console.log(accountId, tokenIn.info.pool, tokenOut.value.toString(), tokenIn.value.toString());
-          txReceipt = await ocean.swapExactDtToOcean(
-            accountId,
-            tokenIn.info.pool || '',
-            tokenOut.value.dp(5).toString(),
-            tokenIn.value.dp(5).toString(),
-            decSlippage.toString()
-          );
-        }
+        // if (exactToken === 1) {
+        //   // console.log('exact dt to ocean');
+        //   // console.log(accountId, tokenIn.info.pool, tokenOut.value.toString(), tokenIn.value.toString());
+        //   txReceipt = await ocean.swapExactDtToOcean(
+        //     accountId,
+        //     tokenIn.info.pool || '',
+        //     tokenOut.value.dp(5).toString(),
+        //     tokenIn.value.dp(5).toString(),
+        //     decSlippage.toString()
+        //   );
+        // } else {
+        //   // Error: Throws not enough datatokens
+        //   // console.log('dt to exact ocean');
+        //   // console.log(accountId, tokenIn.info.pool, tokenOut.value.toString(), tokenIn.value.toString());
+        //   txReceipt = await ocean.swapExactDtToOcean(
+        //     accountId,
+        //     tokenIn.info.pool || '',
+        //     tokenOut.value.dp(5).toString(),
+        //     tokenIn.value.dp(5).toString(),
+        //     decSlippage.toString()
+        //   );
+        // }
       } else {
-        if (exactToken === 1) {
-          // console.log('exact dt to dt');
-          // console.log(accountId,tokenIn.info.address,tokenOut.info.address,t2Val,t1Val,tokenIn.info.pool,tokenOut.info.pool,config.default.routerAddress,decSlippage);
-          txReceipt = await ocean.swapExactDtToDt(
-            accountId,
-            tokenIn.info.address,
-            tokenOut.info.address,
-            tokenOut.value.dp(5).toString(),
-            tokenIn.value.dp(5).toString(),
-            tokenIn.info.pool || '',
-            tokenOut.info.pool || '',
-            config.default.routerAddress,
-            decSlippage.toString()
-          );
-        } else {
-          // console.log('dt to exact dt');
-          // console.log(accountId,tokenIn.info.address,tokenOut.info.address,t2Val, t1Val,tokenIn.info.pool,tokenOut.info.pool,config.default.routerAddress,decSlippage)
-          txReceipt = await ocean.swapExactDtToDt(
-            accountId,
-            tokenIn.info.address,
-            tokenOut.info.address,
-            tokenOut.value.dp(5).toString(),
-            tokenIn.value.dp(5).toString(),
-            tokenIn.info.pool || '',
-            tokenOut.info.pool || '',
-            config.default.routerAddress,
-            decSlippage.toString()
-          );
-        }
+        // if (exactToken === 1) {
+        //   // console.log('exact dt to dt');
+        //   // console.log(accountId,tokenIn.info.address,tokenOut.info.address,t2Val,t1Val,tokenIn.info.pool,tokenOut.info.pool,config.default.routerAddress,decSlippage);
+        //   txReceipt = await ocean.swapExactDtToDt(
+        //     accountId,
+        //     tokenIn.info.address,
+        //     tokenOut.info.address,
+        //     tokenOut.value.dp(5).toString(),
+        //     tokenIn.value.dp(5).toString(),
+        //     tokenIn.info.pool || '',
+        //     tokenOut.info.pool || '',
+        //     config.default.routerAddress,
+        //     decSlippage.toString()
+        //   );
+        // } else {
+        //   // console.log('dt to exact dt');
+        //   // console.log(accountId,tokenIn.info.address,tokenOut.info.address,t2Val, t1Val,tokenIn.info.pool,tokenOut.info.pool,config.default.routerAddress,decSlippage)
+        //   txReceipt = await ocean.swapExactDtToDt(
+        //     accountId,
+        //     tokenIn.info.address,
+        //     tokenOut.info.address,
+        //     tokenOut.value.dp(5).toString(),
+        //     tokenIn.value.dp(5).toString(),
+        //     tokenIn.info.pool || '',
+        //     tokenOut.info.pool || '',
+        //     config.default.routerAddress,
+        //     decSlippage.toString()
+        //   );
+        // }
       }
       if (txReceipt) {
         transactionTypeGA('Trade');
@@ -389,9 +399,12 @@ export default function Swap() {
     // Setting state here allows for max to be persisted in the input
     setTokenIn({ ...tokenIn, value: bnVal });
     if (tokenIn?.info && tokenOut?.info) {
-      let exchangeLimit = INITIAL_MAX_EXCHANGE;
+      const exchangeLimit = INITIAL_MAX_EXCHANGE;
+      // TODO: fix this ship
 
-      maxExchange.maxSell.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await ocean.getMaxExchange(tokenIn, tokenOut));
+      // maxExchange.maxSell.gt(0)
+      //   ? (exchangeLimit = maxExchange)
+      //   : (exchangeLimit = await ocean.getMaxExchange(tokenIn, tokenOut));
 
       const { maxSell, maxBuy, maxPercent } = exchangeLimit;
 
@@ -417,9 +430,12 @@ export default function Swap() {
     setPercLoading(true);
     if (val === '') val = '0';
     const bnVal = new BigNumber(val);
-    let exchangeLimit = INITIAL_MAX_EXCHANGE;
+    const exchangeLimit = INITIAL_MAX_EXCHANGE;
+    // TODO: fix this ship
 
-    maxExchange.maxPercent.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await ocean.getMaxExchange(tokenIn, tokenOut));
+    // maxExchange.maxPercent.gt(0)
+    //   ? (exchangeLimit = maxExchange)
+    //   : (exchangeLimit = await ocean.getMaxExchange(tokenIn, tokenOut));
 
     const { maxPercent, maxBuy, maxSell, postExchange } = exchangeLimit;
 
@@ -444,19 +460,22 @@ export default function Swap() {
     // Setting state here allows for max to be persisted in the input
     setTokenOut({ ...tokenOut, value: bnVal });
     if (tokenIn?.info && tokenOut?.info) {
-      let exchangeLimit;
+      // let exchangeLimit;
+      // TODO: fix this ship
 
-      maxExchange.maxBuy.gt(0) ? (exchangeLimit = maxExchange) : (exchangeLimit = await ocean.getMaxExchange(tokenIn, tokenOut));
-      const { maxBuy, maxSell } = exchangeLimit;
+      // maxExchange.maxBuy.gt(0)
+      //   ? (exchangeLimit = maxExchange)
+      //   : (exchangeLimit = await ocean.getMaxExchange(tokenIn, tokenOut));
+      // const { maxBuy, maxSell } = exchangeLimit;
 
-      if (bnVal.gt(maxBuy) && tokenIn.balance.gte(0.00001)) {
-        setTokenOut({ ...tokenOut, value: maxBuy });
-        setTokenIn({ ...tokenIn, value: maxSell });
-        setPostExchange(postExchange);
-      } else {
-        setTokenOut({ ...tokenOut, value: bnVal });
-        updateOtherTokenValue(false, bnVal);
-      }
+      // if (bnVal.gt(maxBuy) && tokenIn.balance.gte(0.00001)) {
+      //   setTokenOut({ ...tokenOut, value: maxBuy });
+      //   setTokenIn({ ...tokenIn, value: maxSell });
+      //   setPostExchange(postExchange);
+      // } else {
+      //   setTokenOut({ ...tokenOut, value: bnVal });
+      //   updateOtherTokenValue(false, bnVal);
+      // }
     }
   }
 

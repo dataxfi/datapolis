@@ -280,19 +280,22 @@ export default function Unstake() {
 
   async function unstake(preTxDetails: ITxDetails) {
     if (!chainId || !singleLiquidityPos || !ocean || !accountId || !preTxDetails || !tokenOut.info) {
+      // TODO: treat this conditional as an error and resolve whatever is falsy
       return;
     }
 
     setConfirmingTx(true);
     try {
-      const txReceipt = await ocean.unstakeOcean(
-        accountId,
-        singleLiquidityPos.address,
-        tokenOut.value.dp(5).toString(),
-        singleLiquidityPos.shares.toString()
-      );
+      // TODO: fix this ship
 
-      setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
+      // const txReceipt = await ocean.unstakeOcean(
+      //   accountId,
+      //   singleLiquidityPos.address,
+      //   tokenOut.value.dp(5).toString(),
+      //   singleLiquidityPos.shares.toString()
+      // );
+
+      // setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
       transactionTypeGA('unstake');
       if (singleLiquidityPos && preTxDetails.shares) {
         const newShares = new BigNumber(singleLiquidityPos.shares).minus(preTxDetails.shares);

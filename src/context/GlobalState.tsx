@@ -1,6 +1,6 @@
 import { createContext, PropsWithChildren, useEffect, useRef, useState } from 'react';
 import Web3 from 'web3';
-import { Ocean, Config, Watcher, IToken, ITList, ITokenInfo } from '@dataxfi/datax.js';
+import { Ocean, Config, Watcher, IToken, ITList, ITokenInfo, Stake, Trade } from '@dataxfi/datax.js';
 import Web3Modal from 'web3modal';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import { disclaimer } from '../components/DisclaimerModal';
@@ -22,6 +22,7 @@ import {
   ApprovalStates,
 } from '../utils/types';
 import BigNumber from 'bignumber.js';
+import { Pathfinder } from '@dataxfi/pathfinder';
 
 const CONNECT_TEXT = 'Connect Wallet';
 export const INITIAL_TOKEN_STATE: IToken = {
@@ -42,7 +43,16 @@ export function placeHolderOrContent(
   const elements = [];
   while (rows) {
     elements.push(
-      <div key={`placholder-${rows}`} style={{ width: placeholderSize, height: '12px', borderRadius: '4px', backgroundColor: '#1b1b1b', margin: '4px 0' }} />
+      <div
+        key={`placholder-${rows}`}
+        style={{
+          width: placeholderSize,
+          height: '12px',
+          borderRadius: '4px',
+          backgroundColor: '#1b1b1b',
+          margin: '4px 0',
+        }}
+      />
     );
     rows = rows - 1;
   }
@@ -61,6 +71,10 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [ocean, setOcean] = useState<Ocean>();
   const [config, setConfig] = useState<Config>();
   const [watcher, setWatcher] = useState<Watcher>();
+  const [stake, setStake] = useState<Stake>();
+  const [refAddress, setRefAddress] = useState<string>();
+  const [trade, setTrade] = useState<Trade>();
+  const [pathfinder, setPathFinder] = useState<Pathfinder>();
 
   // loading state is to be used when the app needs to finish loading before a page can render (i.e. show loading screen)
   const [loading, setLoading] = useState<boolean>(true);
@@ -99,6 +113,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [swapFee, setSwapFee] = useState<BigNumber>(new BigNumber(0));
   const [afterSlippage, setAfterSlippage] = useState<BigNumber>(new BigNumber(0));
   const [slippage, setSlippage] = useState<BigNumber>(new BigNumber(1));
+  const [path, setPath] = useState<string[]>();
 
   // user pool information states
   const [allStakedPools, setAllStakedPools] = useState<ILiquidityPosition[]>();
@@ -246,17 +261,31 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       const _chainId = String(await web3.eth.getChainId());
       setChainId(_chainId as supportedChains);
 
+      const network: supportedChains = String(_chainId) as supportedChains;
+
       // This is required to do wallet-specific functions
-      const ocean = new Ocean(web3, String(_chainId));
+      const ocean = new Ocean(web3, network);
       setOcean(ocean);
 
-      const config = new Config(web3, String(_chainId));
+      const config = new Config(web3, network);
       setConfig(config);
 
-      const watcher = new Watcher(web3, String(_chainId));
+      const watcher = new Watcher(web3, network);
       setWatcher(watcher);
 
+      const stake = new Stake(web3, network);
+      setStake(stake);
+
+      const trade = new Trade(web3, network);
+      setTrade(trade);
+
       isSupportedChain(config, String(_chainId), accounts[0] ? accounts[0] : '');
+
+      const pathfinder = new Pathfinder(network, web3);
+      setPathFinder(pathfinder);
+
+      setRefAddress(process.env.REACT_APP_REF_ADDRESS);
+
       setListeners(provider, web3);
     } catch (error) {
       console.error(error);
@@ -333,7 +362,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       setShowDescModal(false);
       setPendingTxs([]);
       setAllStakedPools(undefined);
-      const parsedId = String(parseInt(chainId));
+      const parsedId: supportedChains = String(parseInt(chainId)) as supportedChains;
       // console.log("Chain changed to ", parsedId);
       setChainId(parsedId as supportedChains);
       const config = new Config(web3, parsedId);
@@ -368,6 +397,12 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         config,
         unsupportedNet,
         tokensCleared,
+        refAddress,
+        stake,
+        trade,
+        path,
+        setPath,
+        pathfinder,
         handleSignature,
         cookiesAllowed,
         setCookiesAllowed,
