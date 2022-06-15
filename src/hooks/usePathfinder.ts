@@ -1,10 +1,9 @@
-import { IToken } from '@dataxfi/datax.js';
 import { useContext, useEffect } from 'react';
 import { GlobalContext } from '../context/GlobalState';
 /**
- * Uses datax pathfinder to find a swap path between tokens. 
- * @param tokenIn 
- * @param tokenOut 
+ * Uses datax pathfinder to find a swap path between tokens.
+ * @param tokenIn
+ * @param tokenOut
  */
 export default function usePathfinder(tokenIn: string, tokenOut: string) {
   const { setPath, pathfinder, exactToken } = useContext(GlobalContext);

@@ -17,7 +17,7 @@ export default function useTokenList({ setLoading, setError }: { setLoading?: Fu
     setERC20Tokens,
     ERC20TokenResponse,
     config,
-    showTokenModal,
+    // showTokenModal,
   } = useContext(GlobalContext);
 
   useEffect(() => {
@@ -79,7 +79,7 @@ export default function useTokenList({ setLoading, setError }: { setLoading?: Fu
       getERC20TokenList(config, chainId)
         .then((list) => {
           if (!list) return;
-          setERC20List(list)
+          setERC20List(list);
         })
         .catch((error) => {
           console.error(error);
@@ -230,6 +230,6 @@ export const oceanTokens = {
   },
 };
 
-export async function getBaseToken(pool:string): Promise<string>{
-return ""
+export async function getBaseToken(pool:string): Promise<string> {
+  return '';
 }

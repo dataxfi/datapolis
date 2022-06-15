@@ -127,8 +127,8 @@ export default function TokenModal() {
       }
       if (setToken) setToken({ ...INITIAL_TOKEN_STATE, info: token });
       ocean?.getBalance(token.address, accountId).then((balance) => {
-        console.log("got balance: ", balance);
-        
+        console.log('got balance: ', balance);
+
         if (setToken) setToken({ ...INITIAL_TOKEN_STATE, info: token, balance: new BigNumber(balance) });
       });
       resolve(setController(newController));

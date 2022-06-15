@@ -15,7 +15,7 @@ import useAutoLoadToken from '../hooks/useAutoLoadToken';
 import useTxHandler from '../hooks/useTxHandler';
 import TxSettings from './TxSettings';
 import useCalcSlippage from '../hooks/useCalcSlippage';
-import useSwapPath from '../hooks/useSwapPath';
+import usePathfinder from '../hooks/usePathfinder';
 
 const INITIAL_MAX_EXCHANGE: IMaxExchange = {
   maxBuy: new BigNumber(0),
@@ -51,7 +51,8 @@ export default function Swap() {
     setShowConfirmTxDetails,
     exactToken,
     setExactToken,
-    trade
+    trade,
+    path,
   } = useContext(GlobalContext);
 
   const [postExchange, setPostExchange] = useState<BigNumber>(new BigNumber(0));
@@ -68,7 +69,7 @@ export default function Swap() {
   useAutoLoadToken();
   useTxHandler(swap, executeSwap, setExecuteSwap, { slippage, postExchange });
   useCalcSlippage();
-  useSwapPath(tokenIn, tokenOut);
+  usePathfinder(tokenIn, tokenOut);
 
   useEffect(() => {
     getButtonProperties();
@@ -183,7 +184,7 @@ export default function Swap() {
     // states are locked in functions, so storing one tokens state in a variable is uneccesarry
     setTokenIn({ ...tokenOut });
     setTokenOut({ ...tokenIn });
-    // timeout to avoid spamming ergo race conditions
+    // timeout to avoid spamming
     await setTimeout(() => {
       setSwapDisabled(false);
     }, 750);
@@ -207,20 +208,25 @@ export default function Swap() {
 
   async function updateOtherTokenValue(from: boolean, inputAmount: BigNumber) {
     // TODO: fix this ship
-    if (tokenIn?.info && tokenOut?.info && ocean && trade) {
-      if (from) {
-        setTokenOut({ ...tokenOut, loading: true });
-        // const exchange = await ocean.calculateExchange(from, inputAmount, tokenIn, tokenOut);
-        // setPostExchange(exchange.div(inputAmount));
-        // setTokenOut({ ...tokenOut, value: exchange, loading: false });
-        // setExactToken(1);
-      } else {
-        setTokenIn({ ...tokenIn, loading: true });
-        // const exchange = await ocean.calculateExchange(from, inputAmount, tokenIn, tokenOut);
-        // setPostExchange(inputAmount.div(exchange));
-        // setTokenIn({ ...tokenIn, value: exchange, loading: false });
-        // setExactToken(2);
+    try {
+      if (tokenIn?.info && tokenOut?.info && trade && path) {
+        if (from) {
+          setTokenOut({ ...tokenOut, loading: true });
+          const exchange = await trade.getAmountsOut(tokenIn.value.toString(), path);
+          console.log(exchange);
+          // setPostExchange(exchange.div(inputAmount));
+          // setTokenOut({ ...tokenOut, value: exchange, loading: false });
+          // setExactToken(1);
+        } else {
+          setTokenIn({ ...tokenIn, loading: true });
+          // const exchange = await ocean.calculateExchange(from, inputAmount, tokenIn, tokenOut);
+          // setPostExchange(inputAmount.div(exchange));
+          // setTokenIn({ ...tokenIn, value: exchange, loading: false });
+          // setExactToken(2);
+        }
       }
+    } catch (error) {
+      console.error(error);
     }
   }
 
@@ -462,12 +468,10 @@ export default function Swap() {
     if (tokenIn?.info && tokenOut?.info) {
       // let exchangeLimit;
       // TODO: fix this ship
-
       // maxExchange.maxBuy.gt(0)
       //   ? (exchangeLimit = maxExchange)
       //   : (exchangeLimit = await ocean.getMaxExchange(tokenIn, tokenOut));
       // const { maxBuy, maxSell } = exchangeLimit;
-
       // if (bnVal.gt(maxBuy) && tokenIn.balance.gte(0.00001)) {
       //   setTokenOut({ ...tokenOut, value: maxBuy });
       //   setTokenIn({ ...tokenIn, value: maxSell });

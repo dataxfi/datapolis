@@ -50,7 +50,7 @@ export default function Stake() {
     stake,
     refAddress,
     config,
-    slippage,
+    // slippage,
     trade,
     path,
   } = useContext(GlobalContext);
@@ -181,7 +181,7 @@ export default function Stake() {
              * when using calcTokenOutGivenPoolIn, so what does that mean the token amount out (uints[0])
              * would be?
              */
-            const amountOut = tokenIn.info.address === baseAddress ? '' : '';
+            // const amountOut = tokenIn.info.address === baseAddress ? '' : '';
 
             const stakeInfo: IStakeInfo = {
               meta: [tokenOut.info.pool, accountId, refAddress, config.custom[chainId].uniV2AdapterAddress],
@@ -226,9 +226,7 @@ export default function Stake() {
       // const path: string[] = [config.default.oceanTokenAddress];
 
       const amountOut =
-        tokenIn.info.address === baseAddress
-          ? tokenIn.value.toString()
-          : (await trade.getAmountsOut(tokenIn.value.toString(), path))[0];
+        tokenIn.info.address === baseAddress ? tokenIn.value.toString() : (await trade.getAmountsOut(tokenIn.value.toString(), path))[0];
 
       const stakeInfo: IStakeInfo = {
         meta: [tokenOut.info.pool, accountId, refAddress, config.custom[chainId].uniV2AdapterAddress],
@@ -239,9 +237,7 @@ export default function Stake() {
       // const oceanAmt = await trade?.getAmountsOut(tokenIn.value.toString(), path);
 
       const txReceipt =
-        tokenIn.info?.address === config?.custom[chainId].nativeAddress
-          ? await stake.stakeETHInDTPool(stakeInfo, accountId)
-          : await stake.stakeTokenInDTPool(stakeInfo, accountId);
+        tokenIn.info?.address === config?.custom[chainId].nativeAddress ? await stake.stakeETHInDTPool(stakeInfo, accountId) : await stake.stakeTokenInDTPool(stakeInfo, accountId);
 
       setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
       transactionTypeGA('stake');
@@ -321,8 +317,8 @@ export default function Stake() {
     ) {
       const baseAmountIn = await trade.getAmountsOut(tokenIn.value.toString(), path);
 
-      //TODO: this doesnt make sense, how do I know the pool out before I call the calc function
-      //TODO: this COULD mean that the pool out isnt considered and I simply put the token out from the swap path
+      // TODO: this doesnt make sense, how do I know the pool out before I call the calc function
+      // TODO: this COULD mean that the pool out isnt considered and I simply put the token out from the swap path
       const stakeInfo: IStakeInfo = {
         meta: [tokenOut.info?.pool, accountId, refAddress, config?.custom[chainId].uniV2AdapterAddress],
         uints: ['', '0', baseAmountIn[0]],
