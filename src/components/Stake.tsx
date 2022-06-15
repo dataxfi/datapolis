@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import useLiquidityPos from '../hooks/useLiquidityPos';
 import BigNumber from 'bignumber.js';
 import { ITxDetails, IBtnProps } from '../utils/types';
-import { getAllowance } from '../hooks/useTokenList';
+import { getAllowance, getBaseToken } from '../hooks/useTokenList';
 import useAutoLoadToken from '../hooks/useAutoLoadToken';
 import TokenSelect from './TokenSelect';
 import PositionBox from './PositionBox';
@@ -19,6 +19,7 @@ import TxSettings from './TxSettings';
 //, { calcSlippage }
 import useCalcSlippage from '../hooks/useCalcSlippage';
 import { IStakeInfo } from '@dataxfi/datax.js/dist/@types/stake';
+import usePathfinder from '../hooks/usePathfinder';
 
 const INITIAL_BUTTON_STATE = {
   text: 'Connect wallet',
@@ -49,17 +50,18 @@ export default function Stake() {
     stake,
     refAddress,
     config,
-    // slippage,
+    slippage,
     trade,
-    // pathfinder,
+    path,
   } = useContext(GlobalContext);
 
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
-  const [postExchange] = useState<BigNumber>(new BigNumber(0));
-  const [sharesReceived] = useState<BigNumber>(new BigNumber(0));
+  const [postExchange, setPostExchange] = useState<BigNumber>(new BigNumber(0));
+  const [sharesReceived, setSharesReceived] = useState<BigNumber>(new BigNumber(0));
   const [loading, setLoading] = useState(false);
   const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
   const [importPool, setImportPool] = useState<string>();
+  const [baseAddress, setBaseAddress] = useState<string>('');
 
   // hooks
   useLiquidityPos(importPool, setImportPool);
@@ -67,6 +69,11 @@ export default function Stake() {
   useClearTokens();
   useTxHandler(stakeHandler, executeStake, setExecuteStake, { shares: sharesReceived, postExchange });
   useCalcSlippage(sharesReceived);
+  usePathfinder(tokenIn.info?.address || '', baseAddress);
+
+  useEffect(() => {
+    if (tokenOut.info?.pool) getBaseToken(tokenOut.info.pool).then(setBaseAddress);
+  }, [tokenOut.info?.pool]);
 
   useEffect(() => {
     if (!tokensCleared.current) return;
@@ -167,12 +174,28 @@ export default function Stake() {
               value: new BigNumber(0),
             });
           });
-          // TODO: set post exchange
-          //   if (tokenOut.info?.pool && tokenIn.info?.address) {
-          //     ocean?.getSharesReceivedForTokenIn(tokenOut.info?.pool, tokenIn.info?.address, '1').then((res) => {
-          //       setPostExchange(new BigNumber(res).dp(5));
-          //     });
-          //   }
+          if (tokenOut.info?.pool && tokenIn.info?.address && path && refAddress) {
+            // TODO: This doesnt make sense, I don't know the amount out so what do I put? calcTokenOutGivenPoolIn
+            /**
+             * I am assuming after looking at the contracts that the uints[2] is the shares amount in
+             * when using calcTokenOutGivenPoolIn, so what does that mean the token amount out (uints[0])
+             * would be?
+             */
+            const amountOut = tokenIn.info.address === baseAddress ? '' : '';
+
+            const stakeInfo: IStakeInfo = {
+              meta: [tokenOut.info.pool, accountId, refAddress, config.custom[chainId].uniV2AdapterAddress],
+              uints: ['1', '0', '1'],
+              path,
+            };
+
+            stake
+              ?.calcTokenOutGivenPoolIn(stakeInfo)
+              .then((res) => {
+                setPostExchange(new BigNumber(res).dp(5));
+              })
+              .catch(console.error);
+          }
         }
       })
       .catch(console.error);
@@ -188,42 +211,39 @@ export default function Stake() {
       !refAddress ||
       !config ||
       !stake ||
-      !trade
-    ) { return; }
-    // TODO: treat this conditional as an error and resolve whatever is falsy
-    if (!preTxDetails || preTxDetails.txType !== 'stake') return;
+      !trade ||
+      !path ||
+      !preTxDetails ||
+      preTxDetails.txType !== 'stake'
+    ) {
+      return;
+    }
+    // TODO: treat this conditional as an error and resolve whatever is falsy, could be a hook
 
     try {
       setLoading(true);
       // "0xc778417E063141139Fce010982780140Aa0cD5Ab",
-      const path: string[] = [config.default.oceanTokenAddress];
-      const oceanAmt = await trade?.getAmountsOut(tokenIn.value.toString(), path);
-      const sharesOut = await ocean.getSharesReceivedForTokenIn(
-        tokenOut.info?.pool,
-        config.default.oceanTokenAddress,
-        oceanAmt[0] || '1'
-      );
+      // const path: string[] = [config.default.oceanTokenAddress];
+
+      const amountOut =
+        tokenIn.info.address === baseAddress
+          ? tokenIn.value.toString()
+          : (await trade.getAmountsOut(tokenIn.value.toString(), path))[0];
+
       const stakeInfo: IStakeInfo = {
         meta: [tokenOut.info.pool, accountId, refAddress, config.custom[chainId].uniV2AdapterAddress],
-        uints: [sharesOut, '.01', tokenIn.value.toString()],
+        uints: [amountOut, '0', tokenIn.value.toString()],
         path,
       };
 
-      const a = await stake.calcPoolOutGivenTokenIn(stakeInfo);
-      console.log('Calc: ', a);
+      // const oceanAmt = await trade?.getAmountsOut(tokenIn.value.toString(), path);
 
-      // pathfinder?.getTokenPath()
+      const txReceipt =
+        tokenIn.info?.address === config?.custom[chainId].nativeAddress
+          ? await stake.stakeETHInDTPool(stakeInfo, accountId)
+          : await stake.stakeTokenInDTPool(stakeInfo, accountId);
 
-      // const outAfterSlip = String(calcSlippage(new BigNumber(sharesOut), slippage, 1));
-
-      console.log(stakeInfo);
-
-      // const txReceipt =
-      //   tokenIn.info?.address === config?.custom[chainId].nativeAddress
-      //     ? await stake.stakeETHInDTPool(stakeInfo, accountId)
-      //     : await stake.stakeTokenInDTPool(stakeInfo, accountId);
-
-      // setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
+      setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
       transactionTypeGA('stake');
       setImportPool(tokenOut.info.pool);
     } catch (error: any) {
@@ -268,34 +288,51 @@ export default function Stake() {
   async function updateNum(val: string | BigNumber, max?: BigNumber) {
     // initially set state to value to persist the max if the user continuously tries to enter over the max (or balance)
     setTokenIn({ ...tokenIn, value: new BigNumber(val) });
-    // if (!val) {
-    //   setTokenIn({ ...tokenIn, value: new BigNumber(0) });
-    //   return;
-    // }
-    // val = new BigNumber(val);
+    if (!val) {
+      setTokenIn({ ...tokenIn, value: new BigNumber(0) });
+      return;
+    }
+    val = new BigNumber(val);
 
-    // if (!max) {
-    //   maxStakeAmt.gt(0) ? (max = maxStakeAmt) : (max = await getMaxStakeAmt());
-    // }
+    if (!max) {
+      maxStakeAmt.gt(0) ? (max = maxStakeAmt) : (max = await getMaxStakeAmt());
+    }
 
-    // if (max) {
-    //   if (tokenIn.balance.lt(val)) {
-    //     setTokenIn({ ...tokenIn, value: tokenIn.balance.dp(5) });
-    //   } else if (max.minus(1).lt(val)) {
-    //     setTokenIn({ ...tokenIn, value: max.dp(5).minus(1) });
-    //   } else {
-    //     setTokenIn({ ...tokenIn, value: new BigNumber(val) });
-    //   }
-    // }
+    if (max) {
+      if (tokenIn.balance.lt(val)) {
+        setTokenIn({ ...tokenIn, value: tokenIn.balance.dp(5) });
+      } else if (max.minus(1).lt(val)) {
+        setTokenIn({ ...tokenIn, value: max.dp(5).minus(1) });
+      } else {
+        setTokenIn({ ...tokenIn, value: new BigNumber(val) });
+      }
+    }
 
-    // if (tokenOut.info?.pool && tokenIn.info?.address && val) {
-    //   const sharesReceived = await ocean?.getSharesReceivedForTokenIn(
-    //     tokenOut.info?.pool,
-    //     tokenIn.info?.address,
-    //     val.toString()
-    //   );
-    //   if (sharesReceived) setSharesReceived(new BigNumber(sharesReceived));
-    // }
+    if (
+      tokenOut.info?.pool &&
+      tokenIn.info?.address &&
+      val &&
+      path &&
+      chainId &&
+      config &&
+      accountId &&
+      refAddress &&
+      trade
+    ) {
+      const baseAmountIn = await trade.getAmountsOut(tokenIn.value.toString(), path);
+
+      //TODO: this doesnt make sense, how do I know the pool out before I call the calc function
+      //TODO: this COULD mean that the pool out isnt considered and I simply put the token out from the swap path
+      const stakeInfo: IStakeInfo = {
+        meta: [tokenOut.info?.pool, accountId, refAddress, config?.custom[chainId].uniV2AdapterAddress],
+        uints: ['', '0', baseAmountIn[0]],
+        path,
+      };
+
+      const sharesReceived = await stake?.calcPoolOutGivenTokenIn(stakeInfo);
+
+      if (sharesReceived) setSharesReceived(new BigNumber(sharesReceived));
+    }
   }
 
   return (

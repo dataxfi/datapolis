@@ -44,6 +44,8 @@ export default function TokenSelect({
   useTokenImgSrc(imgSrc, setImgSrc, token.info);
 
   useEffect(() => {
+    console.log(token.balance.dp(3).toString());
+    
     if (accountId && max.gt(0) && token.balance.gt(0)) {
       setEndabled(true);
     } else {

@@ -17,6 +17,7 @@ export default function useTokenList({ setLoading, setError }: { setLoading?: Fu
     setERC20Tokens,
     ERC20TokenResponse,
     config,
+    showTokenModal,
   } = useContext(GlobalContext);
 
   useEffect(() => {
@@ -54,32 +55,43 @@ export default function useTokenList({ setLoading, setError }: { setLoading?: Fu
     }
   }, [location, dtTokenResponse, web3, chainId, accountId]);
 
+  function tokenFilter(list: ITList) {
+    return list.tokens.filter((token) => String(token.chainId) === chainId);
+  }
+
+  function setERC20List(list: ITList) {
+    if (!chainId) return;
+    if (chainId === '4') {
+      setERC20TokenResponse({ tokens: list as unknown as ITokenInfo[] } as ITList);
+      setERC20Tokens(list as unknown as ITokenInfo[]);
+    } else {
+      const ocean = oceanTokens[chainId];
+      const listHasOcean = list.tokens.find((token) => token.address === ocean.address);
+      const filteredList = tokenFilter(list);
+      const tokens = listHasOcean ? filteredList : [...filteredList, ocean];
+      setERC20Tokens(tokens);
+      setERC20TokenResponse({ ...list, tokens });
+    }
+  }
+
   useEffect(() => {
     if (!ERC20TokenResponse && chainId && config?.custom[chainId]) {
-      function tokenFilter(list: ITList) {
-        return list.tokens.filter((token) => String(token.chainId) === chainId);
-      }
-
       getERC20TokenList(config, chainId)
         .then((list) => {
           if (!list) return;
-          if (chainId === '4') {
-            setERC20TokenResponse({ tokens: list as unknown as ITokenInfo[] } as ITList);
-            setERC20Tokens(list as unknown as ITokenInfo[]);
-          } else {
-            const ocean = oceanTokens[chainId];
-            const listHasOcean = list.tokens.find((token) => token.address === ocean.address);
-            const filteredList = tokenFilter(list);
-            const tokens = listHasOcean ? filteredList : [...filteredList, ocean];
-            setERC20Tokens(tokens);
-            setERC20TokenResponse({ ...list, tokens });
-          }
+          setERC20List(list)
         })
         .catch((error) => {
           console.error(error);
         });
     }
   }, [location, ERC20TokenResponse, web3, chainId, config]);
+
+  // useEffect(() => {
+  //   if (ERC20TokenResponse && showTokenModal) {
+  //     setERC20List(ERC20TokenResponse)
+  //   }
+  // }, [showTokenModal]);
 }
 
 async function getDtTokenList(web3: Web3, chainId: supportedChains): Promise<ITList | undefined> {
@@ -217,3 +229,7 @@ export const oceanTokens = {
     tags: ['oceantoken'],
   },
 };
+
+export async function getBaseToken(pool:string): Promise<string>{
+return ""
+}
