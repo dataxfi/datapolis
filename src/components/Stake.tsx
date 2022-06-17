@@ -75,13 +75,15 @@ export default function Stake() {
   usePathfinder(tokenIn.info?.address || '', baseAddress);
 
   useEffect(() => {
-    console.log('base address is ', baseAddress);
+    console.log('Base address is ', baseAddress);
   }, [baseAddress, web3]);
 
   useEffect(() => {
     console.log(tokenOut.info);
 
-    if (tokenOut.info?.pool && ocean) { getBaseToken(tokenOut.info.pool, tokenOut.info.address, ocean).then(setBaseAddress); }
+    if (tokenOut.info?.pool && ocean) {
+      getBaseToken(tokenOut.info.pool, tokenOut.info.address, ocean).then(setBaseAddress);
+    }
   }, [tokenOut.info?.pool, ocean]);
 
   useEffect(() => {
@@ -121,7 +123,7 @@ export default function Stake() {
     } else if (tokenIn.balance?.eq(0) || (tokenIn.balance && tokenIn.value.gt(tokenIn.balance))) {
       setBtnProps({
         ...INITIAL_BUTTON_STATE,
-        text: 'Not Enough OCEAN Balance',
+        text: `Not Enough ${tokenIn.info?.symbol} Balance`,
         disabled: true,
       });
     } else if (lastTx?.status === 'Pending') {
@@ -139,7 +141,7 @@ export default function Stake() {
     } else if (tokenIn.allowance?.lt(tokenIn.value)) {
       setBtnProps({
         ...btnProps,
-        text: 'Unlock OCEAN',
+        text: `Unlock ${tokenIn.info?.symbol}`,
         disabled: false,
       });
     } else {
@@ -152,18 +154,21 @@ export default function Stake() {
   }, [accountId, ocean, chainId, tokenOut, tokenIn.value, tokenIn.balance, loading, tokenIn.info, lastTx?.status]);
 
   async function getMaxStakeAmt() {
-    if (tokenOut.info && ocean) {
+    if (tokenOut.info && ocean && path) {
       const max = new BigNumber(
         await ocean.getMaxStakeAmount(tokenOut.info.pool || '', ocean.config.default.oceanTokenAddress)
       ).dp(5);
-      console.log('Max stake amount', max.toString());
-      return max;
+
+      if (tokenIn.info?.address === baseAddress) return max;
+
+      const maxIn = await trade?.getAmountsIn(maxStakeAmt.toString(), path);
+      if (maxIn) return new BigNumber(maxIn[0]);
     }
   }
 
   async function getMaxAndAllowance() {
     getMaxStakeAmt()
-      .then((res: BigNumber | void) => {
+      .then((res: BigNumber | void | undefined) => {
         if (res) {
           setMaxStakeAmt(res);
         }
@@ -173,7 +178,7 @@ export default function Stake() {
           getAllowance(
             ocean.config.default.oceanTokenAddress,
             accountId,
-            config.custom[chainId].uniV2AdapterAddress,
+            config.custom[chainId].stakeRouterAddress,
             ocean
           ).then(async (res) => {
             if (!tokenIn.info) return;

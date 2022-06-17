@@ -202,7 +202,7 @@ export default function TokenModal() {
               </div>
               <ul className="flex flex-wrap w-full">
                 {commons.map((token, index) => (
-                  <CommonToken index={index} token={token} onClick={tokenSelected} key={index} />
+                  <CommonToken index={index} token={token as ITokenInfo} onClick={tokenSelected} key={index} />
                 ))}
               </ul>
               <div

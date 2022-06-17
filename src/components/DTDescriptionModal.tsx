@@ -10,26 +10,35 @@ import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import style from '../markdown.module.css';
 import { BsArrowLeft, BsArrowRight, BsBoxArrowUpRight } from 'react-icons/bs';
 import axios from 'axios';
-import { IToken } from '@dataxfi/datax.js';
 export default function DatasetDescription() {
   const [description, setDescription] = useState<string>();
   const [name, setName] = useState<string>();
   const [dateCreated, setDateCreate] = useState<string>();
   const [author, setAuthor] = useState<string>();
   const [did, setDID] = useState<string>();
-  const { setSnackbarItem, ocean, tokenOut, showDescModal, setShowDescModal, t2DIDResponse, setT2DIDResponse, location } =
-    useContext(GlobalContext);
+  const {
+    setSnackbarItem,
+    ocean,
+    tokenOut,
+    showDescModal,
+    setShowDescModal,
+    t2DIDResponse,
+    setT2DIDResponse,
+    location,
+  } = useContext(GlobalContext);
 
   useEffect(() => {
-    if (showDescModal && !t2DIDResponse) {
-      getDID(setT2DIDResponse, tokenOut);
+    if (showDescModal && !t2DIDResponse && tokenOut.info?.did) {
+      getDID(setT2DIDResponse, tokenOut.info?.did);
     }
   }, [showDescModal]);
 
   useEffect(() => {
     try {
       if (tokenOut.info?.pool) {
-        getDID(setT2DIDResponse, tokenOut);
+        console.log(tokenOut);
+        getDID(setT2DIDResponse, tokenOut.info.did);
+        setDID(tokenOut.info.did);
       } else {
         setT2DIDResponse(undefined);
       }
@@ -40,15 +49,17 @@ export default function DatasetDescription() {
 
   useEffect(() => {
     if (t2DIDResponse) {
+      console.log(t2DIDResponse);
+
       try {
-        setDID(t2DIDResponse.data.id);
-        const metadata = t2DIDResponse.data.service.find((el: any) => el.type === 'metadata').attributes;
-        setName(metadata.main.name);
-        setAuthor(metadata.main.author);
-        setDateCreate(metadata.main.dateCreated);
-        const desc = metadata.additionalInformation.description;
+        const metadata = t2DIDResponse.data.metadata;
+        setName(metadata.name);
+        setAuthor(metadata.author);
+        setDateCreate(metadata.created);
+        const desc = metadata.description;
         setDescription(desc);
       } catch (error) {
+        console.error(error);
         setSnackbarItem({
           type: 'error',
           error: { code: 0, error, message: 'Could not retreive description for dataset.' },
@@ -177,7 +188,7 @@ export default function DatasetDescription() {
                   )}{' '}
                   <p className="text-blue-300 test-sm">
                     DID: {'\t'}
-                    <span className="text-xs md:text-sm text-white">{did || ''}</span>
+                    <span className="text-xs md:text-sm text-white w-min">{did || ''}</span>
                   </p>
                 </>
               ) : (
@@ -195,9 +206,9 @@ export default function DatasetDescription() {
   );
 }
 
-export async function getDID(setT2DIDResponse: React.Dispatch<any>, tokenOut: IToken) {
+export async function getDID(setT2DIDResponse: React.Dispatch<any>, did: string) {
   axios
-    .get(`https://aquarius.oceanprotocol.com/api/v1/aquarius/assets/ddo/did:op:${tokenOut.info?.address.substring(2)}`)
+    .get(`https://v4.aquarius.oceanprotocol.com/api/aquarius/assets/ddo/${did}`)
     .then(setT2DIDResponse)
     .catch(console.error);
 }

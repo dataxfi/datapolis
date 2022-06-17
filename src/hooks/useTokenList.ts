@@ -69,8 +69,8 @@ export default function useTokenList({ setLoading, setError }: { setLoading?: Fu
       const listHasOcean = list.tokens.find((token) => token.address === ocean.address);
       const filteredList = tokenFilter(list);
       const tokens = listHasOcean ? filteredList : [...filteredList, ocean];
-      setERC20Tokens(tokens);
-      setERC20TokenResponse({ ...list, tokens });
+      setERC20Tokens(tokens as ITokenInfo[]);
+      setERC20TokenResponse({ ...list, tokens: tokens as ITokenInfo[] });
     }
   }
 
