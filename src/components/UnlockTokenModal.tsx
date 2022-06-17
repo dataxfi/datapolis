@@ -82,6 +82,8 @@ export default function UnlockTokenModal() {
       }
 
       if (location === '/stake') {
+        // "0x580DE256179B0F8BEe9A4d882E354967d30a0ef6"
+        //
         pool = config?.custom[chainId].stakeRouterAddress;
         console.log(config?.custom[chainId].stakeRouterAddress, pool);
       }

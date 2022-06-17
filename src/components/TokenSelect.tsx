@@ -27,16 +27,8 @@ export default function TokenSelect({
   onMax?: Function;
   max: BigNumber;
 }) {
-  const {
-    accountId,
-    handleConnect,
-    tokensCleared,
-    location,
-    config,
-    selectTokenPos,
-    setBlurBG,
-    setShowTokenModal,
-  } = useContext(GlobalContext);
+  const { accountId, handleConnect, tokensCleared, location, config, selectTokenPos, setBlurBG, setShowTokenModal } =
+    useContext(GlobalContext);
   const [enabled, setEndabled] = useState(false);
   const [title, setTitle] = useState<TokenSelectTitles>();
   const [imgSrc, setImgSrc] = useState(token.info?.logoURI);
@@ -44,8 +36,6 @@ export default function TokenSelect({
   useTokenImgSrc(imgSrc, setImgSrc, token.info);
 
   useEffect(() => {
-    console.log(token.balance.dp(3).toString());
-
     if (accountId && max.gt(0) && token.balance.gt(0)) {
       setEndabled(true);
     } else {
@@ -75,7 +65,7 @@ export default function TokenSelect({
     if (accountId) {
       setShowTokenModal(true);
       setBlurBG(true);
-      selectTokenPos.current = (pos);
+      selectTokenPos.current = pos;
     } else {
       if (handleConnect) handleConnect();
     }

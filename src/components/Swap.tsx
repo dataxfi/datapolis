@@ -4,7 +4,7 @@ import { useState, useContext, useEffect } from 'react';
 import { GlobalContext, placeHolderOrContent } from '../context/GlobalState';
 import { MoonLoader } from 'react-spinners';
 import BigNumber from 'bignumber.js';
-import { getAllowance } from '../hooks/useTokenList';
+// import { getAllowance } from '../hooks/useTokenList';
 import { IBtnProps } from '../utils/types';
 import { IMaxExchange } from '@dataxfi/datax.js';
 import DatasetDescription from './DTDescriptionModal';
@@ -35,7 +35,7 @@ export default function Swap() {
     tokenOut,
     setTokenOut,
     setLastTx,
-    tokensCleared,
+    // tokensCleared,
     setSnackbarItem,
     showDescModal,
     setBlurBG,
@@ -53,6 +53,7 @@ export default function Swap() {
     setExactToken,
     trade,
     path,
+    web3
   } = useContext(GlobalContext);
 
   const [postExchange, setPostExchange] = useState<BigNumber>(new BigNumber(0));
@@ -62,102 +63,102 @@ export default function Swap() {
   });
 
   const [percLoading, setPercLoading] = useState(false);
-  const [maxExchange, setMaxExchange] = useState<IMaxExchange>(INITIAL_MAX_EXCHANGE);
+  const [maxExchange] = useState<IMaxExchange>(INITIAL_MAX_EXCHANGE);
   const [swapDisabled, setSwapDisabled] = useState<boolean>(false);
 
   useClearTokens();
   useAutoLoadToken();
   useTxHandler(swap, executeSwap, setExecuteSwap, { slippage, postExchange });
   useCalcSlippage();
-  usePathfinder(tokenIn, tokenOut);
+  usePathfinder(tokenIn.info?.address || '', tokenOut.info?.address || '');
 
   useEffect(() => {
     getButtonProperties();
   }, [tokenIn, tokenOut, accountId, executeSwap, executeUnlock]);
 
-  let controller = new AbortController();
-  useEffect(() => {
-    if (!tokensCleared.current) return;
-    try {
-      if (tokenIn.info && tokenOut.info && accountId && ocean) {
-        updateBalance(tokenIn.info.address)
-          .then((balance) => {
-            if (!balance) return;
-            if (tokenIn.info && tokenOut.info && ocean.isOCEAN(tokenIn.info.address)) {
-              getAllowance(tokenIn.info.address, accountId, tokenOut.info.pool || '', ocean).then((res) => {
-                setTokenIn({
-                  ...tokenIn,
-                  allowance: new BigNumber(res),
-                  balance,
-                  value: new BigNumber(0),
-                  percentage: new BigNumber(0),
-                });
-              });
-            } else if (tokenIn.info && tokenOut.info && ocean.isOCEAN(tokenOut.info.address)) {
-              getAllowance(tokenIn.info.address, accountId, tokenIn.info.pool || '', ocean).then((res) => {
-                setTokenIn({
-                  ...tokenIn,
-                  allowance: new BigNumber(res),
-                  balance,
-                  value: new BigNumber(0),
-                  percentage: new BigNumber(0),
-                });
-              });
-            } else if (tokenIn.info) {
-              getAllowance(tokenIn.info.address, accountId, config?.default.routerAddress, ocean).then((res) => {
-                setTokenIn({
-                  ...tokenIn,
-                  allowance: new BigNumber(res),
-                  balance,
-                  value: new BigNumber(0),
-                  percentage: new BigNumber(0),
-                });
-              });
-            }
+  // const controller = new AbortController();
+  // useEffect(() => {
+  //   if (!tokensCleared.current) return;
+  //   try {
+  //     if (tokenIn.info && tokenOut.info && accountId && ocean) {
+  //       updateBalance(tokenIn.info.address)
+  //         .then((balance) => {
+  //           if (!balance) return;
+  //           if (tokenIn.info && tokenOut.info && ocean.isOCEAN(tokenIn.info.address)) {
+  //             getAllowance(tokenIn.info.address, accountId, tokenOut.info.pool || '', ocean).then((res) => {
+  //               setTokenIn({
+  //                 ...tokenIn,
+  //                 allowance: new BigNumber(res),
+  //                 balance,
+  //                 value: new BigNumber(0),
+  //                 percentage: new BigNumber(0),
+  //               });
+  //             });
+  //           } else if (tokenIn.info && tokenOut.info && ocean.isOCEAN(tokenOut.info.address)) {
+  //             getAllowance(tokenIn.info.address, accountId, tokenIn.info.pool || '', ocean).then((res) => {
+  //               setTokenIn({
+  //                 ...tokenIn,
+  //                 allowance: new BigNumber(res),
+  //                 balance,
+  //                 value: new BigNumber(0),
+  //                 percentage: new BigNumber(0),
+  //               });
+  //             });
+  //           } else if (tokenIn.info) {
+  //             getAllowance(tokenIn.info.address, accountId, config?.default.routerAddress, ocean).then((res) => {
+  //               setTokenIn({
+  //                 ...tokenIn,
+  //                 allowance: new BigNumber(res),
+  //                 balance,
+  //                 value: new BigNumber(0),
+  //                 percentage: new BigNumber(0),
+  //               });
+  //             });
+  //           }
 
-            return balance;
-          })
-          .then((balance) => {
-            controller.abort();
-            controller = new AbortController();
-            // const signal = controller.signal;
-            setMaxExchange(INITIAL_MAX_EXCHANGE);
-            // let updatedToken1;
-            // balance ? (updatedToken1 = { ...tokenIn, balance }) : (updatedToken1 = tokenIn);
-            // TODO: fix this ship
+  //           return balance;
+  //         })
+  //         .then((balance) => {
+  //           controller.abort();
+  //           controller = new AbortController();
+  //           // const signal = controller.signal;
+  //           setMaxExchange(INITIAL_MAX_EXCHANGE);
+  //           // let updatedToken1;
+  //           // balance ? (updatedToken1 = { ...tokenIn, balance }) : (updatedToken1 = tokenIn);
+  //           // TODO: fix this ship
 
-            // ocean.getMaxInAndOut({address})
+  //           // ocean.getMaxInAndOut({address})
 
-            // ocean
-            //   .getMaxExchange(updatedToken1, tokenOut, signal)
-            //   .then((res: IMaxExchange | void) => {
-            //     if (res) {
-            //       setMaxExchange(res);
-            //     }
-            //   })
-            //   .catch(console.error);
-          });
+  //           // ocean
+  //           //   .getMaxExchange(updatedToken1, tokenOut, signal)
+  //           //   .then((res: IMaxExchange | void) => {
+  //           //     if (res) {
+  //           //       setMaxExchange(res);
+  //           //     }
+  //           //   })
+  //           //   .catch(console.error);
+  //         });
 
-        return () => controller.abort();
-      }
+  //       return () => controller.abort();
+  //     }
 
-      if (tokenOut.info) {
-        updateBalance(tokenOut.info.address).then((balance) => {
-          if (balance) setTokenOut({ ...tokenOut, balance, value: new BigNumber(0) });
-        });
-      }
+  //     if (tokenOut.info) {
+  //       updateBalance(tokenOut.info.address).then((balance) => {
+  //         if (balance) setTokenOut({ ...tokenOut, balance, value: new BigNumber(0) });
+  //       });
+  //     }
 
-      if (tokenIn.info && !tokenOut.info) {
-        updateBalance(tokenIn.info.address).then((balance) => {
-          if (balance) setTokenIn({ ...tokenIn, balance, value: new BigNumber(0) });
-        });
-      }
-    } catch (error) {
-      console.error(error);
-    }
+  //     if (tokenIn.info && !tokenOut.info) {
+  //       updateBalance(tokenIn.info.address).then((balance) => {
+  //         if (balance) setTokenIn({ ...tokenIn, balance, value: new BigNumber(0) });
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
 
-    return () => controller.abort();
-  }, [tokenIn.info?.address, tokenOut.info?.address, ocean, accountId]);
+  //   return () => controller.abort();
+  // }, [tokenIn.info?.address, tokenOut.info?.address, ocean, accountId]);
 
   useEffect(() => {
     if (ocean && tokenIn.info && tokenIn.value.gt(0) && tokenOut.info) {
@@ -170,14 +171,14 @@ export default function Swap() {
     }
   });
 
-  async function updateBalance(address: string) {
-    if (!ocean || !accountId) return;
-    try {
-      return new BigNumber(await ocean.getBalance(address, accountId));
-    } catch (error) {
-      console.error(error);
-    }
-  }
+  // async function updateBalance(address: string) {
+  //   if (!ocean || !accountId) return;
+  //   try {
+  //     return new BigNumber(await ocean.getBalance(address, accountId));
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // }
 
   async function swapTokens() {
     setSwapDisabled(true);
@@ -207,12 +208,15 @@ export default function Swap() {
   }
 
   async function updateOtherTokenValue(from: boolean, inputAmount: BigNumber) {
+    console.log('Updating other token');
+
     // TODO: fix this ship
     try {
-      if (tokenIn?.info && tokenOut?.info && trade && path) {
+      if (tokenIn?.info && tokenOut?.info && trade && path && web3) {
         if (from) {
           setTokenOut({ ...tokenOut, loading: true });
-          const exchange = await trade.getAmountsOut(tokenIn.value.toString(), path);
+          console.log(web3.utils.toWei(inputAmount.toString()), path);
+          const exchange = await trade.getAmountsOut(web3.utils.toWei(inputAmount.toString()), path);
           console.log(exchange);
           // setPostExchange(exchange.div(inputAmount));
           // setTokenOut({ ...tokenOut, value: exchange, loading: false });
@@ -220,7 +224,7 @@ export default function Swap() {
         } else {
           setTokenIn({ ...tokenIn, loading: true });
           // const exchange = await ocean.calculateExchange(from, inputAmount, tokenIn, tokenOut);
-          // setPostExchange(inputAmount.div(exchange));
+          // setPostExchange(inputAmount.div(exchange)) ;
           // setTokenIn({ ...tokenIn, value: exchange, loading: false });
           // setExactToken(2);
         }
@@ -400,6 +404,8 @@ export default function Swap() {
 
   async function dbUpdateToken1(value: string) {
     if (!ocean) return;
+    console.log('updating token 1');
+
     setExactToken(1);
     const bnVal = new BigNumber(value);
     // Setting state here allows for max to be persisted in the input
@@ -415,9 +421,13 @@ export default function Swap() {
       const { maxSell, maxBuy, maxPercent } = exchangeLimit;
 
       if (bnVal.gt(maxSell) && tokenIn.balance.gte(0.00001)) {
+        console.log('What is going on');
+
         setTokenOut({ ...tokenOut, value: maxBuy });
         setTokenIn({ ...tokenIn, value: maxSell, percentage: maxPercent });
       } else {
+        console.log('updating token 1');
+
         const percentage =
           tokenIn.balance.lt(0.00001) && bnVal.gt(0) ? new BigNumber(100) : new BigNumber(bnVal.div(tokenIn.balance).multipliedBy(100));
         setTokenIn({

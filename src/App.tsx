@@ -17,7 +17,7 @@ import Footer from './components/Footer';
 import Stake from './components/Stake';
 import Swap from './components/Swap';
 
-BigNumber.config({ DECIMAL_PLACES: 18, ROUNDING_MODE: BigNumber.ROUND_DOWN, EXPONENTIAL_AT: 18 });
+BigNumber.config({ DECIMAL_PLACES: 18, ROUNDING_MODE: BigNumber.ROUND_DOWN, EXPONENTIAL_AT: 30 });
 
 function App() {
   // some comment

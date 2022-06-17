@@ -6,9 +6,8 @@ import bFactory from '@oceanprotocol/contracts/artifacts/BFactory.json';
 // import proxy from '@dataxfi/datax.js/dist/abi/DataxRouter.json';
 import bPool from '@oceanprotocol/contracts/artifacts/BPool.json';
 // import bToken from '@oceanprotocol/contracts/artifacts/BToken.json';
-import { Ocean, Config } from '@dataxfi/datax.js';
+import { Ocean, Config, DataTokens } from '@dataxfi/datax.js';
 // import { OceanPool } from '@dataxfi/datax.js/dist/balancer';
-import { DataTokens } from '@dataxfi/datax.js/dist/Datatokens';
 import { AbiItem } from 'web3-utils/types';
 import { Logger } from '@dataxfi/datax.js/dist/utils/Logger';
 

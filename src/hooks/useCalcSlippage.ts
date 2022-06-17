@@ -23,6 +23,7 @@ export default function useCalcSlippage(valueOveride?: BigNumber) {
 }
 
 export function calcSlippage(amt: BigNumber, slippage: BigNumber, exactToken: 1 | 2) {
+  console.log('Before slippage', amt.toString());
   const slip = amt.times(slippage).div(100);
   return exactToken === 1 ? amt.minus(slip) : amt.plus(slip);
 }

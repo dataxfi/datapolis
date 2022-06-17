@@ -133,7 +133,7 @@ export async function getToken(
 }
 
 export async function getAllowance(tokenAddress: string, accountId: string, router: string, ocean: Ocean) {
-  const allowance = await ocean.getAllowance(tokenAddress, accountId, router);
+  const allowance = await ocean.getAllowance(tokenAddress, accountId, '0x580DE256179B0F8BEe9A4d882E354967d30a0ef6');
   // console.log("Allowance:", allowance);
   return allowance;
 }
@@ -230,6 +230,8 @@ export const oceanTokens = {
   },
 };
 
-export async function getBaseToken(pool:string): Promise<string> {
-  return '';
+export async function getBaseToken(pool: string, datatokenAddress: string, ocean: Ocean): Promise<string> {
+  const details = await ocean.getPoolDetails(pool);
+  console.log(details);
+  return details.tokens.find((address: string) => address !== datatokenAddress);
 }

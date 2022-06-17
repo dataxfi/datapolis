@@ -16,7 +16,6 @@ import { transactionTypeGA } from '../context/Analytics';
 import useClearTokens from '../hooks/useClearTokens';
 import useTxHandler from '../hooks/useTxHandler';
 import TxSettings from './TxSettings';
-//, { calcSlippage }
 import useCalcSlippage from '../hooks/useCalcSlippage';
 import { IStakeInfo } from '@dataxfi/datax.js/dist/@types/stake';
 import usePathfinder from '../hooks/usePathfinder';
@@ -53,6 +52,7 @@ export default function Stake() {
     // slippage,
     trade,
     path,
+    web3,
   } = useContext(GlobalContext);
 
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
@@ -62,6 +62,9 @@ export default function Stake() {
   const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
   const [importPool, setImportPool] = useState<string>();
   const [baseAddress, setBaseAddress] = useState<string>('');
+  const [, setDataxFee] = useState<string>();
+  const [, setRefFee] = useState<string>();
+  const [minStakeAmt, setMinStakeAmt] = useState<BigNumber>();
 
   // hooks
   useLiquidityPos(importPool, setImportPool);
@@ -72,8 +75,14 @@ export default function Stake() {
   usePathfinder(tokenIn.info?.address || '', baseAddress);
 
   useEffect(() => {
-    if (tokenOut.info?.pool) getBaseToken(tokenOut.info.pool).then(setBaseAddress);
-  }, [tokenOut.info?.pool]);
+    console.log('base address is ', baseAddress);
+  }, [baseAddress, web3]);
+
+  useEffect(() => {
+    console.log(tokenOut.info);
+
+    if (tokenOut.info?.pool && ocean) { getBaseToken(tokenOut.info.pool, tokenOut.info.address, ocean).then(setBaseAddress); }
+  }, [tokenOut.info?.pool, ocean]);
 
   useEffect(() => {
     if (!tokensCleared.current) return;
@@ -84,13 +93,15 @@ export default function Stake() {
 
   useEffect(() => {
     if (tokenIn.info && !tokenOut.info && ocean && accountId) {
-      console.log(2);
-
       ocean.getBalance(tokenIn.info.address, accountId).then((res) => {
         setTokenIn({ ...tokenIn, balance: new BigNumber(res) });
       });
     }
   }, [tokenIn.info?.address, accountId]);
+
+  useEffect(() => {
+    getMinAmountIn();
+  }, [tokenIn.info?.address, tokenOut.info?.address]);
 
   useEffect(() => {
     if (!accountId) {
@@ -119,10 +130,10 @@ export default function Stake() {
         text: 'Processing Transaction...',
         disabled: true,
       });
-    } else if (tokenIn.value.isLessThan(0.01)) {
+    } else if (minStakeAmt && tokenIn.value.isLessThan(minStakeAmt)) {
       setBtnProps({
         ...INITIAL_BUTTON_STATE,
-        text: 'Minimum Stake is .01 OCEAN',
+        text: `Minimum Stake is ${minStakeAmt} ${tokenIn.info?.symbol}`,
         disabled: true,
       });
     } else if (tokenIn.allowance?.lt(tokenIn.value)) {
@@ -142,9 +153,11 @@ export default function Stake() {
 
   async function getMaxStakeAmt() {
     if (tokenOut.info && ocean) {
-      return new BigNumber(
+      const max = new BigNumber(
         await ocean.getMaxStakeAmount(tokenOut.info.pool || '', ocean.config.default.oceanTokenAddress)
       ).dp(5);
+      console.log('Max stake amount', max.toString());
+      return max;
     }
   }
 
@@ -160,11 +173,9 @@ export default function Stake() {
           getAllowance(
             ocean.config.default.oceanTokenAddress,
             accountId,
-            config?.custom[chainId].uniV2AdapterAddress,
+            config.custom[chainId].uniV2AdapterAddress,
             ocean
           ).then(async (res) => {
-            console.log(res);
-
             if (!tokenIn.info) return;
             const balance = new BigNumber(await ocean.getBalance(tokenIn.info.address, accountId));
             setTokenIn({
@@ -175,30 +186,47 @@ export default function Stake() {
             });
           });
           if (tokenOut.info?.pool && tokenIn.info?.address && path && refAddress) {
-            // TODO: This doesnt make sense, I don't know the amount out so what do I put? calcTokenOutGivenPoolIn
-            /**
-             * I am assuming after looking at the contracts that the uints[2] is the shares amount in
-             * when using calcTokenOutGivenPoolIn, so what does that mean the token amount out (uints[0])
-             * would be?
-             */
-            // const amountOut = tokenIn.info.address === baseAddress ? '' : '';
-
-            const stakeInfo: IStakeInfo = {
-              meta: [tokenOut.info.pool, accountId, refAddress, config.custom[chainId].uniV2AdapterAddress],
-              uints: ['1', '0', '1'],
-              path,
-            };
-
-            stake
-              ?.calcTokenOutGivenPoolIn(stakeInfo)
-              .then((res) => {
-                setPostExchange(new BigNumber(res).dp(5));
-              })
-              .catch(console.error);
+            getPostExchange();
           }
         }
       })
       .catch(console.error);
+  }
+
+  async function getMinAmountIn() {
+    if (path && web3) {
+      const minAmtIn = await trade?.getAmountsIn(web3?.utils.toWei('0.01'), path);
+      if (minAmtIn) setMinStakeAmt(new BigNumber(minAmtIn[0]));
+    }
+  }
+
+  async function getPostExchange() {
+    if (
+      tokenOut.info?.pool &&
+      tokenIn.info?.address &&
+      path &&
+      refAddress &&
+      accountId &&
+      chainId &&
+      config?.custom[chainId].uniV2AdapterAddress &&
+      web3 &&
+      baseAddress
+    ) {
+      const stakeInfo: IStakeInfo = {
+        meta: [tokenOut.info.pool, accountId, refAddress, config.custom[chainId].uniV2AdapterAddress],
+        uints: ['0', '0', '1'],
+        path: [baseAddress],
+      };
+
+      const basePostExchange = await stake?.calcTokenOutGivenPoolIn(stakeInfo);
+      let postExchange = basePostExchange?.poolAmountOut;
+      if (tokenIn.info.address !== config.default.oceanTokenAddress && basePostExchange) {
+        const amountIn = await trade?.getAmountsIn(web3?.utils.toWei('1'), path);
+        if (amountIn) postExchange = amountIn[0];
+      }
+
+      if (postExchange) setPostExchange(new BigNumber(postExchange));
+    }
   }
 
   async function stakeHandler(preTxDetails: ITxDetails) {
@@ -214,7 +242,8 @@ export default function Stake() {
       !trade ||
       !path ||
       !preTxDetails ||
-      preTxDetails.txType !== 'stake'
+      preTxDetails.txType !== 'stake' ||
+      !web3
     ) {
       return;
     }
@@ -222,19 +251,15 @@ export default function Stake() {
 
     try {
       setLoading(true);
-      // "0xc778417E063141139Fce010982780140Aa0cD5Ab",
-      // const path: string[] = [config.default.oceanTokenAddress];
 
-      const amountOut =
-        tokenIn.info.address === baseAddress ? tokenIn.value.toString() : (await trade.getAmountsOut(tokenIn.value.toString(), path))[0];
-
+      // ? calcSlippage(new BigNumber(amountOutBase), slippage, 1)
       const stakeInfo: IStakeInfo = {
         meta: [tokenOut.info.pool, accountId, refAddress, config.custom[chainId].uniV2AdapterAddress],
-        uints: [amountOut, '0', tokenIn.value.toString()],
+        uints: [sharesReceived.toString(), '0', tokenIn.value.toString()],
         path,
       };
 
-      // const oceanAmt = await trade?.getAmountsOut(tokenIn.value.toString(), path);
+      console.log(stakeInfo);
 
       const txReceipt =
         tokenIn.info?.address === config?.custom[chainId].nativeAddress ? await stake.stakeETHInDTPool(stakeInfo, accountId) : await stake.stakeTokenInDTPool(stakeInfo, accountId);
@@ -290,19 +315,19 @@ export default function Stake() {
     }
     val = new BigNumber(val);
 
-    if (!max) {
-      maxStakeAmt.gt(0) ? (max = maxStakeAmt) : (max = await getMaxStakeAmt());
-    }
+    // if (!max) {
+    //   maxStakeAmt.gt(0) ? (max = maxStakeAmt) : (max = await getMaxStakeAmt());
+    // }
 
-    if (max) {
-      if (tokenIn.balance.lt(val)) {
-        setTokenIn({ ...tokenIn, value: tokenIn.balance.dp(5) });
-      } else if (max.minus(1).lt(val)) {
-        setTokenIn({ ...tokenIn, value: max.dp(5).minus(1) });
-      } else {
-        setTokenIn({ ...tokenIn, value: new BigNumber(val) });
-      }
-    }
+    // if (max) {
+    //   if (tokenIn.balance.lt(val)) {
+    //     setTokenIn({ ...tokenIn, value: tokenIn.balance.dp(5) });
+    //   } else if (max.minus(1).lt(val)) {
+    //     setTokenIn({ ...tokenIn, value: max.dp(5).minus(1) });
+    //   } else {
+    //     setTokenIn({ ...tokenIn, value: new BigNumber(val) });
+    //   }
+    // }
 
     if (
       tokenOut.info?.pool &&
@@ -313,21 +338,40 @@ export default function Stake() {
       config &&
       accountId &&
       refAddress &&
-      trade
+      trade &&
+      web3
     ) {
-      const baseAmountIn = await trade.getAmountsOut(tokenIn.value.toString(), path);
+      const valInWei = web3.utils.toWei(val.toString());
+      let amountOut = valInWei;
 
-      // TODO: this doesnt make sense, how do I know the pool out before I call the calc function
-      // TODO: this COULD mean that the pool out isnt considered and I simply put the token out from the swap path
+      if (tokenIn.info.address.toLowerCase() !== baseAddress.toLowerCase()) {
+        console.log('Getting base amount in.');
+        const amountsOut = await trade.getAmountsOut(val.toString(), path);
+        const bn = new BigNumber(amountsOut[amountsOut.length - 1]);
+        amountOut = bn.toPrecision();
+      }
+
+      console.log('Amount out', amountOut);
+
       const stakeInfo: IStakeInfo = {
-        meta: [tokenOut.info?.pool, accountId, refAddress, config?.custom[chainId].uniV2AdapterAddress],
-        uints: ['', '0', baseAmountIn[0]],
+        meta: [tokenOut.info.pool, accountId, refAddress, config.custom[chainId].uniV2AdapterAddress],
+        uints: ['0', '0', val.toString()],
         path,
       };
 
-      const sharesReceived = await stake?.calcPoolOutGivenTokenIn(stakeInfo);
-
-      if (sharesReceived) setSharesReceived(new BigNumber(sharesReceived));
+      try {
+        const calcResponse = await stake?.calcPoolOutGivenTokenIn(stakeInfo);
+        console.log(calcResponse);
+        const fromWei = (amt: string) => web3.utils.fromWei(amt);
+        if (calcResponse) {
+          const { poolAmountOut, dataxFee, refFee } = calcResponse;
+          setSharesReceived(new BigNumber(fromWei(poolAmountOut)));
+          setDataxFee(fromWei(dataxFee));
+          setRefFee(fromWei(refFee));
+        }
+      } catch (error) {
+        console.error(error);
+      }
     }
   }
 
