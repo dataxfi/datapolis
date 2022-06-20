@@ -21,13 +21,13 @@ export default function PositionBox({
 
   useEffect(() => {
     if (!chainId || !web3 || !accountId || !tokensCleared.current) return;
-    if (tokenOut.info?.pool) {
-      stake?.getPoolDetails(tokenOut.info.pool).then(updateToken);
+    if (tokenOut.info?.pools[0].id) {
+      stake?.getPoolDetails(tokenOut.info.pools[0].id).then(updateToken).catch(console.error);
     }
   }, [chainId, web3, accountId, tokenOut.info?.address, tokensCleared]);
 
   async function updateToken(pool: IPoolDetails) {
-    if (!accountId || !trade) return;
+    if (!accountId || !trade || !config || !refAddress) return;
     try {
       if (setLoading) setLoading(true);
       const { id, baseToken, datatoken, baseTokenLiquidity, datatokenLiquidity } = pool;
@@ -44,9 +44,9 @@ export default function PositionBox({
       setDtToOcean(new BigNumber(res2));
 
       const stakeInfo = {
-        meta: [id, accountId, refAddress, config?.custom.uniV2AdapterAddress],
+        meta: [id, accountId, refAddress, config.custom.uniV2AdapterAddress],
         path: [baseToken.address],
-        uints: ['0', '0', myPoolShares || "0"],
+        uints: ['0', '0', myPoolShares || '0'],
       };
 
       const response = await stake?.calcTokenOutGivenPoolIn(stakeInfo);

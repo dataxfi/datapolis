@@ -29,7 +29,7 @@ export default function TokenModal() {
     setTokenOut,
     showTokenModal,
     setImportPool,
-    trade
+    trade,
   } = useContext(GlobalContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -39,16 +39,22 @@ export default function TokenModal() {
   useTokenList({ setLoading, setError });
   const initialChain = useRef(chainId);
   useEffect(() => {
-    if (chainId !== initialChain.current) closeModal();
+    if (chainId !== initialChain.current) {
+      console.log('closing due to chain');
+      closeModal();
+      initialChain.current = chainId;
+    }
   }, [chainId]);
 
   useEffect(() => {
     if (!datatokens && accountId) {
       setLoading(true);
       setError(false);
-    } else {
-      closeModal();
     }
+    // else {
+    //   console.log("Closing here")
+    //   closeModal();
+    // }
   }, [dtTokenResponse, datatokens]);
 
   useEffect(() => {
@@ -96,6 +102,7 @@ export default function TokenModal() {
   };
 
   function closeModal() {
+    console.log('Closing token modal');
     setShowTokenModal(false);
     setBlurBG(false);
     setShowDtks(true);
@@ -114,6 +121,7 @@ export default function TokenModal() {
 
       closeModal();
       let setToken: React.Dispatch<SetStateAction<IToken>> = setTokenIn;
+      console.log(token, selectTokenPos.current);
       switch (selectTokenPos.current) {
         case 1:
           setToken = setTokenIn;
@@ -122,7 +130,7 @@ export default function TokenModal() {
           setToken = setTokenOut;
           break;
         default:
-          if (token.pool) setImportPool(token.pool);
+          setImportPool(token.pools[0].id);
           break;
       }
       if (setToken) setToken({ ...INITIAL_TOKEN_STATE, info: token });

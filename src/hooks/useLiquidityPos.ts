@@ -89,12 +89,12 @@ export default function useLiquidityPos(
   }, [updatePool, loading]);
 
   async function updateSingleStakePool(poolAddress: string): Promise<ILiquidityPosition | void> {
-    if (!accountId || !web3 || !chainId || !stake || !config) return;
+    if (!accountId || !web3 || !chainId || !stake || !config || !config.default.oceanTokenAddress) return;
     try {
       poolAddress = poolAddress.toLowerCase();
       const shares = new BigNumber(await stake.sharesBalance(poolAddress, accountId));
-      const token1Info = await getToken(web3, chainId, config.default.oceanTokenAddress, 'exchange');
-      const token2Info = await getToken(web3, chainId, poolAddress, 'pool');
+      const token1Info = await getToken(web3, chainId, config.default.oceanTokenAddress, 'exchange', config);
+      const token2Info = await getToken(web3, chainId, poolAddress, 'pool', config);
       const totalPoolShares = new BigNumber(await stake.getTotalPoolShares(poolAddress));
       const yourPoolSharePerc = shares.div(totalPoolShares).multipliedBy(100);
       const { baseToken, datatoken, baseTokenLiquidity, datatokenLiquidity, totalShares } = await stake.getPoolDetails(

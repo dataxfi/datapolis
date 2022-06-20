@@ -48,9 +48,9 @@ export default function useWatchLocation() {
         }
         break;
       case '/stake':
-        if (tokenOut.info?.pool || tokenIn.info?.address) {
+        if (tokenOut.info?.pools[0].id || tokenIn.info?.address) {
           setSearchParams(
-            { on: chainId, pool: tokenOut.info?.pool || '', in: tokenIn.info?.address || '' },
+            { on: chainId, pool: tokenOut.info?.pools[0].id || '', in: tokenIn.info?.address || '' },
             { replace: true }
           );
         }

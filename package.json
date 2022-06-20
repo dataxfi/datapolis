@@ -8,8 +8,8 @@
   "license": "MIT",
   "dependencies": {
     "@craco/craco": "^6.2.0",
-    "@dataxfi/datax.js": "latest",
-    "@dataxfi/pathfinder": "/Users/keith/Development/hashmesh/pathfinder/dataxfi-pathfinder-1.0.0.tgz",
+    "@dataxfi/datax.js": "file:./dataxfi-datax.js-v1.1.34.tgz",
+    "@dataxfi/pathfinder": "file:./dataxfi-pathfinder-1.0.0.tgz",
     "@walletconnect/web3-provider": "^1.7.3",
     "axios": "^0.21.1",
     "big-number": "^2.0.0",

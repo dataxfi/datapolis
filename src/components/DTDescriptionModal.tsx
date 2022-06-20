@@ -24,7 +24,7 @@ export default function DatasetDescription() {
     t2DIDResponse,
     setT2DIDResponse,
     location,
-    config
+    config,
   } = useContext(GlobalContext);
 
   useEffect(() => {
@@ -35,10 +35,11 @@ export default function DatasetDescription() {
 
   useEffect(() => {
     try {
-      if (tokenOut.info?.pool) {
+      if (tokenOut.info?.pools) {
         console.log(tokenOut);
-        getDID(setT2DIDResponse, tokenOut.info.did);
-        setDID(tokenOut.info.did);
+        getDID(setT2DIDResponse, tokenOut.info.address).then((res) => {
+          if (res) setDID(res);
+        });
       } else {
         setT2DIDResponse(undefined);
       }
@@ -73,7 +74,9 @@ export default function DatasetDescription() {
     <div
       id={`${showDescModal && t2DIDResponse && tokenOut.info ? 'dataset-desc-vis' : 'dataset-desc-invis'}`}
       className={`absolute max-w-[550px] top-1/2 left-1/2 ${
-        showDescModal && t2DIDResponse && tokenOut.info ? '-translate-x-1/2 2lg:-translate-x-full' : 'translate-x-[-225%] 2lg:translate-x-[-260%] 3xl:translate-x-[-400%]'
+        showDescModal && t2DIDResponse && tokenOut.info
+          ? '-translate-x-1/2 2lg:-translate-x-full'
+          : 'translate-x-[-225%] 2lg:translate-x-[-260%] 3xl:translate-x-[-400%]'
       } -translate-y-1/2 items-center w-full transition-transform transform duration-500 px-2`}
     >
       <div className="flex flex-col max-h-[750px] bg-black bg-opacity-90 rounded-lg p-4">
@@ -122,7 +125,7 @@ export default function DatasetDescription() {
                       <div className="flex items-center w-full justify-end text-sm md:text-base">
                         <a
                           rel="noreferrer"
-                          href={config?.default.explorerUri + '/address/' + tokenOut.info?.pool}
+                          href={config?.default.explorerUri + '/address/' + tokenOut.info?.pools[0].id}
                           target="_blank"
                           className="hover:text-gray-400 flex items-center mr-4"
                         >
@@ -206,9 +209,55 @@ export default function DatasetDescription() {
   );
 }
 
-export async function getDID(setT2DIDResponse: React.Dispatch<any>, did: string) {
-  axios
-    .get(`https://v4.aquarius.oceanprotocol.com/api/aquarius/assets/ddo/${did}`)
-    .then(setT2DIDResponse)
-    .catch(console.error);
+export async function getDID(setT2DIDResponse: React.Dispatch<any>, address: string): Promise<string | void> {
+  try {
+    const token = await axios.post('https://v4.aquarius.oceanprotocol.com/api/aquarius/assets/query', {
+      from: 0,
+      query: {
+        bool: {
+          filter: [
+            {
+              term: {
+                'metadata.type': 'dataset',
+              },
+            },
+            {
+              terms: {
+                chainId: [4],
+              },
+            },
+            {
+              term: {
+                _index: 'aquarius',
+              },
+            },
+            {
+              term: {
+                'purgatory.state': false,
+              },
+            },
+            {
+              term: {
+                'datatokens.address': `${address}`,
+              },
+            },
+          ],
+        },
+      },
+      size: 1,
+      sort: {
+        _score: 'desc',
+      },
+    });
+    console.log(token);
+    const did: string = token.data.hits.hits[0]._id;
+    console.log(did);
+    await axios
+      .get(`https://v4.aquarius.oceanprotocol.com/api/aquarius/assets/ddo/${did}`)
+      .then(setT2DIDResponse)
+      .catch(console.error);
+    return did;
+  } catch (error) {
+    console.error('Could not retreive dataset description.');
+  }
 }

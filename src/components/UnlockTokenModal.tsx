@@ -64,7 +64,7 @@ export default function UnlockTokenModal() {
   }, [address, accountId, pool, stake]);
 
   async function unlockTokens(amount: 'perm' | 'once') {
-    if (!preTxDetails || !chainId || !config?.custom[chainId] || !trade) return;
+    if (!preTxDetails || !chainId || !config?.custom || !trade || !tokenIn.info?.address) return;
     setApproving('approving');
     setLastTx({ ...preTxDetails, status: 'Pending' });
 
@@ -84,8 +84,9 @@ export default function UnlockTokenModal() {
       // }
 
       if (location === '/stake') {
-        spender = config?.custom[chainId].stakeRouterAddress;
-        console.log(config?.custom[chainId].stakeRouterAddress, spender);
+        address = tokenIn.info.address;
+        spender = config.custom.stakeRouterAddress;
+        console.log(config.custom.stakeRouterAddress, spender);
       }
 
       try {
@@ -95,17 +96,17 @@ export default function UnlockTokenModal() {
           txReceipt = await trade.approve(address, accountId, new BigNumber(18e10).toString(), spender, false);
           setTokenIn({ ...tokenIn, allowance: new BigNumber(18e10) });
         } else {
-          txReceipt = await trade.approve(address, spender, tokenIn.value.plus(0.001).toString(), accountId, false);
+          txReceipt = await trade.approve(address, accountId, tokenIn.value.plus(0.001).toString(), spender, false);
           setTokenIn({ ...tokenIn, allowance: tokenIn.value.plus(0.001) });
         }
 
-        if(typeof txReceipt !== "string")
-        setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
+        if (typeof txReceipt !== 'string') setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
 
         setApproving('approved');
         setPool(spender);
         setAddress(address);
       } catch (error: any) {
+        console.error(error);
         if (lastTx) setLastTx({ ...lastTx, status: 'Failure' });
         setSnackbarItem({ type: 'error', message: error.error.message, error });
         setShowUnlockTokenModal(false);

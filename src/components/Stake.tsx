@@ -80,10 +80,10 @@ export default function Stake() {
   useEffect(() => {
     console.log(tokenOut.info);
 
-    if (tokenOut.info?.pool && stake) {
-      stake.getBaseToken(tokenOut.info.pool).then(setBaseAddress);
+    if (tokenOut.info?.pools[0].id && stake) {
+      stake.getBaseToken(tokenOut.info?.pools[0].id).then(setBaseAddress);
     }
-  }, [tokenOut.info?.pool, stake]);
+  }, [tokenOut.info?.pools[0].id, stake]);
 
   useEffect(() => {
     if (!tokensCleared.current) return;
@@ -101,7 +101,7 @@ export default function Stake() {
   }, [tokenIn.info?.address, accountId]);
 
   useEffect(() => {
-    getMinAmountIn();
+    if (tokenIn.info?.address && tokenOut.info?.address) getMinAmountIn();
   }, [tokenIn.info?.address, tokenOut.info?.address]);
 
   useEffect(() => {
@@ -154,7 +154,7 @@ export default function Stake() {
 
   async function getMaxStakeAmt() {
     if (tokenOut.info && stake && path) {
-      const max = new BigNumber(await stake.getMaxStakeAmount(tokenOut.info.pool, baseAddress)).dp(5);
+      const max = new BigNumber(await stake.getMaxStakeAmount(tokenOut.info?.pools[0].id, baseAddress)).dp(5);
 
       if (tokenIn.info?.address === baseAddress) return max;
 
@@ -177,23 +177,22 @@ export default function Stake() {
           accountId &&
           chainId &&
           config &&
-          config?.custom[chainId] &&
+          config?.custom &&
           stake &&
           trade
         ) {
-          stake
-            .getAllowance(tokenIn.info?.address, accountId, config.custom[chainId].stakeRouterAddress)
-            .then(async (res) => {
-              if (!tokenIn.info) return;
-              const balance = new BigNumber(await trade.getBalance(tokenIn.info.address, accountId));
-              setTokenIn({
-                ...tokenIn,
-                allowance: new BigNumber(res),
-                balance,
-                value: new BigNumber(0),
-              });
+          stake.getAllowance(tokenIn.info?.address, accountId, config.custom.stakeRouterAddress).then(async (res) => {
+            console.log('Allowance response', res);
+            if (!tokenIn.info) return;
+            const balance = new BigNumber(await trade.getBalance(tokenIn.info.address, accountId));
+            setTokenIn({
+              ...tokenIn,
+              allowance: new BigNumber(res),
+              balance,
+              value: new BigNumber(0),
             });
-          if (tokenOut.info?.pool && tokenIn.info?.address && path && refAddress) {
+          });
+          if (tokenOut.info?.pools[0].id && tokenIn.info?.address && path && refAddress) {
             getPostExchange();
           }
         }
@@ -210,18 +209,18 @@ export default function Stake() {
 
   async function getPostExchange() {
     if (
-      tokenOut.info?.pool &&
+      tokenOut.info?.pools[0].id &&
       tokenIn.info?.address &&
       path &&
       refAddress &&
       accountId &&
       chainId &&
-      config?.custom[chainId].uniV2AdapterAddress &&
+      config?.custom.uniV2AdapterAddress &&
       web3 &&
       baseAddress
     ) {
       const stakeInfo: IStakeInfo = {
-        meta: [tokenOut.info.pool, accountId, refAddress, config.custom[chainId].uniV2AdapterAddress],
+        meta: [tokenOut.info?.pools[0].id, accountId, refAddress, config.custom.uniV2AdapterAddress],
         uints: ['0', '0', '1'],
         path: [baseAddress],
       };
@@ -238,8 +237,37 @@ export default function Stake() {
   }
 
   async function stakeHandler(preTxDetails: ITxDetails) {
+    console.log(
+      tokenOut,
+      chainId,
+      accountId,
+      tokenIn.info?.address,
+      refAddress,
+      config,
+      stake,
+      trade,
+      path,
+      preTxDetails,
+      preTxDetails.txType ,
+      web3
+    );
+    console.log(
+      !tokenOut.info?.pools[0].id,
+      !chainId,
+      !accountId,
+      !tokenIn.info?.address,
+      !refAddress,
+      !config,
+      !stake,
+      !trade,
+      !path,
+      !preTxDetails,
+      preTxDetails.txType !== 'stake',
+      !web3
+    );
+
     if (
-      !tokenOut.info?.pool ||
+      !tokenOut.info?.pools[0].id ||
       !chainId ||
       !accountId ||
       !tokenIn.info?.address ||
@@ -261,7 +289,7 @@ export default function Stake() {
 
       // ? calcSlippage(new BigNumber(amountOutBase), slippage, 1)
       const stakeInfo: IStakeInfo = {
-        meta: [tokenOut.info.pool, accountId, refAddress, config.custom[chainId].uniV2AdapterAddress],
+        meta: [tokenOut.info?.pools[0].id, accountId, refAddress, config.custom.uniV2AdapterAddress],
         uints: [sharesReceived.toString(), '0', tokenIn.value.toString()],
         path,
       };
@@ -269,13 +297,13 @@ export default function Stake() {
       console.log(stakeInfo);
 
       const txReceipt =
-        tokenIn.info?.address === config?.custom[chainId].nativeAddress
+        tokenIn.info?.address === config?.custom.nativeAddress
           ? await stake.stakeETHInDTPool(stakeInfo, accountId)
           : await stake.stakeTokenInDTPool(stakeInfo, accountId);
 
       setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
       transactionTypeGA('stake');
-      setImportPool(tokenOut.info.pool);
+      setImportPool(tokenOut.info?.pools[0].id);
     } catch (error: any) {
       console.error(error);
       setLastTx({ ...preTxDetails, status: 'Failure' });
@@ -294,7 +322,7 @@ export default function Stake() {
   }
 
   async function setMaxStake() {
-    if (!tokenOut.info?.pool || !stake || !maxStakeAmt) return;
+    if (!tokenOut.info?.pools[0].id || !stake || !maxStakeAmt) return;
 
     if (maxStakeAmt.isNaN()) {
       setTokenIn({ ...tokenIn, value: new BigNumber(0) });
@@ -331,7 +359,7 @@ export default function Stake() {
     // }
 
     if (
-      tokenOut.info?.pool &&
+      tokenOut.info?.pools[0].id &&
       tokenIn.info?.address &&
       val &&
       path &&
@@ -355,7 +383,7 @@ export default function Stake() {
       console.log('Amount out', amountOut);
 
       const stakeInfo: IStakeInfo = {
-        meta: [tokenOut.info.pool, accountId, refAddress, config.custom[chainId].uniV2AdapterAddress],
+        meta: [tokenOut.info?.pools[0].id, accountId, refAddress, config.custom.uniV2AdapterAddress],
         uints: ['0', '0', val.toString()],
         path,
       };
@@ -381,7 +409,7 @@ export default function Stake() {
       <DatasetDescription />
       <div
         className={`absolute w-full max-w-[32rem] top-1/2 left-1/2 transition-transform transform duration-500 ${
-          showDescModal && tokenOut.info?.pool ? 'translate-x-full 2lg:translate-x-[10%]' : '-translate-x-1/2'
+          showDescModal && tokenOut.info?.pools[0].id ? 'translate-x-full 2lg:translate-x-[10%]' : '-translate-x-1/2'
         } -translate-y-1/2 `}
       >
         <div className="flex h-full w-full items-center justify-center">

@@ -75,7 +75,7 @@ export default function Unstake() {
     if (singleLiquidityPos?.address && stake) {
       stake.getBaseToken(singleLiquidityPos.address).then(setBaseAddress);
     }
-  }, [tokenOut.info?.pool, stake]);
+  }, [tokenOut.info?.pools[0].id, stake]);
 
   useEffect(() => {
     if (singleLiquidityPos) {
@@ -95,7 +95,7 @@ export default function Unstake() {
 
       try {
         // .98 is a fix for the MAX_OUT_RATIO error from the contract
-        if (!stake || !singleLiquidityPos || !singleLiquidityPos.address || !refAddress || !config || !path) return;
+        if (!stake || !singleLiquidityPos || !singleLiquidityPos.address || !refAddress || !config || !path || !accountId) return;
         const stakeAmt: BigNumber = new BigNumber(
           await stake.getMaxUnstakeAmount(singleLiquidityPos.address, baseAddress)
         ).multipliedBy(0.98);
@@ -138,12 +138,12 @@ export default function Unstake() {
       });
     }
 
-    if (singleLiquidityPos?.address) {
-      stake
-        ?.getstakeRemovedforPoolShares(singleLiquidityPos.address, '1')
-        .then((res) => setPostExchange(new BigNumber(res)))
-        .catch(console.error);
-    }
+    // if (singleLiquidityPos?.address) {
+    //   stake
+    //     ?.getstakeRemovedforPoolShares(singleLiquidityPos.address, '1')
+    //     .then((res) => setPostExchange(new BigNumber(res)))
+    //     .catch(console.error);
+    // }
   }, [stake, singleLiquidityPos?.address, tokenOut.info?.address, accountId]);
 
   useEffect(() => {
@@ -199,8 +199,11 @@ export default function Unstake() {
         maxUnstake?.base.gt(0) ? (max = maxUnstake) : (max = await getMaxUnstake(getNewSignal()));
 
         if (max && max.base.gt(0) && max.shares.gt(0) && stake && singleLiquidityPos && path) {
+          // set remove percent to percInput initially before validation
           let percInput: BigNumber = new BigNumber(val);
           setRemovePercent(percInput);
+
+          //if perc input is <= to zero set everything to zero
           if (percInput.lte(0)) {
             setSharesToRemove(new BigNumber(0));
             setRemovePercent(new BigNumber(0));
@@ -209,43 +212,48 @@ export default function Unstake() {
             return resolve(0);
           }
 
+          // if the perc input is >= 100 set input to 100
           if (percInput.gte(100)) {
             val = '100';
             percInput = new BigNumber(100);
             setRemovePercent(new BigNumber(100));
           }
 
-          if (percInput.gt(0) && percInput.lte(100)) setRemovePercent(percInput);
+          // calculate the amount of shares to unstake from perc input
 
-          let calcResponseUserTotalOut = await stake.calcTokenOutGivenPoolIn({
-            meta: [singleLiquidityPos.address, accountId, refAddress, config?.custom.uniV2AdapterAddress],
-            uints: ["0", "0", singleLiquidityPos.shares.toString()],
-            path,
-          });
 
-          const userTotalStakedstake: BigNumber = new BigNumber(calcResponseUserTotalOut.poolAmountOut || 0);
+          // let calcUserTotalStakeOut = await stake.calcTokenOutGivenPoolIn({
+          //   meta: [singleLiquidityPos.address, accountId, refAddress, config?.custom.uniV2AdapterAddress],
+          //   uints: ["0", "0", singleLiquidityPos.shares.toString()],
+          //   path,
+          // });
 
-          const stakeFromPerc: BigNumber = userTotalStakedstake.times(percInput).div(100);
+          // const userTotalStakedstake: BigNumber = new BigNumber(calcUserTotalStakeOut.poolAmountOut || 0);
 
-          const sharesNeeded = new BigNumber(
-            await stake.getPoolSharesRequiredToUnstake(
-              singleLiquidityPos.address,
-              stake.config.default.stakeTokenAddress,
-              stakeFromPerc.toFixed(18)
-            )
-          );
+          // const stakeFromPerc: BigNumber = userTotalStakedstake.times(percInput).div(100);
 
-          if (max?.base?.gt(stakeFromPerc)) {
-            setSharesToRemove(sharesNeeded);
-            setRemovePercent(new BigNumber(val));
-            setTokenOut({ ...tokenOut, value: stakeFromPerc });
-            resolve(stakeFromPerc);
-          } else {
-            setSharesToRemove(max.shares);
-            setRemovePercent(max.base.div(userTotalStakedstake).times(100));
-            setTokenOut({ ...tokenOut, value: max.base });
-            resolve(max.base);
-          }
+          // const calcSharesNeededForPercInput : BigNumber = await stake.calcPoolInGivenTokenOut(){
+
+          // }
+          // const sharesNeeded = new BigNumber(
+          //   await stake.getPoolSharesRequiredToUnstake(
+          //     singleLiquidityPos.address,
+          //     stake.config.default.stakeTokenAddress,
+          //     stakeFromPerc.toFixed(18)
+          //   )
+          // );
+
+          // if (max?.base?.gt(stakeFromPerc)) {
+          //   setSharesToRemove(sharesNeeded);
+          //   setRemovePercent(new BigNumber(val));
+          //   setTokenOut({ ...tokenOut, value: stakeFromPerc });
+          //   resolve(stakeFromPerc);
+          // } else {
+          //   setSharesToRemove(max.shares);
+          //   setRemovePercent(max.base.div(userTotalStakedstake).times(100));
+          //   setTokenOut({ ...tokenOut, value: max.base });
+          //   resolve(max.base);
+          // }
 
           setCalculating(false);
         }
@@ -261,28 +269,28 @@ export default function Unstake() {
     const max: IMaxUnstake | void = maxUnstake?.base.gt(0) ? maxUnstake : await getMaxUnstake(getNewSignal());
 
     try {
-      const userTotalStakedstake: BigNumber = new BigNumber(
-        await stake.getstakeRemovedforPoolShares(singleLiquidityPos.address, singleLiquidityPos.shares.toString())
-      );
+      // const userTotalStakedstake: BigNumber = new BigNumber(
+      //   await stake.getstakeRemovedforPoolShares(singleLiquidityPos.address, singleLiquidityPos.shares.toString())
+      // );
 
-      // find whether user staked stakes is greater or lesser than max unstake
-      if (userTotalStakedstake.gt(max?.base)) {
-        setSharesToRemove(max.shares);
-        setRemovePercent(max.base.div(userTotalStakedstake).times(100));
-        setTokenOut({ ...tokenOut, value: max.base });
-      } else {
-        const sharesNeeded = new BigNumber(
-          await stake.getPoolSharesRequiredToUnstake(
-            singleLiquidityPos.address,
-            stake.config.default.stakeTokenAddress,
-            userTotalStakedstake.toFixed(18)
-          )
-        );
+      // // find whether user staked stakes is greater or lesser than max unstake
+      // if (userTotalStakedstake.gt(max?.base)) {
+      //   setSharesToRemove(max.shares);
+      //   setRemovePercent(max.base.div(userTotalStakedstake).times(100));
+      //   setTokenOut({ ...tokenOut, value: max.base });
+      // } else {
+      //   const sharesNeeded = new BigNumber(
+      //     await stake.getPoolSharesRequiredToUnstake(
+      //       singleLiquidityPos.address,
+      //       stake.config.default.stakeTokenAddress,
+      //       userTotalStakedstake.toFixed(18)
+      //     )
+      //   );
 
-        setSharesToRemove(sharesNeeded);
-        setRemovePercent(new BigNumber(100));
-        setTokenOut({ ...tokenOut, value: userTotalStakedstake });
-      }
+      //   setSharesToRemove(sharesNeeded);
+      //   setRemovePercent(new BigNumber(100));
+      //   setTokenOut({ ...tokenOut, value: userTotalStakedstake });
+      // }
     } catch (error) {
       console.error(error);
     } finally {

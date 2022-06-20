@@ -20,10 +20,10 @@ export default function usePathfinder(tokenIn: string, tokenOut: string) {
         // setPath(['0xc778417E063141139Fce010982780140Aa0cD5Ab','0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735']);
 
         // OCEAN
-        // setPath(['0x8967bcf84170c91b0d24d4302c2376283b0b3a07']);
+        setPath(['0x8967bcf84170c91b0d24d4302c2376283b0b3a07']);
 
         // ETH->OCEAN
-        setPath(['0xc778417E063141139Fce010982780140Aa0cD5Ab', '0x8967bcf84170c91b0d24d4302c2376283b0b3a07']);
+        // setPath(['0xc778417E063141139Fce010982780140Aa0cD5Ab', '0x8967bcf84170c91b0d24d4302c2376283b0b3a07']);
         return;
       }
 

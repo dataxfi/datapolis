@@ -114,7 +114,7 @@ export default function TokenSelect({
                 <div className="grid grid-flow-col justify-start gap-4 text-sm">
                   <a
                     id="stakePoolLink"
-                    href={config?.default.explorerUri + '/address/' + token.info?.pool}
+                    href={config?.default.explorerUri + '/address/' + token.info?.pools[0].id}
                     target="_blank"
                     rel="noreferrer"
                     className="text-white grid grid-flow-col items-center gap-2 justify-start border-b border-gray-300"
