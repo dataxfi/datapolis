@@ -78,7 +78,7 @@ export default function Stake() {
   }, [baseAddress, web3]);
 
   useEffect(() => {
-    console.log(tokenOut.info);
+    // console.log(tokenOut.info);
 
     if (tokenOut.info?.pools[0].id && stake) {
       stake.getBaseToken(tokenOut.info?.pools[0].id).then(setBaseAddress);
@@ -87,10 +87,12 @@ export default function Stake() {
 
   useEffect(() => {
     if (!tokensCleared.current) return;
-    if (tokenIn.info && tokenOut.info) {
+    console.log('max stake useEffect conditional', !!tokenIn.info, !!tokenOut.info, !!path);
+    if (tokenIn.info && tokenOut.info && path) {
+      console.log('Getting max stake');
       getMaxAndAllowance();
     }
-  }, [tokenIn.info?.address, tokenOut.info?.address, tokensCleared, accountId]);
+  }, [tokenIn.info?.address, tokenOut.info?.address, tokensCleared, accountId, path?.length]);
 
   useEffect(() => {
     if (tokenIn.info && !tokenOut.info && trade && accountId) {
@@ -153,10 +155,11 @@ export default function Stake() {
   }, [accountId, chainId, tokenOut, tokenIn.value, tokenIn.balance, loading, tokenIn.info, lastTx?.status]);
 
   async function getMaxStakeAmt() {
+    console.log('Can get max stake', !!tokenOut.info, !!stake, !!path);
     if (tokenOut.info && stake && path) {
       const max = new BigNumber(await stake.getMaxStakeAmount(tokenOut.info?.pools[0].id, baseAddress)).dp(5);
-
-      if (tokenIn.info?.address === baseAddress) return max;
+      console.log('token in is base', tokenIn.info?.address.toLowerCase() === baseAddress.toLowerCase());
+      if (tokenIn.info?.address.toLowerCase() === baseAddress.toLowerCase()) return max;
 
       const maxIn = await trade?.getAmountsIn(maxStakeAmt.toString(), path);
       if (maxIn) return new BigNumber(maxIn[0]);
@@ -166,6 +169,7 @@ export default function Stake() {
   async function getMaxAndAllowance() {
     getMaxStakeAmt()
       .then((res: BigNumber | void | undefined) => {
+        console.log('Max stake is', res?.toString());
         if (res) {
           setMaxStakeAmt(res);
         }
@@ -227,7 +231,9 @@ export default function Stake() {
 
       const basePostExchange = await stake?.calcTokenOutGivenPoolIn(stakeInfo);
       let postExchange = basePostExchange?.poolAmountOut;
-      if (tokenIn.info.address !== config.default.oceanTokenAddress && basePostExchange) {
+      console.log("Base post exchange", basePostExchange)
+      if (tokenIn.info.address.toLowerCase() !== baseAddress.toLowerCase() && !!basePostExchange) {
+        // use 1 (wei) because the amount needed to get 1 of the base token is what is used in post exchange 
         const amountIn = await trade?.getAmountsIn(web3?.utils.toWei('1'), path);
         if (amountIn) postExchange = amountIn[0];
       }
@@ -248,7 +254,7 @@ export default function Stake() {
       trade,
       path,
       preTxDetails,
-      preTxDetails.txType ,
+      preTxDetails.txType,
       web3
     );
     console.log(

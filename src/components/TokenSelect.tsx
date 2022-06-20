@@ -138,7 +138,14 @@ export default function TokenSelect({
           )
         ) : (
           <div className="col-span-3 mt-3 md:mt-0 ">
-            <div className="h-full w-full rounded-lg bg-opacity-100 text-3xl p-1 flex items-center">
+            <div className="h-full w-full rounded-lg bg-opacity-100 text-3xl p-1 flex-col items-center">
+              {token?.balance ? (
+                <p id={`token${pos}-balance`} className="text-sm text-gray-400 whitespace-nowrap text-right">
+                  Balance: {token.balance.dp(3).toString()}
+                </p>
+              ) : (
+                <></>
+              )}
               <div className="flex justify-between items-center bg-black bg-opacity-70 p-1 rounded-lg">
                 <DebounceInput
                   id={`token${pos}-input`}
@@ -160,13 +167,6 @@ export default function TokenSelect({
                   value={token?.value.gt(0) ? token?.value.dp(5).toString() : ''}
                 />
                 <div>
-                  {token?.balance ? (
-                    <p id={`token${pos}-balance`} className="text-sm text-gray-400 whitespace-nowrap text-right">
-                      Balance: {token.balance.dp(3).toString()}
-                    </p>
-                  ) : (
-                    <></>
-                  )}
                   {pos === 2 || location === '/stake/remove' ? null : token?.balance ? (
                     <div className="text-sm text-gray-300 grid grid-flow-col justify-end gap-2 items-center">
                       <MaxToolTip />
