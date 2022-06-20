@@ -1,6 +1,6 @@
 import { createContext, PropsWithChildren, useEffect, useRef, useState } from 'react';
 import Web3 from 'web3';
-import { Ocean, Config, Watcher, IToken, ITList, ITokenInfo, Stake, Trade } from '@dataxfi/datax.js';
+import { Config, Watcher, IToken, ITList, ITokenInfo, Stake, Trade } from '@dataxfi/datax.js';
 import Web3Modal from 'web3modal';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import { disclaimer } from '../components/DisclaimerModal';
@@ -68,7 +68,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [chainId, setChainId] = useState<supportedChains>();
   const [provider, setProvider] = useState<Web3Modal>();
   const [web3, setWeb3] = useState<Web3>();
-  const [ocean, setOcean] = useState<Ocean>();
   const [config, setConfig] = useState<Config>();
   const [watcher, setWatcher] = useState<Watcher>();
   const [stake, setStake] = useState<Stake>();
@@ -263,10 +262,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
       const network: supportedChains = String(_chainId) as supportedChains;
 
-      // This is required to do wallet-specific functions
-      const ocean = new Ocean(web3, network);
-      setOcean(ocean);
-
       const config = new Config(web3, network);
       setConfig(config);
 
@@ -293,7 +288,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   }
 
   /**
-   * Verifies the chain the current wallet is on is supported by DataX before connecting.
+   * Verifies the current chain is supported by DataX before connecting.
    *
    * @param config
    * @param chainId
@@ -303,7 +298,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
   function isSupportedChain(config: Config, chainId: string, account?: string) {
     try {
-      const network = config.getNetwork(chainId);
+      const network = config.getNetwork(chainId as supportedChains);
       connectedToNetworkGA({ network, chainId });
       if (network === 'unknown') {
         setAccountId(undefined);
@@ -368,7 +363,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       const config = new Config(web3, parsedId);
       // console.log("Config for new chain:");
       setConfig(config);
-      setOcean(new Ocean(web3, String(parseInt(chainId))));
       isSupportedChain(config, parsedId, undefined);
     });
 
@@ -393,7 +387,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         chainId,
         provider,
         web3,
-        ocean,
         config,
         unsupportedNet,
         tokensCleared,

@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import useLiquidityPos from '../hooks/useLiquidityPos';
 import BigNumber from 'bignumber.js';
 import { ITxDetails, IBtnProps } from '../utils/types';
-import { getAllowance, getBaseToken } from '../hooks/useTokenList';
+import { getAllowance } from '../hooks/useTokenList';
 import useAutoLoadToken from '../hooks/useAutoLoadToken';
 import TokenSelect from './TokenSelect';
 import PositionBox from './PositionBox';
@@ -28,7 +28,6 @@ const INITIAL_BUTTON_STATE = {
 
 export default function Stake() {
   const {
-    ocean,
     accountId,
     chainId,
     setConfirmingTx,
@@ -81,10 +80,10 @@ export default function Stake() {
   useEffect(() => {
     console.log(tokenOut.info);
 
-    if (tokenOut.info?.pool && ocean) {
-      getBaseToken(tokenOut.info.pool, tokenOut.info.address, ocean).then(setBaseAddress);
+    if (tokenOut.info?.pool && stake) {
+      stake.getBaseToken(tokenOut.info.pool).then(setBaseAddress);
     }
-  }, [tokenOut.info?.pool, ocean]);
+  }, [tokenOut.info?.pool, stake]);
 
   useEffect(() => {
     if (!tokensCleared.current) return;
@@ -94,8 +93,8 @@ export default function Stake() {
   }, [tokenIn.info?.address, tokenOut.info?.address, tokensCleared, accountId]);
 
   useEffect(() => {
-    if (tokenIn.info && !tokenOut.info && ocean && accountId) {
-      ocean.getBalance(tokenIn.info.address, accountId).then((res) => {
+    if (tokenIn.info && !tokenOut.info && trade && accountId) {
+      trade.getBalance(tokenIn.info.address, accountId).then((res) => {
         setTokenIn({ ...tokenIn, balance: new BigNumber(res) });
       });
     }
@@ -151,13 +150,11 @@ export default function Stake() {
         text: 'Stake',
       });
     }
-  }, [accountId, ocean, chainId, tokenOut, tokenIn.value, tokenIn.balance, loading, tokenIn.info, lastTx?.status]);
+  }, [accountId, chainId, tokenOut, tokenIn.value, tokenIn.balance, loading, tokenIn.info, lastTx?.status]);
 
   async function getMaxStakeAmt() {
-    if (tokenOut.info && ocean && path) {
-      const max = new BigNumber(
-        await ocean.getMaxStakeAmount(tokenOut.info.pool || '', ocean.config.default.oceanTokenAddress)
-      ).dp(5);
+    if (tokenOut.info && stake && path) {
+      const max = new BigNumber(await stake.getMaxStakeAmount(tokenOut.info.pool, baseAddress)).dp(5);
 
       if (tokenIn.info?.address === baseAddress) return max;
 
@@ -174,22 +171,28 @@ export default function Stake() {
         }
       })
       .then(() => {
-        if (tokenOut.info && accountId && chainId && ocean && config?.custom[chainId]) {
-          getAllowance(
-            ocean.config.default.oceanTokenAddress,
-            accountId,
-            config.custom[chainId].stakeRouterAddress,
-            ocean
-          ).then(async (res) => {
-            if (!tokenIn.info) return;
-            const balance = new BigNumber(await ocean.getBalance(tokenIn.info.address, accountId));
-            setTokenIn({
-              ...tokenIn,
-              allowance: new BigNumber(res),
-              balance,
-              value: new BigNumber(0),
+        if (
+          tokenIn.info?.address &&
+          tokenOut.info &&
+          accountId &&
+          chainId &&
+          config &&
+          config?.custom[chainId] &&
+          stake &&
+          trade
+        ) {
+          stake
+            .getAllowance(tokenIn.info?.address, accountId, config.custom[chainId].stakeRouterAddress)
+            .then(async (res) => {
+              if (!tokenIn.info) return;
+              const balance = new BigNumber(await trade.getBalance(tokenIn.info.address, accountId));
+              setTokenIn({
+                ...tokenIn,
+                allowance: new BigNumber(res),
+                balance,
+                value: new BigNumber(0),
+              });
             });
-          });
           if (tokenOut.info?.pool && tokenIn.info?.address && path && refAddress) {
             getPostExchange();
           }
@@ -238,7 +241,6 @@ export default function Stake() {
     if (
       !tokenOut.info?.pool ||
       !chainId ||
-      !ocean ||
       !accountId ||
       !tokenIn.info?.address ||
       !refAddress ||
@@ -267,7 +269,9 @@ export default function Stake() {
       console.log(stakeInfo);
 
       const txReceipt =
-        tokenIn.info?.address === config?.custom[chainId].nativeAddress ? await stake.stakeETHInDTPool(stakeInfo, accountId) : await stake.stakeTokenInDTPool(stakeInfo, accountId);
+        tokenIn.info?.address === config?.custom[chainId].nativeAddress
+          ? await stake.stakeETHInDTPool(stakeInfo, accountId)
+          : await stake.stakeTokenInDTPool(stakeInfo, accountId);
 
       setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
       transactionTypeGA('stake');
@@ -290,23 +294,15 @@ export default function Stake() {
   }
 
   async function setMaxStake() {
-    if (!tokenOut.info || !ocean) return;
-    let maxStake: BigNumber | null;
+    if (!tokenOut.info?.pool || !stake || !maxStakeAmt) return;
 
-    if (maxStakeAmt.gt(0)) {
-      maxStake = maxStakeAmt;
-    } else {
-      maxStake = new BigNumber(
-        await ocean.getMaxStakeAmount(tokenOut.info.pool || '', ocean.config.default.oceanTokenAddress)
-      );
-    }
-    if (maxStake.isNaN()) {
+    if (maxStakeAmt.isNaN()) {
       setTokenIn({ ...tokenIn, value: new BigNumber(0) });
     } else {
-      if (tokenIn.balance?.lt(maxStake)) {
+      if (tokenIn.balance?.lt(maxStakeAmt)) {
         setTokenIn({ ...tokenIn, value: tokenIn.balance });
       } else {
-        setTokenIn({ ...tokenIn, value: maxStake.dp(5).minus(1) });
+        setTokenIn({ ...tokenIn, value: maxStakeAmt.dp(5).minus(1) });
       }
     }
   }

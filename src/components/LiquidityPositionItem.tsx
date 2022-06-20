@@ -12,7 +12,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
     token2Info,
     shares,
     dtAmount,
-    oceanAmount,
+    baseAmount,
     yourPoolSharePerc,
     totalPoolShares,
   } = singleLiqPosItem;
@@ -99,7 +99,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                 </div>
                 <div className="justify-self-end">
                   <p id="totalPooled2" className="text-gray-100 text-sm ">
-                    {oceanAmount?.dp(5).toString()}
+                    {baseAmount?.dp(5).toString()}
                   </p>
                 </div>
                 <div id="yourSharesPercTitle">

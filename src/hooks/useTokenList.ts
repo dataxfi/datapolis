@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef } from 'react';
 import { GlobalContext } from '../context/GlobalState';
-import { Config, Ocean, TokenList, ITList, ITokenInfo } from '@dataxfi/datax.js';
+import { Config, TokenList, ITList, ITokenInfo, Stake } from '@dataxfi/datax.js';
 import Web3 from 'web3';
 import axios from 'axios';
 import { supportedChains } from '../utils/types';
@@ -132,8 +132,8 @@ export async function getToken(
   return tokenList?.tokens.find((token) => token.address.toLowerCase() === address.toLowerCase());
 }
 
-export async function getAllowance(tokenAddress: string, accountId: string, router: string, ocean: Ocean) {
-  const allowance = await ocean.getAllowance(tokenAddress, accountId, '0x580DE256179B0F8BEe9A4d882E354967d30a0ef6');
+export async function getAllowance(tokenAddress: string, accountId: string, spender: string, stake: Stake) {
+  const allowance = await stake.getAllowance(tokenAddress, accountId, spender);
   // console.log("Allowance:", allowance);
   return allowance;
 }
@@ -230,8 +230,3 @@ export const oceanTokens = {
   },
 };
 
-export async function getBaseToken(pool: string, datatokenAddress: string, ocean: Ocean): Promise<string> {
-  const details = await ocean.getPoolDetails(pool);
-  console.log(details);
-  return details.tokens.find((address: string) => address !== datatokenAddress);
-}

@@ -15,12 +15,12 @@ function TxHistoryModal() {
     setShowTxHistoryModal,
     chainId,
     accountId,
-    ocean,
     setConfirmingTx,
     setShowTxDone,
     showTxDone,
     confirmingTx,
     setBlurBG,
+    config
   } = useContext(GlobalContext);
 
   const [page, setPage] = useState([0, 5]);
@@ -73,7 +73,7 @@ function TxHistoryModal() {
     } catch (error) {
       console.error(error);
     }
-  }, [txHistory, pendingTxs, chainId, accountId, page, ocean]);
+  }, [txHistory, pendingTxs, chainId, accountId, page]);
 
   function setNewTxHistory() {
     if (!accountId || !chainId) return;
@@ -97,11 +97,11 @@ function TxHistoryModal() {
   }
 
   function parseHistory(history: ITxHistory) {
-    if (!history || !accountId || !ocean) return;
+    if (!history || !accountId || !config) return;
     const txsByDate = [];
     for (const [txDateId, tx] of Object.entries(history)) {
       let txLink = getTxUrl({
-        ocean,
+        config,
         txHash: tx.txReceipt?.transactionHash,
         accountId,
       });

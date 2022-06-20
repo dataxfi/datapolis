@@ -25,11 +25,11 @@ export default function TokenModal() {
     chainId,
     accountId,
     selectTokenPos,
-    ocean,
     setTokenIn,
     setTokenOut,
     showTokenModal,
     setImportPool,
+    trade
   } = useContext(GlobalContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -105,7 +105,7 @@ export default function TokenModal() {
     controller.abort();
     const newController = new AbortController();
     const signal = newController.signal;
-    if (!ocean || !accountId) return;
+    if (!trade || !accountId) return;
 
     return new Promise((resolve, reject) => {
       signal.addEventListener('abort', () => {
@@ -126,7 +126,7 @@ export default function TokenModal() {
           break;
       }
       if (setToken) setToken({ ...INITIAL_TOKEN_STATE, info: token });
-      ocean?.getBalance(token.address, accountId).then((balance) => {
+      trade.getBalance(token.address, accountId).then((balance) => {
         console.log('got balance: ', balance);
 
         if (setToken) setToken({ ...INITIAL_TOKEN_STATE, info: token, balance: new BigNumber(balance) });

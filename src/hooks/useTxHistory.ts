@@ -1,7 +1,7 @@
+import { Config } from '@dataxfi/datax.js';
 import { useEffect, useContext } from 'react';
 import { GlobalContext } from '../context/GlobalState';
 import { ITxHistory } from '../utils/types';
-import { Ocean } from '@dataxfi/datax.js';
 
 export default function useTxHistory() {
   const {
@@ -14,6 +14,7 @@ export default function useTxHistory() {
     lastTx,
     setSnackbarItem,
     setConfirmingTx,
+    config
   } = useContext(GlobalContext);
 
   // initializes transaction history from local storage
@@ -78,12 +79,12 @@ export default function useTxHistory() {
   }, [lastTx]);
 }
 
-export function getTxUrl({ ocean, txHash, accountId }: { ocean: Ocean; txHash?: string | null; accountId: string }) {
+export function getTxUrl({ txHash, accountId, config }: {config: Config, txHash?: string | null; accountId: string }) {
   try {
-    if (txHash && ocean && accountId) {
-      return ocean.config.default.explorerUri + '/tx/' + txHash;
-    } else if (ocean && accountId) {
-      return ocean.config.default.explorerUri + '/address/' + accountId;
+    if (txHash && accountId) {
+      return config.default.explorerUri + '/tx/' + txHash;
+    } else if (config && accountId) {
+      return config.default.explorerUri + '/address/' + accountId;
     } else {
       throw new Error("Couldn't generate transaction URL");
     }

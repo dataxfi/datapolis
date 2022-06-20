@@ -2,6 +2,7 @@ import MobileNavbar from './MobileNavbar';
 import DesktopNavbar from './DesktopNavbar';
 import { useContext } from 'react';
 import { GlobalContext } from '../context/GlobalState';
+import { supportedChains } from '../utils/types';
 
 const text = {
   T_SWAP: 'Trade',
@@ -26,7 +27,7 @@ const Navbar = () => {
 
   function getNetName() {
     if (config) {
-      let network = config.getNetwork(String(chainId));
+      let network = config.getNetwork(String(chainId) as supportedChains);
       if (network !== 'unknown') {
         network = network.charAt(0).toUpperCase() + network.slice(1);
         return <p>{network}</p>;

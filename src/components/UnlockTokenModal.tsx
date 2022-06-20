@@ -10,7 +10,6 @@ export default function UnlockTokenModal() {
   const {
     accountId,
     config,
-    ocean,
     setShowUnlockTokenModal,
     setSnackbarItem,
     lastTx,
@@ -28,7 +27,10 @@ export default function UnlockTokenModal() {
     executeUnlock,
     setExecuteUnlock,
     approving,
-    setApproving, chainId
+    setApproving,
+    chainId,
+    stake,
+    trade,
   } = useContext(GlobalContext);
   const [pool, setPool] = useState<string | null>(null);
   const [address, setAddress] = useState<string | null>(null);
@@ -42,10 +44,10 @@ export default function UnlockTokenModal() {
   useEffect(() => {
     let delay: number | null = 1500;
     let id: NodeJS.Timeout;
-    if (accountId && ocean && pool && address) {
+    if (accountId && pool && address && stake) {
       id = setInterval(
         () =>
-          getAllowance(address, accountId, pool, ocean).then((res) => {
+          getAllowance(address, accountId, pool, stake).then((res) => {
             const allowance = new BigNumber(res);
             if (allowance.gte(tokenIn.value)) {
               setExecuteUnlock(false);
@@ -59,50 +61,49 @@ export default function UnlockTokenModal() {
       );
     }
     return () => clearInterval(id);
-  }, [address, accountId, pool, ocean]);
+  }, [address, accountId, pool, stake]);
 
   async function unlockTokens(amount: 'perm' | 'once') {
-    if (!preTxDetails || !chainId || !config?.custom[chainId]) return;
+    if (!preTxDetails || !chainId || !config?.custom[chainId] || !trade) return;
     setApproving('approving');
     setLastTx({ ...preTxDetails, status: 'Pending' });
 
-    if (ocean) {
-      let pool: string = '';
+    if (stake) {
+      let spender: string = '';
       let address: string = '';
 
-      if (tokenIn.info && tokenOut.info && ocean.isOCEAN(tokenIn.info.address)) {
-        pool = tokenOut.info.pool || '';
-        address = tokenIn.info.address;
-      } else if (tokenIn.info && tokenOut.info && ocean.isOCEAN(tokenOut.info.address)) {
-        pool = tokenIn.info.pool || '';
-        address = tokenIn.info.address;
-      } else if (tokenIn.info) {
-        pool = config?.default.routerAddress;
-        address = tokenIn.info.address;
-      }
+      // if (tokenIn.info && tokenOut.info && ocean.isOCEAN(tokenIn.info.address)) {
+      //   pool = tokenOut.info.pool || '';
+      //   address = tokenIn.info.address;
+      // } else if (tokenIn.info && tokenOut.info && ocean.isOCEAN(tokenOut.info.address)) {
+      //   pool = tokenIn.info.pool || '';
+      //   address = tokenIn.info.address;
+      // } else if (tokenIn.info) {
+      //   pool = config?.custom.uniV2AdapterAddress;
+      //   address = tokenIn.info.address;
+      // }
 
       if (location === '/stake') {
-        // "0x580DE256179B0F8BEe9A4d882E354967d30a0ef6"
-        //
-        pool = config?.custom[chainId].stakeRouterAddress;
-        console.log(config?.custom[chainId].stakeRouterAddress, pool);
+        spender = config?.custom[chainId].stakeRouterAddress;
+        console.log(config?.custom[chainId].stakeRouterAddress, spender);
       }
 
       try {
         if (!accountId || (lastTx?.txType === 'unstake' && !lastTx?.shares)) return;
         let txReceipt;
         if (amount === 'perm') {
-          txReceipt = await ocean.approve(address, pool, new BigNumber(18e10).toString(), accountId);
+          txReceipt = await trade.approve(address, accountId, new BigNumber(18e10).toString(), spender, false);
           setTokenIn({ ...tokenIn, allowance: new BigNumber(18e10) });
         } else {
-          txReceipt = await ocean.approve(address, pool, tokenIn.value.plus(0.001).toString(), accountId);
+          txReceipt = await trade.approve(address, spender, tokenIn.value.plus(0.001).toString(), accountId, false);
           setTokenIn({ ...tokenIn, allowance: tokenIn.value.plus(0.001) });
         }
 
+        if(typeof txReceipt !== "string")
         setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
 
         setApproving('approved');
-        setPool(pool);
+        setPool(spender);
         setAddress(address);
       } catch (error: any) {
         if (lastTx) setLastTx({ ...lastTx, status: 'Failure' });

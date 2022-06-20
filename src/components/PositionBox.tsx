@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { GlobalContext, placeHolderOrContent } from '../context/GlobalState';
 import BigNumber from 'bignumber.js';
 import { IPoolLiquidity } from '../utils/types';
-import { IToken } from '@dataxfi/datax.js';
+import { IPoolDetails, IToken } from '@dataxfi/datax.js';
 
 export default function PositionBox({
   loading,
@@ -16,35 +16,45 @@ export default function PositionBox({
   const [yourLiquidity, setYourLiquidity] = useState<BigNumber>(new BigNumber(0));
   const [yourShares, setYourShares] = useState<BigNumber>(new BigNumber(0));
   const [poolLiquidity, setPoolLiquidity] = useState<IPoolLiquidity | null>(null);
-  const { tokenOut, chainId, web3, ocean, accountId, tokensCleared, setTokenOut } = useContext(GlobalContext);
+  const { tokenOut, chainId, web3, accountId, tokensCleared, setTokenOut, trade, stake, refAddress, config } =
+    useContext(GlobalContext);
 
   useEffect(() => {
-    if (!chainId || !web3 || !ocean || !accountId || !tokensCleared.current) return;
-    if (tokenOut.info && !ocean.isOCEAN(tokenOut.info.address)) {
-      updateToken(tokenOut);
+    if (!chainId || !web3 || !accountId || !tokensCleared.current) return;
+    if (tokenOut.info?.pool) {
+      stake?.getPoolDetails(tokenOut.info.pool).then(updateToken);
     }
-  }, [ocean, chainId, web3, ocean, accountId, tokenOut.info?.address, tokensCleared]);
+  }, [chainId, web3, accountId, tokenOut.info?.address, tokensCleared]);
 
-  async function updateToken(token: IToken) {
-    if (!accountId || !ocean) return;
+  async function updateToken(pool: IPoolDetails) {
+    if (!accountId || !trade) return;
     try {
-      if (!token.info?.pool) throw new Error('Pool attribute is missing from token.');
       if (setLoading) setLoading(true);
-      const { pool } = token.info;
-      setTokenOut(token);
+      const { id, baseToken, datatoken, baseTokenLiquidity, datatokenLiquidity } = pool;
+
       const [res1, res2, myPoolShares, totalPoolShares] = await Promise.all([
-        ocean?.getOceanPerDt(pool),
-        ocean?.getDtPerOcean(pool),
-        ocean?.getMyPoolSharesForPool(pool, accountId),
-        ocean?.getTotalPoolShares(pool),
+        trade?.getSpotPrice(id, baseToken.address, datatoken.address),
+        trade?.getSpotPrice(id, datatoken.address, baseToken.address),
+        stake?.sharesBalance(id, accountId),
+        stake?.getTotalPoolShares(id),
       ]);
-      setYourShares(new BigNumber(myPoolShares));
+
+      if (myPoolShares) setYourShares(new BigNumber(myPoolShares));
       setOceanToDt(new BigNumber(res1));
       setDtToOcean(new BigNumber(res2));
 
-      setYourLiquidity(new BigNumber(await ocean.getOceanRemovedforPoolShares(pool, myPoolShares)));
-      const { dtAmount, oceanAmount } = await ocean.getTokensRemovedforPoolShares(pool, String(totalPoolShares));
-      setPoolLiquidity({ dtAmount: new BigNumber(dtAmount), oceanAmount: new BigNumber(oceanAmount) });
+      const stakeInfo = {
+        meta: [id, accountId, refAddress, config?.custom.uniV2AdapterAddress],
+        path: [baseToken.address],
+        uints: ['0', '0', myPoolShares || "0"],
+      };
+
+      const response = await stake?.calcTokenOutGivenPoolIn(stakeInfo);
+      let poolAmountOut;
+      if (response) poolAmountOut = response.poolAmountOut;
+
+      setYourLiquidity(new BigNumber(poolAmountOut || 0));
+      setPoolLiquidity({ dtAmount: new BigNumber(datatokenLiquidity), oceanAmount: new BigNumber(baseTokenLiquidity) });
     } catch (error) {
       console.error(error);
     } finally {

@@ -6,7 +6,7 @@ import { IoCheckboxOutline } from 'react-icons/io5';
 import { getTxUrl } from '../hooks/useTxHistory';
 import BigNumber from 'bignumber.js';
 export default function Snackbar() {
-  const { snackbarItem, setSnackbarItem, ocean, accountId } = useContext(GlobalContext);
+  const { snackbarItem, setSnackbarItem, accountId, config } = useContext(GlobalContext);
   const [currentNot, setCurrentNot] = useState<ISnackbarItem>();
   const [opacity, setOpacity] = useState<string>('100');
   const [txDetails, setTxDetails] = useState<ITxDetails>();
@@ -26,11 +26,11 @@ export default function Snackbar() {
   }, [snackbarItem, currentNot]);
 
   useEffect(() => {
-    if (ocean && accountId && currentNot?.newTx) {
-      setUrl(getTxUrl({ ocean, accountId, txHash: currentNot.newTx.txReceipt?.transactionHash }));
+    if (accountId && currentNot?.newTx && config) {
+      setUrl(getTxUrl({ config, accountId, txHash: currentNot.newTx.txReceipt?.transactionHash }));
     }
     setTxDetails(currentNot?.newTx);
-  }, [ocean, accountId, currentNot]);
+  }, [accountId, currentNot, config]);
 
   useEffect(() => {
     if ((txDetails || currentNot?.error) && cleanup) {
@@ -83,11 +83,17 @@ export default function Snackbar() {
                 <IoCheckboxOutline size="24" className="text-city-blue" />
                 <div>
                   <p>
-                    {txDetails.txType === 'stake' && txDetails.tokenOut.info ? `Stake ${new BigNumber(txDetails.tokenIn.value).dp(5).toString()} OCEAN in ${
+                    {txDetails.txType === 'stake' && txDetails.tokenOut.info
+                      ? `Stake ${new BigNumber(txDetails.tokenIn.value).dp(5).toString()} OCEAN in ${
                           txDetails.tokenOut.info.symbol
-                        }/OCEAN pool` : txDetails.txType === 'unstake' && txDetails.shares && txDetails.pool ? `Unstake ${new BigNumber(txDetails.shares).dp(5).toString()} ${
+                        }/OCEAN pool`
+                      : txDetails.txType === 'unstake' && txDetails.shares && txDetails.pool
+                      ? `Unstake ${new BigNumber(txDetails.shares).dp(5).toString()} ${
                           txDetails.tokenOut.info?.symbol
-                        } from ${txDetails.pool?.otherToken.symbol}/${txDetails.pool?.baseToken.symbol} pool` : txDetails.txType === 'approve' ? `Unlock ${txDetails.tokenIn.info?.symbol}` : `Trade ${new BigNumber(txDetails.tokenIn.value).dp(5).toString()} ${
+                        } from ${txDetails.pool?.otherToken.symbol}/${txDetails.pool?.baseToken.symbol} pool`
+                      : txDetails.txType === 'approve'
+                      ? `Unlock ${txDetails.tokenIn.info?.symbol}`
+                      : `Trade ${new BigNumber(txDetails.tokenIn.value).dp(5).toString()} ${
                           txDetails.tokenIn.info?.symbol
                         } for ${new BigNumber(txDetails.tokenOut.value).dp(5).toString()} ${
                           txDetails.tokenOut.info?.symbol

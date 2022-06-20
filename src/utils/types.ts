@@ -1,6 +1,6 @@
 import React from 'react';
 import BigNumber from 'bignumber.js';
-import { ITList, ITokenInfo, IToken, Config, Ocean, Watcher, Stake, Trade } from '@dataxfi/datax.js';
+import { ITList, ITokenInfo, IToken, Config, Watcher, Stake, Trade } from '@dataxfi/datax.js';
 import { TransactionReceipt } from 'web3-core';
 import Web3 from 'web3';
 import Web3Modal from 'web3modal';
@@ -93,7 +93,7 @@ export interface ILiquidityPosition {
   // total dt in pool
   dtAmount?: BigNumber;
   // total ocean in pool
-  oceanAmount?: BigNumber;
+  baseAmount?: BigNumber;
   // total shares in pool
   totalPoolShares?: BigNumber;
   // you share percentage in pool
@@ -115,7 +115,6 @@ export interface IDisclaimerSigned {
 
 export type supportedChains = '1' | '4' | '137' | '56' | '1285' | '246';
 export interface globalStates {
-  ocean?: Ocean;
   handleConnect: Function;
   buttonText: string;
   accountId?: string;

@@ -18,13 +18,13 @@ export default function DatasetDescription() {
   const [did, setDID] = useState<string>();
   const {
     setSnackbarItem,
-    ocean,
     tokenOut,
     showDescModal,
     setShowDescModal,
     t2DIDResponse,
     setT2DIDResponse,
     location,
+    config
   } = useContext(GlobalContext);
 
   useEffect(() => {
@@ -122,7 +122,7 @@ export default function DatasetDescription() {
                       <div className="flex items-center w-full justify-end text-sm md:text-base">
                         <a
                           rel="noreferrer"
-                          href={ocean?.config.default.explorerUri + '/address/' + tokenOut.info?.pool}
+                          href={config?.default.explorerUri + '/address/' + tokenOut.info?.pool}
                           target="_blank"
                           className="hover:text-gray-400 flex items-center mr-4"
                         >
@@ -130,7 +130,7 @@ export default function DatasetDescription() {
                         </a>
                         <a
                           rel="noreferrer"
-                          href={ocean?.config.default.explorerUri + '/address/' + tokenOut.info?.address}
+                          href={config?.default.explorerUri + '/address/' + tokenOut.info?.address}
                           target="_blank"
                           className="hover:text-gray-400 flex items-center"
                         >

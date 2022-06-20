@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { GlobalContext, INITIAL_TOKEN_STATE } from '../context/GlobalState';
 import { getToken } from './useTokenList';
 export default function useAutoLoadToken() {
-  const { web3, chainId, setTokenOut, ocean, accountId, setTokenIn, location } =
+  const { web3, chainId, setTokenOut, accountId, setTokenIn, location } =
     useContext(GlobalContext);
 
   const url = useLocation();
@@ -15,7 +15,7 @@ export default function useAutoLoadToken() {
     const outAddress = queryParams.get('out');
 
     function setToken(address: string, isPool: boolean, pos: 1 | 2) {
-      if (!web3 || !chainId || !ocean || !accountId) return;
+      if (!web3 || !chainId || !accountId) return;
       getToken(web3, chainId, address, isPool ? 'pool' : 'exchange').then((info) => {
         if (info) {
           const token = { ...INITIAL_TOKEN_STATE, info };
@@ -35,5 +35,5 @@ export default function useAutoLoadToken() {
     if (outAddress) {
       setToken(outAddress, false, 2);
     }
-  }, [web3, chainId, ocean, location, accountId]);
+  }, [web3, chainId, location, accountId]);
 }

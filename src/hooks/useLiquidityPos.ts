@@ -14,11 +14,12 @@ export default function useLiquidityPos(
     setSingleLiquidityPos,
     chainId,
     accountId,
-    ocean,
     setAllStakedPools,
     tokenIn,
     tokenOut,
     web3,
+    stake,
+    config,
   } = useContext(GlobalContext);
   const location = useLocation();
   const [loading, setLoading] = useState(false);
@@ -28,16 +29,8 @@ export default function useLiquidityPos(
     const queryParams = new URLSearchParams(location.search);
     const pool = queryParams.get('pool');
 
-    if (web3 && ocean && accountId && chainId) {
+    if (web3 && accountId && chainId) {
       let dtPool: string | null = pool;
-      if (
-        dtPool === null &&
-        tokenIn.info &&
-        tokenOut.info &&
-        (ocean.isOCEAN(tokenIn.info.address) || ocean.isOCEAN(tokenOut.info?.address))
-      ) {
-        ocean.isOCEAN(tokenIn.info.address) ? (dtPool = tokenIn.info.pool || '') : (dtPool = tokenOut.info.pool || '');
-      }
 
       const localStoragePoolData = getLocalPoolData(accountId, chainId);
 
@@ -67,7 +60,7 @@ export default function useLiquidityPos(
         });
       }
     }
-  }, [tokenIn.info?.address, tokenOut.info?.address, ocean, accountId, web3]);
+  }, [tokenIn.info?.address, tokenOut.info?.address, accountId, web3]);
 
   const nextToImport = useRef(updatePool);
   useEffect(() => {
@@ -96,23 +89,26 @@ export default function useLiquidityPos(
   }, [updatePool, loading]);
 
   async function updateSingleStakePool(poolAddress: string): Promise<ILiquidityPosition | void> {
-    if (!ocean || !accountId || !web3 || !chainId) return;
+    if (!accountId || !web3 || !chainId || !stake || !config) return;
     try {
       poolAddress = poolAddress.toLowerCase();
-      const shares = new BigNumber(await ocean.getMyPoolSharesForPool(poolAddress, accountId));
-      const token1Info = await getToken(web3, chainId, ocean.config.default.oceanTokenAddress, 'exchange');
+      const shares = new BigNumber(await stake.sharesBalance(poolAddress, accountId));
+      const token1Info = await getToken(web3, chainId, config.default.oceanTokenAddress, 'exchange');
       const token2Info = await getToken(web3, chainId, poolAddress, 'pool');
-      const totalPoolShares = new BigNumber(await ocean.getTotalPoolShares(poolAddress));
+      const totalPoolShares = new BigNumber(await stake.getTotalPoolShares(poolAddress));
       const yourPoolSharePerc = shares.div(totalPoolShares).multipliedBy(100);
-      const { dtAmount, oceanAmount } = await ocean.getTokensRemovedforPoolShares(poolAddress, String(totalPoolShares));
+      const { baseToken, datatoken, baseTokenLiquidity, datatokenLiquidity, totalShares } = await stake.getPoolDetails(
+        poolAddress
+      );
+
       if (token1Info && token2Info) {
         return {
           address: poolAddress,
           accountId,
           totalPoolShares,
           yourPoolSharePerc,
-          dtAmount: new BigNumber(dtAmount),
-          oceanAmount: new BigNumber(oceanAmount),
+          baseAmount: new BigNumber(baseTokenLiquidity),
+          dtAmount: new BigNumber(datatokenLiquidity),
           token1Info,
           token2Info,
           shares,
@@ -149,16 +145,16 @@ export function getLocalPoolData(accountId: string, chainId: string | number): I
   if (!pooldataString) return null;
   const poolData: ILiquidityPosition[] = JSON.parse(pooldataString);
   return poolData.map((pool) => {
-    let { dtAmount, oceanAmount, totalPoolShares, yourPoolSharePerc, shares } = pool;
+    let { dtAmount, baseAmount, totalPoolShares, yourPoolSharePerc, shares } = pool;
     if (dtAmount) dtAmount = new BigNumber(dtAmount);
-    if (oceanAmount) oceanAmount = new BigNumber(oceanAmount);
+    if (baseAmount) baseAmount = new BigNumber(baseAmount);
     if (totalPoolShares) totalPoolShares = new BigNumber(totalPoolShares);
     if (yourPoolSharePerc) yourPoolSharePerc = new BigNumber(yourPoolSharePerc);
     shares = new BigNumber(shares);
     return {
       ...pool,
       dtAmount,
-      oceanAmount,
+      baseAmount,
       totalPoolShares,
       yourPoolSharePerc,
       shares,
