@@ -130,6 +130,7 @@ export default function TokenModal() {
           setToken = setTokenOut;
           break;
         default:
+          console.log("setting pool to import", token.pools[0].id)
           setImportPool(token.pools[0].id);
           break;
       }

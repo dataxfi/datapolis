@@ -55,8 +55,6 @@ export default function PositionBox({
         stake?.sharesBalance(accountId, id.toLowerCase()),
       ]);
 
-      console.log(res1, res2, myPoolShares);
-
       if (myPoolShares) setYourShares(new BigNumber(myPoolShares));
       setOceanToDt(new BigNumber(res1));
       setDtToOcean(new BigNumber(res2));
@@ -67,7 +65,6 @@ export default function PositionBox({
           path: [baseToken.id],
           uints: ['0', '0', myPoolShares],
         };
-        console.log(stakeInfo);
 
         const response = await stake?.calcTokenOutGivenPoolIn(stakeInfo);
         let baseAmountOut;
