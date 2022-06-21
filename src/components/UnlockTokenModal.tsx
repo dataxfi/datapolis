@@ -32,6 +32,7 @@ export default function UnlockTokenModal() {
     chainId,
     stake,
     trade,
+    singleLiquidityPos,
   } = useContext(GlobalContext);
   const [pool, setPool] = useState<string | null>(null);
   const [address, setAddress] = useState<string | null>(null);
@@ -49,8 +50,9 @@ export default function UnlockTokenModal() {
       id = setInterval(
         () =>
           getAllowance(address, accountId, pool, stake).then((res) => {
+            const txAmount = location === 'stake/remove' && preTxDetails?.shares ? preTxDetails?.shares : tokenIn.value;
             const allowance = new BigNumber(res);
-            if (allowance.gte(tokenIn.value)) {
+            if (allowance.gte(txAmount)) {
               setExecuteUnlock(false);
               setPool(null);
               setAddress(null);
@@ -65,7 +67,15 @@ export default function UnlockTokenModal() {
   }, [address, accountId, pool, stake]);
 
   async function unlockTokens(amount: 'perm' | 'once') {
-    if (!preTxDetails || !chainId || !config?.custom || !trade || !tokenIn.info?.address) return;
+    console.log(!preTxDetails, !chainId, !config?.custom, !trade, !tokenIn.info?.address, singleLiquidityPos?.address);
+    if (
+      !preTxDetails ||
+      !chainId ||
+      !config?.custom ||
+      !trade ||
+      (!tokenIn.info?.address && !singleLiquidityPos?.address)
+    )
+      return;
     setApproving('approving');
     setLastTx({ ...preTxDetails, status: 'Pending' });
 
@@ -84,17 +94,23 @@ export default function UnlockTokenModal() {
       //   address = tokenIn.info.address;
       // }
 
-      if (location === '/stake' && tokenOut.info) {
+      if (location !== '/trade' && tokenOut.info) {
         console.log('Getting base address in unlock token modal');
-        const baseAddress = await stake.getBaseToken(tokenOut.info?.pools[0].id);
+        const poolForBaseToken =
+          location === '/stake/remove' ? singleLiquidityPos?.address : tokenOut.info?.pools[0].id;
+        if (!poolForBaseToken) return;
+        const baseAddress = await stake.getBaseToken(poolForBaseToken);
         let contractToAllow;
         console.log('Base address in unlock token modal', baseAddress);
 
-        contractToAllow = getContractToAllow(baseAddress, tokenIn.info.address, config);
+        contractToAllow = config.custom.stakeRouterAddress;
+        if (location !== '/stake/remove' && tokenIn.info?.address)
+          contractToAllow = getContractToAllow(baseAddress, tokenIn.info?.address, config);
 
-        if (contractToAllow) {
-          console.log('token in address, and contract to allow', tokenIn.info.address, contractToAllow);
-          address = tokenIn.info.address;
+        const addressToApprove = location === '/stake/remove' ? singleLiquidityPos?.address : tokenIn.info?.address;
+        if (contractToAllow && addressToApprove) {
+          console.log('token in address, and contract to allow', contractToAllow, contractToAllow);
+          address = addressToApprove;
           spender = contractToAllow;
         }
       }
@@ -106,12 +122,12 @@ export default function UnlockTokenModal() {
           txReceipt = await trade.approve(address, accountId, new BigNumber(18e10).toString(), spender, false);
           setTokenIn({ ...tokenIn, allowance: new BigNumber(18e10) });
         } else {
-          txReceipt = await trade.approve(address, accountId, tokenIn.value.plus(0.001).toString(), spender, false);
+          const txAmount = location === "/stake/remove" ? preTxDetails.shares : tokenIn.value
+          if(txAmount)
+          txReceipt = await trade.approve(address, accountId, txAmount.plus(0.001).toString(), spender, false);
           setTokenIn({ ...tokenIn, allowance: tokenIn.value.plus(0.001) });
         }
-
         if (typeof txReceipt !== 'string') setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
-
         setApproving('approved');
         setPool(spender);
         setAddress(address);
@@ -150,7 +166,8 @@ export default function UnlockTokenModal() {
     }
   }
 
-  return tokenIn.info && preTxDetails && showUnlockTokenModal && executeUnlock ? (
+  console.log(preTxDetails, showUnlockTokenModal, executeUnlock);
+  return preTxDetails && showUnlockTokenModal ? (
     location !== '/moo' ? (
       <CenterModal id="transactionDoneModal" onOutsideClick={close} className="sm:max-w-sm w-full z-30 shadow">
         <div className="bg-black border items-center flex flex-col rounded-lg pb-8 pt-2 px-4 hm-box mx-3">
@@ -168,11 +185,11 @@ export default function UnlockTokenModal() {
               <BiLockOpenAlt size="72px" className="text-city-blue animate-bounce" />
             )}
           </div>
-          <h3 className="text-sm lg:text-2xl pb-5">Unlock {tokenIn.info.symbol}</h3>
+          <h3 className="text-sm lg:text-2xl pb-5">Unlock {tokenIn.info?.symbol}</h3>
           <p className="text-sm lg:text-base text-center pb-5">
             DataX needs your permission to spend{' '}
             {location === remove ? preTxDetails.shares?.dp(5).toString() : tokenIn.value.dp(5).toString()}{' '}
-            {location === remove ? 'shares' : tokenIn.info.symbol}.
+            {location === remove ? 'shares' : tokenIn.info?.symbol}.
           </p>
 
           <button
@@ -216,7 +233,8 @@ export default function UnlockTokenModal() {
 }
 
 export function getContractToAllow(baseAddress: string, tokenAddress: string, config: Config) {
+  console.log(baseAddress, tokenAddress, baseAddress.toLowerCase() == tokenAddress.toLowerCase());
   return baseAddress.toLowerCase() == tokenAddress.toLowerCase()
     ? config?.custom.stakeRouterAddress
-    : config?.custom.stakeRouterAddress;
+    : config?.custom.uniV2AdapterAddress;
 }

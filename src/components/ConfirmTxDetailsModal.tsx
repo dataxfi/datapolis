@@ -160,7 +160,7 @@ export default function ConfirmTxDetailsModal() {
                 <PulseLoader size="2px" color="white" />
               </div>
             ) : (
-              'Confirm Swap'
+              `Confirm`
             )}
           </button>
         </div>

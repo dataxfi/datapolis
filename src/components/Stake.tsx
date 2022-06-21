@@ -297,7 +297,7 @@ export default function Stake() {
       // ? calcSlippage(new BigNumber(amountOutBase), slippage, 1)
       const stakeInfo: IStakeInfo = {
         meta: [tokenOut.info?.pools[0].id, accountId, refAddress, config.custom.uniV2AdapterAddress],
-        uints: [sharesReceived.toString(), '0', tokenIn.value.toString()],
+        uints: [sharesReceived.toString(), '0', "1292471927"],
         path,
       };
 

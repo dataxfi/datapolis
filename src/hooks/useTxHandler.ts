@@ -7,7 +7,9 @@ export default function useTxHandler(
   txFunction: Function,
   executeTx: boolean,
   setExecuteTx: React.Dispatch<SetStateAction<boolean>>,
-  txDetails: { slippage?: BigNumber; postExchange?: BigNumber; shares?: BigNumber; pool?: IPoolMetaData }
+  txDetails: { slippage?: BigNumber; postExchange?: BigNumber; shares?: BigNumber; pool?: IPoolMetaData },
+  allowanceOverride?: BigNumber,
+  txAmountOverride?: BigNumber
 ) {
   const {
     accountId,
@@ -27,7 +29,9 @@ export default function useTxHandler(
   } = useContext(GlobalContext);
 
   useEffect(() => {
-    if (showUnlockTokenModal && tokenIn.allowance?.gt(tokenIn.value)) {
+    const allowanceNeeded = allowanceOverride ? allowanceOverride : tokenIn.allowance;
+    const txAmount = txAmountOverride ? txAmountOverride : tokenIn.value;
+    if (showUnlockTokenModal && allowanceNeeded?.lt(txAmount)) {
       setBlurBG(false);
       setShowUnlockTokenModal(false);
       txFunction(true);
@@ -41,8 +45,12 @@ export default function useTxHandler(
       return;
     }
 
+    const allowanceNeeded = allowanceOverride ? allowanceOverride : tokenIn.allowance;
+    const txAmount = txAmountOverride ? txAmountOverride : tokenIn.value;
+
     if (accountId) {
-      if (tokenIn.allowance?.lt(tokenIn.value)) {
+      if (allowanceNeeded?.lt(txAmount)) {
+        console.log("Token approval needed")
         setPreTxDetails({
           accountId,
           status: 'Pending',
@@ -50,12 +58,15 @@ export default function useTxHandler(
           tokenOut,
           txDateId: Date.now().toString(),
           txType: 'approve',
+          shares: txAmountOverride
         });
         setExecuteUnlock(true);
         setShowUnlockTokenModal(true);
         setBlurBG(true);
         setExecuteTx(false);
       } else if (!txApproved && executeTx) {
+        console.log("TX confirmation needed")
+
         let txType: ITxType;
         switch (location) {
           case '/stake':
@@ -82,6 +93,8 @@ export default function useTxHandler(
         setShowConfirmTxDetails(true);
         setBlurBG(true);
       } else if (executeTx && preTxDetails) {
+        console.log("Executing TX");
+        
         setLastTx(preTxDetails);
         txFunction(preTxDetails);
       }
