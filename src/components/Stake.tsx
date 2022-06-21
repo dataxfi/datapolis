@@ -19,6 +19,7 @@ import TxSettings from './TxSettings';
 import useCalcSlippage from '../hooks/useCalcSlippage';
 import { IStakeInfo } from '@dataxfi/datax.js/dist/@types/stake';
 import usePathfinder from '../hooks/usePathfinder';
+import { getContractToAllow } from './UnlockTokenModal';
 
 const INITIAL_BUTTON_STATE = {
   text: 'Connect wallet',
@@ -78,8 +79,6 @@ export default function Stake() {
   }, [baseAddress, web3]);
 
   useEffect(() => {
-    // console.log(tokenOut.info);
-
     if (tokenOut.info?.pools[0].id && stake) {
       stake.getBaseToken(tokenOut.info?.pools[0].id).then(setBaseAddress);
     }
@@ -155,15 +154,13 @@ export default function Stake() {
   }, [accountId, chainId, tokenOut, tokenIn.value, tokenIn.balance, loading, tokenIn.info, lastTx?.status]);
 
   async function getMaxStakeAmt() {
-    console.log('Can get max stake', !!tokenOut.info, !!stake, !!path);
-    if (tokenOut.info && stake && path) {
-      const max = new BigNumber(await stake.getMaxStakeAmount(tokenOut.info?.pools[0].id, baseAddress)).dp(5);
-      console.log('token in is base', tokenIn.info?.address.toLowerCase() === baseAddress.toLowerCase());
-      if (tokenIn.info?.address.toLowerCase() === baseAddress.toLowerCase()) return max;
-
-      const maxIn = await trade?.getAmountsIn(maxStakeAmt.toString(), path);
-      if (maxIn) return new BigNumber(maxIn[0]);
-    }
+    if (stake && tokenOut.info?.pools[0] && tokenIn.info?.address && path)
+      try {
+        const maxStakeAmt = await stake?.getMaxStakeAmount(tokenOut.info?.pools[0].id, tokenIn.info?.address, path);
+        if (maxStakeAmt) return new BigNumber(maxStakeAmt);
+      } catch (error) {
+        console.error(error);
+      }
   }
 
   async function getMaxAndAllowance() {
@@ -185,20 +182,24 @@ export default function Stake() {
           stake &&
           trade
         ) {
-          stake.getAllowance(tokenIn.info?.address, accountId, config.custom.stakeRouterAddress).then(async (res) => {
-            console.log('Allowance response', res);
-            if (!tokenIn.info) return;
-            const balance = new BigNumber(await trade.getBalance(tokenIn.info.address, accountId));
-            setTokenIn({
-              ...tokenIn,
-              allowance: new BigNumber(res),
-              balance,
-              value: new BigNumber(0),
+          const contractToAllow = getContractToAllow(baseAddress, tokenIn.info.address, config);
+          if (contractToAllow)
+            stake.getAllowance(tokenIn.info?.address, accountId, contractToAllow).then(async (res) => {
+              console.log('Allowance response for contract', res, 'for' + contractToAllow);
+              if (!tokenIn.info) return;
+              const balance = new BigNumber(await trade.getBalance(tokenIn.info.address, accountId));
+              setTokenIn({
+                ...tokenIn,
+                allowance: new BigNumber(res),
+                balance,
+                value: new BigNumber(0),
+              });
             });
-          });
-          if (tokenOut.info?.pools[0].id && tokenIn.info?.address && path && refAddress) {
-            getPostExchange();
-          }
+          //Remove exchange rate logic for time being, can end up
+          // being something like .00088 eth -> 1 OCEAN -> .3950 shares
+          // if (tokenOut.info?.pools[0].id && tokenIn.info?.address && path && refAddress) {
+          //   getPostExchange();
+          // }
         }
       })
       .catch(console.error);
@@ -206,7 +207,7 @@ export default function Stake() {
 
   async function getMinAmountIn() {
     if (path && web3) {
-      const minAmtIn = await trade?.getAmountsIn(web3?.utils.toWei('0.01'), path);
+      const minAmtIn = await trade?.getAmountsIn('0.01', path);
       if (minAmtIn) setMinStakeAmt(new BigNumber(minAmtIn[0]));
     }
   }
@@ -231,10 +232,10 @@ export default function Stake() {
 
       const basePostExchange = await stake?.calcTokenOutGivenPoolIn(stakeInfo);
       let postExchange = basePostExchange?.poolAmountOut;
-      console.log("Base post exchange", basePostExchange)
+      console.log('Base post exchange', basePostExchange);
       if (tokenIn.info.address.toLowerCase() !== baseAddress.toLowerCase() && !!basePostExchange) {
-        // use 1 (wei) because the amount needed to get 1 of the base token is what is used in post exchange 
-        const amountIn = await trade?.getAmountsIn(web3?.utils.toWei('1'), path);
+        // use 1 (eth denom) because the amount needed to get 1 of the base token is what is used in post exchange
+        const amountIn = await trade?.getAmountsIn('1', path);
         if (amountIn) postExchange = amountIn[0];
       }
 
@@ -329,40 +330,39 @@ export default function Stake() {
 
   async function setMaxStake() {
     if (!tokenOut.info?.pools[0].id || !stake || !maxStakeAmt) return;
-
+    console.log(maxStakeAmt.toString());
     if (maxStakeAmt.isNaN()) {
       setTokenIn({ ...tokenIn, value: new BigNumber(0) });
+      setSharesReceived(new BigNumber(0));
+      setDataxFee('0');
+      setRefFee('0');
     } else {
       if (tokenIn.balance?.lt(maxStakeAmt)) {
-        setTokenIn({ ...tokenIn, value: tokenIn.balance });
+        updateNum(tokenIn.balance);
       } else {
-        setTokenIn({ ...tokenIn, value: maxStakeAmt.dp(5).minus(1) });
+        updateNum(maxStakeAmt);
       }
     }
   }
 
-  async function updateNum(val: string | BigNumber, max?: BigNumber) {
+  async function updateNum(val: string | BigNumber) {
     // initially set state to value to persist the max if the user continuously tries to enter over the max (or balance)
     setTokenIn({ ...tokenIn, value: new BigNumber(val) });
     if (!val) {
       setTokenIn({ ...tokenIn, value: new BigNumber(0) });
       return;
     }
+
     val = new BigNumber(val);
+    console.log(val.toString());
 
-    // if (!max) {
-    //   maxStakeAmt.gt(0) ? (max = maxStakeAmt) : (max = await getMaxStakeAmt());
-    // }
-
-    // if (max) {
-    //   if (tokenIn.balance.lt(val)) {
-    //     setTokenIn({ ...tokenIn, value: tokenIn.balance.dp(5) });
-    //   } else if (max.minus(1).lt(val)) {
-    //     setTokenIn({ ...tokenIn, value: max.dp(5).minus(1) });
-    //   } else {
-    //     setTokenIn({ ...tokenIn, value: new BigNumber(val) });
-    //   }
-    // }
+    if (maxStakeAmt) {
+      if (tokenIn.balance.lt(val)) {
+        setTokenIn({ ...tokenIn, value: tokenIn.balance });
+      } else if (maxStakeAmt.lt(val)) {
+        setTokenIn({ ...tokenIn, value: maxStakeAmt });
+      }
+    }
 
     if (
       tokenOut.info?.pools[0].id &&
@@ -376,12 +376,11 @@ export default function Stake() {
       trade &&
       web3
     ) {
-      const valInWei = web3.utils.toWei(val.toString());
-      let amountOut = valInWei;
+      let amountOut = val.toString();
 
       if (tokenIn.info.address.toLowerCase() !== baseAddress.toLowerCase()) {
-        console.log('Getting base amount in.');
-        const amountsOut = await trade.getAmountsOut(val.toString(), path);
+        console.log('Getting base amount in from:', amountOut);
+        const amountsOut = await trade.getAmountsOut(amountOut, path);
         const bn = new BigNumber(amountsOut[amountsOut.length - 1]);
         amountOut = bn.toPrecision();
       }
@@ -390,19 +389,18 @@ export default function Stake() {
 
       const stakeInfo: IStakeInfo = {
         meta: [tokenOut.info?.pools[0].id, accountId, refAddress, config.custom.uniV2AdapterAddress],
-        uints: ['0', '0', val.toString()],
-        path,
+        uints: ['0', '0', amountOut],
+        path: [baseAddress],
       };
 
       try {
         const calcResponse = await stake?.calcPoolOutGivenTokenIn(stakeInfo);
         console.log(calcResponse);
-        const fromWei = (amt: string) => web3.utils.fromWei(amt);
         if (calcResponse) {
           const { poolAmountOut, dataxFee, refFee } = calcResponse;
-          setSharesReceived(new BigNumber(fromWei(poolAmountOut)));
-          setDataxFee(fromWei(dataxFee));
-          setRefFee(fromWei(refFee));
+          if (poolAmountOut) setSharesReceived(new BigNumber(poolAmountOut));
+          setDataxFee(dataxFee);
+          setRefFee(refFee);
         }
       } catch (error) {
         console.error(error);

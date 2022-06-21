@@ -34,7 +34,7 @@ export interface INavText {
 
 export interface IPoolLiquidity {
   dtAmount: BigNumber;
-  oceanAmount: BigNumber;
+  baseAmount: BigNumber;
 }
 
 export interface IPoolMetaData {

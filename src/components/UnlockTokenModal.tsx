@@ -5,6 +5,7 @@ import { MdClose } from 'react-icons/md';
 import BigNumber from 'bignumber.js';
 import { getAllowance } from '../hooks/useTokenList';
 import CenterModal from './CenterModal';
+import { Config } from '@dataxfi/datax.js';
 
 export default function UnlockTokenModal() {
   const {
@@ -83,10 +84,19 @@ export default function UnlockTokenModal() {
       //   address = tokenIn.info.address;
       // }
 
-      if (location === '/stake') {
-        address = tokenIn.info.address;
-        spender = config.custom.stakeRouterAddress;
-        console.log(config.custom.stakeRouterAddress, spender);
+      if (location === '/stake' && tokenOut.info) {
+        console.log('Getting base address in unlock token modal');
+        const baseAddress = await stake.getBaseToken(tokenOut.info?.pools[0].id);
+        let contractToAllow;
+        console.log('Base address in unlock token modal', baseAddress);
+
+        contractToAllow = getContractToAllow(baseAddress, tokenIn.info.address, config);
+
+        if (contractToAllow) {
+          console.log('token in address, and contract to allow', tokenIn.info.address, contractToAllow);
+          address = tokenIn.info.address;
+          spender = contractToAllow;
+        }
       }
 
       try {
@@ -203,4 +213,10 @@ export default function UnlockTokenModal() {
   ) : (
     <></>
   );
+}
+
+export function getContractToAllow(baseAddress: string, tokenAddress: string, config: Config) {
+  return baseAddress.toLowerCase() == tokenAddress.toLowerCase()
+    ? config?.custom.stakeRouterAddress
+    : config?.custom.stakeRouterAddress;
 }

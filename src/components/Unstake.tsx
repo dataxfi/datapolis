@@ -95,7 +95,16 @@ export default function Unstake() {
 
       try {
         // .98 is a fix for the MAX_OUT_RATIO error from the contract
-        if (!stake || !singleLiquidityPos || !singleLiquidityPos.address || !refAddress || !config || !path || !accountId) return;
+        if (
+          !stake ||
+          !singleLiquidityPos ||
+          !singleLiquidityPos.address ||
+          !refAddress ||
+          !config ||
+          !path ||
+          !accountId
+        )
+          return;
         const stakeAmt: BigNumber = new BigNumber(
           await stake.getMaxUnstakeAmount(singleLiquidityPos.address, baseAddress)
         ).multipliedBy(0.98);
@@ -106,10 +115,12 @@ export default function Unstake() {
           path,
         });
 
-        const shareAmt: BigNumber = new BigNumber(calcOut.poolAmountOut);
-
-        const userPerc: BigNumber = shareAmt.div(Number(singleLiquidityPos.shares)).multipliedBy(100);
-        resolve({ base: stakeAmt, shares: shareAmt, userPerc });
+        let shareAmt: BigNumber;
+        if (calcOut.poolAmountOut) {
+          shareAmt = new BigNumber(calcOut.poolAmountOut);
+          const userPerc: BigNumber = shareAmt.div(Number(singleLiquidityPos.shares)).multipliedBy(100);
+          resolve({ base: stakeAmt, shares: shareAmt, userPerc });
+        }
       } catch (error) {
         console.error(error);
       }
@@ -221,7 +232,6 @@ export default function Unstake() {
 
           // calculate the amount of shares to unstake from perc input
 
-
           // let calcUserTotalStakeOut = await stake.calcTokenOutGivenPoolIn({
           //   meta: [singleLiquidityPos.address, accountId, refAddress, config?.custom.uniV2AdapterAddress],
           //   uints: ["0", "0", singleLiquidityPos.shares.toString()],
@@ -272,7 +282,6 @@ export default function Unstake() {
       // const userTotalStakedstake: BigNumber = new BigNumber(
       //   await stake.getstakeRemovedforPoolShares(singleLiquidityPos.address, singleLiquidityPos.shares.toString())
       // );
-
       // // find whether user staked stakes is greater or lesser than max unstake
       // if (userTotalStakedstake.gt(max?.base)) {
       //   setSharesToRemove(max.shares);
@@ -286,7 +295,6 @@ export default function Unstake() {
       //       userTotalStakedstake.toFixed(18)
       //     )
       //   );
-
       //   setSharesToRemove(sharesNeeded);
       //   setRemovePercent(new BigNumber(100));
       //   setTokenOut({ ...tokenOut, value: userTotalStakedstake });

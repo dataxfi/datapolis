@@ -115,16 +115,23 @@ export default function ConfirmTxDetailsModal() {
           <ConfirmTxItem pos={2} />
         </div>
         <div className="w-full h-1px bg-city-blue rounded-full my-3" />
-        <div className="mt-6 flex justify-between">
-          <p className="text-gray-400 text-sm">Exchange rate</p>
-          <p id="confirmSwapModalSwapRate" className="text-gray-400 text-sm grid grid-flow-col items-center gap-2">
-            {postExchangeString}
-            <BsShuffle size={12} />
-          </p>
-        </div>
+        {location === '/trade' ? (
+          <div className="mt-6 flex justify-between">
+            <p className="text-gray-400 text-sm">Exchange rate</p>
+            <p id="confirmSwapModalSwapRate" className="text-gray-400 text-sm grid grid-flow-col items-center gap-2">
+              {postExchangeString}
+              <BsShuffle size={12} />
+            </p>
+          </div>
+        ) : (
+          <></>
+        )}
         <div className="my-2 p-2 bg-city-blue bg-opacity-30 rounded-lg">
           {/* <ConfirmSwapListItem name="Route" value="ETH > KNC" /> */}
-          <ConfirmTxListItem name={minOrMax} value={`${afterSlippage.dp(5).toString()} ${location === '/stake/remove' ? 'Shares' : ''}`} />
+          <ConfirmTxListItem
+            name={minOrMax}
+            value={`${afterSlippage.dp(5).toString()} ${location === '/stake/remove' ? 'Shares' : ''}`}
+          />
           {/* <ConfirmSwapListItem name="Price impact" value="-0.62%" valueClass="text-green-500" /> */}
           <ConfirmTxListItem
             name={`${txTitle} Fee`}
@@ -135,7 +142,9 @@ export default function ConfirmTxDetailsModal() {
         </div>
         <div className="mt-4">
           <p className="text-gray-300 text-sm">
-            {exactToken === 1 ? `You will receive at least ${afterSlippageString} or the transaction will revert.` : `You will spend at most ${afterSlippageString} or the transaction will revert.`}
+            {exactToken === 1
+              ? `You will receive at least ${afterSlippageString} or the transaction will revert.`
+              : `You will spend at most ${afterSlippageString} or the transaction will revert.`}
           </p>
         </div>
         <div className="mt-4">

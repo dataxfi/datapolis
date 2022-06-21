@@ -6,7 +6,7 @@ import { IoCheckboxOutline } from 'react-icons/io5';
 import { getTxUrl } from '../hooks/useTxHistory';
 import BigNumber from 'bignumber.js';
 export default function Snackbar() {
-  const { snackbarItem, setSnackbarItem, accountId, config } = useContext(GlobalContext);
+  const { snackbarItem, setSnackbarItem, accountId, config, tokenIn } = useContext(GlobalContext);
   const [currentNot, setCurrentNot] = useState<ISnackbarItem>();
   const [opacity, setOpacity] = useState<string>('100');
   const [txDetails, setTxDetails] = useState<ITxDetails>();
@@ -84,9 +84,9 @@ export default function Snackbar() {
                 <div>
                   <p>
                     {txDetails.txType === 'stake' && txDetails.tokenOut.info
-                      ? `Stake ${new BigNumber(txDetails.tokenIn.value).dp(5).toString()} OCEAN in ${
-                          txDetails.tokenOut.info.symbol
-                        }/OCEAN pool`
+                      ? `Stake ${new BigNumber(txDetails.tokenIn.value).dp(5).toString()} ${
+                          txDetails.tokenIn.info?.symbol
+                        } in ${txDetails.tokenOut.info.symbol}/OCEAN pool`
                       : txDetails.txType === 'unstake' && txDetails.shares && txDetails.pool
                       ? `Unstake ${new BigNumber(txDetails.shares).dp(5).toString()} ${
                           txDetails.tokenOut.info?.symbol
