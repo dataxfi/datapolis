@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom';
 import useLiquidityPos from '../hooks/useLiquidityPos';
 import BigNumber from 'bignumber.js';
 import { ITxDetails, IBtnProps } from '../utils/types';
-import { getAllowance } from '../hooks/useTokenList';
 import useAutoLoadToken from '../hooks/useAutoLoadToken';
 import TokenSelect from './TokenSelect';
 import PositionBox from './PositionBox';
@@ -58,6 +57,7 @@ export default function Stake() {
     spotSwapFee,
     setSwapFee,
     baseMinExchange,
+    meta,
   } = useContext(GlobalContext);
 
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
@@ -210,20 +210,7 @@ export default function Stake() {
   }
 
   async function stakeHandler(preTxDetails: ITxDetails) {
-    if (
-      !tokenOut.info?.pools[0].id ||
-      !chainId ||
-      !accountId ||
-      !tokenIn.info?.address ||
-      !refAddress ||
-      !config ||
-      !stake ||
-      !trade ||
-      !path ||
-      !preTxDetails ||
-      preTxDetails.txType !== 'stake' ||
-      !web3
-    ) {
+    if (!accountId || !stake || !path || preTxDetails?.txType !== 'stake' || !meta) {
       return;
     }
     // TODO: treat this conditional as an error and resolve whatever is falsy, could be a hook
@@ -233,9 +220,9 @@ export default function Stake() {
 
       // ? calcSlippage(new BigNumber(amountOutBase), slippage, 1)
       const stakeInfo: IStakeInfo = {
-        meta: [tokenOut.info?.pools[0].id, accountId, refAddress, config.custom.uniV2AdapterAddress],
-        uints: [sharesReceived.toString(), spotSwapFee, tokenIn.value.toString()],
+        meta,
         path,
+        uints: [sharesReceived.toString(), spotSwapFee, tokenIn.value.toString()],
       };
 
       console.log(stakeInfo);

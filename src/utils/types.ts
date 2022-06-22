@@ -220,6 +220,8 @@ export interface globalStates {
   setPath: React.Dispatch<React.SetStateAction<string[] | undefined>>;
   poolDetails: IPoolDetails | undefined;
   setPoolDetails: React.Dispatch<React.SetStateAction<IPoolDetails | undefined>>;
-  spotSwapFee: string
-  baseMinExchange: string
+  spotSwapFee: string;
+  baseMinExchange: string;
+  meta: string[] | undefined;
+  setMeta: React.Dispatch<React.SetStateAction<string[] | undefined>>;
 }

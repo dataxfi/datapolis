@@ -52,6 +52,7 @@ export default function Unstake() {
     web3,
     baseMinExchange,
     spotSwapFee,
+    meta,
   } = useContext(GlobalContext);
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
   const [btnText, setBtnText] = useState('Enter Amount to Remove');
@@ -62,7 +63,6 @@ export default function Unstake() {
   const [abortCalculation, setAbortCalculation] = useState<AbortController>(new AbortController());
   const [poolMetaData, setPoolMetaData] = useState<IPoolMetaData>();
   const [dataxFee, setDataxFee] = useState<string>();
-  const [meta, setMeta] = useState<string[]>();
   const [allowance, setAllowance] = useState<BigNumber>();
   const [minUnstakeAmt, setMinUnstakeAmt] = useState<BigNumber>();
 
@@ -89,12 +89,6 @@ export default function Unstake() {
   );
   useCalcSlippage(sharesToRemove);
   usePathfinder(tokenOut.info?.address || '', baseAddress);
-
-  useEffect(() => {
-    if (singleLiquidityPos?.address && accountId && refAddress && config?.custom.uniV2AdapterAddress) {
-      setMeta([singleLiquidityPos.address, accountId, refAddress, config.custom.uniV2AdapterAddress]);
-    }
-  }, [singleLiquidityPos?.address, accountId, refAddress, config?.custom.uniV2AdapterAddress]);
 
   useEffect(() => {
     if (singleLiquidityPos?.address && stake) {
@@ -306,7 +300,7 @@ export default function Unstake() {
   }
 
   async function unstake(preTxDetails: ITxDetails) {
-    if (!chainId || !singleLiquidityPos || !stake || !accountId || !preTxDetails || !tokenOut.info || !meta || !path) {
+    if (!chainId || !singleLiquidityPos || !stake || !accountId || !preTxDetails || !meta || !path) {
       // TODO: treat this conditional as an error and resolve whatever is falsy
       return;
     }
@@ -324,7 +318,7 @@ export default function Unstake() {
       console.log(stakeInfo);
 
       const txReceipt =
-        tokenOut.info.address === config?.custom.nativeAddress
+        tokenOut.info?.address === config?.custom.nativeAddress
           ? await stake.unstakeETHFromDTPool(stakeInfo, accountId)
           : await stake.unstakeTokenFromDTPool(stakeInfo, accountId);
 

@@ -115,6 +115,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [afterSlippage, setAfterSlippage] = useState<BigNumber>(new BigNumber(0));
   const [slippage, setSlippage] = useState<BigNumber>(new BigNumber(1));
   const [path, setPath] = useState<string[]>();
+  const [meta, setMeta] = useState<string[]>();
 
   // user pool information states
   const [allStakedPools, setAllStakedPools] = useState<ILiquidityPosition[]>();
@@ -489,6 +490,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setExactToken,
         poolDetails,
         setPoolDetails,
+        meta,
+        setMeta,
       }}
     >
       <>{children}</>
