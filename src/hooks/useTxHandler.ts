@@ -7,7 +7,14 @@ export default function useTxHandler(
   txFunction: Function,
   executeTx: boolean,
   setExecuteTx: React.Dispatch<SetStateAction<boolean>>,
-  txDetails: { slippage?: BigNumber; postExchange?: BigNumber; shares?: BigNumber; pool?: IPoolMetaData },
+  txDetails: {
+    slippage?: BigNumber;
+    postExchange?: BigNumber;
+    shares?: BigNumber;
+    pool?: IPoolMetaData;
+    dataxFee?: string;
+    swapFee?: string;
+  },
   allowanceOverride?: BigNumber,
   txAmountOverride?: BigNumber
 ) {
@@ -50,7 +57,7 @@ export default function useTxHandler(
 
     if (accountId) {
       if (allowanceNeeded?.lt(txAmount)) {
-        console.log("Token approval needed")
+        console.log('Token approval needed');
         setPreTxDetails({
           accountId,
           status: 'Pending',
@@ -58,14 +65,14 @@ export default function useTxHandler(
           tokenOut,
           txDateId: Date.now().toString(),
           txType: 'approve',
-          shares: txAmountOverride
+          shares: txAmountOverride,
         });
         setExecuteUnlock(true);
         setShowUnlockTokenModal(true);
         setBlurBG(true);
         setExecuteTx(false);
       } else if (!txApproved && executeTx) {
-        console.log("TX confirmation needed")
+        console.log('TX confirmation needed');
 
         let txType: ITxType;
         switch (location) {
@@ -93,8 +100,8 @@ export default function useTxHandler(
         setShowConfirmTxDetails(true);
         setBlurBG(true);
       } else if (executeTx && preTxDetails) {
-        console.log("Executing TX");
-        
+        console.log('Executing TX');
+
         setLastTx(preTxDetails);
         txFunction(preTxDetails);
       }

@@ -47,6 +47,8 @@ export default function Unstake() {
     refAddress,
     config,
     trade,
+    swapFee,
+    setSwapFee,
   } = useContext(GlobalContext);
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
   const [btnText, setBtnText] = useState('Enter Amount to Remove');
@@ -58,7 +60,6 @@ export default function Unstake() {
   const [abortCalculation, setAbortCalculation] = useState<AbortController>(new AbortController());
   const [poolMetaData, setPoolMetaData] = useState<IPoolMetaData>();
   const [dataxFee, setDataxFee] = useState<string>();
-  const [refFee, setRefFee] = useState<string>();
   const [meta, setMeta] = useState<string[]>();
   const [allowance, setAllowance] = useState<BigNumber>();
 
@@ -79,7 +80,7 @@ export default function Unstake() {
     unstake,
     executeUnstake,
     setExecuteUnlock,
-    { shares: sharesToRemove, postExchange, pool: poolMetaData },
+    { shares: sharesToRemove, postExchange, pool: poolMetaData, dataxFee, swapFee },
     allowance,
     sharesToRemove
   );
@@ -132,13 +133,6 @@ export default function Unstake() {
         setAllowance(new BigNumber(res));
       }
     });
-
-    // if (singleLiquidityPos?.address) {
-    //   stake
-    //     ?.getstakeRemovedforPoolShares(singleLiquidityPos.address, '1')
-    //     .then((res) => setPostExchange(new BigNumber(res)))
-    //     .catch(console.error);
-    // }
   }, [stake, singleLiquidityPos?.address, tokenOut.info?.address, accountId, trade, path?.length, config]);
 
   useEffect(() => {
@@ -202,7 +196,7 @@ export default function Unstake() {
         // .dp(5); //do we still need this fix? ;
 
         setDataxFee(dataxFee);
-        setRefFee(refFee);
+        setSwapFee(refFee);
         setMaxUnstake({
           maxTokenOut: new BigNumber(maxTokenOut),
           maxPoolTokensIn: new BigNumber(maxPoolTokensIn),
@@ -258,10 +252,11 @@ export default function Unstake() {
           }
 
           // if the perc input is >= 100 or user mac perc, set input to max
-          if (percInput.gte(100) || percInput.gte(maxUnstake.userPerc)) {//
+          if (percInput.gte(100) || percInput.gte(maxUnstake.userPerc)) {
+            //
             return maxUnstakeHandler();
           }
- 
+
           const sharesPerc = percInput.div(100).multipliedBy(singleLiquidityPos.shares).dp(5);
           console.log(sharesPerc.toString());
 
@@ -274,7 +269,7 @@ export default function Unstake() {
           if (baseAmountOut && dataxFee && refFee) {
             setSharesToRemove(sharesPerc);
             setDataxFee(dataxFee);
-            setRefFee(refFee);
+            setSwapFee(refFee);
             setTokenOut({ ...tokenOut, value: new BigNumber(baseAmountOut) });
           }
 
@@ -356,7 +351,7 @@ export default function Unstake() {
     <div className="absolute top-0 w-full h-full">
       {!accountId ? (
         <UserMessage message="Connect your wallet to continue." pulse={false} container={true} />
-      ) : singleLiquidityPos ? (
+      ) : (
         <div className="flex w-full h-full items-center pt-16 px-2">
           <div id="removeStakeModal" className="w-107 mx-auto">
             <div className="mx-auto bg-black opacity-90 w-full rounded-lg p-3 hm-box">
@@ -445,7 +440,7 @@ export default function Unstake() {
               </div>
               <TokenSelect
                 max={maxUnstake.maxTokenOut}
-                otherToken={singleLiquidityPos?.token2Info.symbol}
+                otherToken={singleLiquidityPos?.token2Info.symbol || ''}
                 pos={2}
                 setToken={setTokenOut}
                 token={tokenOut}
@@ -476,8 +471,6 @@ export default function Unstake() {
             </div>
           </div>
         </div>
-      ) : (
-        <></>
       )}
     </div>
   );

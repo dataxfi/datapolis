@@ -26,7 +26,9 @@ export default function CenterModalContainer() {
     showTxHistoryModal ||
     showConfirmTxDetails ||
     showDisclaimer ||
-    showUnlockTokenModal ? setShow(true) : setShow(false);
+    showUnlockTokenModal
+      ? setShow(true)
+      : setShow(false);
   }, [
     showTokenModal,
     showTxDone,
@@ -37,16 +39,18 @@ export default function CenterModalContainer() {
     showUnlockTokenModal,
   ]);
 
-  return (
+  return show ? (
     <div className={`w-full h-full absolute z-20 top-0 left-0 right-0 bottom-0 ${show ? 'block' : 'hidden'}`}>
       <div className="w-full h-full relative">
-        <UnlockTokenModal />
-        <DisclaimerModal />
-        <TxHistoryModal />
-        <TokenModal />
-        <TxDoneModal />
-        <ConfirmTxDetailsModal />
+        {showUnlockTokenModal ? <UnlockTokenModal /> : <></>}
+        {showDisclaimer ? <DisclaimerModal /> : <></>}
+        {showTxHistoryModal ? <TxHistoryModal /> : <></>}
+        {showTokenModal ? <TokenModal /> : <></>}
+        {showTxDone ? <TxDoneModal /> : <></>}
+        {showConfirmTxDetails ? <ConfirmTxDetailsModal /> : <></>}
       </div>
     </div>
+  ) : (
+    <></>
   );
 }

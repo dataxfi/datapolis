@@ -15,10 +15,21 @@ export default function PositionBox({
   const [oceanToDt, setOceanToDt] = useState<BigNumber>(new BigNumber(''));
   const [yourLiquidity, setYourLiquidity] = useState<BigNumber>(new BigNumber(0));
   const [yourShares, setYourShares] = useState<BigNumber>(new BigNumber(0));
-  const [poolLiquidity, setPoolLiquidity] = useState<IPoolLiquidity | null>(null);
-  const [poolDetails, setPoolDetails] = useState<IPoolDetails>();
-  const { tokenOut, chainId, web3, accountId, tokensCleared, setTokenOut, trade, stake, refAddress, config } =
-    useContext(GlobalContext);
+  const [] = useState<IPoolDetails>();
+  const {
+    tokenOut,
+    chainId,
+    web3,
+    accountId,
+    tokensCleared,
+    setTokenOut,
+    trade,
+    stake,
+    refAddress,
+    config,
+    poolDetails,
+    setPoolDetails,
+  } = useContext(GlobalContext);
 
   useEffect(() => {
     if (!chainId || !web3 || !accountId || !tokensCleared.current) return;
@@ -103,10 +114,10 @@ export default function PositionBox({
         {placeHolderOrContent(
           <div id="poolLiquidity" className={`${loading ? 'blur-xs' : ''}`}>
             <p className="text-gray-200 text-xs">
-              {poolDetails?.baseTokenLiquidity} {poolDetails?.baseToken.symbol}
+              {new BigNumber(poolDetails?.baseTokenLiquidity || 0).dp(2).toString()} {poolDetails?.baseToken.symbol}
             </p>
             <p className="text-gray-200 text-xs">
-              {poolDetails?.datatokenLiquidity} {poolDetails?.datatoken.symbol}
+              {new BigNumber(poolDetails?.datatokenLiquidity || 0).dp(2).toString()} {poolDetails?.datatoken.symbol}
             </p>
           </div>,
           '6rem',

@@ -50,7 +50,8 @@ export default function UnlockTokenModal() {
       id = setInterval(
         () =>
           getAllowance(address, accountId, pool, stake).then((res) => {
-            const txAmount = location === 'stake/remove' && preTxDetails?.shares ? preTxDetails?.shares : tokenIn.value;
+            const txAmount =
+              location === '/stake/remove' && preTxDetails?.shares ? preTxDetails?.shares : tokenIn.value;
             const allowance = new BigNumber(res);
             if (allowance.gte(txAmount)) {
               setExecuteUnlock(false);
@@ -122,9 +123,9 @@ export default function UnlockTokenModal() {
           txReceipt = await trade.approve(address, accountId, new BigNumber(18e10).toString(), spender, false);
           setTokenIn({ ...tokenIn, allowance: new BigNumber(18e10) });
         } else {
-          const txAmount = location === "/stake/remove" ? preTxDetails.shares : tokenIn.value
-          if(txAmount)
-          txReceipt = await trade.approve(address, accountId, txAmount.plus(0.001).toString(), spender, false);
+          const txAmount = location === '/stake/remove' ? preTxDetails.shares : tokenIn.value;
+          if (txAmount)
+            txReceipt = await trade.approve(address, accountId, txAmount.plus(0.001).toString(), spender, false);
           setTokenIn({ ...tokenIn, allowance: tokenIn.value.plus(0.001) });
         }
         if (typeof txReceipt !== 'string') setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
@@ -168,67 +169,63 @@ export default function UnlockTokenModal() {
 
   // console.log(preTxDetails, showUnlockTokenModal, executeUnlock);
   return preTxDetails && showUnlockTokenModal ? (
-    location !== '/moo' ? (
-      <CenterModal id="transactionDoneModal" onOutsideClick={close} className="sm:max-w-sm w-full z-30 shadow">
-        <div className="bg-black border items-center flex flex-col rounded-lg pb-8 pt-2 px-4 hm-box mx-3">
-          <div className="flex w-full  justify-end">
-            <button onClick={close}>
-              <MdClose id="closeTokenModalBtn" className="text-gray-100 text-2xl" />
-            </button>
-          </div>
-          <div className="pb-5">
-            {approving === 'pending' ? (
-              <BiLockAlt size="72px" className="text-city-blue" />
-            ) : approving === 'approving' ? (
-              <BiLockAlt size="72px" className="text-city-blue animate-bounce" />
-            ) : (
-              <BiLockOpenAlt size="72px" className="text-city-blue animate-bounce" />
-            )}
-          </div>
-          <h3 className="text-sm lg:text-2xl pb-5">Unlock {tokenIn.info?.symbol}</h3>
-          <p className="text-sm lg:text-base text-center pb-5">
-            DataX needs your permission to spend{' '}
-            {location === remove ? preTxDetails.shares?.dp(5).toString() : tokenIn.value.dp(5).toString()}{' '}
-            {location === remove ? 'shares' : tokenIn.info?.symbol}.
-          </p>
-
-          <button
-            id="perm-unlock-btn"
-            onClick={() => {
-              unlockTokens('perm');
-            }}
-            className="w-full p-2 rounded-lg mb-2 bg-opacity-20 txButton"
-            disabled={!!(approving === 'approving' || pool || address)}
-          >
-            Unlock Permanently
-          </button>
-          <button
-            id="unlock-once-btn"
-            onClick={() => {
-              unlockTokens('once');
-            }}
-            disabled={!!(approving === 'approving' || pool || address)}
-            className="w-full p-2 rounded-lg mb-2 bg-opacity-20 txButton"
-          >
-            Unlock this time only
+    <CenterModal id="unlockTokenModal" onOutsideClick={close} className="sm:max-w-sm w-full z-30 shadow">
+      <div className="bg-black border items-center flex flex-col rounded-lg pb-8 pt-2 px-4 hm-box mx-3">
+        <div className="flex w-full  justify-end">
+          <button onClick={close}>
+            <MdClose id="closeTokenModalBtn" className="text-gray-100 text-2xl" />
           </button>
         </div>
-      </CenterModal>
-    ) : (
-      <div className="mt-4">
+        <div className="pb-5">
+          {approving === 'pending' ? (
+            <BiLockAlt size="72px" className="text-city-blue" />
+          ) : approving === 'approving' ? (
+            <BiLockAlt size="72px" className="text-city-blue animate-bounce" />
+          ) : (
+            <BiLockOpenAlt size="72px" className="text-city-blue animate-bounce" />
+          )}
+        </div>
+        <h3 className="text-sm lg:text-2xl pb-5">Unlock {tokenIn.info?.symbol}</h3>
+        <p className="text-sm lg:text-base text-center pb-5">
+          DataX needs your permission to spend{' '}
+          {location === remove ? preTxDetails.shares?.dp(5).toString() : tokenIn.value.dp(5).toString()}{' '}
+          {location === remove ? 'shares' : tokenIn.info?.symbol}.
+        </p>
+
         <button
-          id="confirmSwapModalBtn"
+          id="perm-unlock-btn"
+          onClick={() => {
+            unlockTokens('perm');
+          }}
+          className="w-full p-2 rounded-lg mb-2 bg-opacity-20 txButton"
+          disabled={!!(approving === 'approving' || pool || address)}
+        >
+          Unlock Permanently
+        </button>
+        <button
+          id="unlock-once-btn"
           onClick={() => {
             unlockTokens('once');
           }}
-          className="px-4 py-2 text-lg w-full txButton rounded-lg"
+          disabled={!!(approving === 'approving' || pool || address)}
+          className="w-full p-2 rounded-lg mb-2 bg-opacity-20 txButton"
         >
-          Confirm swap
+          Unlock this time only
         </button>
       </div>
-    )
+    </CenterModal>
   ) : (
-    <></>
+    <div className="mt-4">
+      <button
+        id="confirmSwapModalBtn"
+        onClick={() => {
+          unlockTokens('once');
+        }}
+        className="px-4 py-2 text-lg w-full txButton rounded-lg"
+      >
+        Confirm swap
+      </button>
+    </div>
   );
 }
 
@@ -236,5 +233,5 @@ export function getContractToAllow(baseAddress: string, tokenAddress: string, co
   console.log(baseAddress, tokenAddress, baseAddress.toLowerCase() == tokenAddress.toLowerCase());
   return baseAddress.toLowerCase() == tokenAddress.toLowerCase()
     ? config?.custom.stakeRouterAddress
-    : config?.custom.uniV2AdapterAddress;
+    : config?.custom.stakeRouterAddress;
 }

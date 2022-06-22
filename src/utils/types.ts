@@ -1,6 +1,6 @@
 import React from 'react';
 import BigNumber from 'bignumber.js';
-import { ITList, ITokenInfo, IToken, Config, Watcher, Stake, Trade } from '@dataxfi/datax.js';
+import { ITList, ITokenInfo, IToken, Config, Watcher, Stake, Trade, IPoolDetails } from '@dataxfi/datax.js';
 import { TransactionReceipt } from 'web3-core';
 import Web3 from 'web3';
 import Web3Modal from 'web3modal';
@@ -50,6 +50,8 @@ export interface ITxDetails {
   tokenOut: IToken;
   status: 'Pending' | 'Indexing' | 'Success' | 'Failure';
   txType: ITxType;
+  dataxFee?: string;
+  swapFee?: string;
   slippage?: BigNumber;
   shares?: BigNumber;
   txReceipt?: TransactionReceipt;
@@ -206,8 +208,8 @@ export interface globalStates {
   setApproving: React.Dispatch<React.SetStateAction<ApprovalStates>>;
   importPool?: string;
   setImportPool: React.Dispatch<React.SetStateAction<string | undefined>>;
-  swapFee: BigNumber;
-  setSwapFee: React.Dispatch<React.SetStateAction<BigNumber>>;
+  swapFee: string;
+  setSwapFee: React.Dispatch<React.SetStateAction<string>>;
   afterSlippage: BigNumber;
   setAfterSlippage: React.Dispatch<React.SetStateAction<BigNumber>>;
   slippage: BigNumber;
@@ -216,4 +218,7 @@ export interface globalStates {
   setExactToken: React.Dispatch<React.SetStateAction<1 | 2>>;
   path: string[] | undefined;
   setPath: React.Dispatch<React.SetStateAction<string[] | undefined>>;
+  poolDetails: IPoolDetails | undefined;
+  setPoolDetails: React.Dispatch<React.SetStateAction<IPoolDetails | undefined>>;
+  spotSwapFee: number
 }

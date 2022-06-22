@@ -5,6 +5,7 @@ import ConfirmTxListItem from './ConfirmTxListItem';
 import { GlobalContext } from '../context/GlobalState';
 import { PulseLoader } from 'react-spinners';
 import CenterModal from './CenterModal';
+import BigNumber from 'bignumber.js';
 
 export default function ConfirmTxDetailsModal() {
   const {
@@ -135,9 +136,9 @@ export default function ConfirmTxDetailsModal() {
           {/* <ConfirmSwapListItem name="Price impact" value="-0.62%" valueClass="text-green-500" /> */}
           <ConfirmTxListItem
             name={`${txTitle} Fee`}
-            value={swapFee?.dp(5).toString() + ' ' + (tokenIn.info?.symbol || 'OCEAN')}
+            value={preTxDetails?.swapFee || "0"}
           />
-          <ConfirmTxListItem name="DataX Fee" value="0" />
+          <ConfirmTxListItem name="DataX Fee" value={preTxDetails?.dataxFee || '0.01%'} />
           <ConfirmTxListItem name="Slippage Tolerance" value={slippage + ' %'} />
         </div>
         <div className="mt-4">

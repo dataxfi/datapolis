@@ -59,6 +59,8 @@ export default function useTokenList({ setLoading, setError }: { setLoading?: Fu
 
 
   function setERC20List(list: ITList) {
+    console.log(list);
+    
     setERC20Tokens(list.tokens);
     setERC20TokenResponse(list);
   }
