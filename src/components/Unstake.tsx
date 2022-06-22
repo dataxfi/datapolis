@@ -49,6 +49,9 @@ export default function Unstake() {
     trade,
     swapFee,
     setSwapFee,
+    web3,
+    baseMinExchange,
+    spotSwapFee,
   } = useContext(GlobalContext);
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
   const [btnText, setBtnText] = useState('Enter Amount to Remove');
@@ -56,12 +59,12 @@ export default function Unstake() {
   const [sharesToRemove, setSharesToRemove] = useState<BigNumber>(new BigNumber(0));
   const [removePercent, setRemovePercent] = useState<BigNumber>(new BigNumber(0));
   const [calculating, setCalculating] = useState<boolean>(false);
-  const [postExchange, setPostExchange] = useState<BigNumber>(new BigNumber(0));
   const [abortCalculation, setAbortCalculation] = useState<AbortController>(new AbortController());
   const [poolMetaData, setPoolMetaData] = useState<IPoolMetaData>();
   const [dataxFee, setDataxFee] = useState<string>();
   const [meta, setMeta] = useState<string[]>();
   const [allowance, setAllowance] = useState<BigNumber>();
+  const [minUnstakeAmt, setMinUnstakeAmt] = useState<BigNumber>();
 
   // Max possible amount of stake to remove
   const [maxUnstake, setMaxUnstake] = useState<IMaxUnstake>({
@@ -80,7 +83,7 @@ export default function Unstake() {
     unstake,
     executeUnstake,
     setExecuteUnlock,
-    { shares: sharesToRemove, postExchange, pool: poolMetaData, dataxFee, swapFee },
+    { shares: sharesToRemove, pool: poolMetaData, dataxFee, swapFee },
     allowance,
     sharesToRemove
   );
@@ -98,10 +101,6 @@ export default function Unstake() {
       stake.getBaseToken(singleLiquidityPos.address).then(setBaseAddress);
     }
   }, [singleLiquidityPos?.address, stake]);
-
-  useEffect(() => {
-    console.log('Base address is', baseAddress);
-  }, [baseAddress, singleLiquidityPos]);
 
   useEffect(() => {
     if (singleLiquidityPos) {
@@ -136,6 +135,12 @@ export default function Unstake() {
   }, [stake, singleLiquidityPos?.address, tokenOut.info?.address, accountId, trade, path?.length, config]);
 
   useEffect(() => {
+    if (path && web3) {
+      trade?.getAmountsOut(baseMinExchange, path).then((res) => setMinUnstakeAmt(new BigNumber(res[res.length - 1])));
+    }
+  }, [path, web3, tokenOut.info?.address]);
+
+  useEffect(() => {
     setInputDisabled(false);
 
     if (!stake || !singleLiquidityPos) {
@@ -157,9 +162,9 @@ export default function Unstake() {
     } else if (sharesToRemove.eq(0) || removePercent.eq(0)) {
       setBtnDisabled(true);
       setBtnText('Enter Amount to Remove');
-    } else if (tokenOut.value.lt(0.01)) {
+    } else if (minUnstakeAmt && tokenOut.value.lt(minUnstakeAmt)) {
       setBtnDisabled(true);
-      setBtnText('Minimum Removal is .01 stake');
+      setBtnText(`Minimum Removal is ${minUnstakeAmt.toString} stake`);
     } else if (allowance?.lt(tokenOut.value)) {
       setBtnDisabled(false);
       setBtnText(`Unlock ${singleLiquidityPos.token1Info.symbol}/${singleLiquidityPos.token2Info.symbol} Pool Tokens`);
@@ -190,7 +195,7 @@ export default function Unstake() {
           meta,
           path,
           accountId,
-          '0'
+          spotSwapFee
         );
         // .multipliedBy(0.98)
         // .dp(5); //do we still need this fix? ;
@@ -262,7 +267,7 @@ export default function Unstake() {
 
           let { baseAmountOut, dataxFee, refFee } = await stake.calcTokenOutGivenPoolIn({
             meta,
-            uints: ['0', '0', sharesPerc.toString()],
+            uints: ['0', spotSwapFee, sharesPerc.toString()],
             path,
           });
 
@@ -313,7 +318,7 @@ export default function Unstake() {
       const stakeInfo = {
         meta,
         path,
-        uints: [tokenOut.value.toString(), '0', sharesToRemove.toString()],
+        uints: [tokenOut.value.toString(), spotSwapFee, sharesToRemove.toString()],
       };
 
       console.log(stakeInfo);

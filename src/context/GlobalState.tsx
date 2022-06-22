@@ -98,7 +98,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   });
 
   // transaction states
-  const spotSwapFee = 0 
+  const spotSwapFee = '0';
+  const baseMinExchange = '0.01';
   const [pendingTxs, setPendingTxs] = useState<string[]>([]);
   const [txHistory, setTxHistory] = useState<ITxHistory>();
   const [lastTx, setLastTx] = useState<ITxDetails>();
@@ -110,7 +111,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [executeUnstake, setExecuteUnstake] = useState<boolean>(false);
   const [executeUnlock, setExecuteUnlock] = useState<boolean>(false);
   const [approving, setApproving] = useState<ApprovalStates>('pending');
-  const [swapFee, setSwapFee] = useState<string>("0");
+  const [swapFee, setSwapFee] = useState<string>('0');
   const [afterSlippage, setAfterSlippage] = useState<BigNumber>(new BigNumber(0));
   const [slippage, setSlippage] = useState<BigNumber>(new BigNumber(1));
   const [path, setPath] = useState<string[]>();
@@ -133,7 +134,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [tokenOut, setTokenOut] = useState<IToken>(INITIAL_TOKEN_STATE);
   const selectTokenPos = useRef<1 | 2 | null>(null);
   const [importPool, setImportPool] = useState<string>();
-  const [poolDetails, setPoolDetails] = useState<IPoolDetails>()
+  const [poolDetails, setPoolDetails] = useState<IPoolDetails>();
 
   // bg states
   const [bgOff, setBgOff] = useState(false);
@@ -397,6 +398,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         trade,
         path,
         spotSwapFee,
+        baseMinExchange,
         setPath,
         pathfinder,
         handleSignature,
@@ -485,8 +487,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setSlippage,
         exactToken,
         setExactToken,
-        poolDetails, 
-        setPoolDetails
+        poolDetails,
+        setPoolDetails,
       }}
     >
       <>{children}</>

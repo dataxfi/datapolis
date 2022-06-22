@@ -55,12 +55,12 @@ export default function Stake() {
     web3,
     poolDetails,
     swapFee,
-    spotSwapFee, 
-    setSwapFee
+    spotSwapFee,
+    setSwapFee,
+    baseMinExchange,
   } = useContext(GlobalContext);
 
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
-  const [postExchange, setPostExchange] = useState<BigNumber>(new BigNumber(0));
   const [sharesReceived, setSharesReceived] = useState<BigNumber>(new BigNumber(0));
   const [loading, setLoading] = useState(false);
   const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
@@ -73,7 +73,11 @@ export default function Stake() {
   useLiquidityPos(importPool, setImportPool);
   useAutoLoadToken();
   useClearTokens();
-  useTxHandler(stakeHandler, executeStake, setExecuteStake, { shares: sharesReceived, postExchange, dataxFee, swapFee });
+  useTxHandler(stakeHandler, executeStake, setExecuteStake, {
+    shares: sharesReceived,
+    dataxFee,
+    swapFee,
+  });
   useCalcSlippage(sharesReceived);
   usePathfinder(tokenIn.info?.address || '', baseAddress);
 
@@ -103,8 +107,12 @@ export default function Stake() {
   }, [tokenIn.info?.address, accountId]);
 
   useEffect(() => {
-    if (tokenIn.info?.address && tokenOut.info?.address) getMinAmountIn();
-  }, [tokenIn.info?.address, tokenOut.info?.address]);
+    if (tokenIn.info?.address) {
+      if (path && web3) {
+        trade?.getAmountsIn(baseMinExchange, path).then((res) => setMinStakeAmt(new BigNumber(res[0])));
+      }
+    }
+  }, [tokenIn.info?.address]);
 
   useEffect(() => {
     if (!accountId) {
@@ -201,13 +209,6 @@ export default function Stake() {
       .catch(console.error);
   }
 
-  async function getMinAmountIn() {
-    if (path && web3) {
-      const minAmtIn = await trade?.getAmountsIn('0.01', path);
-      if (minAmtIn) setMinStakeAmt(new BigNumber(minAmtIn[0]));
-    }
-  }
-
   async function stakeHandler(preTxDetails: ITxDetails) {
     if (
       !tokenOut.info?.pools[0].id ||
@@ -233,7 +234,7 @@ export default function Stake() {
       // ? calcSlippage(new BigNumber(amountOutBase), slippage, 1)
       const stakeInfo: IStakeInfo = {
         meta: [tokenOut.info?.pools[0].id, accountId, refAddress, config.custom.uniV2AdapterAddress],
-        uints: [sharesReceived.toString(), '0', tokenIn.value.toString()],
+        uints: [sharesReceived.toString(), spotSwapFee, tokenIn.value.toString()],
         path,
       };
 
