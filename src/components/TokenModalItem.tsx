@@ -3,11 +3,11 @@ import { useContext, useState } from 'react';
 import { BsSlashCircle } from 'react-icons/bs';
 import { GlobalContext } from '../context/GlobalState';
 import useTokenImgSrc from '../hooks/useTokenImgSrc';
+import TokenImage from './TokenImage';
 export default function TokenModalItem({ token, onClick }: { token: ITokenInfo; onClick: Function }) {
-  const [imagFailed, setImageFailed] = useState(false);
   const { tokenIn, tokenOut } = useContext(GlobalContext);
   const [imgSrc, setImgSrc] = useState(token.logoURI);
-  useTokenImgSrc(imgSrc, setImgSrc, token);
+  useTokenImgSrc(setImgSrc, token);
 
   return token.symbol === tokenIn.info?.symbol || token.symbol === tokenOut.info?.symbol ? (
     <></>
@@ -18,19 +18,7 @@ export default function TokenModalItem({ token, onClick }: { token: ITokenInfo; 
     >
       <div onClick={() => onClick(token)} className="flex justify-start w-full items-center">
         <div className="mr-2">
-          {imagFailed ? (
-            <BsSlashCircle className="w-8 h-8 text-gray-600" />
-          ) : (
-            <img
-              src={imgSrc}
-              onError={() => {
-                setImageFailed(true);
-              }}
-              className="rounded-lg w-8 h-8"
-              alt=""
-              loading="lazy"
-            />
-          )}
+          <TokenImage className="rounded-lg w-8 h-8" imgSrc={imgSrc || ''} />
         </div>
 
         <div>

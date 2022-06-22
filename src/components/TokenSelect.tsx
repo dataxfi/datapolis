@@ -9,6 +9,8 @@ import { IToken } from '@dataxfi/datax.js';
 import { TokenSelectTitles } from '../utils/types';
 import MaxToolTip from './MaxToolTip';
 import useTokenImgSrc from '../hooks/useTokenImgSrc';
+import { BsSlashCircle } from 'react-icons/bs';
+import TokenImage from './TokenImage';
 
 export default function TokenSelect({
   token,
@@ -33,7 +35,7 @@ export default function TokenSelect({
   const [title, setTitle] = useState<TokenSelectTitles>();
   const [imgSrc, setImgSrc] = useState(token.info?.logoURI);
 
-  useTokenImgSrc(imgSrc, setImgSrc, token.info);
+  useTokenImgSrc(setImgSrc, token.info);
 
   useEffect(() => {
     if (accountId && max.gt(0) && token.balance.gt(0)) {
@@ -76,7 +78,7 @@ export default function TokenSelect({
       <div className="md:grid md:grid-cols-5 bg-city-blue bg-opacity-30 rounded-xl p-1">
         <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center p-1">
           {token?.info && tokensCleared.current ? (
-            <img src={imgSrc} className="w-10 h-10 rounded-md" alt="" />
+            <TokenImage imgSrc={imgSrc || ''} className="w-10 h-10 rounded-md" />
           ) : (
             <div className="w-10 h-10 rounded-md bg-background flex justify-center items-center text-3xl">
               <XLogo style={{ height: '30px' }} />

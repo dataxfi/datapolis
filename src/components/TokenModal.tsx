@@ -194,7 +194,7 @@ export default function TokenModal() {
             loader
           ) : error ? (
             <div id="tokenLoadError" className="text-white text-center my-4">
-              There was an error loading the tokens
+              An error occurred while trying to loading the token list.
             </div>
           ) : datatokens && showDtks ? (
             <div
@@ -215,7 +215,7 @@ export default function TokenModal() {
                 ))}
               </ul>
               <div
-                className="mt-2 hm-hide-scrollbar overflow-y-scroll bg-trade-darkBlue rounded-lg border border-gray-700 p-1"
+                className="mt-2 hm-hide-scrollbar h-full overflow-y-scroll bg-trade-darkBlue rounded-lg border border-gray-700 p-1"
                 id="tokenList"
               >
                 <ReactList itemRenderer={tokenRenderer} length={ERC20Tokens ? ERC20Tokens.length : 0} type="simple" />

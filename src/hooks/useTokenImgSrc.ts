@@ -4,7 +4,6 @@ import { GlobalContext } from '../context/GlobalState';
 import { oceanTokens } from './useTokenList';
 
 export default function useTokenImgSrc(
-  state: string | undefined,
   setState: React.Dispatch<SetStateAction<string | undefined>>,
   token: ITokenInfo | null
 ) {

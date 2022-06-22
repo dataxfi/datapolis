@@ -194,8 +194,9 @@ export default function Unstake() {
         // .multipliedBy(0.98)
         // .dp(5); //do we still need this fix? ;
 
-        setDataxFee(dataxFee);
-        setSwapFee(refFee);
+        const to5 = (x: string) => new BigNumber(x).dp(5).toString();
+        setDataxFee(to5(dataxFee));
+        setSwapFee(to5(refFee));
         setMaxUnstake({
           maxTokenOut: new BigNumber(maxTokenOut),
           maxPoolTokensIn: new BigNumber(maxPoolTokensIn),
