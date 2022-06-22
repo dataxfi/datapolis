@@ -64,8 +64,8 @@ export default function Unstake() {
 
   // Max possible amount of stake to remove
   const [maxUnstake, setMaxUnstake] = useState<IMaxUnstake>({
-    tokenOut: new BigNumber(0),
-    shares: new BigNumber(0),
+    maxTokenOut: new BigNumber(0),
+    maxPoolTokensIn: new BigNumber(0),
     userPerc: new BigNumber(0),
   });
   const [baseAddress, setBaseAddress] = useState<string>('');
@@ -100,7 +100,6 @@ export default function Unstake() {
 
   useEffect(() => {
     console.log('Base address is', baseAddress);
-    console.log(singleLiquidityPos);
   }, [baseAddress, singleLiquidityPos]);
 
   useEffect(() => {
@@ -190,61 +189,25 @@ export default function Unstake() {
       signal.addEventListener('abort', (e) => {
         reject(new Error('aborted'));
       });
-
-      console.log(!stake, !singleLiquidityPos, !singleLiquidityPos?.address, !refAddress, !config, !path, !accountId);
+      if (!meta || !path || !accountId || !stake) return;
       try {
         // .98 is a fix for the MAX_OUT_RATIO error from the contract
-        if (
-          !stake ||
-          !singleLiquidityPos ||
-          !singleLiquidityPos.address ||
-          !refAddress ||
-          !config ||
-          !path ||
-          !accountId ||
-          !meta
-        )
-          return;
-        const basePath = [baseAddress];
-        let maxShareAmountIn: BigNumber;
-        let userPerc: BigNumber;
-        let maxUnstakeTokens: BigNumber;
-
-        maxUnstakeTokens = new BigNumber(await stake.getMaxUnstakeAmount(singleLiquidityPos.address, baseAddress)).multipliedBy(0.98).dp(5); //do we still need this fix? ;
-
-        console.log(maxUnstakeTokens.toString());
-        const calcIn = await stake.calcPoolInGivenTokenOut({
+        const { maxTokenOut, maxPoolTokensIn, userPerc, dataxFee, refFee } = await stake.getMaxUnstakeAmount(
           meta,
-          uints: [maxUnstakeTokens.toString(), '0', '0'],
-          path: basePath,
+          path,
+          accountId,
+          '0'
+        );
+        // .multipliedBy(0.98)
+        // .dp(5); //do we still need this fix? ;
+
+        setDataxFee(dataxFee);
+        setRefFee(refFee);
+        setMaxUnstake({
+          maxTokenOut: new BigNumber(maxTokenOut),
+          maxPoolTokensIn: new BigNumber(maxPoolTokensIn),
+          userPerc: new BigNumber(userPerc),
         });
-
-        if (calcIn.poolAmountIn) {
-          maxShareAmountIn = new BigNumber(calcIn.poolAmountIn);
-          userPerc = maxShareAmountIn.div(Number(singleLiquidityPos.shares)).multipliedBy(100);
-
-          if (userPerc.gt(100)) {
-            console.log('max unstake is greater than user balance in shares');
-            userPerc = new BigNumber(100);
-            maxShareAmountIn = singleLiquidityPos.shares;
-
-            const calcOut = await stake.calcTokenOutGivenPoolIn({
-              meta,
-              path: basePath,
-              uints: ['0', '0', maxShareAmountIn.toString()],
-            });
-
-            console.log(calcOut);
-
-            //TODO:set datax and ref fee
-            const { dataxFee, refFee, baseAmountOut } = calcOut;
-            if (baseAmountOut) maxUnstakeTokens = new BigNumber(baseAmountOut);
-          }
-          console.log('maxUnstake', maxUnstakeTokens.toString(), maxShareAmountIn.toString(), userPerc.toString());
-
-          const maxUnstake = { tokenOut: maxUnstakeTokens, shares: maxShareAmountIn, userPerc };
-          resolve(maxUnstake);
-        }
       } catch (error) {
         console.error(error);
       }
@@ -272,7 +235,15 @@ export default function Unstake() {
           return reject(new Error('Aborted Calculation: User entered a new value.'));
         });
         if (val === '') val = '0';
-        if (maxUnstake && maxUnstake.tokenOut.gt(0) && maxUnstake.shares.gt(0) && stake && singleLiquidityPos && path) {
+        if (
+          maxUnstake &&
+          maxUnstake.maxTokenOut.gt(0) &&
+          maxUnstake.maxPoolTokensIn.gt(0) &&
+          stake &&
+          singleLiquidityPos &&
+          path &&
+          meta
+        ) {
           // set remove percent to percInput initially before validation
           let percInput: BigNumber = new BigNumber(val);
           setRemovePercent(percInput);
@@ -286,24 +257,19 @@ export default function Unstake() {
             return resolve(0);
           }
 
-          // if the perc input is >= 100 set input to max
-          if (percInput.gte(100)) {
+          // if the perc input is >= 100 or user mac perc, set input to max
+          if (percInput.gte(100) || percInput.gte(maxUnstake.userPerc)) {//
             return maxUnstakeHandler();
           }
-
-          // calculate the amount of shares to unstake from perc input out of the max
-          const sharesPerc = percInput.div(100).multipliedBy(maxUnstake.shares);
+ 
+          const sharesPerc = percInput.div(100).multipliedBy(singleLiquidityPos.shares).dp(5);
           console.log(sharesPerc.toString());
 
-          const meta = [singleLiquidityPos.address, accountId, refAddress, config?.custom.uniV2AdapterAddress];
-
-          let tokensOutFromSharePercIn = await stake.calcTokenOutGivenPoolIn({
+          let { baseAmountOut, dataxFee, refFee } = await stake.calcTokenOutGivenPoolIn({
             meta,
             uints: ['0', '0', sharesPerc.toString()],
             path,
           });
-
-          const { baseAmountOut, dataxFee, refFee } = tokensOutFromSharePercIn;
 
           if (baseAmountOut && dataxFee && refFee) {
             setSharesToRemove(sharesPerc);
@@ -321,11 +287,15 @@ export default function Unstake() {
   };
 
   async function maxUnstakeHandler() {
-    console.log(maxUnstake.shares.toString(), maxUnstake.userPerc.toString(), maxUnstake.tokenOut.toString());
+    console.log(
+      maxUnstake.maxPoolTokensIn.toString(),
+      maxUnstake.userPerc.toString(),
+      maxUnstake.maxTokenOut.toString()
+    );
     try {
-      setSharesToRemove(maxUnstake.shares);
+      setSharesToRemove(maxUnstake.maxPoolTokensIn);
       setRemovePercent(maxUnstake.userPerc);
-      setTokenOut({ ...tokenOut, value: maxUnstake.tokenOut });
+      setTokenOut({ ...tokenOut, value: maxUnstake.maxTokenOut });
     } catch (error) {
       console.error(error);
     } finally {
@@ -351,6 +321,8 @@ export default function Unstake() {
         uints: [tokenOut.value.toString(), '0', sharesToRemove.toString()],
       };
 
+      console.log(stakeInfo);
+
       const txReceipt =
         tokenOut.info.address === config?.custom.nativeAddress
           ? await stake.unstakeETHFromDTPool(stakeInfo, accountId)
@@ -364,6 +336,7 @@ export default function Unstake() {
         setSingleLiquidityPos({ ...singleLiquidityPos, shares: newShares });
       }
     } catch (error: any) {
+      console.error(error);
       setLastTx({ ...preTxDetails, status: 'Failure' });
       setSnackbarItem({ type: 'error', message: error.error.message, error });
       setConfirmingTx(false);
@@ -471,7 +444,7 @@ export default function Unstake() {
                 </div>
               </div>
               <TokenSelect
-                max={maxUnstake.tokenOut}
+                max={maxUnstake.maxTokenOut}
                 otherToken={singleLiquidityPos?.token2Info.symbol}
                 pos={2}
                 setToken={setTokenOut}

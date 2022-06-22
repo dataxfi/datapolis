@@ -166,7 +166,7 @@ export default function UnlockTokenModal() {
     }
   }
 
-  console.log(preTxDetails, showUnlockTokenModal, executeUnlock);
+  // console.log(preTxDetails, showUnlockTokenModal, executeUnlock);
   return preTxDetails && showUnlockTokenModal ? (
     location !== '/moo' ? (
       <CenterModal id="transactionDoneModal" onOutsideClick={close} className="sm:max-w-sm w-full z-30 shadow">

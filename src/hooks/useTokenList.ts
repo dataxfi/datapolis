@@ -149,7 +149,6 @@ export async function getToken(
 ): Promise<ITokenInfo | undefined> {
   const dtList = await getDtTokenList(web3, chainId);
   const erc20List = await getERC20TokenList(config, chainId);
-  console.log(erc20List);
   if (addressType === 'pool') {
     return dtList?.tokens.find((token) => {
       if (token.pools[0]) return token.pools[0].id.toLowerCase() === address.toLowerCase();
