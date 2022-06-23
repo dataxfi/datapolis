@@ -9,7 +9,6 @@ import { IToken } from '@dataxfi/datax.js';
 import { TokenSelectTitles } from '../utils/types';
 import MaxToolTip from './MaxToolTip';
 import useTokenImgSrc from '../hooks/useTokenImgSrc';
-import { BsSlashCircle } from 'react-icons/bs';
 import TokenImage from './TokenImage';
 
 export default function TokenSelect({
