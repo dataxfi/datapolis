@@ -2,17 +2,28 @@ import { useContext, useEffect } from 'react';
 import { GlobalContext } from '../context/GlobalState';
 
 export default function useMetaParam() {
-  const { setMeta, config, location, singleLiquidityPos, tokenIn, accountId, refAddress } = useContext(GlobalContext);
+  const { setMeta, config, location, singleLiquidityPos, tokenIn, accountId, refAddress, tokenOut } =
+    useContext(GlobalContext);
 
   useEffect(() => {
     if (!config || !accountId || !refAddress) return;
-    let pool = tokenIn.info?.pools[0].id || '';
+    let pool;
     let adapter = config.custom.uniV2AdapterAddress;
 
-    if (location === '/stake/remove' && singleLiquidityPos) {
-      pool = singleLiquidityPos?.address;
-    }
+    switch (location) {
+      case '/stake/remove':
+        if (singleLiquidityPos) {
+          pool = singleLiquidityPos?.address;
+        }
+        break;
 
-    setMeta([pool, accountId, refAddress, adapter]);
+      default:
+        if (tokenOut.info) {
+          pool = tokenOut.info?.pools[0]?.id;
+        }
+        break;
+    }
+ 
+    if (pool) setMeta([pool, accountId, refAddress, adapter]);
   }, [config, location, singleLiquidityPos, tokenIn, accountId, refAddress]);
 }

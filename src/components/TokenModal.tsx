@@ -47,6 +47,12 @@ export default function TokenModal() {
   }, [chainId]);
 
   useEffect(() => {
+    if (!showTokenModal) return;
+    if (location === '/stake/remove') setShowDtks(false);
+    if (location === '/stake' && selectTokenPos.current === 1) setShowDtks(false);
+  }, [showTokenModal, selectTokenPos, location]);
+
+  useEffect(() => {
     if (!datatokens && accountId) {
       setLoading(true);
       setError(false);
@@ -130,7 +136,7 @@ export default function TokenModal() {
           setToken = setTokenOut;
           break;
         default:
-          console.log("setting pool to import", token.pools[0].id)
+          console.log('setting pool to import', token.pools[0].id);
           setImportPool(token.pools[0].id);
           break;
       }
@@ -167,7 +173,9 @@ export default function TokenModal() {
               className="px-4 py-2 h-full w-full rounded-lg bg-primary-900 text-base outline-none focus:placeholder-gray-200 placeholder-gray-400"
             />
           </div>
-          {(location === '/stake' && selectTokenPos.current === 2) || location === '/stake/list' ? (
+          {(location === '/stake' && selectTokenPos.current === 2) ||
+          location === '/stake/list' ||
+          location !== '/trade' ? (
             <></>
           ) : (
             <div className="w-full px-2 mt-2">

@@ -14,7 +14,7 @@ export default function TokenImage({ imgSrc, className }: { imgSrc: string; clas
           onError={() => {
             setImgFailed(true);
           }}
-          className="w-10 h-10 rounded-md"
+          className={className}
           alt=""
           loading="lazy"
         />
