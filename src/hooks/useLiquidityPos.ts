@@ -65,7 +65,6 @@ export default function useLiquidityPos(
   const nextToImport = useRef(updatePool);
   useEffect(() => {
     if (updatePool && chainId && !loading) {
-      console.log('Updating pool lp info');
       updateSingleStakePool(updatePool)
         .then((res) => {
           if (res && allStakedPools) {
@@ -90,9 +89,7 @@ export default function useLiquidityPos(
   }, [updatePool, loading]);
 
   async function updateSingleStakePool(poolAddress: string): Promise<ILiquidityPosition | void> {
-    console.log(!!accountId, !!web3, !!chainId, !!stake, !!config, !!config?.default.oceanTokenAddress);
     if (!accountId || !web3 || !chainId || !stake || !config || !config.default.oceanTokenAddress) return;
-    console.log('Preliminary conditions met in updating pool');
     try {
       poolAddress = poolAddress.toLowerCase();
       const shares = new BigNumber(await stake.sharesBalance(accountId, poolAddress));

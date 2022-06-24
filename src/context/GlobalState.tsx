@@ -98,7 +98,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   });
 
   // transaction states
-  const spotSwapFee = '0';
+  const [spotSwapFee, setSpotSwapFee] = useState<string | undefined> ("0");
   const baseMinExchange = '0.01';
   const [pendingTxs, setPendingTxs] = useState<string[]>([]);
   const [txHistory, setTxHistory] = useState<ITxHistory>();
@@ -284,7 +284,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       setPathFinder(pathfinder);
 
       setRefAddress(process.env.REACT_APP_REF_ADDRESS);
-
+      setSpotSwapFee(process.env.REACT_APP_REF_FEE);
       setListeners(provider, web3);
     } catch (error) {
       console.error(error);

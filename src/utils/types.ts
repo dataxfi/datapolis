@@ -50,6 +50,7 @@ export interface ITxDetails {
   tokenOut: IToken;
   status: 'Pending' | 'Indexing' | 'Success' | 'Failure';
   txType: ITxType;
+  afterSlippage:BigNumber
   dataxFee?: string;
   swapFee?: string;
   slippage?: BigNumber;
@@ -57,7 +58,7 @@ export interface ITxDetails {
   txReceipt?: TransactionReceipt;
   postExchange?: BigNumber;
   pool?: IPoolMetaData;
-  tokenToUnlock?: string
+  tokenToUnlock?: string;
 }
 
 export interface IUserMessage {
@@ -221,7 +222,7 @@ export interface globalStates {
   setPath: React.Dispatch<React.SetStateAction<string[] | undefined>>;
   poolDetails: IPoolDetails | undefined;
   setPoolDetails: React.Dispatch<React.SetStateAction<IPoolDetails | undefined>>;
-  spotSwapFee: string;
+  spotSwapFee: string | undefined;
   baseMinExchange: string;
   meta: string[] | undefined;
   setMeta: React.Dispatch<React.SetStateAction<string[] | undefined>>;

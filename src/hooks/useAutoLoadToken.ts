@@ -16,12 +16,9 @@ export default function useAutoLoadToken() {
     const outAddress = queryParams.get('out');
 
     function setToken(address: string, isPool: boolean, pos: 1 | 2) {
-      console.log('Can set token?', !!web3, !!chainId, !!accountId);
-      console.log(web3, chainId, accountId);
       if (web3 && chainId && accountId && config)
         getToken(web3, chainId, address, isPool ? 'pool' : 'exchange', config)
           .then((info) => {
-            console.log('Info found', info);
             if (info) {
               const token = { ...INITIAL_TOKEN_STATE, info };
               pos === 1 ? setTokenIn(token) : setTokenOut(token);
@@ -30,7 +27,6 @@ export default function useAutoLoadToken() {
           })
     }
 
-    console.log('Will autoload pool?', pool && location === '/stake');
     if (pool && location === '/stake') {
       setToken(pool, true, 2);
     }

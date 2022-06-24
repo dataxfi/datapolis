@@ -20,7 +20,6 @@ export default function ConfirmTxDetailsModal() {
     setBlurBG,
     setExecuteSwap,
     swapFee,
-    afterSlippage,
     confirmingTx,
     location,
     setExecuteStake,
@@ -38,7 +37,7 @@ export default function ConfirmTxDetailsModal() {
     tokenOut.info?.symbol
   }`;
   const [postExchangeString, setPostExchangeString] = useState<string>(swapPostExchangeString);
-  const swapAfterSlippageString = `${afterSlippage.dp(5).toString()} ${
+  const swapAfterSlippageString = `${preTxDetails?.afterSlippage.dp(5).toString()} ${
     exactToken === 1 ? tokenOut.info?.symbol : tokenIn.info?.symbol
   }`;
   const [afterSlippageString, setAfterSlippageString] = useState<string>(swapAfterSlippageString);
@@ -49,7 +48,7 @@ export default function ConfirmTxDetailsModal() {
       case '/stake':
         setTxTitle('Stake');
         setPostExchangeString(`1 ${tokenIn.info?.symbol} = ${preTxDetails?.postExchange?.dp(5).toString()} Shares`);
-        setAfterSlippageString(`${afterSlippage.dp(5).toString()} Shares`);
+        setAfterSlippageString(`${preTxDetails?.afterSlippage.dp(5).toString()} Shares`);
         break;
       case '/stake/remove':
         setTxTitle('Stake Removal');
@@ -131,13 +130,10 @@ export default function ConfirmTxDetailsModal() {
           {/* <ConfirmSwapListItem name="Route" value="ETH > KNC" /> */}
           <ConfirmTxListItem
             name={minOrMax}
-            value={`${afterSlippage.dp(5).toString()} ${location === '/stake/remove' ? 'Shares' : ''}`}
+            value={`${preTxDetails?.afterSlippage.dp(5).toString()} ${location === '/stake/remove' ? 'Shares' : ''}`}
           />
           {/* <ConfirmSwapListItem name="Price impact" value="-0.62%" valueClass="text-green-500" /> */}
-          <ConfirmTxListItem
-            name={`${txTitle} Fee`}
-            value={preTxDetails?.swapFee || "0"}
-          />
+          <ConfirmTxListItem name={`${txTitle} Fee`} value={preTxDetails?.swapFee || '0'} />
           <ConfirmTxListItem name="DataX Fee" value={preTxDetails?.dataxFee || '0.01%'} />
           <ConfirmTxListItem name="Slippage Tolerance" value={slippage + ' %'} />
         </div>

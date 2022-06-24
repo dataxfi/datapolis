@@ -14,7 +14,6 @@ import useClearTokens from '../hooks/useClearTokens';
 import useAutoLoadToken from '../hooks/useAutoLoadToken';
 import useTxHandler from '../hooks/useTxHandler';
 import TxSettings from './TxSettings';
-import useCalcSlippage from '../hooks/useCalcSlippage';
 import usePathfinder from '../hooks/usePathfinder';
 
 const INITIAL_MAX_EXCHANGE: IMaxExchange = {

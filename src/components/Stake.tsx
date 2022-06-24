@@ -15,10 +15,10 @@ import { transactionTypeGA } from '../context/Analytics';
 import useClearTokens from '../hooks/useClearTokens';
 import useTxHandler from '../hooks/useTxHandler';
 import TxSettings from './TxSettings';
-import useCalcSlippage from '../hooks/useCalcSlippage';
 import { IStakeInfo } from '@dataxfi/datax.js/dist/@types/stake';
 import usePathfinder from '../hooks/usePathfinder';
 import { getToken } from '../hooks/useTokenList';
+import { calcSlippage } from '../utils/utils';
 
 const INITIAL_BUTTON_STATE = {
   text: 'Connect wallet',
@@ -48,7 +48,7 @@ export default function Stake() {
     stake,
     refAddress,
     config,
-    // slippage,
+    slippage,
     trade,
     path,
     web3,
@@ -58,6 +58,7 @@ export default function Stake() {
     setSwapFee,
     baseMinExchange,
     meta,
+    executeUnlock,
   } = useContext(GlobalContext);
 
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
@@ -69,7 +70,7 @@ export default function Stake() {
   const [dataxFee, setDataxFee] = useState<string>();
   const [minStakeAmt, setMinStakeAmt] = useState<BigNumber>();
   const [poolMetaData, setPoolMetaData] = useState<IPoolMetaData>();
-
+  const [afterSlippage, setAfterSlippage] = useState<BigNumber>(new BigNumber(0))
   // hooks
   useLiquidityPos(importPool, setImportPool);
   useAutoLoadToken();
@@ -80,12 +81,12 @@ export default function Stake() {
     swapFee,
     pool: poolMetaData,
     tokenToUnlock: tokenOut.info?.symbol,
+    afterSlippage
   });
-  useCalcSlippage(sharesReceived);
   usePathfinder(tokenIn.info?.address || '', baseAddress);
 
   useEffect(() => {
-    if (baseAddress && web3 && chainId && config) {
+    if (baseAddress && web3 && chainId && config && poolMetaData?.address.toLowerCase() !== baseAddress.toLowerCase()) {
       getToken(web3, chainId, baseAddress, 'exchange', config).then((res) => {
         if (res && tokenOut.info)
           setPoolMetaData({
@@ -151,7 +152,7 @@ export default function Stake() {
         text: `Not Enough ${tokenIn.info?.symbol} Balance`,
         disabled: true,
       });
-    } else if (lastTx?.status === 'Pending') {
+    } else if (lastTx?.status === 'Pending' && (executeStake || executeUnlock)) {
       setBtnProps({
         ...INITIAL_BUTTON_STATE,
         text: 'Processing Transaction...',
@@ -206,7 +207,7 @@ export default function Stake() {
   }
 
   async function stakeHandler(preTxDetails: ITxDetails) {
-    if (!accountId || !stake || !path || preTxDetails?.txType !== 'stake' || !meta) {
+    if (!accountId || !stake || !path || preTxDetails?.txType !== 'stake' || !meta || !spotSwapFee) {
       return;
     }
     // TODO: treat this conditional as an error and resolve whatever is falsy, could be a hook
@@ -214,11 +215,13 @@ export default function Stake() {
     try {
       setLoading(true);
 
-      // ? calcSlippage(new BigNumber(amountOutBase), slippage, 1)
+      const minAmountOut = calcSlippage(new BigNumber(sharesReceived), slippage, false)
+      setAfterSlippage(minAmountOut)
+      console.log("min amount out after slippage",minAmountOut)
       const stakeInfo: IStakeInfo = {
         meta,
         path,
-        uints: [sharesReceived.toString(), spotSwapFee, tokenIn.value.toString()],
+        uints: [tokenIn.value.toString(), spotSwapFee, minAmountOut.toString()],
       };
 
       console.log(stakeInfo);
@@ -266,6 +269,7 @@ export default function Stake() {
   }
 
   async function updateNum(val: string | BigNumber) {
+    console.log('Calling calc function with new input value', val);
     // initially set state to value to persist the max if the user continuously tries to enter over the max (or balance)
     setTokenIn({ ...tokenIn, value: new BigNumber(val) });
     if (!val) {
@@ -274,7 +278,7 @@ export default function Stake() {
     }
 
     val = new BigNumber(val);
-    console.log(val.toString());
+    if (val.lte(0)) return;
 
     // if (maxStakeAmt) {
     //   if (tokenIn.balance.lt(val)) {
@@ -305,11 +309,11 @@ export default function Stake() {
         amountIn = bn.toString();
       }
 
-      console.log('Amount out', amountIn);
+      console.log('base amount in', amountIn);
 
       const stakeInfo: IStakeInfo = {
         meta: [tokenOut.info?.pools[0].id, accountId, refAddress, config.custom.uniV2AdapterAddress],
-        uints: ['0', '0', amountIn],
+        uints: [amountIn, '0', '0'],
         path: [baseAddress],
       };
 
@@ -320,6 +324,8 @@ export default function Stake() {
         if (calcResponse) {
           const { poolAmountOut, dataxFee, refFee } = calcResponse;
           if (poolAmountOut) setSharesReceived(new BigNumber(poolAmountOut));
+          const minAmountOut = calcSlippage(new BigNumber(poolAmountOut), slippage, false)
+          setAfterSlippage(minAmountOut)
           setDataxFee(`${new BigNumber(dataxFee).dp(5).toString()} ${basePoolName}`);
           setSwapFee(`${new BigNumber(Number(refFee)).dp(5).toString()} ${basePoolName}`);
         }

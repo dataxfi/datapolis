@@ -70,11 +70,11 @@ export default function PositionBox({
       setOceanToDt(new BigNumber(res1));
       setDtToOcean(new BigNumber(res2));
 
-      if (myPoolShares) {
+      if (myPoolShares && myPoolShares !== "0") {
         const stakeInfo = {
           meta: [id, accountId, refAddress, config.custom.uniV2AdapterAddress],
           path: [baseToken.id],
-          uints: ['0', '0', myPoolShares],
+          uints: [myPoolShares, '0', '0'],
         };
 
         const response = await stake?.calcTokenOutGivenPoolIn(stakeInfo);
@@ -82,6 +82,8 @@ export default function PositionBox({
         if (response) baseAmountOut = response.baseAmountOut;
 
         setYourLiquidity(new BigNumber(baseAmountOut || 0));
+      } else {
+        setYourLiquidity(new BigNumber(0))
       }
     } catch (error) {
       console.error(error);

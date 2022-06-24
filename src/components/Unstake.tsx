@@ -18,7 +18,6 @@ import { transactionTypeGA } from '../context/Analytics';
 import useClearTokens from '../hooks/useClearTokens';
 import useTxHandler from '../hooks/useTxHandler';
 import TxSettings from './TxSettings';
-import useCalcSlippage from '../hooks/useCalcSlippage';
 import usePathfinder from '../hooks/usePathfinder';
 import { to5 } from '../utils/utils';
 // import PositionBox from './PositionBox';
@@ -66,6 +65,7 @@ export default function Unstake() {
   const [dataxFee, setDataxFee] = useState<string>();
   const [allowance, setAllowance] = useState<BigNumber>();
   const [minUnstakeAmt, setMinUnstakeAmt] = useState<BigNumber>();
+  const [afterSlippage, setAfterSlippage] = useState<BigNumber>(new BigNumber(0));
 
   // Max possible amount of stake to remove
   const [maxUnstake, setMaxUnstake] = useState<IMaxUnstake>({
@@ -84,11 +84,10 @@ export default function Unstake() {
     unstake,
     executeUnstake,
     setExecuteUnlock,
-    { shares: sharesToRemove, pool: poolMetaData, dataxFee, swapFee, tokenToUnlock: 'Shares' },
+    { shares: sharesToRemove, pool: poolMetaData, dataxFee, swapFee, tokenToUnlock: 'Shares', afterSlippage },
     allowance,
     sharesToRemove
   );
-  useCalcSlippage(sharesToRemove);
   usePathfinder(tokenOut.info?.address || '', baseAddress);
 
   useEffect(() => {
@@ -188,7 +187,7 @@ export default function Unstake() {
       signal.addEventListener('abort', (e) => {
         reject(new Error('aborted'));
       });
-      if (!meta || !path || !accountId || !stake) return;
+      if (!meta || !path || !accountId || !stake || !spotSwapFee) return;
       try {
         // .98 is a fix for the MAX_OUT_RATIO error from the contract
         const { maxTokenOut, maxPoolTokensIn, userPerc, dataxFee, refFee } = await stake.getUserMaxUnstake(
@@ -241,7 +240,8 @@ export default function Unstake() {
           stake &&
           singleLiquidityPos &&
           path &&
-          meta
+          meta &&
+          spotSwapFee
         ) {
           // set remove percent to percInput initially before validation
           let percInput: BigNumber = new BigNumber(val);
@@ -306,14 +306,15 @@ export default function Unstake() {
   }
 
   async function unstake(preTxDetails: ITxDetails) {
-    if (!chainId || !singleLiquidityPos || !stake || !accountId || !preTxDetails || !meta || !path) {
+    if (!chainId || !singleLiquidityPos || !stake || !accountId || !preTxDetails || !meta || !path || !spotSwapFee) {
       // TODO: treat this conditional as an error and resolve whatever is falsy
       return;
     }
 
     setConfirmingTx(true);
     try {
-      // TODO: fix this ship
+      // TODO: CALC SLIPPAGE AND USE IN TX
+      //TODO : setAfterSlippage(maxAmountIn)
 
       const stakeInfo = {
         meta,

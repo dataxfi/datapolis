@@ -8,6 +8,7 @@ export default function useTxHandler(
   executeTx: boolean,
   setExecuteTx: React.Dispatch<SetStateAction<boolean>>,
   txDetails: {
+    afterSlippage: BigNumber;
     slippage?: BigNumber;
     postExchange?: BigNumber;
     shares?: BigNumber;
@@ -64,18 +65,17 @@ export default function useTxHandler(
           status: 'Pending',
           tokenIn,
           tokenOut,
+          afterSlippage: tokenIn.value,
           txDateId: Date.now().toString(),
           txType: 'approve',
           shares: txAmountOverride,
           tokenToUnlock: txDetails.tokenToUnlock 
         });
-        console.log("setting execute tx to true")
         setExecuteUnlock(true);
         setShowUnlockTokenModal(true);
         setBlurBG(true);
         setExecuteTx(false);
       } else if (!txApproved && executeTx) {
-        console.log('TX confirmation needed');
 
         let txType: ITxType;
         switch (location) {

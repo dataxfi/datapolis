@@ -25,19 +25,20 @@ export default function DatasetDescription() {
     setT2DIDResponse,
     location,
     config,
+    chainId
   } = useContext(GlobalContext);
 
   useEffect(() => {
-    if (showDescModal && !t2DIDResponse && tokenOut.info?.did) {
-      getDID(setT2DIDResponse, tokenOut.info?.did);
+    if (showDescModal && !t2DIDResponse && tokenOut.info?.did && chainId) {
+      getDID(setT2DIDResponse, tokenOut.info?.did, chainId);
     }
   }, [showDescModal]);
 
   useEffect(() => {
     try {
-      if (tokenOut.info?.pools) {
+      if (tokenOut.info?.pools && chainId) {
         console.log(tokenOut);
-        getDID(setT2DIDResponse, tokenOut.info.address).then((res) => {
+        getDID(setT2DIDResponse, tokenOut.info.address, chainId).then((res) => {
           if (res) setDID(res);
         });
       } else {
@@ -209,7 +210,7 @@ export default function DatasetDescription() {
   );
 }
 
-export async function getDID(setT2DIDResponse: React.Dispatch<any>, address: string): Promise<string | void> {
+export async function getDID(setT2DIDResponse: React.Dispatch<any>, address: string, chainId:string): Promise<string | void> {
   try {
     const token = await axios.post('https://v4.aquarius.oceanprotocol.com/api/aquarius/assets/query', {
       from: 0,
@@ -223,7 +224,7 @@ export async function getDID(setT2DIDResponse: React.Dispatch<any>, address: str
             },
             {
               terms: {
-                chainId: [4],
+                chainId: [chainId],
               },
             },
             {

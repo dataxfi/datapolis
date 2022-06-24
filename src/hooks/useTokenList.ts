@@ -59,17 +59,20 @@ export default function useTokenList({ setLoading, setError }: { setLoading?: Fu
   }, [location, dtTokenResponse, web3, chainId, accountId]);
 
   function setERC20List(list: ITList) {
-    console.log(list);
-
     setERC20Tokens(list.tokens);
     setERC20TokenResponse(list);
   }
 
   useEffect(() => {
-    if (!ERC20TokenResponse && chainId && config?.custom) {
+    if (!ERC20TokenResponse && chainId && config?.custom && web3) {
+      console.log("Fetching erc20 list")
       getERC20TokenList(config, chainId)
         .then((list) => {
+          console.log(list);
+          
           if (!list) return;
+          console.log("Setting ERC20List");
+          
           setERC20List(list);
         })
         .catch((error) => {
@@ -97,6 +100,7 @@ async function getDtTokenList(web3: Web3, chainId: supportedChains): Promise<ITL
 async function getERC20TokenList(config: Config, chainId: supportedChains): Promise<ITList | undefined> {
   try {
     const regularList = await axios.get(config.custom.tokenList);
+    console.log(regularList);
     let iTlistWithOcean;
     let listWithOcean;
     if (chainId === '4') {
@@ -119,15 +123,13 @@ async function getERC20TokenList(config: Config, chainId: supportedChains): Prom
         (token: ITokenInfo) => String(token.chainId) === chainId
       );
 
-      const listHasOcean = listFilteredByChain.data.tokens.find(
+      const listHasOcean = listFilteredByChain.find(
         (token: ITokenInfo) => token.address.toLowerCase() === oceanTokens[chainId].address.toLowerCase()
       );
 
       !listHasOcean
-        ? (listWithOcean = { ...regularList.data, tokens: [oceanTokens[chainId], ...regularList.data.tokens] })
-        : (listWithOcean = { ...regularList.data, tokens: listFilteredByChain });
-
-      iTlistWithOcean = { ...regularList.data, tokens: listWithOcean };
+        ? (iTlistWithOcean = { ...regularList.data, tokens: [oceanTokens[chainId], ...regularList.data.tokens] })
+        : (iTlistWithOcean = { ...regularList.data, tokens: listFilteredByChain });
     }
 
     return iTlistWithOcean;
@@ -143,17 +145,23 @@ export async function getToken(
   addressType: 'pool' | 'exchange',
   config: Config
 ): Promise<ITokenInfo | undefined> {
-  const dtList = await getDtTokenList(web3, chainId);
-  const erc20List = await getERC20TokenList(config, chainId);
-  if (addressType === 'pool') {
-    return dtList?.tokens.find((token) => {
-      if (token.pools[0]) return token.pools[0].id.toLowerCase() === address.toLowerCase();
-    });
+  try {
+    const dtList = await getDtTokenList(web3, chainId);
+    const erc20List = await getERC20TokenList(config, chainId);
+
+    if (addressType === 'pool') {
+      return dtList?.tokens.find((token) => {
+        if (token.pools[0]) return token.pools[0].id.toLowerCase() === address.toLowerCase();
+      });
+    }
+
+    const regSearch = (token: ITokenInfo) => token.address.toLowerCase() === address.toLowerCase();
+    let found = erc20List?.tokens?.find((token: ITokenInfo) => token.address.toLowerCase() === address.toLowerCase());
+    if (found) return found;
+    return dtList?.tokens.find(regSearch);
+  } catch (error) {
+    console.error(error);
   }
-  const regSearch = (token: ITokenInfo) => token.address.toLowerCase() === address.toLowerCase();
-  let found = erc20List?.tokens.find(regSearch);
-  if (found) return found;
-  return dtList?.tokens.find(regSearch);
 }
 
 export async function getAllowance(tokenAddress: string, accountId: string, spender: string, stake: Stake) {

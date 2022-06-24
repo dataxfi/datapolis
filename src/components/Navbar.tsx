@@ -13,7 +13,7 @@ const text = {
 const Navbar = () => {
   const walletText = text.T_CONNECT_WALLET;
   const links = [
-    // { name: text.T_SWAP, link: '/trade' },
+    { name: text.T_SWAP, link: '/trade' },
     { name: text.T_STAKE, link: '/stake' },
   ];
 
