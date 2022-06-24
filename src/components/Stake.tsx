@@ -5,7 +5,7 @@ import { MoonLoader } from 'react-spinners';
 import { Link } from 'react-router-dom';
 import useLiquidityPos from '../hooks/useLiquidityPos';
 import BigNumber from 'bignumber.js';
-import { ITxDetails, IBtnProps } from '../utils/types';
+import { ITxDetails, IBtnProps, IPoolMetaData } from '../utils/types';
 import useAutoLoadToken from '../hooks/useAutoLoadToken';
 import TokenSelect from './TokenSelect';
 import PositionBox from './PositionBox';
@@ -18,7 +18,7 @@ import TxSettings from './TxSettings';
 import useCalcSlippage from '../hooks/useCalcSlippage';
 import { IStakeInfo } from '@dataxfi/datax.js/dist/@types/stake';
 import usePathfinder from '../hooks/usePathfinder';
-import { getContractToAllow } from './UnlockTokenModal';
+import { getToken } from '../hooks/useTokenList';
 
 const INITIAL_BUTTON_STATE = {
   text: 'Connect wallet',
@@ -68,6 +68,7 @@ export default function Stake() {
   const [baseAddress, setBaseAddress] = useState<string>('');
   const [dataxFee, setDataxFee] = useState<string>();
   const [minStakeAmt, setMinStakeAmt] = useState<BigNumber>();
+  const [poolMetaData, setPoolMetaData] = useState<IPoolMetaData>();
 
   // hooks
   useLiquidityPos(importPool, setImportPool);
@@ -77,9 +78,24 @@ export default function Stake() {
     shares: sharesReceived,
     dataxFee,
     swapFee,
+    pool: poolMetaData,
+    tokenToUnlock: tokenOut.info?.symbol,
   });
   useCalcSlippage(sharesReceived);
   usePathfinder(tokenIn.info?.address || '', baseAddress);
+
+  useEffect(() => {
+    if (baseAddress && web3 && chainId && config) {
+      getToken(web3, chainId, baseAddress, 'exchange', config).then((res) => {
+        if (res && tokenOut.info)
+          setPoolMetaData({
+            baseToken: res,
+            datatoken: tokenOut.info,
+            address: tokenOut.info.pools[0].id,
+          });
+      });
+    }
+  }, [tokenOut.info?.address, baseAddress, web3, chainId, config]);
 
   useEffect(() => {
     console.log('Base address is ', baseAddress);
@@ -162,39 +178,19 @@ export default function Stake() {
     }
   }, [accountId, chainId, tokenOut, tokenIn.value, tokenIn.balance, loading, tokenIn.info, lastTx?.status]);
 
-  async function getMaxStakeAmt() {
-    if (stake && tokenOut.info?.pools[0] && tokenIn.info?.address && path)
-      try {
-        const maxStakeAmt = await stake?.getMaxStakeAmount(tokenOut.info?.pools[0].id, tokenIn.info?.address, path);
-        if (maxStakeAmt) return new BigNumber(maxStakeAmt);
-      } catch (error) {
-        console.error(error);
-      }
-  }
-
   async function getMaxAndAllowance() {
-    getMaxStakeAmt()
-      .then((res: BigNumber | void | undefined) => {
-        console.log('Max stake is', res?.toString());
-        if (res) {
-          setMaxStakeAmt(res);
-        }
-      })
-      .then(() => {
-        if (
-          tokenIn.info?.address &&
-          tokenOut.info &&
-          accountId &&
-          chainId &&
-          config &&
-          config?.custom &&
-          stake &&
-          trade
-        ) {
-          const contractToAllow = getContractToAllow(baseAddress, tokenIn.info.address, config);
-          if (contractToAllow)
-            stake.getAllowance(tokenIn.info?.address, accountId, contractToAllow).then(async (res) => {
-              console.log('Allowance response for contract', res, 'for' + contractToAllow);
+    if (stake && tokenOut.info?.pools[0] && accountId && path)
+      stake
+        ?.getUserMaxStake(tokenOut.info?.pools[0].id, accountId, path)
+        .then((res) => {
+          console.log('Max stake is', res?.toString());
+          if (res) {
+            setMaxStakeAmt(new BigNumber(res));
+          }
+        })
+        .then(() => {
+          if (tokenIn.info?.address && tokenOut.info && config?.custom && trade) {
+            stake.getAllowance(tokenIn.info?.address, accountId, config.custom.stakeRouterAddress).then(async (res) => {
               if (!tokenIn.info) return;
               const balance = new BigNumber(await trade.getBalance(tokenIn.info.address, accountId));
               setTokenIn({
@@ -204,9 +200,9 @@ export default function Stake() {
                 value: new BigNumber(0),
               });
             });
-        }
-      })
-      .catch(console.error);
+          }
+        })
+        .catch(console.error);
   }
 
   async function stakeHandler(preTxDetails: ITxDetails) {

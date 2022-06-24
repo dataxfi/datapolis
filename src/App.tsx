@@ -8,6 +8,7 @@ import LiquidityPosition from './components/LiquidityPosition';
 import WatchLocation from './components/WatchLocation';
 import CookiesModal from './components/CookiesModal';
 import useTxHistory from './hooks/useTxHistory';
+import useMetaParam from './hooks/useMetaParam';
 import LandingPage from './components/LandingPage';
 import BigNumber from 'bignumber.js';
 import Snackbar from './components/Snackbar';
@@ -16,8 +17,6 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Stake from './components/Stake';
 import Swap from './components/Swap';
-import useMetaParam from './hooks/useMetaParam';
-import usePathfinder from './hooks/usePathfinder';
 
 BigNumber.config({ DECIMAL_PLACES: 18, ROUNDING_MODE: BigNumber.ROUND_DOWN, EXPONENTIAL_AT: 30 });
 

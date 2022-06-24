@@ -6,7 +6,7 @@ import { IoCheckboxOutline } from 'react-icons/io5';
 import { getTxUrl } from '../hooks/useTxHistory';
 import BigNumber from 'bignumber.js';
 export default function Snackbar() {
-  const { snackbarItem, setSnackbarItem, accountId, config, tokenIn } = useContext(GlobalContext);
+  const { snackbarItem, setSnackbarItem, accountId, config, tokenIn, lastTx, preTxDetails } = useContext(GlobalContext);
   const [currentNot, setCurrentNot] = useState<ISnackbarItem>();
   const [opacity, setOpacity] = useState<string>('100');
   const [txDetails, setTxDetails] = useState<ITxDetails>();
@@ -88,16 +88,16 @@ export default function Snackbar() {
                           txDetails.tokenIn.info?.symbol
                         } in ${txDetails.tokenOut.info.symbol}/OCEAN pool`
                       : txDetails.txType === 'unstake' && txDetails.shares && txDetails.pool
-                      ? `Unstake ${new BigNumber(txDetails.shares).dp(5).toString()} ${
-                          txDetails.tokenOut.info?.symbol
-                        } from ${txDetails.pool?.otherToken.symbol}/${txDetails.pool?.baseToken.symbol} pool`
+                      ? `Unstake ${new BigNumber(txDetails.shares).dp(5).toString()} OPT from ${
+                          txDetails.pool?.baseToken.symbol
+                        }/${txDetails.pool?.datatoken.symbol} pool`
                       : txDetails.txType === 'approve'
-                      ? `Unlock ${txDetails.tokenIn.info?.symbol}`
+                      ? `Unlock ${txDetails.tokenIn.info?.symbol || lastTx?.tokenToUnlock || preTxDetails?.tokenToUnlock}`
                       : `Trade ${new BigNumber(txDetails.tokenIn.value).dp(5).toString()} ${
                           txDetails.tokenIn.info?.symbol
                         } for ${new BigNumber(txDetails.tokenOut.value).dp(5).toString()} ${
                           txDetails.tokenOut.info?.symbol
-                        }`}
+                        }`} 
                   </p>
                   <p className="text-gray-300 text-sm">
                     <a target="_blank" rel="noreferrer" href={url} className="hover:text-city-blue">
@@ -109,7 +109,7 @@ export default function Snackbar() {
             ) : currentNot?.type === 'error' ? (
               <>
                 <BsXCircle className="text-red-500 mr-4" />
-                <p>{errorMessage(currentNot)}</p>
+                <p className='max-w-full'>{errorMessage(currentNot)}</p>
               </>
             ) : (
               <></>

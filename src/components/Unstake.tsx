@@ -20,7 +20,7 @@ import useTxHandler from '../hooks/useTxHandler';
 import TxSettings from './TxSettings';
 import useCalcSlippage from '../hooks/useCalcSlippage';
 import usePathfinder from '../hooks/usePathfinder';
-import { getContractToAllow } from './UnlockTokenModal';
+import { to5 } from '../utils/utils';
 // import PositionBox from './PositionBox';
 
 export default function Unstake() {
@@ -53,6 +53,7 @@ export default function Unstake() {
     baseMinExchange,
     spotSwapFee,
     meta,
+    preTxDetails,
   } = useContext(GlobalContext);
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
   const [btnText, setBtnText] = useState('Enter Amount to Remove');
@@ -83,7 +84,7 @@ export default function Unstake() {
     unstake,
     executeUnstake,
     setExecuteUnlock,
-    { shares: sharesToRemove, pool: poolMetaData, dataxFee, swapFee },
+    { shares: sharesToRemove, pool: poolMetaData, dataxFee, swapFee, tokenToUnlock: 'Shares' },
     allowance,
     sharesToRemove
   );
@@ -99,8 +100,8 @@ export default function Unstake() {
   useEffect(() => {
     if (singleLiquidityPos) {
       setPoolMetaData({
-        baseToken: singleLiquidityPos.token1Info,
-        otherToken: singleLiquidityPos.token2Info,
+        baseToken: singleLiquidityPos.baseToken,
+        datatoken: singleLiquidityPos.datatoken,
         address: singleLiquidityPos.address,
       });
     }
@@ -117,7 +118,7 @@ export default function Unstake() {
       })
       .catch(console.error);
 
-    const contractToAllow = getContractToAllow(baseAddress, tokenOut.info.address, config);
+    const contractToAllow = config.custom.stakeRouterAddress;
     getAllowance(singleLiquidityPos.address, accountId, contractToAllow, stake).then(async (res) => {
       console.log('Token out allowance for contract ', singleLiquidityPos.address, contractToAllow, res);
       if (tokenOut.info?.address) {
@@ -129,6 +130,10 @@ export default function Unstake() {
   }, [stake, singleLiquidityPos?.address, tokenOut.info?.address, accountId, trade, path?.length, config]);
 
   useEffect(() => {
+    if (path && path.length === 1) {
+      setMinUnstakeAmt(new BigNumber(baseMinExchange));
+      return;
+    }
     if (path && web3) {
       trade?.getAmountsOut(baseMinExchange, path).then((res) => setMinUnstakeAmt(new BigNumber(res[res.length - 1])));
     }
@@ -136,7 +141,7 @@ export default function Unstake() {
 
   useEffect(() => {
     setInputDisabled(false);
-
+    console.log(allowance?.toString(), sharesToRemove.toString());
     if (!stake || !singleLiquidityPos) {
       setBtnDisabled(true);
       setInputDisabled(true);
@@ -153,22 +158,23 @@ export default function Unstake() {
       setBtnDisabled(true);
       setInputDisabled(true);
       setBtnText('Processing Transaction ...');
-    } else if (sharesToRemove.eq(0) || removePercent.eq(0)) {
+    } else if (sharesToRemove.eq(0) || removePercent.eq(0) || tokenOut.value.eq(0)) {
       setBtnDisabled(true);
       setBtnText('Enter Amount to Remove');
     } else if (minUnstakeAmt && tokenOut.value.lt(minUnstakeAmt)) {
       setBtnDisabled(true);
-      setBtnText(`Minimum Removal is ${minUnstakeAmt.toString} stake`);
-    } else if (allowance?.lt(tokenOut.value)) {
+      setBtnText(`Minimum Removal is ${minUnstakeAmt.toString()} ${tokenOut.info.symbol}`);
+    } else if (allowance?.lt(sharesToRemove)) {
       setBtnDisabled(false);
-      setBtnText(`Unlock ${singleLiquidityPos.token1Info.symbol}/${singleLiquidityPos.token2Info.symbol} Pool Tokens`);
+      setBtnText(`Unlock ${singleLiquidityPos.baseToken.symbol}/${singleLiquidityPos.datatoken.symbol} Pool Tokens`);
     } else {
       setBtnDisabled(false);
       setBtnText('Withdrawal');
     }
   }, [
     tokenOut.value,
-    lastTx,
+    lastTx?.txType,
+    preTxDetails?.txType,
     singleLiquidityPos,
     maxUnstake,
     tokenOut.allowance,
@@ -185,7 +191,7 @@ export default function Unstake() {
       if (!meta || !path || !accountId || !stake) return;
       try {
         // .98 is a fix for the MAX_OUT_RATIO error from the contract
-        const { maxTokenOut, maxPoolTokensIn, userPerc, dataxFee, refFee } = await stake.getMaxUnstakeAmount(
+        const { maxTokenOut, maxPoolTokensIn, userPerc, dataxFee, refFee } = await stake.getUserMaxUnstake(
           meta,
           path,
           accountId,
@@ -194,7 +200,6 @@ export default function Unstake() {
         // .multipliedBy(0.98)
         // .dp(5); //do we still need this fix? ;
 
-        const to5 = (x: string) => new BigNumber(x).dp(5).toString();
         setDataxFee(to5(dataxFee));
         setSwapFee(to5(refFee));
         setMaxUnstake({
@@ -268,8 +273,8 @@ export default function Unstake() {
 
           if (baseAmountOut && dataxFee && refFee) {
             setSharesToRemove(sharesPerc);
-            setDataxFee(dataxFee);
-            setSwapFee(refFee);
+            setDataxFee(to5(dataxFee));
+            setSwapFee(to5(refFee));
             setTokenOut({ ...tokenOut, value: new BigNumber(baseAmountOut) });
           }
 
@@ -319,7 +324,7 @@ export default function Unstake() {
       console.log(stakeInfo);
 
       const txReceipt =
-        tokenOut.info?.address === config?.custom.nativeAddress
+        tokenOut.info?.address.toLowerCase() === config?.custom.nativeAddress.toLowerCase()
           ? await stake.unstakeETHFromDTPool(stakeInfo, accountId)
           : await stake.unstakeTokenFromDTPool(stakeInfo, accountId);
 
@@ -371,7 +376,7 @@ export default function Unstake() {
                   />
                   {singleLiquidityPos ? (
                     <p className="text-gray-100 text-sm md:text-lg">
-                      {singleLiquidityPos.token2Info.symbol}/{singleLiquidityPos.token1Info.symbol}
+                      {singleLiquidityPos.baseToken.symbol}/{singleLiquidityPos.datatoken.symbol}
                     </p>
                   ) : (
                     <PulseLoader color="white" size="4px" margin="5px" />
@@ -440,7 +445,7 @@ export default function Unstake() {
               </div>
               <TokenSelect
                 max={maxUnstake.maxTokenOut}
-                otherToken={singleLiquidityPos?.token2Info.symbol || ''}
+                otherToken={singleLiquidityPos?.datatoken.symbol || ''}
                 pos={2}
                 setToken={setTokenOut}
                 token={tokenOut}

@@ -40,7 +40,7 @@ export interface IPoolLiquidity {
 export interface IPoolMetaData {
   address: string;
   baseToken: ITokenInfo;
-  otherToken: ITokenInfo;
+  datatoken: ITokenInfo;
 }
 
 export interface ITxDetails {
@@ -57,6 +57,7 @@ export interface ITxDetails {
   txReceipt?: TransactionReceipt;
   postExchange?: BigNumber;
   pool?: IPoolMetaData;
+  tokenToUnlock?: string
 }
 
 export interface IUserMessage {
@@ -88,8 +89,8 @@ export interface ILiquidityPosition {
   // pool address
   address: string;
   // tokens in pool
-  token1Info: ITokenInfo;
-  token2Info: ITokenInfo;
+  baseToken: ITokenInfo;
+  datatoken: ITokenInfo;
   // the amount of shares you own
   shares: BigNumber;
   // total dt in pool

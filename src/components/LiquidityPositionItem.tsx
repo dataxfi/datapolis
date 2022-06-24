@@ -8,8 +8,8 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
   const {
     accountId,
     address,
-    token1Info,
-    token2Info,
+    baseToken,
+    datatoken,
     shares,
     dtAmount,
     baseAmount,
@@ -25,8 +25,8 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
     setImportPool(address);
   }, [accountId]);
 
-  return token1Info && token2Info ? (
-    <li id={`${token2Info.symbol}-lp-item`} key={`LP${index}`}>
+  return baseToken && datatoken ? (
+    <li id={`${datatoken.symbol}-lp-item`} key={`LP${index}`}>
       <div className="w-full mx-auto z-0">
         <div
           onClick={() => setVisible(!visible)}
@@ -48,7 +48,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
               alt=""
               width="40px"
             />
-            <p className="text-gray-100 text-sm md:text-lg">{`${token2Info.symbol}/${token1Info.symbol}`}</p>
+            <p className="text-gray-100 text-sm md:text-lg">{`${baseToken.symbol}/${datatoken.symbol}`}</p>
           </div>
           <div className="grid grid-flow-col gap-1 items-center">
             <p className="hidden lg:block text-gray-200 text-sm">Manage</p>
@@ -57,7 +57,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
         </div>
         {visible ? (
           <div
-            id={`${token1Info.symbol}-lp-info`}
+            id={`${baseToken.symbol}-lp-info`}
             className={`p-2 transition-colors duration-500  ${
               importPool ? 'bg-city-blue bg-opacity-10' : 'modalSelectBg bg-opacity-75'
             } rounded-b-lg mb-2`}
@@ -86,7 +86,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                 </div>
                 <div>
                   <p id="totalPooled1Title" className="text-gray-300 text-sm">
-                    Total Pooled {token2Info.symbol}
+                    Total Pooled {datatoken.symbol}
                   </p>
                 </div>
                 <div id="totalPooled1" className="justify-self-end">
@@ -94,7 +94,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                 </div>
                 <div>
                   <p id="totalPooled2Title" className="text-gray-300 text-sm">
-                    Total Pooled {token1Info.symbol}
+                    Total Pooled {baseToken.symbol}
                   </p>
                 </div>
                 <div className="justify-self-end">

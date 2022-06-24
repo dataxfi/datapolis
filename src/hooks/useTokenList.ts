@@ -41,9 +41,10 @@ export default function useTokenList({ setLoading, setError }: { setLoading?: Fu
         .then((res) => {
           if (res) {
             setDtTokenResponse(res);
-            if (location !== 'trade') setDatatokens(res.tokens.filter((token) => token.isFRE === false));
-            // sort by alphabet
-            //.sort((tokena: any, tokenb: any) => tokena.symbol - tokenb.symbol)
+            if (location !== '/trade')
+              setDatatokens(
+                res.tokens.filter((token) => token.isFRE === false).sort((a, b) => a.symbol.localeCompare(b.symbol))
+              );
           }
         })
         .catch((err: Error) => {
@@ -57,10 +58,9 @@ export default function useTokenList({ setLoading, setError }: { setLoading?: Fu
     }
   }, [location, dtTokenResponse, web3, chainId, accountId]);
 
-
   function setERC20List(list: ITList) {
     console.log(list);
-    
+
     setERC20Tokens(list.tokens);
     setERC20TokenResponse(list);
   }
@@ -77,12 +77,6 @@ export default function useTokenList({ setLoading, setError }: { setLoading?: Fu
         });
     }
   }, [location, ERC20TokenResponse, web3, chainId, config]);
-
-  // useEffect(() => {
-  //   if (ERC20TokenResponse && showTokenModal) {
-  //     setERC20List(ERC20TokenResponse)
-  //   }
-  // }, [showTokenModal]);
 }
 
 async function getDtTokenList(web3: Web3, chainId: supportedChains): Promise<ITList | undefined> {

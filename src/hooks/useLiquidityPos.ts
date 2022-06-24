@@ -112,8 +112,8 @@ export default function useLiquidityPos(
           yourPoolSharePerc: userPoolSharePerc,
           baseAmount: new BigNumber(baseTokenLiquidity),
           dtAmount: new BigNumber(datatokenLiquidity),
-          token1Info,
-          token2Info,
+          baseToken: token1Info,
+          datatoken: token2Info,
           shares,
         };
       }

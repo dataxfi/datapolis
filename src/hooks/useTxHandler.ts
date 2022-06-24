@@ -14,6 +14,7 @@ export default function useTxHandler(
     pool?: IPoolMetaData;
     dataxFee?: string;
     swapFee?: string;
+    tokenToUnlock? :string
   },
   allowanceOverride?: BigNumber,
   txAmountOverride?: BigNumber
@@ -55,7 +56,7 @@ export default function useTxHandler(
     const allowanceNeeded = allowanceOverride ? allowanceOverride : tokenIn.allowance;
     const txAmount = txAmountOverride ? txAmountOverride : tokenIn.value;
 
-    if (accountId) {
+    if (accountId && executeTx) {
       if (allowanceNeeded?.lt(txAmount)) {
         console.log('Token approval needed');
         setPreTxDetails({
@@ -66,7 +67,9 @@ export default function useTxHandler(
           txDateId: Date.now().toString(),
           txType: 'approve',
           shares: txAmountOverride,
+          tokenToUnlock: txDetails.tokenToUnlock 
         });
+        console.log("setting execute tx to true")
         setExecuteUnlock(true);
         setShowUnlockTokenModal(true);
         setBlurBG(true);

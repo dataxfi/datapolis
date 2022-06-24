@@ -55,6 +55,7 @@ export default function UnlockTokenModal() {
             const allowance = new BigNumber(res);
             if (allowance.gte(txAmount)) {
               setExecuteUnlock(false);
+              setShowUnlockTokenModal(false)
               setPool(null);
               setAddress(null);
               setBlurBG(false);
@@ -84,16 +85,6 @@ export default function UnlockTokenModal() {
       let spender: string = '';
       let address: string = '';
 
-      // if (tokenIn.info && tokenOut.info && ocean.isOCEAN(tokenIn.info.address)) {
-      //   pool = tokenOut.info.pool || '';
-      //   address = tokenIn.info.address;
-      // } else if (tokenIn.info && tokenOut.info && ocean.isOCEAN(tokenOut.info.address)) {
-      //   pool = tokenIn.info.pool || '';
-      //   address = tokenIn.info.address;
-      // } else if (tokenIn.info) {
-      //   pool = config?.custom.uniV2AdapterAddress;
-      //   address = tokenIn.info.address;
-      // }
 
       if (location !== '/trade' && tokenOut.info) {
         console.log('Getting base address in unlock token modal');
@@ -101,12 +92,9 @@ export default function UnlockTokenModal() {
           location === '/stake/remove' ? singleLiquidityPos?.address : tokenOut.info?.pools[0].id;
         if (!poolForBaseToken) return;
         const baseAddress = await stake.getBaseToken(poolForBaseToken);
-        let contractToAllow;
         console.log('Base address in unlock token modal', baseAddress);
 
-        contractToAllow = config.custom.stakeRouterAddress;
-        if (location !== '/stake/remove' && tokenIn.info?.address)
-          contractToAllow = getContractToAllow(baseAddress, tokenIn.info?.address, config);
+        let contractToAllow = config.custom.stakeRouterAddress;
 
         const addressToApprove = location === '/stake/remove' ? singleLiquidityPos?.address : tokenIn.info?.address;
         if (contractToAllow && addressToApprove) {
@@ -133,14 +121,14 @@ export default function UnlockTokenModal() {
         setPool(spender);
         setAddress(address);
       } catch (error: any) {
-        console.error(error);
-        if (lastTx) setLastTx({ ...lastTx, status: 'Failure' });
-        setSnackbarItem({ type: 'error', message: error.error.message, error });
+        console.error(error)
         setShowUnlockTokenModal(false);
         setExecuteUnlock(false);
+        if (lastTx) setLastTx({ ...lastTx, status: 'Failure' });
+        setSnackbarItem({ type: 'error', message: error.error.message, error });
         switchOnLocation(false);
         setBlurBG(false);
-      }
+      } 
     }
   }
 
@@ -185,7 +173,7 @@ export default function UnlockTokenModal() {
             <BiLockOpenAlt size="72px" className="text-city-blue animate-bounce" />
           )}
         </div>
-        <h3 className="text-sm lg:text-2xl pb-5">Unlock {tokenIn.info?.symbol}</h3>
+        <h3 className="text-sm lg:text-2xl pb-5">Unlock {tokenIn.info?.symbol || preTxDetails?.tokenToUnlock}</h3>
         <p className="text-sm lg:text-base text-center pb-5">
           DataX needs your permission to spend{' '}
           {location === remove ? preTxDetails.shares?.dp(5).toString() : tokenIn.value.dp(5).toString()}{' '}
@@ -227,11 +215,4 @@ export default function UnlockTokenModal() {
       </button>
     </div>
   );
-}
-
-export function getContractToAllow(baseAddress: string, tokenAddress: string, config: Config) {
-  console.log(baseAddress, tokenAddress, baseAddress.toLowerCase() == tokenAddress.toLowerCase());
-  return baseAddress.toLowerCase() == tokenAddress.toLowerCase()
-    ? config?.custom.stakeRouterAddress
-    : config?.custom.stakeRouterAddress;
 }

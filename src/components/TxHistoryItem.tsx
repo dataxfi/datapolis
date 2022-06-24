@@ -13,9 +13,17 @@ export default function TxHistoryItem({
   tx: ITxDetails;
   setTx: React.Dispatch<React.SetStateAction<ITxDetails | undefined>>;
 }) {
-  const { watcher, web3, accountId, config } = useContext(GlobalContext);
+  const { watcher, web3, accountId, config, stake } = useContext(GlobalContext);
   const [txLink, setTxLink] = useState<string>(`${config?.default.explorerUri}/address/${accountId}`);
   const [txInstance, setTxInstance] = useState<ITxDetails>(tx);
+  const [baseToken, setBaseToken] = useState<string>();
+
+  useEffect(() => {
+    if (tx.txType !== 'swap' && tx.pool) {
+      stake?.getBaseToken(tx.pool.address).then(setBaseToken);
+    }
+  }, [tx.txType]);
+
   useEffect(() => {
     setTxInstance(tx);
 
@@ -55,10 +63,9 @@ export default function TxHistoryItem({
       case 'stake':
         return `Stake ${tx.tokenOut.info?.symbol}/${tx.tokenIn.info?.symbol}`;
       case 'unstake':
-        console.log('asdhjf');
-        return `Unstake ${tx.pool?.otherToken.symbol}/${tx.pool?.baseToken.symbol}`;
+        return `Unstake ${tx.pool?.datatoken.symbol}/${tx.pool?.baseToken.symbol}`;
       case 'approve':
-        return `Unlock ${tx.tokenIn.info?.symbol}`;
+        return `Unlock ${tx.tokenToUnlock || "Tokens"}`;
       default:
         return `${tx.tokenIn.info?.symbol} to ${tx.tokenOut.info?.symbol}`;
     }
