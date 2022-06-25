@@ -28,4 +28,16 @@ export interface IBFSResultPoolNode {
 export interface IBFSResults {
     [key: string]: IBFSResultPoolNode;
 }
+export interface queryParams {
+    skipT0: number;
+    skipT1: number;
+    callT0: boolean;
+    callT1: boolean;
+}
+export interface requestResponse {
+    t0MatchLength: number;
+    t1MatchLength: number;
+    allMatchedPools: IPoolNode[];
+}
+export declare type queryFunction = (address: string, amt: string, skipT0: number, skipT1: number, callT0: boolean, callT1: boolean) => Promise<requestResponse>;
 export declare type supportedChains = "1" | "4" | "56" | "137" | "246" | "1285";

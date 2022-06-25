@@ -10,15 +10,17 @@ export default class Pathfinder {
     private chainId;
     private allPaths;
     private trade;
+    private depth;
+    private pathFound;
     constructor(chainId: supportedChains, web3?: Web3);
     private addPoolNode;
     private addTokenNode;
-    searchPoolData({ tokenAddress, destinationAddress, parentTokenAddress, IN, amt, poolsFromToken, nextTokensToSearch, }: {
+    searchPoolData({ poolsFromToken, tokenAddress, destinationAddress, parentTokenAddress, IN, nextTokensToSearch, amt, }: {
         poolsFromToken: IPoolNode[];
         tokenAddress: string;
         destinationAddress: string;
-        IN: boolean;
         parentTokenAddress: string;
+        IN: boolean;
         nextTokensToSearch: INextTokensToSearch;
         amt?: string;
     }): Promise<INextTokensToSearch | null>;

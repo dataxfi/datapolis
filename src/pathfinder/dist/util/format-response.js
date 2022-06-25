@@ -16,16 +16,27 @@ function formatter(response) {
         return;
     try {
         var _b = response.data.data, t0IsMatch = _b.t0IsMatch, t1IsMatch = _b.t1IsMatch;
+        var t0MatchLength = t0IsMatch === null || t0IsMatch === void 0 ? void 0 : t0IsMatch.length;
+        var t1MatchLength = t1IsMatch === null || t1IsMatch === void 0 ? void 0 : t1IsMatch.length;
+        if (!t0IsMatch)
+            t0IsMatch = [];
+        if (!t1IsMatch)
+            t1IsMatch = [];
         var allData = __spreadArray(__spreadArray([], t0IsMatch, true), t1IsMatch, true);
         var edges_1 = new Set(allData.map(function (poolData) { return poolData.id; }));
-        return allData.map(function (pool) { return ({
-            poolAddress: pool.id,
-            t1Address: pool.token0.id,
-            t2Address: pool.token1.id,
-            t1Liquidity: pool.totalValueLockedToken0,
-            t2Liquidity: pool.totalValueLockedToken1,
-            edges: edges_1,
-        }); });
+        var requestResponse = {
+            t0MatchLength: t0MatchLength,
+            t1MatchLength: t1MatchLength,
+            allMatchedPools: allData.map(function (pool) { return ({
+                poolAddress: pool.id,
+                t1Address: pool.token0.id,
+                t2Address: pool.token1.id,
+                t1Liquidity: pool.totalValueLockedToken0,
+                t2Liquidity: pool.totalValueLockedToken1,
+                edges: edges_1,
+            }); }),
+        };
+        return requestResponse;
     }
     catch (error) {
         console.error(error);

@@ -38,56 +38,78 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.rinkebyPools = exports.moonriverPools = exports.bscPools = exports.mainnetPools = exports.maticPools = exports.energywebPools = void 0;
 var subgraph_requests_1 = require("./subgraph-requests");
-function energywebPools(address, amt) {
-    if (amt === void 0) { amt = "0.001"; }
+var minAmt = '10';
+function energywebPools(address, amt, skipT0, skipT1, callT0, callT1) {
+    if (amt === void 0) { amt = minAmt; }
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            return [2, (0, subgraph_requests_1.uniswapV3Req)("https://ewc-subgraph-production.carbonswap.exchange/subgraphs/name/carbonswap/uniswapv2", address, amt)];
+            switch (_a.label) {
+                case 0: return [4, (0, subgraph_requests_1.uniswapV3Req)("https://ewc-subgraph-production.carbonswap.exchange/subgraphs/name/carbonswap/uniswapv2", address, amt, skipT0, skipT1, callT0, callT1)];
+                case 1: return [2, _a.sent()];
+            }
         });
     });
 }
 exports.energywebPools = energywebPools;
-function maticPools(address, amt) {
-    if (amt === void 0) { amt = "0.001"; }
+function maticPools(address, amt, skipT0, skipT1, callT0, callT1) {
+    if (amt === void 0) { amt = minAmt; }
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            return [2, (0, subgraph_requests_1.uniswapV2Req)("https://polygon.furadao.org/subgraphs/name/quickswap", address, amt)];
+            switch (_a.label) {
+                case 0: return [4, new Promise(function (res) { return (setTimeout(function () { res("ok go"), 25; })); })];
+                case 1:
+                    _a.sent();
+                    return [4, (0, subgraph_requests_1.uniswapV2Req)("https://polygon.furadao.org/subgraphs/name/quickswap", address, amt, skipT0, skipT1, callT0, callT1)];
+                case 2: return [2, _a.sent()];
+            }
         });
     });
 }
 exports.maticPools = maticPools;
-function mainnetPools(address, amt) {
-    if (amt === void 0) { amt = "0.001"; }
+function mainnetPools(address, amt, skipT0, skipT1, callT0, callT1) {
+    if (amt === void 0) { amt = minAmt; }
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            return [2, (0, subgraph_requests_1.uniswapV2Req)("https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2", address, amt)];
+            switch (_a.label) {
+                case 0: return [4, (0, subgraph_requests_1.uniswapV2Req)("https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2", address, amt, skipT0, skipT1, callT0, callT1)];
+                case 1: return [2, _a.sent()];
+            }
         });
     });
 }
 exports.mainnetPools = mainnetPools;
-function bscPools(address, amt) {
-    if (amt === void 0) { amt = "0.001"; }
+function bscPools(address, amt, skipT0, skipT1, callT0, callT1) {
+    if (amt === void 0) { amt = minAmt; }
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            return [2, (0, subgraph_requests_1.uniswapV3Req)("https://bsc.streamingfast.io/subgraphs/name/pancakeswap/exchange-v2", address, amt)];
+            switch (_a.label) {
+                case 0: return [4, (0, subgraph_requests_1.uniswapV3Req)("https://bsc.streamingfast.io/subgraphs/name/pancakeswap/exchange-v2", address, amt, skipT0, skipT1, callT0, callT1)];
+                case 1: return [2, _a.sent()];
+            }
         });
     });
 }
 exports.bscPools = bscPools;
-function moonriverPools(address, amt) {
-    if (amt === void 0) { amt = "0.001"; }
+function moonriverPools(address, amt, skipT0, skipT1, callT0, callT1) {
+    if (amt === void 0) { amt = minAmt; }
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            return [2, (0, subgraph_requests_1.uniswapV3Req)("https://api.thegraph.com/subgraphs/name/solarbeamio/amm-v2", address, amt)];
+            switch (_a.label) {
+                case 0: return [4, (0, subgraph_requests_1.uniswapV3Req)("https://api.thegraph.com/subgraphs/name/solarbeamio/amm-v2", address, amt, skipT0, skipT1, callT0, callT1)];
+                case 1: return [2, _a.sent()];
+            }
         });
     });
 }
 exports.moonriverPools = moonriverPools;
-function rinkebyPools(address, amt) {
-    if (amt === void 0) { amt = ".001"; }
+function rinkebyPools(address, amt, skipT0, skipT1, callT0, callT1) {
+    if (amt === void 0) { amt = minAmt; }
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            return [2, (0, subgraph_requests_1.uniswapV3Req)("https://api.thegraph.com/subgraphs/name/mtahon/uniswap-v3-rinkeby", address, amt)];
+            switch (_a.label) {
+                case 0: return [4, (0, subgraph_requests_1.uniswapV3Req)("https://api.thegraph.com/subgraphs/name/mtahon/uniswap-v3-rinkeby", address, amt, skipT0, skipT1, callT0, callT1)];
+                case 1: return [2, _a.sent()];
+            }
         });
     });
 }

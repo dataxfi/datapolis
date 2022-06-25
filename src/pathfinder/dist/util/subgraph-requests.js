@@ -43,7 +43,7 @@ exports.uniswapV3Req = exports.uniswapV2Req = void 0;
 var axios_1 = __importDefault(require("axios"));
 var format_response_1 = require("./format-response");
 var subgraph_queries_1 = require("./subgraph-queries");
-function uniswapV2Req(url, address, amt) {
+function uniswapV2Req(url, address, amt, skipT0, skipT1, callT0, callT1) {
     return __awaiter(this, void 0, void 0, function () {
         var response, error_1;
         return __generator(this, function (_a) {
@@ -51,7 +51,7 @@ function uniswapV2Req(url, address, amt) {
                 case 0:
                     _a.trys.push([0, 2, , 3]);
                     return [4, axios_1.default.post(url, {
-                            query: (0, subgraph_queries_1.uniswapV2Query)(address, amt),
+                            query: (0, subgraph_queries_1.uniswapV2Query)(address, amt, skipT0, skipT1, callT0, callT1),
                         }, { timeout: 600000 })];
                 case 1:
                     response = _a.sent();
@@ -67,7 +67,7 @@ function uniswapV2Req(url, address, amt) {
     });
 }
 exports.uniswapV2Req = uniswapV2Req;
-function uniswapV3Req(url, address, amt) {
+function uniswapV3Req(url, address, amt, skipT0, skipT1, callT0, callT1) {
     return __awaiter(this, void 0, void 0, function () {
         var uniswap, error_2;
         return __generator(this, function (_a) {
@@ -75,7 +75,7 @@ function uniswapV3Req(url, address, amt) {
                 case 0:
                     _a.trys.push([0, 2, , 3]);
                     return [4, axios_1.default.post(url, {
-                            query: (0, subgraph_queries_1.uniswapV3Query)(address, amt),
+                            query: (0, subgraph_queries_1.uniswapV3Query)(address, amt, skipT0, skipT1, callT0, callT1),
                         }, { timeout: 600000 })];
                 case 1:
                     uniswap = _a.sent();
