@@ -22,7 +22,6 @@ export default function PositionBox({
     web3,
     accountId,
     tokensCleared,
-    setTokenOut,
     trade,
     stake,
     refAddress,
@@ -70,7 +69,7 @@ export default function PositionBox({
       setOceanToDt(new BigNumber(res1));
       setDtToOcean(new BigNumber(res2));
 
-      if (myPoolShares && myPoolShares !== "0") {
+      if (myPoolShares && myPoolShares !== '0') {
         const stakeInfo = {
           meta: [id, accountId, refAddress, config.custom.uniV2AdapterAddress],
           path: [baseToken.id],
@@ -83,7 +82,7 @@ export default function PositionBox({
 
         setYourLiquidity(new BigNumber(baseAmountOut || 0));
       } else {
-        setYourLiquidity(new BigNumber(0))
+        setYourLiquidity(new BigNumber(0));
       }
     } catch (error) {
       console.error(error);
@@ -123,7 +122,7 @@ export default function PositionBox({
             </p>
           </div>,
           '6rem',
-          !!poolDetails,
+          !!(poolDetails && tokenOut.info),
           2
         )}
       </div>

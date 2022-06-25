@@ -1,0 +1,64 @@
+{
+    "0x8967bcf84170c91b0d24d4302c2376283b0b3a07": {
+        "t0isOcean": [
+            {
+                "id": "0xfdd3a4d1b4d96e9812e27897346006b906bd98ce",
+                "token0": { "id": "0x8967bcf84170c91b0d24d4302c2376283b0b3a07" },
+                "token1": { "id": "0x1d0c4f1dc8058a5395b097de76d3cd8804ef6bb4" },
+                "totalValueLockedToken0": null,
+                "totalValueLockedToken1": null
+            },
+            {
+                "id": "0xe817e4183A09512B7438E1a6f6c121DBc179538e",
+                "token0": { "id": "0x8967bcf84170c91b0d24d4302c2376283b0b3a07" },
+                "token1": { "id": "0x8d2da54a1691fd7bd1cd0a242d922109b0616c68" },
+                "totalValueLockedToken0": null,
+                "totalValueLockedToken1": null
+            },
+            {
+                "id": "0xfd81eD84494Fa548C0A8b815Fbdc3b6bd47FC3b2",
+                "token0": { "id": "0x8967bcf84170c91b0d24d4302c2376283b0b3a07" },
+                "token1": { "id": "0xcf6823cf19855696d49c261e926dce2719875c3d" },
+                "totalValueLockedToken0": null,
+                "totalValueLockedToken1": null
+            }
+        ],
+        "t1isOcean": []
+    },
+    "0x1d0c4f1dc8058a5395b097de76d3cd8804ef6bb4": {
+        "t0isOcean": [
+            {
+                "id": "0xfdd3a4d1b4d96e9812e27897346006b906bd98ce",
+                "token0": { "id": "0x8967bcf84170c91b0d24d4302c2376283b0b3a07" },
+                "token1": { "id": "0x1d0c4f1dc8058a5395b097de76d3cd8804ef6bb4" },
+                "totalValueLockedToken0": null,
+                "totalValueLockedToken1": null
+            }
+        ],
+        "t1isOcean": []
+    },
+    "0x8d2da54a1691fd7bd1cd0a242d922109b0616c68": {
+        "t0isOcean": [
+            {
+                "id": "0xe817e4183A09512B7438E1a6f6c121DBc179538e",
+                "token0": { "id": "0x8967bcf84170c91b0d24d4302c2376283b0b3a07" },
+                "token1": { "id": "0x8d2da54a1691fd7bd1cd0a242d922109b0616c68" },
+                "totalValueLockedToken0": null,
+                "totalValueLockedToken1": null
+            }
+        ],
+        "t1isOcean": []
+    },
+    "0xcf6823cf19855696d49c261e926dce2719875c3d": {
+        "t0isOcean": [
+            {
+                "id": "0xfdd3a4d1b4d96e9812e27897346006b906bd98ce",
+                "token0": { "id": "0x8967bcf84170c91b0d24d4302c2376283b0b3a07" },
+                "token1": { "id": "0xcf6823cf19855696d49c261e926dce2719875c3d" },
+                "totalValueLockedToken0": null,
+                "totalValueLockedToken1": null
+            }
+        ],
+        "t1isOcean": []
+    }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "@dataxfi/pathfinder",
+  "version": "1.0.0",
+  "author": "DataX Finance (https://datax.fi)",
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports":{
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "yarn tsc",
+    "test": "yarn jest --detectOpenHandles"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.4.1",
+    "@types/node": "^17.0.23",
+    "jest": "^27.5.1",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.2"
+  },
+  "dependencies": {
+    "axios": "^0.26.1",
+    "web3": "^1.7.3"
+  }
+}

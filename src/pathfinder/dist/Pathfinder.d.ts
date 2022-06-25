@@ -1,0 +1,37 @@
+import Web3 from "web3";
+import { INextTokensToSearch, IPoolNode, ITokenGraph, supportedChains } from "./@types";
+export default class Pathfinder {
+    private fetchFunction;
+    nodes: ITokenGraph;
+    tokensChecked: Set<string>;
+    private pendingQueries;
+    private userTokenIn;
+    private userTokenOut;
+    private chainId;
+    private allPaths;
+    private trade;
+    constructor(chainId: supportedChains, web3?: Web3);
+    private addPoolNode;
+    private addTokenNode;
+    searchPoolData({ tokenAddress, destinationAddress, parentTokenAddress, IN, amt, poolsFromToken, nextTokensToSearch, }: {
+        poolsFromToken: IPoolNode[];
+        tokenAddress: string;
+        destinationAddress: string;
+        IN: boolean;
+        parentTokenAddress: string;
+        nextTokensToSearch: INextTokensToSearch;
+        amt?: string;
+    }): Promise<INextTokensToSearch | null>;
+    private getPoolData;
+    private getTokenPaths;
+    getTokenPath({ tokenAddress, destinationAddress, amt, abortSignal, IN, }: {
+        tokenAddress: string;
+        destinationAddress: string;
+        IN: boolean;
+        parentTokenAddress?: string;
+        amt?: string;
+        abortSignal?: AbortSignal;
+    }): Promise<string[]>;
+    private constructPath;
+    private resolveAllPaths;
+}
