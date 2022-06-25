@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { BsBoxArrowUpRight } from 'react-icons/bs';
 import { PulseLoader } from 'react-spinners';
 import { GlobalContext } from '../context/GlobalState';
-import { ITxDetails } from '../utils/types';
+import { ITxDetails } from '../@types/types';
 
 export default function TxHistoryItem({
   index,

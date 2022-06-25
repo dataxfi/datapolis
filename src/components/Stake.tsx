@@ -5,7 +5,7 @@ import { MoonLoader } from 'react-spinners';
 import { Link } from 'react-router-dom';
 import useLiquidityPos from '../hooks/useLiquidityPos';
 import BigNumber from 'bignumber.js';
-import { ITxDetails, IBtnProps, IPoolMetaData } from '../utils/types';
+import { ITxDetails, IBtnProps, IPoolMetaData } from '../@types/types';
 import useAutoLoadToken from '../hooks/useAutoLoadToken';
 import TokenSelect from './TokenSelect';
 import PositionBox from './PositionBox';

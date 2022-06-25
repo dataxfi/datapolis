@@ -1,4 +1,4 @@
-import { IBtnProps } from '../utils/types';
+import { IBtnProps } from '../@types/types';
 const Button = ({ classes, text, onClick, disabled, id }: IBtnProps) => {
   return (
     <button

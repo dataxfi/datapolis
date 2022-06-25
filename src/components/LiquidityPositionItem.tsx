@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../context/GlobalState';
-import { ILiquidityPosition } from '../utils/types';
+import { ILiquidityPosition } from '../@types/types';
 import { BsChevronDown, BsChevronUp } from 'react-icons/bs';
 import { Link } from 'react-router-dom';
 import useLiquidityPos from '../hooks/useLiquidityPos';

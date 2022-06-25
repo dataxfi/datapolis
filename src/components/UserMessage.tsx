@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { BsXCircle } from 'react-icons/bs';
-import { IUserMessage } from '../utils/types';
+import { IUserMessage } from '../@types/types';
 
 const UserMessage = ({
   id,

@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { GlobalContext } from '../context/GlobalState';
-import { ILiquidityPosition } from '../utils/types';
+import { ILiquidityPosition } from '../@types/types';
 import { getToken } from './useTokenList';
 import BigNumber from 'bignumber.js';
 

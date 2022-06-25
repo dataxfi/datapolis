@@ -3,7 +3,7 @@ import { GlobalContext } from '../context/GlobalState';
 import { Config, TokenList, ITList, ITokenInfo, Stake } from '@dataxfi/datax.js';
 import Web3 from 'web3';
 import axios from 'axios';
-import { supportedChains } from '../utils/types';
+import { supportedChains } from '../@types/types';
 export default function useTokenList({ setLoading, setError }: { setLoading?: Function; setError?: Function }) {
   const {
     location,

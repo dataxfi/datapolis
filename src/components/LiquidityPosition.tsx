@@ -3,7 +3,7 @@ import { GlobalContext } from '../context/GlobalState';
 import LiquidityPositionItem from './LiquidityPositionItem';
 import UserMessage from './UserMessage';
 import { MoonLoader } from 'react-spinners';
-import { IUserMessage, ILiquidityPosition } from '../utils/types';
+import { IUserMessage, ILiquidityPosition } from '../@types/types';
 import useLiquidityPos from '../hooks/useLiquidityPos';
 import useClearTokens from '../hooks/useClearTokens';
 

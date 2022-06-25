@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 // import { Config } from '@dataxfi/datax.js'
 import { GlobalContext } from '../context/GlobalState';
 import PendingTxsIndicator from './PendingTxsIndicator';
-import { INavText } from '../utils/types';
+import { INavText } from '../@types/types';
 
 const DesktopNavbar = ({
   links,

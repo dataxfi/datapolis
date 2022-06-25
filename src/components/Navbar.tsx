@@ -2,7 +2,7 @@ import MobileNavbar from './MobileNavbar';
 import DesktopNavbar from './DesktopNavbar';
 import { useContext } from 'react';
 import { GlobalContext } from '../context/GlobalState';
-import { supportedChains } from '../utils/types';
+import { supportedChains } from '../@types/types';
 
 const text = {
   T_SWAP: 'Trade',

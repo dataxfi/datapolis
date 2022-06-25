@@ -9,7 +9,7 @@ import useLiquidityPos from '../hooks/useLiquidityPos';
 import BigNumber from 'bignumber.js';
 import WrappedInput from './WrappedInput';
 import { getAllowance } from '../hooks/useTokenList';
-import { IPoolMetaData, ITxDetails } from '../utils/types';
+import { IPoolMetaData, ITxDetails } from '../@types/types';
 import useAutoLoadToken from '../hooks/useAutoLoadToken';
 import TokenSelect from './TokenSelect';
 import { IMaxUnstake } from '@dataxfi/datax.js';

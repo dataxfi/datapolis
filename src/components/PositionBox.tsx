@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { GlobalContext, placeHolderOrContent } from '../context/GlobalState';
 import BigNumber from 'bignumber.js';
-import { IPoolLiquidity } from '../utils/types';
+import { IPoolLiquidity } from '../@types/types';
 import { IPoolDetails, IToken } from '@dataxfi/datax.js';
 
 export default function PositionBox({

@@ -5,7 +5,7 @@ import { GlobalContext, placeHolderOrContent } from '../context/GlobalState';
 import { MoonLoader } from 'react-spinners';
 import BigNumber from 'bignumber.js';
 // import { getAllowance } from '../hooks/useTokenList';
-import { IBtnProps } from '../utils/types';
+import { IBtnProps } from '../@types/types';
 import { IMaxExchange } from '@dataxfi/datax.js';
 import DatasetDescription from './DTDescriptionModal';
 import ViewDescBtn from './ViewDescButton';

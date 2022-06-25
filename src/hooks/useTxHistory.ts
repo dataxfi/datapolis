@@ -1,7 +1,7 @@
 import { Config } from '@dataxfi/datax.js';
 import { useEffect, useContext } from 'react';
 import { GlobalContext } from '../context/GlobalState';
-import { ITxHistory } from '../utils/types';
+import { ITxHistory } from '../@types/types';
 
 export default function useTxHistory() {
   const {

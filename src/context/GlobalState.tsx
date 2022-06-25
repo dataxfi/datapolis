@@ -20,7 +20,7 @@ import {
   ISnackbarItem,
   supportedChains,
   ApprovalStates,
-} from '../utils/types';
+} from '../@types/types';
 import BigNumber from 'bignumber.js';
 import { Pathfinder } from '../pathfinder/dist';
 

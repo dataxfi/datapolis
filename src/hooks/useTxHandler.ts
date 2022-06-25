@@ -1,6 +1,6 @@
 import React, { SetStateAction, useContext, useEffect } from 'react';
 import { GlobalContext } from '../context/GlobalState';
-import { IPoolMetaData, ITxDetails, ITxType } from '../utils/types';
+import { IPoolMetaData, ITxDetails, ITxType } from '../@types/types';
 import BigNumber from 'bignumber.js';
 
 export default function useTxHandler(

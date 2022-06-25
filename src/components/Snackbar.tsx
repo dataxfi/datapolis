@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../context/GlobalState';
-import { ISnackbarItem, ITxDetails } from '../utils/types';
+import { ISnackbarItem, ITxDetails } from '../@types/types';
 import { BsX, BsXCircle } from 'react-icons/bs';
 import { IoCheckboxOutline } from 'react-icons/io5';
 import { getTxUrl } from '../hooks/useTxHistory';

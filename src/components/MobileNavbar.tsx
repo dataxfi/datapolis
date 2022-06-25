@@ -3,7 +3,7 @@ import { MdMenu, MdClose } from 'react-icons/md';
 import { useState, useEffect, useContext } from 'react';
 import { GlobalContext } from '../context/GlobalState';
 import PendingTxsIndicator from './PendingTxsIndicator';
-import { INavText } from '../utils/types';
+import { INavText } from '../@types/types';
 
 const MobileNavbar = ({
   links,

@@ -6,7 +6,7 @@ import BigNumber from 'bignumber.js';
 import WrappedInput from './WrappedInput';
 import { ReactComponent as XLogo } from '../assets/datax-x-logo.svg';
 import { IToken } from '@dataxfi/datax.js';
-import { TokenSelectTitles } from '../utils/types';
+import { TokenSelectTitles } from '../@types/types';
 import MaxToolTip from './MaxToolTip';
 import useTokenImgSrc from '../hooks/useTokenImgSrc';
 import TokenImage from './TokenImage';
