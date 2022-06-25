@@ -1,6 +1,6 @@
 import { useContext, useEffect } from 'react';
 import { GlobalContext } from '../context/GlobalState';
-import { Pathfinder } from '../pathfinder/src';
+import { Pathfinder } from '../pathfinder/dist';
 /**
  * Uses datax pathfinder to find a swap path between tokens.
  * @param tokenIn
