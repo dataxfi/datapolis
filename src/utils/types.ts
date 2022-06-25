@@ -4,7 +4,7 @@ import { ITList, ITokenInfo, IToken, Config, Watcher, Stake, Trade, IPoolDetails
 import { TransactionReceipt } from 'web3-core';
 import Web3 from 'web3';
 import Web3Modal from 'web3modal';
-import { Pathfinder } from '@dataxfi/pathfinder/dist';
+import { Pathfinder } from '../pathfinder/dist';
 
 export type ApprovalStates = 'approved' | 'approving' | 'pending';
 export type screenSize = 'mobile' | 'desktop';
