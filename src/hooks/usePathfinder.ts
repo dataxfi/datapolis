@@ -9,6 +9,8 @@ import { Pathfinder } from '../pathfinder/dist';
 export default function usePathfinder(tokenIn: string, tokenOut: string) {
   const { setPath, pathfinder, exactToken, chainId } = useContext(GlobalContext);
 
+  let controller = new AbortController();
+
   useEffect(() => {
     if (pathfinder && tokenIn && tokenOut) {
       if (chainId === '4') {
@@ -47,12 +49,14 @@ export default function usePathfinder(tokenIn: string, tokenOut: string) {
         return;
       }
 
+      const signal = controller.signal;
       console.log('getting path for ' + tokenIn + 'to' + tokenOut);
       pathfinder
         .getTokenPath({
           tokenAddress: tokenIn,
           destinationAddress: tokenOut,
           IN: exactToken === 1,
+          abortSignal: signal,
         })
         .then((res) => {
           setPath(res);
@@ -60,5 +64,9 @@ export default function usePathfinder(tokenIn: string, tokenOut: string) {
         })
         .catch(console.error);
     }
+
+    return () => {
+      controller.abort();
+    };
   }, [pathfinder, tokenIn, tokenOut]);
 }

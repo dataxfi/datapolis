@@ -271,6 +271,10 @@ var Pathfinder = (function () {
                                         return reject(new Error("Aborted"));
                                     });
                                     this.depth = 0;
+                                    this.nodes = {};
+                                    this.pathFound = false;
+                                    this.allPaths = [];
+                                    this.tokensChecked = new Set();
                                     tokenAddress = tokenAddress.toLowerCase();
                                     destinationAddress = destinationAddress.toLowerCase();
                                     if (!this.userTokenIn)

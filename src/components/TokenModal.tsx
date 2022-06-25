@@ -116,6 +116,7 @@ export default function TokenModal() {
   }
 
   const tokenSelected = async (token: ITokenInfo) => {
+    console.log(token)
     controller.abort();
     const newController = new AbortController();
     const signal = newController.signal;
