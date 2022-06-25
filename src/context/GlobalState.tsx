@@ -22,7 +22,7 @@ import {
   ApprovalStates,
 } from '../utils/types';
 import BigNumber from 'bignumber.js';
-import { Pathfinder } from '@dataxfi/pathfinder/dist';
+import { Pathfinder } from '../pathfinder/dist';
 
 const CONNECT_TEXT = 'Connect Wallet';
 export const INITIAL_TOKEN_STATE: IToken = {
