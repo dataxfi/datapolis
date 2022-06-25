@@ -33,7 +33,7 @@ export default function Snackbar() {
   }, [accountId, currentNot, config]);
 
   useEffect(() => {
-    if ((txDetails || currentNot?.error) && cleanup) {
+    if (cleanup) {
       display();
     }
 

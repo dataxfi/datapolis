@@ -42,7 +42,6 @@ function DisclaimerModal() {
     setShowDisclaimer(false);
     setBlurBG(false);
     setDisclaimerSigned({ client: false, wallet: false });
-    setSnackbarItem({ type: 'error', message: 'User Denied Disclaimer' });
   }
 
   return showDisclaimer ? (
