@@ -66,7 +66,7 @@ export default function TokenModal() {
   useEffect(() => {
     try {
       if (chainId && ERC20Tokens) {
-        console.log(ERC20Tokens)
+        // console.log(ERC20Tokens)
         const tokens = ERC20Tokens.filter((info) => {
           const match = commonTokens[chainId].find((token) => info.address === token);
           if (match) return info;

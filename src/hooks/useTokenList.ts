@@ -65,10 +65,10 @@ export default function useTokenList({ setLoading, setError }: { setLoading?: Fu
 
   useEffect(() => {
     if (!ERC20TokenResponse && chainId && config?.custom && web3) {
-      console.log("Fetching erc20 list")
+      // console.log("Fetching erc20 list")
       getERC20TokenList(config, chainId)
         .then((list) => {
-          console.log(list);
+          // console.log(list);
           
           if (!list) return;
           console.log("Setting ERC20List");

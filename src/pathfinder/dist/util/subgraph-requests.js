@@ -55,7 +55,6 @@ function uniswapV2Req(url, address, amt, skipT0, skipT1, callT0, callT1) {
                         }, { timeout: 600000 })];
                 case 1:
                     response = _a.sent();
-                    console.info("Response for token" + address + ":" + response);
                     return [2, (0, format_response_1.formatter)(response)];
                 case 2:
                     error_1 = _a.sent();
@@ -79,7 +78,6 @@ function uniswapV3Req(url, address, amt, skipT0, skipT1, callT0, callT1) {
                         }, { timeout: 600000 })];
                 case 1:
                     uniswap = _a.sent();
-                    console.info("Response for token" + address + ":" + uniswap);
                     return [2, (0, format_response_1.formatter)(uniswap)];
                 case 2:
                     error_2 = _a.sent();
