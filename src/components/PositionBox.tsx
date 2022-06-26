@@ -6,7 +6,7 @@ import { IPoolDetails, IToken } from '@dataxfi/datax.js';
 
 export default function PositionBox({
   loading,
-  setLoading, 
+  setLoading,
 }: {
   loading?: boolean;
   setLoading?: React.Dispatch<React.SetStateAction<boolean>>;
@@ -28,7 +28,7 @@ export default function PositionBox({
     config,
     poolDetails,
     setPoolDetails,
-  } = useContext(GlobalContext); 
+  } = useContext(GlobalContext);
 
   useEffect(() => {
     if (!chainId || !web3 || !accountId || !tokensCleared.current) return;
@@ -91,7 +91,7 @@ export default function PositionBox({
   }
 
   return (
-    <div className="flex border border-city-blue border-opacity-50 mt-4 rounded-lg p-2 w-full">
+    <div className="flex flex-col md:flex-row border border-city-blue border-opacity-50 mt-4 rounded-lg p-2 w-full">
       <div className="my-1 mr-4">
         <p className="text-gray-300 text-xs mb-1">Swap Rate</p>
         {placeHolderOrContent(
