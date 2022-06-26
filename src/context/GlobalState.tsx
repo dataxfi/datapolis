@@ -98,7 +98,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   });
 
   // transaction states
-  const [spotSwapFee, setSpotSwapFee] = useState<string | undefined> ("0");
+  const [spotSwapFee, setSpotSwapFee] = useState<string | undefined>('0');
   const baseMinExchange = '0.01';
   const [pendingTxs, setPendingTxs] = useState<string[]>([]);
   const [txHistory, setTxHistory] = useState<ITxHistory>();
@@ -175,6 +175,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
               package: WalletConnectProvider, // required
               options: {
                 infuraId: process.env.REACT_APP_INFURA_ID, // required
+                rpc: { 137: 'https://matic-mainnet.chainstacklabs.com' },
               },
             },
           }, // required
