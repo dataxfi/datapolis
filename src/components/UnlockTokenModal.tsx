@@ -177,7 +177,7 @@ export default function UnlockTokenModal() {
         <p className="text-sm lg:text-base text-center pb-5">
           DataX needs your permission to spend{' '}
           {location === remove ? preTxDetails.shares?.dp(5).toString() : tokenIn.value.dp(5).toString()}{' '}
-          {location === remove ? 'shares' : tokenIn.info?.symbol}.
+          {location === remove ? 'OPT' : tokenIn.info?.symbol}.
         </p>
 
         <button

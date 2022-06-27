@@ -107,7 +107,6 @@ export default function Unstake() {
   }, [singleLiquidityPos]);
 
   useEffect(() => {
-    console.log(!stake, !singleLiquidityPos, !accountId, !tokenOut.info?.address, !trade, !path);
     if (!stake || !singleLiquidityPos || !accountId || !tokenOut.info?.address || !trade || !path || !config) return;
     getMaxUnstake(getNewSignal())
       .then((res: IMaxUnstake | void) => {
@@ -140,7 +139,6 @@ export default function Unstake() {
 
   useEffect(() => {
     setInputDisabled(false);
-    console.log(allowance?.toString(), sharesToRemove.toString());
     if (!stake || !singleLiquidityPos) {
       setBtnDisabled(true);
       setInputDisabled(true);
@@ -267,14 +265,16 @@ export default function Unstake() {
 
           let { baseAmountOut, dataxFee, refFee } = await stake.calcTokenOutGivenPoolIn({
             meta,
-            uints: ['0', spotSwapFee, sharesPerc.toString()],
+            uints: [sharesPerc.toString(), spotSwapFee, '0'],
             path,
           });
 
+          const basePoolName = singleLiquidityPos?.baseToken.symbol;
+
           if (baseAmountOut && dataxFee && refFee) {
             setSharesToRemove(sharesPerc);
-            setDataxFee(to5(dataxFee));
-            setSwapFee(to5(refFee));
+            setDataxFee(`${to5(dataxFee)} ${basePoolName}`);
+            setSwapFee(`${to5(refFee)} ${basePoolName}`);
             setTokenOut({ ...tokenOut, value: new BigNumber(baseAmountOut) });
           }
 
@@ -319,7 +319,7 @@ export default function Unstake() {
       const stakeInfo = {
         meta,
         path,
-        uints: [tokenOut.value.toString(), spotSwapFee, sharesToRemove.toString()],
+        uints: [sharesToRemove.toString(), spotSwapFee, tokenOut.value.toString()],
       };
 
       console.log(stakeInfo);

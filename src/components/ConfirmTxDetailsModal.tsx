@@ -47,13 +47,13 @@ export default function ConfirmTxDetailsModal() {
     switch (location) {
       case '/stake':
         setTxTitle('Stake');
-        setPostExchangeString(`1 ${tokenIn.info?.symbol} = ${preTxDetails?.postExchange?.dp(5).toString()} Shares`);
-        setAfterSlippageString(`${preTxDetails?.afterSlippage.dp(5).toString()} Shares`);
+        setPostExchangeString(`1 ${tokenIn.info?.symbol} = ${preTxDetails?.postExchange?.dp(5).toString()} OPT`);
+        setAfterSlippageString(`${preTxDetails?.afterSlippage.dp(5).toString()} OPT`);
         break;
       case '/stake/remove':
         setTxTitle('Stake Removal');
         setPostExchangeString(`1 Share = ${preTxDetails?.postExchange?.dp(5).toString()} OCEAN`);
-        setAfterSlippageString('Shares');
+        setAfterSlippageString(`${preTxDetails?.pool?.datatoken.symbol} OPT`);
         break;
       default:
         setTxTitle('Swap');
@@ -130,11 +130,13 @@ export default function ConfirmTxDetailsModal() {
           {/* <ConfirmSwapListItem name="Route" value="ETH > KNC" /> */}
           <ConfirmTxListItem
             name={minOrMax}
-            value={`${preTxDetails?.afterSlippage.dp(5).toString()} ${location === '/stake/remove' ? 'Shares' : ''}`}
+            value={`${preTxDetails?.afterSlippage.dp(5).toString()} ${
+              location === '/stake/remove' ? `${preTxDetails?.pool?.datatoken.symbol} OPT` : ''
+            }`}
           />
           {/* <ConfirmSwapListItem name="Price impact" value="-0.62%" valueClass="text-green-500" /> */}
-          <ConfirmTxListItem name={`${txTitle} Fee`} value={preTxDetails?.swapFee || '0'} />
-          <ConfirmTxListItem name="DataX Fee" value={preTxDetails?.dataxFee || '0.01%'} />
+          <ConfirmTxListItem name={`${txTitle} Fee`} value={preTxDetails?.swapFee ? `${preTxDetails?.swapFee}` : '0'} />
+          <ConfirmTxListItem name="DataX Fee" value={preTxDetails?.dataxFee? `${preTxDetails?.dataxFee}` :'1 %'} />
           <ConfirmTxListItem name="Slippage Tolerance" value={slippage + ' %'} />
         </div>
         <div className="mt-4">
@@ -142,7 +144,7 @@ export default function ConfirmTxDetailsModal() {
             {exactToken === 1
               ? `You will receive at least ${afterSlippageString} or the transaction will revert.`
               : `You will spend at most ${afterSlippageString} or the transaction will revert.`}
-          </p>
+          </p> 
         </div>
         <div className="mt-4">
           <button

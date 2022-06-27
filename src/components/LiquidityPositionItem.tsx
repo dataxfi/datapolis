@@ -66,7 +66,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
               <div className="grid grid-cols-2 justify-between">
                 <div>
                   <p id="totalSharesTitle" className="text-gray-300 text-sm">
-                    Total Shares in Pool
+                    Total OPT
                   </p>
                 </div>
                 <div className="justify-self-end">
@@ -76,7 +76,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                 </div>
                 <div>
                   <p id="yourSharesTitle" className="text-gray-300 text-sm">
-                    Your Shares in Pool
+                    Your OPT
                   </p>
                 </div>
                 <div className="justify-self-end">
@@ -109,7 +109,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                 </div>
                 <div className="justify-self-end">
                   <p className="text-gray-100 text-sm ">
-                    {yourPoolSharePerc?.gte(1) ? `${yourPoolSharePerc?.dp(5).toString()} %` : yourPoolSharePerc?.eq(0) ? '0' : '< 0 %'}
+                    {yourPoolSharePerc?.gte(1) ? `${yourPoolSharePerc?.dp(5).toString()} %` : yourPoolSharePerc?.eq(0) ? '0' : '> 0 %'}
                   </p>
                 </div>
               </div>

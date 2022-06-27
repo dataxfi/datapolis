@@ -48,7 +48,7 @@ export default function ConfirmTxItem({ pos }: { pos: 1 | 2 }) {
         className="justify-self-end text-gray-100 text-lg pr-2"
       >
         {(location === '/stake/remove' && pos === 1) || (location === '/stake' && pos === 2)
-          ? 'Shares'
+          ? `${preTxDetails?.pool?.datatoken.symbol} OPT`
           : pos === 1
           ? tokenIn.info?.symbol
           : tokenOut.info?.symbol}

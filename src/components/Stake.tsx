@@ -18,7 +18,7 @@ import TxSettings from './TxSettings';
 import { IStakeInfo } from '@dataxfi/datax.js/dist/@types/stake';
 import usePathfinder from '../hooks/usePathfinder';
 import { getToken } from '../hooks/useTokenList';
-import { calcSlippage } from '../utils/utils';
+import { calcSlippage, to5 } from '../utils/utils';
 
 const INITIAL_BUTTON_STATE = {
   text: 'Connect wallet',
@@ -70,7 +70,7 @@ export default function Stake() {
   const [dataxFee, setDataxFee] = useState<string>();
   const [minStakeAmt, setMinStakeAmt] = useState<BigNumber>();
   const [poolMetaData, setPoolMetaData] = useState<IPoolMetaData>();
-  const [afterSlippage, setAfterSlippage] = useState<BigNumber>(new BigNumber(0))
+  const [afterSlippage, setAfterSlippage] = useState<BigNumber>(new BigNumber(0));
   // hooks
   useLiquidityPos(importPool, setImportPool);
   useAutoLoadToken();
@@ -81,7 +81,7 @@ export default function Stake() {
     swapFee,
     pool: poolMetaData,
     tokenToUnlock: tokenOut.info?.symbol,
-    afterSlippage
+    afterSlippage,
   });
   usePathfinder(tokenIn.info?.address || '', baseAddress);
 
@@ -106,7 +106,7 @@ export default function Stake() {
     if (tokenOut.info?.pools[0].id && stake) {
       stake.getBaseToken(tokenOut.info?.pools[0].id).then(setBaseAddress);
     }
-  }, [tokenOut.info?.pools[0].id, stake]);
+  }, [tokenOut.info?.pools.length, stake]);
 
   useEffect(() => {
     if (!tokensCleared.current) return;
@@ -215,9 +215,9 @@ export default function Stake() {
     try {
       setLoading(true);
 
-      const minAmountOut = calcSlippage(new BigNumber(sharesReceived), slippage, false)
-      setAfterSlippage(minAmountOut)
-      console.log("min amount out after slippage",minAmountOut)
+      const minAmountOut = calcSlippage(new BigNumber(sharesReceived), slippage, false);
+      setAfterSlippage(minAmountOut);
+      console.log('min amount out after slippage', minAmountOut);
       const stakeInfo: IStakeInfo = {
         meta,
         path,
@@ -324,10 +324,10 @@ export default function Stake() {
         if (calcResponse) {
           const { poolAmountOut, dataxFee, refFee } = calcResponse;
           if (poolAmountOut) setSharesReceived(new BigNumber(poolAmountOut));
-          const minAmountOut = calcSlippage(new BigNumber(poolAmountOut), slippage, false)
-          setAfterSlippage(minAmountOut)
-          setDataxFee(`${new BigNumber(dataxFee).dp(5).toString()} ${basePoolName}`);
-          setSwapFee(`${new BigNumber(Number(refFee)).dp(5).toString()} ${basePoolName}`);
+          const minAmountOut = calcSlippage(new BigNumber(poolAmountOut), slippage, false);
+          setAfterSlippage(minAmountOut);
+          setDataxFee(`${to5(dataxFee)} ${basePoolName}`);
+          setSwapFee(`${to5(refFee)} ${basePoolName}`);
         }
       } catch (error) {
         console.error(error);
