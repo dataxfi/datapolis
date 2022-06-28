@@ -7,12 +7,15 @@ import { Pathfinder } from '../pathfinder/dist';
  * @param tokenOut
  */
 export default function usePathfinder(tokenIn: string, tokenOut: string) {
-  const { setPath, pathfinder, exactToken, chainId } = useContext(GlobalContext);
+  const { setPath, exactToken, chainId } = useContext(GlobalContext);
 
   let controller = new AbortController();
 
   useEffect(() => {
-    if (pathfinder && tokenIn && tokenOut) {
+    if (tokenIn && tokenOut && chainId) {
+      console.log("Finding path for " + tokenIn + " ---> " + tokenOut)
+      // initially reset path on any change
+      setPath(undefined)
       if (chainId === '4') {
         console.log('setting path');
         // DAI -> ETH -> OCEAN
@@ -38,7 +41,7 @@ export default function usePathfinder(tokenIn: string, tokenOut: string) {
         // setPath(['0xc778417E063141139Fce010982780140Aa0cD5Ab', '0x8967bcf84170c91b0d24d4302c2376283b0b3a07']);
 
         //OCEAN -> ETH
-        setPath(['0x8967bcf84170c91b0d24d4302c2376283b0b3a07', '0xc778417E063141139Fce010982780140Aa0cD5Ab']);
+        // setPath(['0x8967bcf84170c91b0d24d4302c2376283b0b3a07', '0xc778417E063141139Fce010982780140Aa0cD5Ab']);
 
         // ocean -> eth -> uni
         // setPath([
@@ -50,7 +53,7 @@ export default function usePathfinder(tokenIn: string, tokenOut: string) {
       }
 
       const signal = controller.signal;
-      console.log('getting path for ' + tokenIn + 'to' + tokenOut);
+      const pathfinder = new Pathfinder(chainId)
       pathfinder
         .getTokenPath({
           tokenAddress: tokenIn,
@@ -67,6 +70,7 @@ export default function usePathfinder(tokenIn: string, tokenOut: string) {
 
     return () => {
       controller.abort();
+      setPath(undefined)
     };
-  }, [pathfinder, tokenIn, tokenOut]);
+  }, [tokenIn, tokenOut]);
 }

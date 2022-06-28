@@ -4,7 +4,6 @@ import { ITList, ITokenInfo, IToken, Config, Watcher, Stake, Trade, IPoolDetails
 import { TransactionReceipt } from 'web3-core';
 import Web3 from 'web3';
 import Web3Modal from 'web3modal';
-import { Pathfinder } from '../pathfinder/dist';
 
 export type ApprovalStates = 'approved' | 'approving' | 'pending';
 export type screenSize = 'mobile' | 'desktop';
@@ -130,7 +129,6 @@ export interface globalStates {
   stake: Stake | undefined;
   refAddress: string | undefined;
   trade: Trade | undefined;
-  pathfinder: Pathfinder | undefined;
   handleSignature: (account: string, web3: Web3, bypass: boolean) => Promise<string>;
   cookiesAllowed: boolean | null;
   setCookiesAllowed: React.Dispatch<React.SetStateAction<boolean | null>>;

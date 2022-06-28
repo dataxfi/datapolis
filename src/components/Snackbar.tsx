@@ -88,7 +88,7 @@ export default function Snackbar() {
                           txDetails.tokenIn.info?.symbol
                         } in ${txDetails.tokenOut.info.symbol}/OCEAN pool`
                       : txDetails.txType === 'unstake' && txDetails.shares && txDetails.pool
-                      ? `Unstake ${new BigNumber(txDetails.shares).dp(5).toString()} OPT from ${
+                      ? `Unstake ${new BigNumber(txDetails?.shares).dp(5).toString()} OPT from ${
                           txDetails.pool?.baseToken.symbol
                         }/${txDetails.pool?.datatoken.symbol} pool`
                       : txDetails.txType === 'approve'
@@ -109,7 +109,7 @@ export default function Snackbar() {
             ) : currentNot?.type === 'error' ? (
               <>
                 <BsXCircle className="text-red-500 mr-4" />
-                <p className='max-w-full'>{errorMessage(currentNot)}</p>
+                <p className='max-w-full text-xs'>{errorMessage(currentNot)}</p>
               </>
             ) : (
               <></>

@@ -22,7 +22,6 @@ import {
   ApprovalStates,
 } from '../@types/types';
 import BigNumber from 'bignumber.js';
-import { Pathfinder } from '../pathfinder/dist';
 
 const CONNECT_TEXT = 'Connect Wallet';
 export const INITIAL_TOKEN_STATE: IToken = {
@@ -73,7 +72,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [stake, setStake] = useState<Stake>();
   const [refAddress, setRefAddress] = useState<string>();
   const [trade, setTrade] = useState<Trade>();
-  const [pathfinder, setPathFinder] = useState<Pathfinder>();
 
   // loading state is to be used when the app needs to finish loading before a page can render (i.e. show loading screen)
   const [loading, setLoading] = useState<boolean>(true);
@@ -281,8 +279,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
       isSupportedChain(config, String(_chainId), accounts[0] ? accounts[0] : '');
 
-      const pathfinder = new Pathfinder(network, web3);
-      setPathFinder(pathfinder);
+
 
       setRefAddress(process.env.REACT_APP_REF_ADDRESS);
       setSpotSwapFee(process.env.REACT_APP_REF_FEE);
@@ -402,7 +399,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         spotSwapFee,
         baseMinExchange,
         setPath,
-        pathfinder,
         handleSignature,
         cookiesAllowed,
         setCookiesAllowed,

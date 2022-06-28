@@ -84,11 +84,11 @@ export default function Unstake() {
     unstake,
     executeUnstake,
     setExecuteUnlock,
-    { shares: sharesToRemove, pool: poolMetaData, dataxFee, swapFee, tokenToUnlock: 'Shares', afterSlippage },
+    { shares: sharesToRemove, pool: poolMetaData, dataxFee, swapFee, tokenToUnlock: 'OPT', afterSlippage },
     allowance,
     sharesToRemove
   );
-  usePathfinder(tokenOut.info?.address || '', baseAddress);
+  usePathfinder(baseAddress,tokenOut.info?.address || '');
 
   useEffect(() => {
     if (singleLiquidityPos?.address && stake) {
@@ -120,7 +120,7 @@ export default function Unstake() {
     getAllowance(singleLiquidityPos.address, accountId, contractToAllow, stake).then(async (res) => {
       console.log('Token out allowance for contract ', singleLiquidityPos.address, contractToAllow, res);
       if (tokenOut.info?.address) {
-        const balance = await trade?.getBalance(tokenOut.info.address, accountId);
+        const balance = await trade?.getBalance(tokenOut.info.address, accountId, false);
         setTokenOut({ ...tokenOut, balance: new BigNumber(balance) });
         setAllowance(new BigNumber(res));
       }

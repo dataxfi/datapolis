@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -78,18 +89,16 @@ var Pathfinder = (function () {
         this.nodes[tokenAdress] = { parent: parentTokenAddress, pools: {} };
     };
     Pathfinder.prototype.searchPoolData = function (_a) {
-        var poolsFromToken = _a.poolsFromToken, tokenAddress = _a.tokenAddress, destinationAddress = _a.destinationAddress, parentTokenAddress = _a.parentTokenAddress, IN = _a.IN, nextTokensToSearch = _a.nextTokensToSearch, amt = _a.amt;
+        var poolsFromToken = _a.poolsFromToken, tokenAddress = _a.tokenAddress, destinationAddress = _a.destinationAddress, parentTokenAddress = _a.parentTokenAddress, IN = _a.IN, amt = _a.amt;
         return __awaiter(this, void 0, void 0, function () {
+            var nextTokensToSearch;
             var _this = this;
             return __generator(this, function (_b) {
+                nextTokensToSearch = {};
                 return [2, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
                         var i, poolNode, t1IsIn, nextTokenAddress, nextAmt;
                         return __generator(this, function (_a) {
                             try {
-                                if (poolsFromToken.length === 0) {
-                                    console.error("There are no pools for " + tokenAddress + " on this chain.");
-                                    reject({ code: 1, message: "There are no pools for " + tokenAddress + " on this chain." });
-                                }
                                 for (i = 0; i < poolsFromToken.length; i++) {
                                     poolNode = poolsFromToken[i];
                                     t1IsIn = poolNode.t1Address === tokenAddress;
@@ -104,8 +113,7 @@ var Pathfinder = (function () {
                                     nextAmt = void 0;
                                     if (!IN)
                                         nextAmt = "1";
-                                    if (!nextTokensToSearch[nextTokenAddress])
-                                        IN ? (nextTokensToSearch[nextTokenAddress] = { parent: tokenAddress }) : (nextTokensToSearch[nextTokenAddress] = { parent: tokenAddress, amt: nextAmt[0] });
+                                    IN ? (nextTokensToSearch[nextTokenAddress] = { parent: tokenAddress }) : (nextTokensToSearch[nextTokenAddress] = { parent: tokenAddress, amt: nextAmt[0] });
                                     if (poolNode.t1Address.toLowerCase() === this.userTokenOut.toLowerCase() || poolNode.t2Address.toLowerCase() === this.userTokenOut.toLowerCase()) {
                                         this.addTokenNode(destinationAddress, tokenAddress);
                                         this.pathFound = true;
@@ -116,7 +124,7 @@ var Pathfinder = (function () {
                                 resolve(nextTokensToSearch);
                             }
                             catch (error) {
-                                console.error(error);
+                                reject(error);
                             }
                             return [2];
                         });
@@ -125,28 +133,27 @@ var Pathfinder = (function () {
         });
     };
     Pathfinder.prototype.getPoolData = function (_a) {
-        var tokenAddress = _a.tokenAddress, destinationAddress = _a.destinationAddress, amt = _a.amt, IN = _a.IN, parentTokenAddress = _a.parentTokenAddress, _b = _a.queryParams, queryParams = _b === void 0 ? { skipT0: 0, skipT1: 0, callT0: true, callT1: true } : _b, _c = _a.poolsFromToken, poolsFromToken = _c === void 0 ? [] : _c, _d = _a.nextTokensToSearch, nextTokensToSearch = _d === void 0 ? {} : _d;
+        var tokenAddress = _a.tokenAddress, destinationAddress = _a.destinationAddress, amt = _a.amt, IN = _a.IN, parentTokenAddress = _a.parentTokenAddress, _b = _a.queryParams, queryParams = _b === void 0 ? { skipT0: 0, skipT1: 0, callT0: true, callT1: true } : _b, _c = _a.poolsFromToken, poolsFromToken = _c === void 0 ? [] : _c, _d = _a.nextTokensToSearch, nextTokensToSearch = _d === void 0 ? {} : _d, _e = _a.skipRecurse, skipRecurse = _e === void 0 ? false : _e;
         return __awaiter(this, void 0, void 0, function () {
-            var skipT0, skipT1, callT0, callT1, response, t0MatchLength, t1MatchLength, allMatchedPools, newQueryParams, error_1;
-            return __generator(this, function (_e) {
-                switch (_e.label) {
+            var skipT0, skipT1, callT0, callT1, response, t0MatchLength, t1MatchLength, allMatchedPools, newQueryParams, _i, _f, _g, token, value, nextBatch, error_1;
+            return __generator(this, function (_h) {
+                switch (_h.label) {
                     case 0:
                         if (this.pathFound) {
                             return [2, null];
                         }
-                        _e.label = 1;
+                        _h.label = 1;
                     case 1:
-                        _e.trys.push([1, 6, , 7]);
+                        _h.trys.push([1, 10, , 11]);
                         tokenAddress = tokenAddress.toLowerCase();
                         destinationAddress = destinationAddress.toLowerCase();
                         skipT0 = queryParams.skipT0, skipT1 = queryParams.skipT1, callT0 = queryParams.callT0, callT1 = queryParams.callT1;
-                        if (this.tokensChecked.has(tokenAddress)) {
+                        if (this.tokensChecked.has(tokenAddress))
                             return [2];
-                        }
                         this.pendingQueries.add(tokenAddress);
                         return [4, this.fetchFunction(tokenAddress, amt, skipT0, skipT1, callT0, callT1)];
                     case 2:
-                        response = _e.sent();
+                        response = _h.sent();
                         t0MatchLength = 0, t1MatchLength = 0, allMatchedPools = [];
                         if (response.t0MatchLength)
                             t0MatchLength = response.t0MatchLength;
@@ -154,9 +161,8 @@ var Pathfinder = (function () {
                             t1MatchLength = response.t1MatchLength;
                         if (response.allMatchedPools)
                             allMatchedPools = response.allMatchedPools;
-                        if (!allMatchedPools) {
-                            throw new Error("Failed to retrieve subgraph data.");
-                        }
+                        if (allMatchedPools.length === 0)
+                            return [2];
                         poolsFromToken.push.apply(poolsFromToken, allMatchedPools);
                         return [4, this.searchPoolData({
                                 poolsFromToken: poolsFromToken,
@@ -165,11 +171,10 @@ var Pathfinder = (function () {
                                 IN: IN,
                                 parentTokenAddress: parentTokenAddress,
                                 amt: amt,
-                                nextTokensToSearch: nextTokensToSearch,
                             })];
                     case 3:
-                        nextTokensToSearch = _e.sent();
-                        if (!((nextTokensToSearch && t0MatchLength === 1000) || t1MatchLength === 1000)) return [3, 5];
+                        nextTokensToSearch = _h.sent();
+                        if (!(nextTokensToSearch && (t0MatchLength === 1000 || t1MatchLength === 1000))) return [3, 5];
                         if (t0MatchLength === 1000) {
                             skipT0 += 1000;
                             callT0 = true;
@@ -200,16 +205,34 @@ var Pathfinder = (function () {
                                 nextTokensToSearch: nextTokensToSearch,
                                 queryParams: newQueryParams,
                             })];
-                    case 4: return [2, _e.sent()];
+                    case 4:
+                        _h.sent();
+                        _h.label = 5;
                     case 5:
                         this.pendingQueries.delete(tokenAddress);
                         this.tokensChecked.add(tokenAddress);
-                        return [2, nextTokensToSearch];
+                        if (!(!skipRecurse && nextTokensToSearch && Object.keys(nextTokensToSearch).length > 0)) return [3, 9];
+                        _i = 0, _f = Object.entries(nextTokensToSearch);
+                        _h.label = 6;
                     case 6:
-                        error_1 = _e.sent();
+                        if (!(_i < _f.length)) return [3, 9];
+                        _g = _f[_i], token = _g[0], value = _g[1];
+                        if (this.pathFound)
+                            return [2];
+                        return [4, this.getPoolData({ destinationAddress: destinationAddress, tokenAddress: token, parentTokenAddress: value.parent, amt: value.amt, IN: IN, skipRecurse: true })];
+                    case 7:
+                        nextBatch = _h.sent();
+                        nextBatch ? (nextTokensToSearch = __assign(__assign({}, nextTokensToSearch), nextBatch)) : (nextTokensToSearch = null);
+                        _h.label = 8;
+                    case 8:
+                        _i++;
+                        return [3, 6];
+                    case 9: return [2, nextTokensToSearch];
+                    case 10:
+                        error_1 = _h.sent();
                         console.error("An error occured:", error_1);
-                        return [3, 7];
-                    case 7: return [2];
+                        return [3, 11];
+                    case 11: return [2];
                 }
             });
         });
@@ -217,43 +240,47 @@ var Pathfinder = (function () {
     Pathfinder.prototype.getTokenPaths = function (_a) {
         var tokenAddress = _a.tokenAddress, destinationAddress = _a.destinationAddress, IN = _a.IN, parentTokenAddress = _a.parentTokenAddress, amt = _a.amt;
         return __awaiter(this, void 0, void 0, function () {
-            var nextTokensToSearch, _i, _b, _c, token, value, path, error_2;
-            return __generator(this, function (_d) {
-                switch (_d.label) {
-                    case 0:
-                        _d.trys.push([0, 8, , 9]);
-                        return [4, this.getPoolData({ tokenAddress: tokenAddress, destinationAddress: destinationAddress, parentTokenAddress: parentTokenAddress, amt: amt, IN: IN })];
-                    case 1:
-                        nextTokensToSearch = _d.sent();
-                        if (!(nextTokensToSearch && Object.keys(nextTokensToSearch).length > 0)) return [3, 6];
-                        _i = 0, _b = Object.entries(nextTokensToSearch);
-                        _d.label = 2;
-                    case 2:
-                        if (!(_i < _b.length)) return [3, 5];
-                        _c = _b[_i], token = _c[0], value = _c[1];
-                        return [4, this.getTokenPaths({ destinationAddress: destinationAddress, tokenAddress: token, parentTokenAddress: value.parent, amt: value.amt, IN: IN })];
-                    case 3:
-                        _d.sent();
-                        _d.label = 4;
-                    case 4:
-                        _i++;
-                        return [3, 2];
-                    case 5: return [3, 7];
-                    case 6:
-                        if (this.pendingQueries.size === 0) {
-                            path = this.constructPath({ destination: this.userTokenOut });
-                            if (path) {
-                                this.allPaths.push(path);
+            var _this = this;
+            return __generator(this, function (_b) {
+                return [2, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                        var nextTokensToSearch, nextPromises, _i, _a, _b, token, value, path, error_2;
+                        return __generator(this, function (_c) {
+                            switch (_c.label) {
+                                case 0:
+                                    _c.trys.push([0, 3, , 4]);
+                                    return [4, this.getPoolData({ tokenAddress: tokenAddress, destinationAddress: destinationAddress, parentTokenAddress: parentTokenAddress, amt: amt, IN: IN })];
+                                case 1:
+                                    nextTokensToSearch = _c.sent();
+                                    nextPromises = [];
+                                    if (nextTokensToSearch && Object.keys(nextTokensToSearch).length > 0) {
+                                        for (_i = 0, _a = Object.entries(nextTokensToSearch); _i < _a.length; _i++) {
+                                            _b = _a[_i], token = _b[0], value = _b[1];
+                                            if (!this.pathFound)
+                                                nextPromises.push(this.getTokenPaths({ destinationAddress: destinationAddress, tokenAddress: token, parentTokenAddress: value.parent, amt: value.amt, IN: IN }));
+                                        }
+                                    }
+                                    return [4, Promise.allSettled(nextPromises)];
+                                case 2:
+                                    _c.sent();
+                                    if (!nextTokensToSearch && this.nodes[destinationAddress]) {
+                                        path = this.constructPath({ destination: this.userTokenOut });
+                                        if (path) {
+                                            this.allPaths.push(path);
+                                        }
+                                        resolve("Path found");
+                                    }
+                                    else {
+                                        resolve("No path found");
+                                    }
+                                    return [3, 4];
+                                case 3:
+                                    error_2 = _c.sent();
+                                    console.error(error_2);
+                                    return [3, 4];
+                                case 4: return [2];
                             }
-                        }
-                        _d.label = 7;
-                    case 7: return [3, 9];
-                    case 8:
-                        error_2 = _d.sent();
-                        console.error(error_2);
-                        return [3, 9];
-                    case 9: return [2];
-                }
+                        });
+                    }); })];
             });
         });
     };
@@ -263,13 +290,16 @@ var Pathfinder = (function () {
             var _this = this;
             return __generator(this, function (_b) {
                 return [2, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-                        var path;
+                        var path, error_3;
                         return __generator(this, function (_a) {
                             switch (_a.label) {
                                 case 0:
                                     abortSignal === null || abortSignal === void 0 ? void 0 : abortSignal.addEventListener("abort", function () {
                                         return reject(new Error("Aborted"));
                                     });
+                                    _a.label = 1;
+                                case 1:
+                                    _a.trys.push([1, 4, , 5]);
                                     this.depth = 0;
                                     this.nodes = {};
                                     this.pathFound = false;
@@ -285,14 +315,17 @@ var Pathfinder = (function () {
                                         return [2, resolve([tokenAddress])];
                                     }
                                     return [4, this.getTokenPaths({ tokenAddress: tokenAddress, destinationAddress: destinationAddress, amt: amt, IN: IN })];
-                                case 1:
-                                    _a.sent();
-                                    if (!(this.pendingQueries.size === 0)) return [3, 3];
-                                    return [4, this.resolveAllPaths()];
                                 case 2:
+                                    _a.sent();
+                                    return [4, this.resolveAllPaths()];
+                                case 3:
                                     path = _a.sent();
                                     return [2, resolve(path)];
-                                case 3: return [2];
+                                case 4:
+                                    error_3 = _a.sent();
+                                    console.error(error_3);
+                                    return [3, 5];
+                                case 5: return [2];
                             }
                         });
                     }); })];
@@ -341,7 +374,6 @@ var Pathfinder = (function () {
                                 return [2];
                             });
                         }); });
-                        console.log("Shortest path found: ", shortestPath);
                         return [2, shortestPath];
                 }
             });

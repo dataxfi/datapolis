@@ -116,8 +116,8 @@ export default function Stake() {
   }, [tokenIn.info?.address, tokenOut.info?.address, tokensCleared, accountId, path?.length]);
 
   useEffect(() => {
-    if (tokenIn.info && !tokenOut.info && trade && accountId) {
-      trade.getBalance(tokenIn.info.address, accountId).then((res) => {
+    if (tokenIn.info && trade && accountId) {
+      trade.getBalance(tokenIn.info.address, accountId, false).then((res) => {
         setTokenIn({ ...tokenIn, balance: new BigNumber(res) });
       });
     }
@@ -193,7 +193,7 @@ export default function Stake() {
           if (tokenIn.info?.address && tokenOut.info && config?.custom && trade) {
             stake.getAllowance(tokenIn.info?.address, accountId, config.custom.stakeRouterAddress).then(async (res) => {
               if (!tokenIn.info) return;
-              const balance = new BigNumber(await trade.getBalance(tokenIn.info.address, accountId));
+              const balance = new BigNumber(await trade.getBalance(tokenIn.info.address, accountId, false));
               setTokenIn({
                 ...tokenIn,
                 allowance: new BigNumber(res),

@@ -143,7 +143,7 @@ export default function TokenModal() {
           break;
       }
       if (setToken) setToken({ ...INITIAL_TOKEN_STATE, info: token });
-      trade.getBalance(token.address, accountId).then((balance) => {
+      trade.getBalance(token.address, accountId, false).then((balance) => {
         console.log('got balance: ', balance);
 
         if (setToken) setToken({ ...INITIAL_TOKEN_STATE, info: token, balance: new BigNumber(balance) });

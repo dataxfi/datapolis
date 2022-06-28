@@ -38,7 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.rinkebyPools = exports.moonriverPools = exports.bscPools = exports.mainnetPools = exports.maticPools = exports.energywebPools = void 0;
 var subgraph_requests_1 = require("./subgraph-requests");
-var minAmt = '10';
+var minAmt = '100';
 function energywebPools(address, amt, skipT0, skipT1, callT0, callT1) {
     if (amt === void 0) { amt = minAmt; }
     return __awaiter(this, void 0, void 0, function () {
