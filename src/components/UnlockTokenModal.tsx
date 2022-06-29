@@ -55,7 +55,7 @@ export default function UnlockTokenModal() {
             const allowance = new BigNumber(res);
             if (allowance.gte(txAmount)) {
               setExecuteUnlock(false);
-              setShowUnlockTokenModal(false)
+              setShowUnlockTokenModal(false);
               setPool(null);
               setAddress(null);
               setBlurBG(false);
@@ -85,7 +85,6 @@ export default function UnlockTokenModal() {
       let spender: string = '';
       let address: string = '';
 
-
       if (location !== '/trade' && tokenOut.info) {
         console.log('Getting base address in unlock token modal');
         const poolForBaseToken =
@@ -103,17 +102,19 @@ export default function UnlockTokenModal() {
           spender = contractToAllow;
         }
       }
-
+      
+      const approveTokenDecimals = location === '/stake/remove' ? 18 : tokenIn.info?.decimals;
       try {
         if (!accountId || (lastTx?.txType === 'unstake' && !lastTx?.shares)) return;
         let txReceipt;
         if (amount === 'perm') {
-          txReceipt = await trade.approve(address, accountId, new BigNumber(18e10).toString(), spender, false);
+          //TODO:Make this max uint 256
+          txReceipt = await trade.approve(address, accountId, new BigNumber(18e10).toString(), spender, false, approveTokenDecimals);
           setTokenIn({ ...tokenIn, allowance: new BigNumber(18e10) });
         } else {
           const txAmount = location === '/stake/remove' ? preTxDetails.shares : tokenIn.value;
           if (txAmount)
-            txReceipt = await trade.approve(address, accountId, txAmount.plus(0.001).toString(), spender, false);
+            txReceipt = await trade.approve(address, accountId, txAmount.plus(0.001).toString(), spender, false, approveTokenDecimals);
           setTokenIn({ ...tokenIn, allowance: tokenIn.value.plus(0.001) });
         }
         if (typeof txReceipt !== 'string') setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
@@ -121,14 +122,14 @@ export default function UnlockTokenModal() {
         setPool(spender);
         setAddress(address);
       } catch (error: any) {
-        console.error(error)
+        console.error(error);
         setShowUnlockTokenModal(false);
         setExecuteUnlock(false);
         if (lastTx) setLastTx({ ...lastTx, status: 'Failure' });
         setSnackbarItem({ type: 'error', message: error.error.message, error });
         switchOnLocation(false);
         setBlurBG(false);
-      } 
+      }
     }
   }
 

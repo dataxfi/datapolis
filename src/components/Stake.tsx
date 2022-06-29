@@ -87,47 +87,6 @@ export default function Stake() {
   usePathfinder(tokenIn.info?.address || '', baseAddress);
 
   useEffect(() => {
-    axios
-      .post('https://polygon.furadao.org/subgraphs/name/quickswap', {
-        query: `query {
-      t0isOcean: pairs(where:{token0_contains:"0xd6df932a45c0f255f85145f286ea0b292b21c90b" reserve0_gt:"10" volumeUSD_gt:"100"}
-      orderBy:reserveUSD
-      orderDirection:desc
-      )
-      {
-          id
-        token1{
-          id
-          name
-        }
-        token0{
-            id
-            name
-        }
-        totalValueLockedToken0:reserve0
-        totalValueLockedToken1:reserve1
-      }
-      
-      t1isOcean: pairs( where:{token1_contains:"0xd6df932a45c0f255f85145f286ea0b292b21c90b" reserve1_gt:"10" volumeUSD_gt:"100"}
-        orderBy:reserveUSD
-      orderDirection:desc){
-          id
-        token0{
-          id
-          name
-        } token1 {
-            id
-            name
-        }
-            totalValueLockedToken0:reserve0
-        totalValueLockedToken1:reserve1
-      }
-    }`,
-      })
-      .then(console.log); 
-  });
-
-  useEffect(() => {
     if (baseAddress && web3 && chainId && config && poolMetaData?.address.toLowerCase() !== baseAddress.toLowerCase()) {
       getToken(web3, chainId, baseAddress, 'exchange', config).then((res) => {
         if (res && tokenOut.info)
@@ -141,6 +100,8 @@ export default function Stake() {
   }, [tokenOut.info?.address, baseAddress, web3, chainId, config]);
 
   useEffect(() => {
+    // console.log(web3?.utils.toWei("696072.87374" ))
+
     console.log('Base address is ', baseAddress);
   }, [baseAddress, web3]);
 
@@ -174,6 +135,7 @@ export default function Stake() {
   }, [tokenIn.info?.address]);
 
   useEffect(() => {
+    console.log(lastTx)
     if (!accountId) {
       setBtnProps(INITIAL_BUTTON_STATE);
     } else if (!tokenOut.info) {

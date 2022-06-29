@@ -135,7 +135,7 @@ var Pathfinder = (function () {
     Pathfinder.prototype.getPoolData = function (_a) {
         var tokenAddress = _a.tokenAddress, destinationAddress = _a.destinationAddress, amt = _a.amt, IN = _a.IN, parentTokenAddress = _a.parentTokenAddress, _b = _a.queryParams, queryParams = _b === void 0 ? { skipT0: 0, skipT1: 0, callT0: true, callT1: true } : _b, _c = _a.poolsFromToken, poolsFromToken = _c === void 0 ? [] : _c, _d = _a.nextTokensToSearch, nextTokensToSearch = _d === void 0 ? {} : _d, _e = _a.skipRecurse, skipRecurse = _e === void 0 ? false : _e;
         return __awaiter(this, void 0, void 0, function () {
-            var skipT0, skipT1, callT0, callT1, response, t0MatchLength, t1MatchLength, allMatchedPools, newQueryParams, _i, _f, _g, token, value, nextBatch, error_1;
+            var skipT0, skipT1, callT0, callT1, response, t0MatchLength, t1MatchLength, allMatchedPools, newQueryParams, promises, _i, _f, _g, token, value, allSettled, tokenFound, error_1;
             return __generator(this, function (_h) {
                 switch (_h.label) {
                     case 0:
@@ -144,7 +144,7 @@ var Pathfinder = (function () {
                         }
                         _h.label = 1;
                     case 1:
-                        _h.trys.push([1, 10, , 11]);
+                        _h.trys.push([1, 8, , 9]);
                         tokenAddress = tokenAddress.toLowerCase();
                         destinationAddress = destinationAddress.toLowerCase();
                         skipT0 = queryParams.skipT0, skipT1 = queryParams.skipT1, callT0 = queryParams.callT0, callT1 = queryParams.callT1;
@@ -211,28 +211,34 @@ var Pathfinder = (function () {
                     case 5:
                         this.pendingQueries.delete(tokenAddress);
                         this.tokensChecked.add(tokenAddress);
-                        if (!(!skipRecurse && nextTokensToSearch && Object.keys(nextTokensToSearch).length > 0)) return [3, 9];
-                        _i = 0, _f = Object.entries(nextTokensToSearch);
-                        _h.label = 6;
+                        if (!(!skipRecurse && nextTokensToSearch && Object.keys(nextTokensToSearch).length > 0)) return [3, 7];
+                        promises = [];
+                        for (_i = 0, _f = Object.entries(nextTokensToSearch); _i < _f.length; _i++) {
+                            _g = _f[_i], token = _g[0], value = _g[1];
+                            promises.push(this.getPoolData({ destinationAddress: destinationAddress, tokenAddress: token, parentTokenAddress: value.parent, amt: value.amt, IN: IN, skipRecurse: true }));
+                        }
+                        return [4, Promise.allSettled(promises)];
                     case 6:
-                        if (!(_i < _f.length)) return [3, 9];
-                        _g = _f[_i], token = _g[0], value = _g[1];
-                        if (this.pathFound)
-                            return [2];
-                        return [4, this.getPoolData({ destinationAddress: destinationAddress, tokenAddress: token, parentTokenAddress: value.parent, amt: value.amt, IN: IN, skipRecurse: true })];
-                    case 7:
-                        nextBatch = _h.sent();
-                        nextBatch ? (nextTokensToSearch = __assign(__assign({}, nextTokensToSearch), nextBatch)) : (nextTokensToSearch = null);
-                        _h.label = 8;
+                        allSettled = _h.sent();
+                        tokenFound = allSettled.some(function (batch) {
+                            if (batch.status === "fulfilled") {
+                                if (batch.value === null) {
+                                    return true;
+                                }
+                                else {
+                                    nextTokensToSearch = __assign(__assign({}, nextTokensToSearch), batch.value);
+                                }
+                            }
+                        });
+                        if (tokenFound)
+                            nextTokensToSearch = null;
+                        _h.label = 7;
+                    case 7: return [2, nextTokensToSearch];
                     case 8:
-                        _i++;
-                        return [3, 6];
-                    case 9: return [2, nextTokensToSearch];
-                    case 10:
                         error_1 = _h.sent();
                         console.error("An error occured:", error_1);
-                        return [3, 11];
-                    case 11: return [2];
+                        return [3, 9];
+                    case 9: return [2];
                 }
             });
         });
@@ -356,24 +362,19 @@ var Pathfinder = (function () {
     Pathfinder.prototype.resolveAllPaths = function () {
         return __awaiter(this, void 0, void 0, function () {
             var shortestPath, allPathsResolved;
-            var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4, Promise.allSettled(this.allPaths)];
                     case 1:
                         allPathsResolved = _a.sent();
-                        allPathsResolved.forEach(function (promise) { return __awaiter(_this, void 0, void 0, function () {
-                            var path;
-                            return __generator(this, function (_a) {
-                                if (promise.status === "fulfilled") {
-                                    path = promise.value;
-                                    if (!shortestPath || shortestPath.length > path.length) {
-                                        shortestPath = path;
-                                    }
+                        allPathsResolved.forEach(function (promise) {
+                            if (promise.status === "fulfilled") {
+                                var path = promise.value;
+                                if (!shortestPath || shortestPath.length > path.length) {
+                                    shortestPath = path;
                                 }
-                                return [2];
-                            });
-                        }); });
+                            }
+                        });
                         return [2, shortestPath];
                 }
             });
