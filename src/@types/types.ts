@@ -218,8 +218,6 @@ export interface globalStates {
   setExactToken: React.Dispatch<React.SetStateAction<1 | 2>>;
   path: string[] | undefined;
   setPath: React.Dispatch<React.SetStateAction<string[] | undefined>>;
-  poolDetails: IPoolDetails | undefined;
-  setPoolDetails: React.Dispatch<React.SetStateAction<IPoolDetails | undefined>>;
   spotSwapFee: string | undefined;
   baseMinExchange: string;
   meta: string[] | undefined;

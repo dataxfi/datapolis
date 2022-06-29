@@ -2,7 +2,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { GlobalContext, placeHolderOrContent } from '../context/GlobalState';
 import BigNumber from 'bignumber.js';
 import { IPoolLiquidity } from '../@types/types';
-import { IPoolDetails, IToken } from '@dataxfi/datax.js';
+import { IPoolDetails, IToken, ITokenDetails, ITokenInfo } from '@dataxfi/datax.js';
+import { getToken } from '../hooks/useTokenList';
 
 export default function PositionBox({
   loading,
@@ -15,64 +16,54 @@ export default function PositionBox({
   const [oceanToDt, setOceanToDt] = useState<BigNumber>(new BigNumber(''));
   const [yourLiquidity, setYourLiquidity] = useState<BigNumber>(new BigNumber(0));
   const [yourShares, setYourShares] = useState<BigNumber>(new BigNumber(0));
-  const [] = useState<IPoolDetails>();
-  const {
-    tokenOut,
-    chainId,
-    web3,
-    accountId,
-    tokensCleared,
-    trade,
-    stake,
-    refAddress,
-    config,
-    poolDetails,
-    setPoolDetails,
-  } = useContext(GlobalContext);
+  const [reserves, setReserves] = useState<{ base: string; dt: string }>();
+  const [poolTokens, setPoolTokens] = useState<{ datatoken: ITokenInfo; baseToken: ITokenInfo }>();
+
+  const { tokenOut, chainId, web3, accountId, tokensCleared, trade, stake, refAddress, config } =
+    useContext(GlobalContext);
 
   useEffect(() => {
     if (!chainId || !web3 || !accountId || !tokensCleared.current) return;
-    if (tokenOut.info?.pools[0].id) {
-
-      // stake
-      //   ?.getPoolDetails(tokenOut.info.pools[0].id)
-      //   .then((res) => {
-      //     const { baseToken, datatoken, baseTokenLiquidity, datatokenLiquidity, id, totalShares } = res;
-      //     const poolDetails = {
-      //       id,
-      //       totalShares,
-      //       baseToken,
-      //       datatoken,
-      //       datatokenLiquidity: new BigNumber(datatokenLiquidity).dp(5).toString(),
-      //       baseTokenLiquidity: new BigNumber(baseTokenLiquidity).dp(5).toString(),
-      //     };
-      //     setPoolDetails(poolDetails);
-      //     updatePositionBox(poolDetails);
-      //   })
-      //   .catch(console.error);
+    if (tokenOut.info?.pools) {
+      updatePositionBox(tokenOut.info.pools[0].id);
     }
   }, [chainId, web3, accountId, tokenOut.info?.address, tokensCleared]);
 
-  async function updatePositionBox(pool: IPoolDetails) {
-    if (!accountId || !trade || !config || !refAddress) return;
+  async function updatePositionBox(poolAddress: string) {
+    if (!accountId || !trade || !config || !refAddress || !stake || !web3 || !chainId) return;
     try {
       if (setLoading) setLoading(true);
-      const { id, baseToken, datatoken } = pool;
 
-      const [res1, res2, myPoolShares] = await Promise.all([
-        trade?.getSpotPrice(id, baseToken.id, datatoken.id),
-        trade?.getSpotPrice(id, datatoken.id, baseToken.id),
-        stake?.sharesBalance(accountId, id.toLowerCase()),
+      const [baseTokenAddress, datatokenAddress] = await Promise.all([
+        stake?.getBaseToken(poolAddress),
+        stake?.getDatatoken(poolAddress),
       ]);
 
+      const [baseToken, datatoken] = await Promise.all([
+        getToken(web3, chainId, baseTokenAddress, 'exchange', config),
+        getToken(web3, chainId, poolAddress, 'pool', config),
+      ]);
+
+      if (baseToken && datatoken) setPoolTokens({ datatoken, baseToken });
+
+      const [oceanToDt, dtToOcean, myPoolShares, dt, base] = await Promise.all([
+        trade?.getSpotPrice(poolAddress, baseTokenAddress, datatokenAddress),
+        trade?.getSpotPrice(poolAddress, datatokenAddress, baseTokenAddress),
+        stake?.sharesBalance(accountId, poolAddress.toLowerCase()),
+        stake.getReserve(poolAddress, datatokenAddress),
+        stake.getReserve(poolAddress, baseTokenAddress),
+      ]);
+
+      setReserves({ dt, base });
+
       if (myPoolShares) setYourShares(new BigNumber(myPoolShares));
-      setOceanToDt(new BigNumber(res1));
-      setDtToOcean(new BigNumber(res2));
+      setOceanToDt(new BigNumber(oceanToDt));
+      setDtToOcean(new BigNumber(dtToOcean));
 
       if (myPoolShares && myPoolShares !== '0') {
         const stakeInfo = {
-          meta: [id, accountId, refAddress, config.custom.uniV2AdapterAddress],
-          path: [baseToken.id],
+          meta: [poolAddress, accountId, refAddress, config.custom.uniV2AdapterAddress],
+          path: [baseTokenAddress],
           uints: [myPoolShares, '0', '0'],
         };
 
@@ -114,14 +105,14 @@ export default function PositionBox({
         {placeHolderOrContent(
           <div id="poolLiquidity" className={`${loading ? 'blur-xs' : ''}`}>
             <p className="text-gray-200 text-xs">
-              {new BigNumber(poolDetails?.baseTokenLiquidity || 0).dp(2).toString()} {poolDetails?.baseToken.symbol}
+              {new BigNumber(reserves?.base || 0).dp(2).toString()} {poolTokens?.baseToken.symbol}
             </p>
             <p className="text-gray-200 text-xs">
-              {new BigNumber(poolDetails?.datatokenLiquidity || 0).dp(2).toString()} {poolDetails?.datatoken.symbol}
+              {new BigNumber(reserves?.dt || 0).dp(2).toString()} {poolTokens?.datatoken.symbol}
             </p>
           </div>,
           '6rem',
-          !!(poolDetails && tokenOut.info),
+          !!(poolTokens && tokenOut.info),
           2
         )}
       </div>
@@ -131,7 +122,7 @@ export default function PositionBox({
           <div id="yourLiquidity" className={`${loading ? 'blur-xs' : ''}`}>
             <p className="text-gray-200 text-xs">{yourShares.dp(5).toString()} shares</p>
             <p className="text-gray-200 text-xs">
-              {yourLiquidity.dp(5).toString()} {poolDetails?.baseToken.symbol}
+              {yourLiquidity.dp(5).toString()} {poolTokens?.baseToken.symbol}
             </p>
           </div>,
           '8rem',

@@ -133,8 +133,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [tokenOut, setTokenOut] = useState<IToken>(INITIAL_TOKEN_STATE);
   const selectTokenPos = useRef<1 | 2 | null>(null);
   const [importPool, setImportPool] = useState<string>();
-  const [poolDetails, setPoolDetails] = useState<IPoolDetails>();
-
   // bg states
   const [bgOff, setBgOff] = useState(false);
   const [blurBG, setBlurBG] = useState(false);
@@ -485,8 +483,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setSlippage,
         exactToken,
         setExactToken,
-        poolDetails,
-        setPoolDetails,
         meta,
         setMeta,
       }}

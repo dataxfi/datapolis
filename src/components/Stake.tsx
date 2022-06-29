@@ -19,6 +19,7 @@ import { IStakeInfo } from '@dataxfi/datax.js/dist/@types/stake';
 import usePathfinder from '../hooks/usePathfinder';
 import { getToken } from '../hooks/useTokenList';
 import { calcSlippage, to5 } from '../utils/utils';
+import { ITokenInfo } from '@dataxfi/datax.js';
 
 const INITIAL_BUTTON_STATE = {
   text: 'Connect wallet',
@@ -52,7 +53,6 @@ export default function Stake() {
     trade,
     path,
     web3,
-    poolDetails,
     swapFee,
     spotSwapFee,
     setSwapFee,
@@ -66,7 +66,7 @@ export default function Stake() {
   const [loading, setLoading] = useState(false);
   const [btnProps, setBtnProps] = useState<IBtnProps>(INITIAL_BUTTON_STATE);
   const [importPool, setImportPool] = useState<string>();
-  const [baseAddress, setBaseAddress] = useState<string>('');
+  const [baseToken, setBaseToken] = useState<ITokenInfo>();
   const [dataxFee, setDataxFee] = useState<string>();
   const [minStakeAmt, setMinStakeAmt] = useState<BigNumber>();
   const [poolMetaData, setPoolMetaData] = useState<IPoolMetaData>();
@@ -83,11 +83,17 @@ export default function Stake() {
     tokenToUnlock: tokenOut.info?.symbol,
     afterSlippage,
   });
-  usePathfinder(tokenIn.info?.address || '', baseAddress);
+  usePathfinder(tokenIn.info?.address || '', baseToken?.address);
 
   useEffect(() => {
-    if (baseAddress && web3 && chainId && config && poolMetaData?.address.toLowerCase() !== baseAddress.toLowerCase()) {
-      getToken(web3, chainId, baseAddress, 'exchange', config).then((res) => {
+    if (
+      baseToken &&
+      web3 &&
+      chainId &&
+      config &&
+      poolMetaData?.address.toLowerCase() !== baseToken.address.toLowerCase()
+    ) {
+      getToken(web3, chainId, baseToken.address, 'exchange', config).then((res) => {
         if (res && tokenOut.info)
           setPoolMetaData({
             baseToken: res,
@@ -96,17 +102,13 @@ export default function Stake() {
           });
       });
     }
-  }, [tokenOut.info?.address, baseAddress, web3, chainId, config]);
+  }, [tokenOut.info?.address, baseToken, web3, chainId, config]);
 
   useEffect(() => {
-    // console.log(web3?.utils.toWei("696072.87374" ))
-
-    console.log('Base address is ', baseAddress);
-  }, [baseAddress, web3]);
-
-  useEffect(() => {
-    if (tokenOut.info?.pools[0].id && stake) {
-      stake.getBaseToken(tokenOut.info?.pools[0].id).then(setBaseAddress);
+    if (tokenOut.info?.pools[0].id && stake && web3 && config && chainId) {
+      stake.getBaseToken(tokenOut.info?.pools[0].id).then((address) => {
+        getToken(web3, chainId, address, 'exchange', config).then(setBaseToken);
+      });
     }
   }, [tokenOut.info?.pools, stake]);
 
@@ -134,7 +136,7 @@ export default function Stake() {
   }, [tokenIn.info?.address]);
 
   useEffect(() => {
-    console.log(lastTx)
+    console.log(lastTx);
     if (!accountId) {
       setBtnProps(INITIAL_BUTTON_STATE);
     } else if (!tokenOut.info) {
@@ -284,8 +286,8 @@ export default function Stake() {
     if (val.lte(0)) return;
 
     if (
-      tokenOut.info?.pools[0].id &&
-      tokenIn.info?.address &&
+      tokenOut.info &&
+      tokenIn.info &&
       val &&
       path &&
       chainId &&
@@ -293,11 +295,12 @@ export default function Stake() {
       accountId &&
       refAddress &&
       trade &&
-      web3
+      web3 &&
+      baseToken
     ) {
       let amountIn = val.toString();
 
-      if (tokenIn.info.address.toLowerCase() !== baseAddress.toLowerCase()) {
+      if (tokenIn.info.address.toLowerCase() !== baseToken.address.toLowerCase()) {
         console.log('Getting base amount in from:', amountIn);
         const amountsOut = await trade.getAmountsOut(amountIn, path);
         const bn = new BigNumber(amountsOut[amountsOut.length - 1]);
@@ -307,12 +310,11 @@ export default function Stake() {
       console.log('base amount in', amountIn);
 
       const stakeInfo: IStakeInfo = {
-        meta: [tokenOut.info?.pools[0].id, accountId, refAddress, config.custom.uniV2AdapterAddress],
+        meta: [tokenOut.info.pools[0].id, accountId, refAddress, config.custom.uniV2AdapterAddress],
         uints: [amountIn, '0', '0'],
-        path: [baseAddress],
+        path: [baseToken.address],
       };
 
-      const basePoolName = poolDetails?.baseToken.symbol;
       try {
         const calcResponse = await stake?.calcPoolOutGivenTokenIn(stakeInfo);
         console.log(calcResponse);
@@ -321,8 +323,8 @@ export default function Stake() {
           if (poolAmountOut) setSharesReceived(new BigNumber(poolAmountOut));
           const minAmountOut = calcSlippage(new BigNumber(poolAmountOut), slippage, false);
           setAfterSlippage(minAmountOut);
-          setDataxFee(`${to5(dataxFee)} ${basePoolName}`);
-          setSwapFee(`${to5(refFee)} ${basePoolName}`);
+          setDataxFee(`${to5(dataxFee)} ${baseToken.symbol}`);
+          setSwapFee(`${to5(refFee)} ${baseToken.symbol}`);
         }
       } catch (error) {
         console.error(error);

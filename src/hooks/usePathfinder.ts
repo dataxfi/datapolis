@@ -6,7 +6,7 @@ import { GlobalContext } from '../context/GlobalState';
  * @param tokenIn
  * @param tokenOut
  */
-export default function usePathfinder(tokenIn: string, tokenOut: string) {
+export default function usePathfinder(tokenIn: string | undefined, tokenOut: string | undefined) {
   const { setPath, exactToken, chainId } = useContext(GlobalContext);
 
   let controller = new AbortController();
