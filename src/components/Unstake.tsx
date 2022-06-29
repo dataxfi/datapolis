@@ -324,10 +324,10 @@ export default function Unstake() {
 
       console.log(stakeInfo);
 
-      const txReceipt =
-        tokenOut.info?.address.toLowerCase() === config?.custom.nativeAddress.toLowerCase()
-          ? await stake.unstakeETHFromDTPool(stakeInfo, accountId)
-          : await stake.unstakeTokenFromDTPool(stakeInfo, accountId);
+      const txReceipt = await stake.unstakeTokenFromDTPool(stakeInfo, accountId)
+        // tokenOut.info?.address.toLowerCase() === config?.custom.nativeAddress.toLowerCase()
+        //   ? await stake.unstakeETHFromDTPool(stakeInfo, accountId)
+        //   : await stake.unstakeTokenFromDTPool(stakeInfo, accountId);
 
       setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
       transactionTypeGA('unstake');

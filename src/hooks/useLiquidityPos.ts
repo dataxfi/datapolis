@@ -4,6 +4,7 @@ import { GlobalContext } from '../context/GlobalState';
 import { ILiquidityPosition } from '../@types/types';
 import { getToken } from './useTokenList';
 import BigNumber from 'bignumber.js';
+import { bn } from '../utils/utils';
 
 export default function useLiquidityPos(
   updatePool?: string | undefined,
@@ -92,28 +93,36 @@ export default function useLiquidityPos(
     if (!accountId || !web3 || !chainId || !stake || !config || !config.default.oceanTokenAddress) return;
     try {
       poolAddress = poolAddress.toLowerCase();
-      const shares = new BigNumber(await stake.sharesBalance(accountId, poolAddress));
-      const token1Info = await getToken(web3, chainId, config.default.oceanTokenAddress, 'exchange', config);
-      const token2Info = await getToken(web3, chainId, poolAddress, 'pool', config);
-      const totalPoolShares = new BigNumber(await stake.getTotalPoolShares(poolAddress));
-      const userPoolSharePerc = shares.div(totalPoolShares).multipliedBy(100);
-      const { baseToken, datatoken, baseTokenLiquidity, datatokenLiquidity, totalShares } = await stake.getPoolDetails(
-        poolAddress
-      );
+      const baseTokenAddress = await stake.getBaseToken(poolAddress);
 
-      if (token1Info && token2Info) {
-        return {
-          address: poolAddress,
-          accountId,
-          totalPoolShares,
-          yourPoolSharePerc: userPoolSharePerc,
-          baseAmount: new BigNumber(baseTokenLiquidity),
-          dtAmount: new BigNumber(datatokenLiquidity),
-          baseToken: token1Info,
-          datatoken: token2Info,
-          shares,
-        };
-      }
+      const [baseToken, datatoken] = await Promise.all([
+        getToken(web3, chainId, baseTokenAddress, 'exchange', config),
+        getToken(web3, chainId, poolAddress, 'pool', config),
+      ]);
+
+      if (!baseToken || !datatoken) throw new Error('BaseToken or Datatoken not found.');
+
+      const [shares, totalPoolShares, baseTokenReserve, datatokenReserve] = await Promise.all([
+        stake.sharesBalance(accountId, poolAddress),
+        stake.getTotalPoolShares(poolAddress),
+        stake.getReserve(poolAddress, baseToken.address, baseToken.decimals),
+        stake.getReserve(poolAddress, datatoken.address, datatoken.decimals),
+      ]);
+
+      const sharesBN = bn(shares);
+      const userPoolSharePerc = sharesBN.div(totalPoolShares).multipliedBy(100);
+
+      return {
+        address: poolAddress,
+        accountId,
+        totalPoolShares: bn(totalPoolShares),
+        yourPoolSharePerc: userPoolSharePerc,
+        baseAmount: bn(baseTokenReserve),
+        dtAmount: bn(datatokenReserve),
+        baseToken,
+        datatoken,
+        shares: bn(shares),
+      };
     } catch (error) {
       console.error(error);
     }

@@ -33,22 +33,23 @@ export default function PositionBox({
   useEffect(() => {
     if (!chainId || !web3 || !accountId || !tokensCleared.current) return;
     if (tokenOut.info?.pools[0].id) {
-      stake
-        ?.getPoolDetails(tokenOut.info.pools[0].id)
-        .then((res) => {
-          const { baseToken, datatoken, baseTokenLiquidity, datatokenLiquidity, id, totalShares } = res;
-          const poolDetails = {
-            id,
-            totalShares,
-            baseToken,
-            datatoken,
-            datatokenLiquidity: new BigNumber(datatokenLiquidity).dp(5).toString(),
-            baseTokenLiquidity: new BigNumber(baseTokenLiquidity).dp(5).toString(),
-          };
-          setPoolDetails(poolDetails);
-          updatePositionBox(poolDetails);
-        })
-        .catch(console.error);
+
+      // stake
+      //   ?.getPoolDetails(tokenOut.info.pools[0].id)
+      //   .then((res) => {
+      //     const { baseToken, datatoken, baseTokenLiquidity, datatokenLiquidity, id, totalShares } = res;
+      //     const poolDetails = {
+      //       id,
+      //       totalShares,
+      //       baseToken,
+      //       datatoken,
+      //       datatokenLiquidity: new BigNumber(datatokenLiquidity).dp(5).toString(),
+      //       baseTokenLiquidity: new BigNumber(baseTokenLiquidity).dp(5).toString(),
+      //     };
+      //     setPoolDetails(poolDetails);
+      //     updatePositionBox(poolDetails);
+      //   })
+      //   .catch(console.error);
     }
   }, [chainId, web3, accountId, tokenOut.info?.address, tokensCleared]);
 
