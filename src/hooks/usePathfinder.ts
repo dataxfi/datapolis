@@ -1,6 +1,6 @@
+import axios from 'axios';
 import { useContext, useEffect } from 'react';
 import { GlobalContext } from '../context/GlobalState';
-import { Pathfinder } from '../pathfinder/dist';
 /**
  * Uses datax pathfinder to find a swap path between tokens.
  * @param tokenIn
@@ -13,9 +13,9 @@ export default function usePathfinder(tokenIn: string, tokenOut: string) {
 
   useEffect(() => {
     if (tokenIn && tokenOut && chainId) {
-      console.log("Finding path for " + tokenIn + " ---> " + tokenOut)
+      console.log('Finding path for ' + tokenIn + ' ---> ' + tokenOut);
       // initially reset path on any change
-      setPath(undefined)
+      setPath(undefined);
       if (chainId === '4') {
         console.log('setting path');
         // DAI -> ETH -> OCEAN
@@ -51,26 +51,25 @@ export default function usePathfinder(tokenIn: string, tokenOut: string) {
         // ])
         return;
       }
-
-      const signal = controller.signal;
-      const pathfinder = new Pathfinder(chainId)
-      pathfinder
-        .getTokenPath({
-          tokenAddress: tokenIn,
-          destinationAddress: tokenOut,
-          IN: exactToken === 1,
-          abortSignal: signal,
+      axios
+        .post('https://pathfinder-five.vercel.app/api/pathfinder/v2', {
+          tokenIn: tokenIn,
+          tokenOut: tokenOut,
+          chainId: chainId,
         })
         .then((res) => {
-          setPath(res);
-          console.log(res);
-        })
-        .catch(console.error);
+          console.log(res)
+          const {
+            data: { path },
+          } = res;
+          console.log(path);
+          setPath(path);
+        });
     }
 
     return () => {
       controller.abort();
-      setPath(undefined)
+      setPath(undefined);
     };
   }, [tokenIn, tokenOut]);
 }
