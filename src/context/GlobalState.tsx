@@ -112,7 +112,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [swapFee, setSwapFee] = useState<string>('0');
   const [afterSlippage, setAfterSlippage] = useState<BigNumber>(new BigNumber(0));
   const [slippage, setSlippage] = useState<BigNumber>(new BigNumber(1));
-  const [path, setPath] = useState<string[]>();
+  const [path, setPath] = useState<string[] | null>([]);
   const [meta, setMeta] = useState<string[]>();
 
   // user pool information states

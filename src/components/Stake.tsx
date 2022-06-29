@@ -18,14 +18,8 @@ import TxSettings from './TxSettings';
 import { IStakeInfo } from '@dataxfi/datax.js/dist/@types/stake';
 import usePathfinder from '../hooks/usePathfinder';
 import { getToken } from '../hooks/useTokenList';
-import { calcSlippage, to5 } from '../utils/utils';
+import { calcSlippage, to5, BtnManager, INITIAL_BUTTON_STATE } from '../utils/utils';
 import { ITokenInfo } from '@dataxfi/datax.js';
-
-const INITIAL_BUTTON_STATE = {
-  text: 'Connect wallet',
-  classes: '',
-  disabled: false,
-};
 
 export default function Stake() {
   const {
@@ -128,59 +122,47 @@ export default function Stake() {
   }, [tokenIn.info?.address, accountId]);
 
   useEffect(() => {
-    if (tokenIn.info?.address) {
+    if (path && path?.length > 0) {
       if (path && web3) {
         trade?.getAmountsIn(baseMinExchange, path).then((res) => setMinStakeAmt(new BigNumber(res[0])));
       }
     }
   }, [tokenIn.info?.address]);
 
-  useEffect(() => {
-    console.log(lastTx);
-    if (!accountId) {
-      setBtnProps(INITIAL_BUTTON_STATE);
-    } else if (!tokenOut.info) {
+  const updateBtn = (text?: string, disabled?: boolean, rest?: IBtnProps) => {
+    if (!rest) rest = INITIAL_BUTTON_STATE;
+    if (text && disabled) {
       setBtnProps({
-        ...INITIAL_BUTTON_STATE,
-        text: 'Select a Token',
-        disabled: true,
-      });
-    } else if (!tokenIn.value || tokenIn.value.eq(0)) {
-      setBtnProps({
-        ...INITIAL_BUTTON_STATE,
-        text: 'Enter Stake Amount',
-        disabled: true,
-      });
-    } else if (tokenIn.balance?.eq(0) || (tokenIn.balance && tokenIn.value.gt(tokenIn.balance))) {
-      setBtnProps({
-        ...INITIAL_BUTTON_STATE,
-        text: `Not Enough ${tokenIn.info?.symbol} Balance`,
-        disabled: true,
-      });
-    } else if (lastTx?.status === 'Pending' && (executeStake || executeUnlock)) {
-      setBtnProps({
-        ...INITIAL_BUTTON_STATE,
-        text: 'Processing Transaction...',
-        disabled: true,
-      });
-    } else if (minStakeAmt && tokenIn.value.isLessThan(minStakeAmt)) {
-      setBtnProps({
-        ...INITIAL_BUTTON_STATE,
-        text: `Minimum Stake is ${minStakeAmt} ${tokenIn.info?.symbol}`,
-        disabled: true,
-      });
-    } else if (tokenIn.allowance?.lt(tokenIn.value)) {
-      setBtnProps({
-        ...btnProps,
-        text: `Unlock ${tokenIn.info?.symbol}`,
-        disabled: false,
+        ...rest,
+        text,
+        disabled,
       });
     } else {
-      setBtnProps({
-        ...btnProps,
-        disabled: false,
-        text: 'Stake',
-      });
+      setBtnProps(rest);
+    }
+  }
+
+  useEffect(() => {
+    if (!accountId) {
+      updateBtn();
+    } else if (!tokenOut.info) {
+      updateBtn('Select a Pool', true);
+    } else if (!tokenIn.info) {
+      updateBtn('Select a Token', true);
+    } else if (path && path?.length === 0) {
+      updateBtn('Routing...', true);
+    } else if (!tokenIn.value || tokenIn.value.eq(0)) {
+      updateBtn('Enter Stake Amount', true);
+    } else if (tokenIn.balance?.eq(0) || (tokenIn.balance && tokenIn.value.gt(tokenIn.balance))) {
+      updateBtn(`Not Enough ${tokenIn.info?.symbol} Balance`, true);
+    } else if (lastTx?.status === 'Pending' && (executeStake || executeUnlock)) {
+      updateBtn('Processing Transaction...', true);
+    } else if (minStakeAmt && tokenIn.value.isLessThan(minStakeAmt)) {
+      updateBtn(`Minimum Stake is ${minStakeAmt} ${tokenIn.info?.symbol}`, true);
+    } else if (tokenIn.allowance?.lt(tokenIn.value)) {
+      updateBtn(`Unlock ${tokenIn.info?.symbol}`, false);
+    } else {
+      updateBtn('Stake', false, btnProps);
     }
   }, [accountId, chainId, tokenOut, tokenIn.value, tokenIn.balance, loading, tokenIn.info, lastTx?.status]);
 

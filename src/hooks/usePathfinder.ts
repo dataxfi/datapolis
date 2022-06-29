@@ -7,7 +7,7 @@ import { GlobalContext } from '../context/GlobalState';
  * @param tokenOut
  */
 export default function usePathfinder(tokenIn: string | undefined, tokenOut: string | undefined) {
-  const { setPath, exactToken, chainId } = useContext(GlobalContext);
+  const { setPath, chainId } = useContext(GlobalContext);
 
   let controller = new AbortController();
 
@@ -15,7 +15,7 @@ export default function usePathfinder(tokenIn: string | undefined, tokenOut: str
     if (tokenIn && tokenOut && chainId) {
       console.log('Finding path for ' + tokenIn + ' ---> ' + tokenOut);
       // initially reset path on any change
-      setPath(undefined);
+      setPath([]);
       if (chainId === '4') {
         console.log('setting path');
         // DAI -> ETH -> OCEAN
@@ -58,18 +58,21 @@ export default function usePathfinder(tokenIn: string | undefined, tokenOut: str
           chainId: chainId,
         })
         .then((res) => {
-          console.log(res)
+          console.log(res);
           const {
             data: { path },
           } = res;
           console.log(path);
           setPath(path);
+        })
+        .catch(() => {
+          setPath(null);
         });
     }
 
     return () => {
       controller.abort();
-      setPath(undefined);
+      setPath([]);
     };
   }, [tokenIn, tokenOut]);
 }

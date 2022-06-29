@@ -216,8 +216,8 @@ export interface globalStates {
   setSlippage: React.Dispatch<React.SetStateAction<BigNumber>>;
   exactToken: 1 | 2;
   setExactToken: React.Dispatch<React.SetStateAction<1 | 2>>;
-  path: string[] | undefined;
-  setPath: React.Dispatch<React.SetStateAction<string[] | undefined>>;
+  path: string[] | null;
+  setPath: React.Dispatch<React.SetStateAction<string[] | null>>;
   spotSwapFee: string | undefined;
   baseMinExchange: string;
   meta: string[] | undefined;
