@@ -129,40 +129,28 @@ export default function Stake() {
     }
   }, [tokenIn.info?.address]);
 
-  const updateBtn = (text?: string, disabled?: boolean, rest?: IBtnProps) => {
-    if (!rest) rest = INITIAL_BUTTON_STATE;
-    if (text && disabled) {
-      setBtnProps({
-        ...rest,
-        text,
-        disabled,
-      });
-    } else {
-      setBtnProps(rest);
-    }
-  }
-
   useEffect(() => {
+    const btnManager = new BtnManager(setBtnProps)
     if (!accountId) {
-      updateBtn();
+      btnManager.updateBtn();
     } else if (!tokenOut.info) {
-      updateBtn('Select a Pool', true);
+      btnManager.updateBtn('Select a Pool', true);
     } else if (!tokenIn.info) {
-      updateBtn('Select a Token', true);
+      btnManager.updateBtn('Select a Token', true);
     } else if (path && path?.length === 0) {
-      updateBtn('Routing...', true);
+      btnManager.updateBtn('Routing...', true);
     } else if (!tokenIn.value || tokenIn.value.eq(0)) {
-      updateBtn('Enter Stake Amount', true);
+      btnManager.updateBtn('Enter Stake Amount', true);
     } else if (tokenIn.balance?.eq(0) || (tokenIn.balance && tokenIn.value.gt(tokenIn.balance))) {
-      updateBtn(`Not Enough ${tokenIn.info?.symbol} Balance`, true);
+      btnManager.updateBtn(`Not Enough ${tokenIn.info?.symbol} Balance`, true);
     } else if (lastTx?.status === 'Pending' && (executeStake || executeUnlock)) {
-      updateBtn('Processing Transaction...', true);
+      btnManager.updateBtn('Processing Transaction...', true);
     } else if (minStakeAmt && tokenIn.value.isLessThan(minStakeAmt)) {
-      updateBtn(`Minimum Stake is ${minStakeAmt} ${tokenIn.info?.symbol}`, true);
+      btnManager.updateBtn(`Minimum Stake is ${minStakeAmt} ${tokenIn.info?.symbol}`, true);
     } else if (tokenIn.allowance?.lt(tokenIn.value)) {
-      updateBtn(`Unlock ${tokenIn.info?.symbol}`, false);
+      btnManager.updateBtn(`Unlock ${tokenIn.info?.symbol}`, false);
     } else {
-      updateBtn('Stake', false, btnProps);
+      btnManager.updateBtn('Stake', false, btnProps);
     }
   }, [accountId, chainId, tokenOut, tokenIn.value, tokenIn.balance, loading, tokenIn.info, lastTx?.status]);
 
