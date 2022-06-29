@@ -69,10 +69,10 @@ export default function useTokenList({ setLoading, setError }: { setLoading?: Fu
       getERC20TokenList(config, chainId)
         .then((list) => {
           // console.log(list);
-
+          
           if (!list) return;
-          console.log('Setting ERC20List');
-
+          console.log("Setting ERC20List");
+          
           setERC20List(list);
         })
         .catch((error) => {
@@ -144,32 +144,21 @@ export async function getToken(
   address: string,
   addressType: 'pool' | 'exchange',
   config: Config
-): Promise<ITokenInfo | void> {
+): Promise<ITokenInfo | undefined> {
   try {
     const dtList = await getDtTokenList(web3, chainId);
     const erc20List = await getERC20TokenList(config, chainId);
 
-    const canReturn = (found: ITokenInfo | undefined) => {
-      if (!found) {
-        throw new Error('Token not found in list');
-      } else {
-        return found;
-      }
-    };
-
     if (addressType === 'pool') {
-      canReturn(
-        dtList?.tokens.find((token) => {
-          if (token.pools[0]) return token.pools[0].id.toLowerCase() === address.toLowerCase();
-        })
-      );
+      return dtList?.tokens.find((token) => {
+        if (token.pools[0]) return token.pools[0].id.toLowerCase() === address.toLowerCase();
+      });
     }
 
     const regSearch = (token: ITokenInfo) => token.address.toLowerCase() === address.toLowerCase();
-
-    canReturn(erc20List?.tokens?.find((token: ITokenInfo) => token.address.toLowerCase() === address.toLowerCase()));
-
-    canReturn(dtList?.tokens.find(regSearch));
+    let found = erc20List?.tokens?.find((token: ITokenInfo) => token.address.toLowerCase() === address.toLowerCase());
+    if (found) return found;
+    return dtList?.tokens.find(regSearch);
   } catch (error) {
     console.error(error);
   }
