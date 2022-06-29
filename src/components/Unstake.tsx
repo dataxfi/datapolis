@@ -88,7 +88,7 @@ export default function Unstake() {
     allowance,
     sharesToRemove
   );
-  usePathfinder(baseAddress,tokenOut.info?.address || '');
+  usePathfinder(baseAddress, tokenOut.info?.address || '');
 
   useEffect(() => {
     if (singleLiquidityPos?.address && stake) {
@@ -128,11 +128,14 @@ export default function Unstake() {
   }, [stake, singleLiquidityPos?.address, tokenOut.info?.address, accountId, trade, path?.length, config]);
 
   useEffect(() => {
+    // token selected is base, set min to base min
     if (path && path.length === 1) {
       setMinUnstakeAmt(new BigNumber(baseMinExchange));
       return;
     }
-    if (path && web3) {
+
+    // token selected is not base, calculate base min
+    if (path && path.length > 1 && web3) {
       trade?.getAmountsOut(baseMinExchange, path).then((res) => setMinUnstakeAmt(new BigNumber(res[res.length - 1])));
     }
   }, [path, web3, tokenOut.info?.address]);
@@ -147,6 +150,10 @@ export default function Unstake() {
       setBtnDisabled(true);
       setInputDisabled(true);
       setBtnText('Select a Token');
+    } else if (path && path.length === 0) {
+      setBtnDisabled(true)
+      setInputDisabled(true)
+      setBtnText('Routing ...')
     } else if (singleLiquidityPos && Number(singleLiquidityPos.shares) === 0) {
       setBtnDisabled(true);
       setInputDisabled(true);
@@ -185,17 +192,14 @@ export default function Unstake() {
       signal.addEventListener('abort', (e) => {
         reject(new Error('aborted'));
       });
-      if (!meta || !path || !accountId || !stake || !spotSwapFee) return;
+      if (!meta || !path?.length || !accountId || !stake || !spotSwapFee) return;
       try {
-        // .98 is a fix for the MAX_OUT_RATIO error from the contract
         const { maxTokenOut, maxPoolTokensIn, userPerc, dataxFee, refFee } = await stake.getUserMaxUnstake(
           meta,
           path,
           accountId,
           spotSwapFee
         );
-        // .multipliedBy(0.98)
-        // .dp(5); //do we still need this fix? ;
 
         setDataxFee(to5(dataxFee));
         setSwapFee(to5(refFee));
@@ -324,10 +328,10 @@ export default function Unstake() {
 
       console.log(stakeInfo);
 
-      const txReceipt = await stake.unstakeTokenFromDTPool(stakeInfo, accountId)
-        // tokenOut.info?.address.toLowerCase() === config?.custom.nativeAddress.toLowerCase()
-        //   ? await stake.unstakeETHFromDTPool(stakeInfo, accountId)
-        //   : await stake.unstakeTokenFromDTPool(stakeInfo, accountId);
+      const txReceipt = await stake.unstakeTokenFromDTPool(stakeInfo, accountId);
+      // tokenOut.info?.address.toLowerCase() === config?.custom.nativeAddress.toLowerCase()
+      //   ? await stake.unstakeETHFromDTPool(stakeInfo, accountId)
+      //   : await stake.unstakeTokenFromDTPool(stakeInfo, accountId);
 
       setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
       transactionTypeGA('unstake');
