@@ -122,11 +122,11 @@ export default function UnlockTokenModal() {
         setPool(spender);
         setAddress(address);
       } catch (error: any) {
-        console.error(error);
+        console.error("Caught error : unlock token",error);
         setShowUnlockTokenModal(false);
         setExecuteUnlock(false);
         if (lastTx) setLastTx({ ...lastTx, status: 'Failure' });
-        setSnackbarItem({ type: 'error', message: error.error.message, error });
+        setSnackbarItem({ type: 'error', message: error.message, error });
         switchOnLocation(false);
         setBlurBG(false);
       }

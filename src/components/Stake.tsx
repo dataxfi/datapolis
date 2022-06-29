@@ -19,7 +19,6 @@ import { IStakeInfo } from '@dataxfi/datax.js/dist/@types/stake';
 import usePathfinder from '../hooks/usePathfinder';
 import { getToken } from '../hooks/useTokenList';
 import { calcSlippage, to5 } from '../utils/utils';
-import axios from 'axios';
 
 const INITIAL_BUTTON_STATE = {
   text: 'Connect wallet',
@@ -109,7 +108,7 @@ export default function Stake() {
     if (tokenOut.info?.pools[0].id && stake) {
       stake.getBaseToken(tokenOut.info?.pools[0].id).then(setBaseAddress);
     }
-  }, [tokenOut.info?.pools.length, stake]);
+  }, [tokenOut.info?.pools, stake]);
 
   useEffect(() => {
     if (!tokensCleared.current) return;
@@ -241,7 +240,7 @@ export default function Stake() {
     } catch (error: any) {
       console.error(error);
       setLastTx({ ...preTxDetails, status: 'Failure' });
-      setSnackbarItem({ type: 'error', message: error.error.message, error });
+      setSnackbarItem({ type: 'error', message: error.message, error });
       setConfirmingTx(false);
       setTokenIn({ ...tokenIn, value: new BigNumber(0) });
       setBlurBG(false);
@@ -283,14 +282,6 @@ export default function Stake() {
 
     val = new BigNumber(val);
     if (val.lte(0)) return;
-
-    // if (maxStakeAmt) {
-    //   if (tokenIn.balance.lt(val)) {
-    //     setTokenIn({ ...tokenIn, value: tokenIn.balance });
-    //   } else if (maxStakeAmt.lt(val)) {
-    //     setTokenIn({ ...tokenIn, value: maxStakeAmt });
-    //   }
-    // }
 
     if (
       tokenOut.info?.pools[0].id &&
