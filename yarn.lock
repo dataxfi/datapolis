@@ -1126,10 +1126,10 @@
   resolved "https://registry.yarnpkg.com/@csstools/normalize.css/-/normalize.css-10.1.0.tgz#f0950bba18819512d42f7197e56c518aa491cf18"
   integrity sha512-ij4wRiunFfaJxjB0BdrYHIH8FxBJpOwNPhhAcunlmPdXudL1WQV1qoP9un6JsEBAgQH+7UXyyjh0g7jTxXK6tg==
 
-"@dataxfi/datax.js@1.2.6":
-  version "1.2.6"
-  resolved "https://registry.yarnpkg.com/@dataxfi/datax.js/-/datax.js-1.2.6.tgz#65546324a51623136576388bb9005d700fe1985a"
-  integrity sha512-XeY4lsjWRjCdJT4oy275tqXyMxuDRarLOIPyJEfp1NAsCawVAWHPATo33fzsMiLHqWfXsb9SbDOc3EWhdj/f2Q==
+"@dataxfi/datax.js@1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@dataxfi/datax.js/-/datax.js-1.3.0.tgz#4d680958e36abbd9a8516a6444c39690ddbab4c4"
+  integrity sha512-JIDK+Nlgw2Hw/pjJtHvi4S1y7eCOcD9CjZrjehC2mXpCTEIPuzyeQpRFZocuf5LluUAOza3wSRN4dLg/MfRYOA==
   dependencies:
     "@oceanprotocol/contracts" "^1.0.0"
     "@uniswap/token-lists" "^1.0.0-beta.25"
