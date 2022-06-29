@@ -6,7 +6,7 @@ export default function ViewDescBtn() {
   return (
     <button
       id="viewDescButton"
-      disabled={!tokenOut.info?.pools[0].id}
+      disabled={!tokenOut.info?.pools}
       className={` text-gray-300 ${tokenOut.info?.pools[0].id ? 'hover:text-white' : ''}  disabled:cursor-not-allowed`}
       onClick={() => setShowDescModal(!showDescModal)}
     >
