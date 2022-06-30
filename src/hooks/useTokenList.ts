@@ -64,7 +64,7 @@ export default function useTokenList({ setLoading, setError }: { setLoading?: Fu
   }
 
   useEffect(() => {
-    console.log(!!ERC20TokenResponse)
+    console.log(!!ERC20TokenResponse);
     if (!ERC20TokenResponse && chainId && config?.custom && web3 && accountId) {
       getERC20TokenList(config, chainId, accountId)
         .then((list) => {
@@ -93,50 +93,54 @@ async function getDtTokenList(web3: Web3, chainId: supportedChains): Promise<ITL
   }
 }
 
-async function getERC20TokenList(config: Config, chainId: supportedChains, accountId:string): Promise<ITList | undefined> {
+async function getERC20TokenList(
+  config: Config,
+  chainId: supportedChains,
+  accountId: string
+): Promise<ITList | undefined> {
   try {
     const regularList = await axios.get(config.custom.tokenList);
     let iTlistWithOcean;
     let listWithOcean;
-    if (chainId === '4') {
-      listWithOcean = [oceanTokens[4], ...regularList.data];
-      iTlistWithOcean = {
-        name: 'Rinkeby token list',
-        timestamp: '',
-        version: {
-          major: 0,
-          minor: 0,
-          patch: 0,
-        },
-        tags: {},
-        logoURI: '',
-        keywords: ['default'],
-        tokens: listWithOcean,
-      };
-    } else {
-      const matic = {
-        chainId: chainId,
-        address: accountId,
-        symbol: 'MATIC',
-        name: 'MATIC',
-        decimals: 18,
-        logoURI:
-          'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0/logo.png',
-        tags: ['matic'],
-      };
+    // if (chainId === '4') {
+    //   listWithOcean = [oceanTokens[4], ...regularList.data];
+    //   iTlistWithOcean = {
+    //     name: 'Rinkeby token list',
+    //     timestamp: '',
+    //     version: {
+    //       major: 0,
+    //       minor: 0,
+    //       patch: 0,
+    //     },
+    //     tags: {},
+    //     logoURI: '',
+    //     keywords: ['default'],
+    //     tokens: listWithOcean,
+    //   };
+    // } else {
+    const matic = {
+      chainId: chainId,
+      address: accountId,
+      symbol: 'MATIC',
+      name: 'MATIC',
+      decimals: 18,
+      logoURI:
+        'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0/logo.png',
+      tags: ['matic'],
+    };
 
-      const listFilteredByChain = regularList.data.tokens.filter(
-        (token: ITokenInfo) => String(token.chainId) === chainId
-      );
+    const listFilteredByChain = regularList.data.tokens.filter(
+      (token: ITokenInfo) => String(token.chainId) === chainId
+    );
 
-      const listHasOcean = listFilteredByChain.find(
-        (token: ITokenInfo) => token.address.toLowerCase() === oceanTokens[chainId].address.toLowerCase()
-      );
+    const listHasOcean = listFilteredByChain.find(
+      (token: ITokenInfo) => token.address.toLowerCase() === oceanTokens[chainId].address.toLowerCase()
+    );
 
-      !listHasOcean
-        ? (iTlistWithOcean = { ...regularList.data, tokens: [matic, oceanTokens[chainId], ...listFilteredByChain] })
-        : (iTlistWithOcean = { ...regularList.data, tokens: [matic, ...listFilteredByChain] });
-    }
+    !listHasOcean
+      ? (iTlistWithOcean = { ...regularList.data, tokens: [matic, oceanTokens[chainId], ...listFilteredByChain] })
+      : (iTlistWithOcean = { ...regularList.data, tokens: [matic, ...listFilteredByChain] });
+    // }
 
     return iTlistWithOcean;
   } catch (error) {
@@ -149,11 +153,10 @@ export async function getToken(
   chainId: supportedChains,
   address: string,
   addressType: 'pool' | 'exchange',
-  config: Config, 
-  account:string
+  config: Config,
+  account: string
 ): Promise<ITokenInfo | undefined> {
   try {
-
     const dtList = await getDtTokenList(web3, chainId);
     const erc20List = await getERC20TokenList(config, chainId, account);
 

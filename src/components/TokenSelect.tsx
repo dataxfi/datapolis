@@ -77,7 +77,9 @@ export default function TokenSelect({
       <div className="md:grid md:grid-cols-5 bg-city-blue bg-opacity-30 rounded-xl p-1">
         <div className="col-span-2 grid grid-flow-col gap-4 justify-start items-center p-1">
           {token?.info && tokensCleared.current ? (
-            <TokenImage imgSrc={imgSrc || ''} className="w-10 h-10 rounded-md" />
+            <a href={`https://polygonscan.com/address/${token.info.address}`} target="blank">
+              <TokenImage imgSrc={imgSrc || ''} className="w-10 h-10 rounded-md" />
+            </a>
           ) : (
             <div className="w-10 h-10 rounded-md bg-background flex justify-center items-center text-3xl">
               <XLogo style={{ height: '30px' }} />

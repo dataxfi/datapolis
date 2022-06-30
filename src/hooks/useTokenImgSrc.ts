@@ -20,11 +20,11 @@ export default function useTokenImgSrc(
 
     setState(token?.logoURI);
 
-    // or set solarbeam uris
-    if (chainId === '1285') {
-      setState(
-        `https://raw.githubusercontent.com/solarbeamio/solarbeam-tokenlist/main/assets/moonriver/${token?.address}/logo.png`
-      );
-    }
+    // // or set solarbeam uris
+    // if (chainId === '1285') {
+    //   setState(
+    //     `https://raw.githubusercontent.com/solarbeamio/solarbeam-tokenlist/main/assets/moonriver/${token?.address}/logo.png`
+    //   );
+    // }
   }, [token?.address, tokenIn.info?.address, tokenOut.info?.address]);
 }

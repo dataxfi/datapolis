@@ -24,7 +24,7 @@ export default function Footer() {
         <ul className="inline-flex text-2xl justify-center">
           <SocialLinkIcons effect="color" />
           <li className="list-inline-item ml-2 self-center hover:text-primary-300">
-            <a title="DataX Docs" href="https://docs.datax.fi" target="_blank" rel="noreferrer">
+            <a title="DataX Docs" href="https://docs.datapolis.city/" target="_blank" rel="noreferrer">
               <FaBook size="26px" />
             </a>
           </li>

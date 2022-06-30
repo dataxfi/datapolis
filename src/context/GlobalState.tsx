@@ -314,7 +314,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         return true;
       }
     } catch (error) {
-      console.error(error);
+      console.error(error); 
     }
   }
 

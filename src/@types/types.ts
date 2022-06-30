@@ -116,7 +116,8 @@ export interface IDisclaimerSigned {
   wallet: boolean | null;
 }
 
-export type supportedChains = '1' | '4' | '137' | '56' | '1285' | '246';
+export type supportedChains = '137' 
+//| '56' | '1285' | '246';'1' | '4' | 
 export interface globalStates {
   handleConnect: Function;
   buttonText: string;
