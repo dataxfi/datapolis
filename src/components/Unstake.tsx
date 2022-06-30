@@ -120,7 +120,7 @@ export default function Unstake() {
     getAllowance(singleLiquidityPos.address, accountId, contractToAllow, stake).then(async (res) => {
       console.log('Token out allowance for contract ', singleLiquidityPos.address, contractToAllow, res);
       if (tokenOut.info?.address) {
-        const balance = await trade?.getBalance(tokenOut.info.address, accountId, false);
+        const balance = await trade?.getBalance(accountId, false, tokenOut.info.address);
         setTokenOut({ ...tokenOut, balance: new BigNumber(balance) });
         setAllowance(new BigNumber(res));
       }
@@ -151,9 +151,9 @@ export default function Unstake() {
       setInputDisabled(true);
       setBtnText('Select a Token');
     } else if (path && path.length === 0) {
-      setBtnDisabled(true)
-      setInputDisabled(true)
-      setBtnText('Routing ...')
+      setBtnDisabled(true);
+      setInputDisabled(true);
+      setBtnText('Routing ...');
     } else if (singleLiquidityPos && Number(singleLiquidityPos.shares) === 0) {
       setBtnDisabled(true);
       setInputDisabled(true);

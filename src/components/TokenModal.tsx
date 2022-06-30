@@ -30,6 +30,7 @@ export default function TokenModal() {
     showTokenModal,
     setImportPool,
     trade,
+    web3,
   } = useContext(GlobalContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -116,7 +117,7 @@ export default function TokenModal() {
   }
 
   const tokenSelected = async (token: ITokenInfo) => {
-    console.log(token)
+    console.log(token);
     controller.abort();
     const newController = new AbortController();
     const signal = newController.signal;
@@ -143,11 +144,12 @@ export default function TokenModal() {
           break;
       }
       if (setToken) setToken({ ...INITIAL_TOKEN_STATE, info: token });
-      trade.getBalance(token.address, accountId, false).then((balance) => {
-        console.log('got balance: ', balance);
-
-        if (setToken) setToken({ ...INITIAL_TOKEN_STATE, info: token, balance: new BigNumber(balance) });
+      const tokenAddress = accountId.toLowerCase() === token.address.toLowerCase() ? undefined : token.address;
+      trade.getBalance(accountId, false, tokenAddress).then((balance) => {
+        console.log('User Balance: ', balance);
+        setToken({ ...INITIAL_TOKEN_STATE, info: token, balance: new BigNumber(balance) });
       });
+
       resolve(setController(newController));
     });
   };

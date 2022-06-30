@@ -19,16 +19,15 @@ export const INITIAL_BUTTON_STATE = {
 };
 
 export class BtnManager {
-  private setState: Function
+  private setState: Function;
 
   constructor(setState: React.Dispatch<React.SetStateAction<IBtnProps>>) {
     this.setState = setState;
-
   }
 
   public updateBtn(text?: string, disabled?: boolean, rest?: IBtnProps) {
     if (!rest) rest = INITIAL_BUTTON_STATE;
-    if (text && disabled) {
+    if (text && disabled !== undefined) {
       this.setState({
         ...rest,
         text,

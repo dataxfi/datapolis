@@ -7,14 +7,15 @@ import { GlobalContext } from '../context/GlobalState';
  * @param tokenOut
  */
 export default function usePathfinder(tokenIn: string | undefined, tokenOut: string | undefined) {
-  const { setPath, chainId } = useContext(GlobalContext);
+  const { path, setPath, chainId, config, accountId, location } = useContext(GlobalContext);
 
   let controller = new AbortController();
 
   useEffect(() => {
-    if (tokenIn && tokenOut && chainId) {
+    if (tokenIn && tokenOut && chainId && config) {
       console.log('Finding path for ' + tokenIn + ' ---> ' + tokenOut);
       // initially reset path on any change
+      // if(path && (location === "/stake" && path[0] === this))
       setPath([]);
       if (chainId === '4') {
         console.log('setting path');
@@ -51,6 +52,10 @@ export default function usePathfinder(tokenIn: string | undefined, tokenOut: str
         // ])
         return;
       }
+
+      if(tokenIn === accountId) tokenIn = config.custom.nativeAddress
+      if(tokenOut === accountId) tokenOut = config.custom.nativeAddress
+
       axios
         .post('https://pathfinder-five.vercel.app/api/pathfinder/v2', {
           tokenIn: tokenIn,

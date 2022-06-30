@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { GlobalContext, placeHolderOrContent } from '../context/GlobalState';
 import BigNumber from 'bignumber.js';
 import { IPoolLiquidity } from '../@types/types';
-import { IPoolDetails, IToken, ITokenDetails, ITokenInfo } from '@dataxfi/datax.js';
+import {  ITokenInfo } from '@dataxfi/datax.js';
 import { getToken } from '../hooks/useTokenList';
 
 export default function PositionBox({
@@ -40,8 +40,8 @@ export default function PositionBox({
       ]);
 
       const [baseToken, datatoken] = await Promise.all([
-        getToken(web3, chainId, baseTokenAddress, 'exchange', config),
-        getToken(web3, chainId, poolAddress, 'pool', config),
+        getToken(web3, chainId, baseTokenAddress, 'exchange', config, accountId),
+        getToken(web3, chainId, poolAddress, 'pool', config, accountId),
       ]);
 
       if (baseToken && datatoken) setPoolTokens({ datatoken, baseToken });

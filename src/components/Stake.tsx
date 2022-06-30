@@ -85,9 +85,10 @@ export default function Stake() {
       web3 &&
       chainId &&
       config &&
+      accountId &&
       poolMetaData?.address.toLowerCase() !== baseToken.address.toLowerCase()
     ) {
-      getToken(web3, chainId, baseToken.address, 'exchange', config).then((res) => {
+      getToken(web3, chainId, baseToken.address, 'exchange', config, accountId).then((res) => {
         if (res && tokenOut.info)
           setPoolMetaData({
             baseToken: res,
@@ -99,9 +100,9 @@ export default function Stake() {
   }, [tokenOut.info?.address, baseToken, web3, chainId, config]);
 
   useEffect(() => {
-    if (tokenOut.info?.pools[0].id && stake && web3 && config && chainId) {
+    if (tokenOut.info?.pools[0].id && stake && web3 && config && chainId && accountId) {
       stake.getBaseToken(tokenOut.info?.pools[0].id).then((address) => {
-        getToken(web3, chainId, address, 'exchange', config).then(setBaseToken);
+        getToken(web3, chainId, address, 'exchange', config, accountId).then(setBaseToken);
       });
     }
   }, [tokenOut.info?.pools, stake]);
@@ -115,7 +116,9 @@ export default function Stake() {
 
   useEffect(() => {
     if (tokenIn.info && trade && accountId) {
-      trade.getBalance(tokenIn.info.address, accountId, false).then((res) => {
+      const tokenAddress =
+        tokenIn.info.address.toLowerCase() === accountId.toLowerCase() ? undefined : tokenIn.info.address;
+      trade.getBalance(accountId, false, tokenAddress).then((res) => {
         setTokenIn({ ...tokenIn, balance: new BigNumber(res) });
       });
     }
@@ -130,7 +133,7 @@ export default function Stake() {
   }, [tokenIn.info?.address]);
 
   useEffect(() => {
-    const btnManager = new BtnManager(setBtnProps)
+    const btnManager = new BtnManager(setBtnProps);
     if (!accountId) {
       btnManager.updateBtn();
     } else if (!tokenOut.info) {
@@ -139,6 +142,8 @@ export default function Stake() {
       btnManager.updateBtn('Select a Token', true);
     } else if (path && path?.length === 0) {
       btnManager.updateBtn('Routing...', true);
+    } else if (!path) {
+      btnManager.updateBtn('Insufficient Liquidity', true);
     } else if (!tokenIn.value || tokenIn.value.eq(0)) {
       btnManager.updateBtn('Enter Stake Amount', true);
     } else if (tokenIn.balance?.eq(0) || (tokenIn.balance && tokenIn.value.gt(tokenIn.balance))) {
@@ -152,12 +157,25 @@ export default function Stake() {
     } else {
       btnManager.updateBtn('Stake', false, btnProps);
     }
-  }, [accountId, chainId, tokenOut, tokenIn.value, tokenIn.balance, loading, tokenIn.info, lastTx?.status]);
+  }, [
+    accountId,
+    chainId,
+    tokenOut,
+    tokenIn.value,
+    tokenIn.balance,
+    loading,
+    tokenIn.info,
+    lastTx?.status,
+    path?.length,
+    path,
+  ]);
 
   async function getMaxAndAllowance() {
-    if (stake && tokenOut.info?.pools[0] && accountId && path)
+    if (stake && tokenOut.info?.pools[0] && accountId && path) {
+      const usingETH = accountId.toLowerCase() === tokenIn.info?.address.toLowerCase();
+      console.log(usingETH);
       stake
-        ?.getUserMaxStake(tokenOut.info?.pools[0].id, accountId, path)
+        ?.getUserMaxStake(tokenOut.info?.pools[0].id, accountId, path, usingETH)
         .then((res) => {
           console.log('Max stake is', res?.toString());
           if (res) {
@@ -166,19 +184,27 @@ export default function Stake() {
         })
         .then(() => {
           if (tokenIn.info?.address && tokenOut.info && config?.custom && trade) {
-            stake.getAllowance(tokenIn.info?.address, accountId, config.custom.stakeRouterAddress).then(async (res) => {
-              if (!tokenIn.info) return;
-              const balance = new BigNumber(await trade.getBalance(tokenIn.info.address, accountId, false));
+            if (tokenIn.info.address.toLowerCase() === accountId.toLowerCase()) {
               setTokenIn({
                 ...tokenIn,
-                allowance: new BigNumber(res),
-                balance,
-                value: new BigNumber(0),
+                allowance: new BigNumber(config.extra.maxUint256),
               });
-            });
+            } else {
+              stake
+                .getAllowance(tokenIn.info?.address, accountId, config.custom.stakeRouterAddress)
+                .then(async (res) => {
+                  if (!tokenIn.info) return;
+                  setTokenIn({
+                    ...tokenIn,
+                    allowance: new BigNumber(res),
+                    value: new BigNumber(0),
+                  });
+                });
+            }
           }
         })
         .catch(console.error);
+    }
   }
 
   async function stakeHandler(preTxDetails: ITxDetails) {
@@ -202,7 +228,7 @@ export default function Stake() {
       console.log(stakeInfo);
 
       const txReceipt =
-        tokenIn.info?.address === config?.custom.nativeAddress
+        tokenIn.info?.address === accountId
           ? await stake.stakeETHInDTPool(stakeInfo, accountId)
           : await stake.stakeTokenInDTPool(stakeInfo, accountId);
 

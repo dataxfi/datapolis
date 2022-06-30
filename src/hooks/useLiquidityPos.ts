@@ -96,8 +96,8 @@ export default function useLiquidityPos(
       const baseTokenAddress = await stake.getBaseToken(poolAddress);
 
       const [baseToken, datatoken] = await Promise.all([
-        getToken(web3, chainId, baseTokenAddress, 'exchange', config),
-        getToken(web3, chainId, poolAddress, 'pool', config),
+        getToken(web3, chainId, baseTokenAddress, 'exchange', config, accountId),
+        getToken(web3, chainId, poolAddress, 'pool', config, accountId),
       ]);
 
       if (!baseToken || !datatoken) throw new Error('BaseToken or Datatoken not found.');

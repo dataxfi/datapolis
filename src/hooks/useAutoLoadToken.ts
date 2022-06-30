@@ -17,7 +17,7 @@ export default function useAutoLoadToken() {
 
     function setToken(address: string, isPool: boolean, pos: 1 | 2) {
       if (web3 && chainId && accountId && config)
-        getToken(web3, chainId, address, isPool ? 'pool' : 'exchange', config)
+        getToken(web3, chainId, address, isPool ? 'pool' : 'exchange', config, accountId)
           .then((info) => {
             if (info) {
               const token = { ...INITIAL_TOKEN_STATE, info };

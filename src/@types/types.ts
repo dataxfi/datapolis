@@ -1,6 +1,6 @@
 import React from 'react';
 import BigNumber from 'bignumber.js';
-import { ITList, ITokenInfo, IToken, Config, Watcher, Stake, Trade, IPoolDetails } from '@dataxfi/datax.js';
+import { ITList, ITokenInfo, IToken, Config, Watcher, Stake, Trade } from '@dataxfi/datax.js';
 import { TransactionReceipt } from 'web3-core';
 import Web3 from 'web3';
 import Web3Modal from 'web3modal';
