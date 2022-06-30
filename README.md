@@ -4,13 +4,20 @@
 
 > DataX Docs: https://docs.datax.fi/
 
-<h2>Trade</h2>
+Quick navigation 
 
-Trade your OCEAN and datatokens for other datatokens or OCEAN.
-
-<h2>Stake</h2>
-
-Stake and unstake ocean from Datatoken/Ocean pools. View and manage your liquidity position.
+- [Run locally](#run-locally)
+- [Testing](#testing)
+  - [Manual Test Protocol](#manual-test-protocol)
+  - [Automated Local Testing](#automated-local-testing)
+  - [UI Test Suite VS. Rinkeby Test Suite](#ui-test-suite-vs-rinkeby-test-suite)
+    - [UI Tests](#ui-tests)
+    - [Transaction Tests](#transaction-tests)
+    - [Recommended Test Flow](#recommended-test-flow)
+  - [Contributing To Test Suites](#contributing-to-test-suites)
+- [Vercel Deployment](#vercel-deployment)
+  - [Setting Up Deployment From Scratch](#setting-up-deployment-from-scratch)
+  - [Deployment Workflow](#deployment-workflow)
 
 ## Run locally
 
@@ -51,7 +58,7 @@ REACT_APP_T_ACCT_PASS = "password"
 
 Reach out to development-internal to request these credentials if you need them.
 
-### **UI test suite VS. Rinkeby test suite**
+### UI Test Suite VS. Rinkeby Test Suite
 
 A few things to keep in mind regarding both suites:
 
@@ -65,7 +72,7 @@ A few things to keep in mind regarding both suites:
   - This occurs about 25% of the time, where the MM popup is closed after the disclaimer is sent, effectively rejecting the signature transaction. Rerun the tests.
   - A solution for this is expected to be implemented in the future.
 
-#### UI:
+#### UI Tests
 
 > The UI test suite was designed to only test the user interface as a boiler plate test sutie to ensure state and flow is working properly upon any bug fix or enhancement. These tests can be ran all together or seperatly.
 
@@ -84,13 +91,13 @@ A few other things to keep in mind:
 - If you implement a new fix or feature effecting only one page, you can test only that one page. Mind that if you change a componenent used across the entire app, its best to test everything.
 - The UI test suites are meant to all pass consecutively (as in each test in a file). Each test works off the position the last test left the dapp. This is intentional. Since these tests focus on UI, the tests should all pass in-order to effectively mimick a user seamlessly flowing through the application.
 
-#### Transaction tests
+#### Transaction Tests
 
 The scripts intentially omit an option to test them all at once. This is because the transactions are all real, the suits take a few minutes each, and require human supervision. Review the process to ensure there are sufficient balances, gas, etc., for each transaction.
 
 > You may need to run one suite before the other to ensure you have proper balances. (Consider, if you run stakex before tradex there might not be enough ocean for tradex tests becuase of the max stake test.)
 
-**Recommended test flow:**
+#### Recommended Test Flow
 
 - Open the account in metamask and check balances
 - Cookies, Disclaimer, and LP tests can be in any order
@@ -108,6 +115,7 @@ Close Future Implementation:
 - Utility functions for moving assets to test particular suites (sell all DT, sell all OCEAN, unstake all pools, etc.)
 - A UX test suite focusing on speed and conveinience.
 
+<<<<<<< HEAD
 ## Contributing to test suites
 
 > Refer to the Test-API.md file located in the tests directory to view the functions available and quickly write new tests with minimal boilerplate.
@@ -117,3 +125,48 @@ Test priority (High value features)
 | Boilerplate                                                                                                                  | Making Trade                                             | Staking                                                                     | Unstaking               | LP                                                                  |
 | ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------------------------------- | ----------------------- | ------------------------------------------------------------------- |
 | <p>- Connecting to provider<br />- Accessing user wallet<br />- Collecting wallet information<br />- Getting token lists</p> | <p>- OCEAN to DT<br />- DT to OCEAN<br />- DT to DT </p> | <p>- Stake ocean in Pool <br />- Stake information is present and valid</p> | Unstake ocean from pool | <p>- Pool Import<br />- Pool Scan<br />- Valid Pool Information</p> |
+=======
+### Contributing To Test Suites
+> Refer to the Test-API.md file located in the tests directory to view the functions available and quickly write new tests with minimal boilerplate. 
+
+Test priority (High value features)
+
+| Boilerplate | Making Trade | Staking | Unstaking | LP |
+| ----------- | ------------ | ------- | --------- | -- |
+|<p>- Connecting to provider<br />- Accessing user wallet<br />- Collecting wallet information<br />- Getting token lists</p>|<p>- OCEAN to DT<br />- DT to OCEAN<br />- DT to DT </p>| <p>- Stake ocean in Pool <br />- Stake information is present and valid</p> | Unstake ocean from pool |<p>- Pool Import<br />- Pool Scan<br />- Valid Pool Information</p> |
+
+## Vercel Deployment 
+
+> Datapolis is currently hosted on vercel through a team account for Datapolis. To gain access to this account contact your superior, or the lead developer. 
+> 
+> Vercel is integrated with GitHub so that any changes to main, or any other branch, will trigger redeployments respectively. 
+ 
+### Setting Up Deployment From Scratch
+The instructions below are provided for any migrations to new teams in vercel, or if setting up Datapolis from scratch in vercel ever becomes necessary. 
+
+1. Ensure your local instance is synced with the latest commit on main
+2. Run `yarn build` locally to ensure there are no build errors 
+3. [Connect vercel to a git repo](https://vercel.com/docs/concepts/git/vercel-for-github)
+4. Before deploying, ensure that all environment variables are correct, they need to configured a bit different than your local instance:
+  - Remove all quotes:  "some envrionment variable value" --> some enviornemt variable value
+  - Remove all escape characters:  "some/nmultiline/nvalue" --> 
+      some
+      multiline
+      value
+5. Check if there are console warnings in local host. If there are, set a new enviornment variable of `CI` to `false` so the deployment wont fail. 
+
+### Deployment Workflow
+
+**Never push to main before testing your fix or feature.** 
+
+1. Create a branch for your improvement.
+2. Push your branch to remote, and test the changes on the branch deployment. 
+3. Check all tests pass before pushing to development branch. 
+4. Wait for review by team. 
+5. Merge with main. 
+
+Keep in mind:
+If your new changes include changes to datax.js, the version will need to be bumped in datax.js before doing so. Deployment of Datapolis needs to be dependant on the version of datax.js that is currently available on NPM. 
+
+If your new changes include a new envrionment variable, ensure you add this _before_ you deploy, so it is readily available when the new deployment is live. 
+>>>>>>> 25ab2b8 (Update readme)
