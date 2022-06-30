@@ -1,5 +1,5 @@
 name: Deploy to Vercel
-# on: [push, pull_request]
+on: [push, pull_request]
 jobs:
 
   vercel-deploy:
@@ -7,12 +7,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Cache Dependencies
-        uses: actions/cache@v1
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.json') }}
-          restore-keys: ${{ runner.os }}-node-
+      # - name: Cache Dependencies
+      #   uses: actions/cache@v1
+      #   with:
+      #     path: ~/.npm
+      #     key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.json') }}
+      #     restore-keys: ${{ runner.os }}-node-
 
       - name: Install deps
         run: yarn install
