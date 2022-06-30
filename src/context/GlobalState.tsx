@@ -30,7 +30,7 @@ export const INITIAL_TOKEN_STATE: IToken = {
   balance: new BigNumber(0),
   percentage: new BigNumber(0),
   loading: false,
-};
+}; 
 
 export function placeHolderOrContent(
   content: JSX.Element,
