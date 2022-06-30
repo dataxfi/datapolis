@@ -1,8 +1,8 @@
-import { useContext, useEffect, useState } from "react";
-import { GlobalContext } from "../context/GlobalState";
+import { useContext } from 'react';
+import OutsideClickHandler from 'react-outside-click-handler';
+import { GlobalContext } from '../context/GlobalState';
 
-export const Disclaimer = (): string => {
-  return `Dear user,  
+export const disclaimer = `Dear user,  
     
     Before you use the DataX software, please be aware of the following risks: 
     
@@ -17,76 +17,74 @@ export const Disclaimer = (): string => {
     
     4. Agency disclaimer 
     No entity, including the DataX team, has control over the list of assets (ERC20 tokens) that are listed and traded on DataX. The DataX team is not responsible for failure of any trades or transactions while using DataX products.`;
-};
-
 function DisclaimerModal() {
-  const { setDisclaimerSigned, disclaimerSigned, setShowDisclaimer, handleSignature, web3, accountId } =
-    useContext(GlobalContext);
-  const [showReminder, setShowReminder] = useState(false);
-
-  useEffect(() => {
-    setShowReminder(false);
-  }, []);
+  const {
+    setDisclaimerSigned,
+    disclaimerSigned,
+    setShowDisclaimer,
+    handleSignature,
+    setBlurBG,
+    showDisclaimer,
+    web3,
+    setSnackbarItem,
+  } = useContext(GlobalContext);
 
   async function approvedDisclaimer() {
-    if (!disclaimerSigned.client || disclaimerSigned.client === "denied") {
-      setDisclaimerSigned({ ...disclaimerSigned, client: true });
-      await handleSignature().then((res: any) => {
-        console.log(res);
-        
-        if (!res) {
-          setShowReminder(false);
-          setDisclaimerSigned({ client: "denied", wallet: "denied" });
-          setShowDisclaimer(false)
-        }
+    setDisclaimerSigned({ ...disclaimerSigned, client: true });
+    const accounts = await web3?.eth.getAccounts();
+    if (accounts && web3) {
+      await handleSignature(accounts[0].toLowerCase(), web3, true).catch(() => {
+        deniedDisclaimer();
       });
-    } else {
-      console.log(53646);
-      
-      setShowReminder(true);
     }
   }
-
   function deniedDisclaimer() {
     setShowDisclaimer(false);
-    setShowReminder(false);
-    setDisclaimerSigned({ client: "denied", wallet: false });
+    setBlurBG(false);
+    setDisclaimerSigned({ client: false, wallet: false });
   }
 
-  return (
-    <div id="disclaimer-modal" className="absolute w-full h-full max-h-full z-10 overflow-hidden py-18 px-4">
-      <div className="h-102 md:h-full max-w-2xl m-auto bg-black bg-opacity-80 w-full rounded-lg hm-box flex flex-col p-1 sm:p-4 md:px-10 py-4">
-        <h2 className="md:text-2xl text-xl self-center mb-2">Disclaimer</h2>
-        <div className="h-3/5 lg:h-full overflow-scroll md:overflow-auto w-full p-2 bg-primary-900 rounded">
-          <p className="whitespace-pre-wrap p-2 text-xs md:text-sm">{Disclaimer()}</p>
-        </div>
-        <p className="text-primary-400 my-3 text-xs md:text-sm">
-          Please sign this disclaimer to connect to your wallet. Your wallet will ask for your signature regarding the
-          same disclaimer.
-        </p>
-        <div className="flex flex-row w-full">
-          <button
-            id="deny-disclaimer-btn"
-            className="w-1/2 text-xs sm:text-sm p-3 mr-1 rounded-lg txButton"
-            onClick={deniedDisclaimer}
-          >
-            Cancel
-          </button>
-          <button
-            id="sign-disclaimer-btn"
-            className="w-1/2 text-xs sm:text-sm p-3 ml-1 rounded-lg txButton"
-            onClick={approvedDisclaimer}
-          >
-            Agree
-          </button>
-        </div>
-        {showReminder ? (
-          <div className="transition-all ease-in-out duration-500 self-center animate-pulse mt-2">
-            <p>Sign in your wallet and you will be ready to go!</p>
+  return showDisclaimer ? (
+    <OutsideClickHandler
+      onOutsideClick={() => {
+        setShowDisclaimer(false);
+        setBlurBG(false);
+      }}
+    >
+      <div
+        id="disclaimer-modal"
+        className="overflow-scroll hm-hide-scrollbar absolute max-h-full left-1/2 top-1/2 px-4 z-30 -translate-x-1/2 -translate-y-1/2 py-4 w-full flex justify-center"
+      >
+        <div className="h-full max-h-full w-full max-w-2xl bg-black bg-opacity-80 rounded-3xl hm-box flex flex-col p-1 sm:p-4 md:px-10 py-4">
+          <h2 className="md:text-2xl text-xl self-center mb-2">Disclaimer</h2>
+          <div className="max-h-[450px] lg:max-h-[100%] lg:h-full overflow-scroll md:overflow-auto w-full p-2 bg-primary-900 rounded">
+            <p className="whitespace-pre-wrap p-2 text-xs md:text-sm max-h-[70%]">{disclaimer}</p>
           </div>
-        ) : null}
+          <p className="text-primary-400 my-3 text-xs md:text-sm">
+            Please sign this disclaimer to connect to your wallet. Your wallet will ask for your signature regarding the
+            same disclaimer.
+          </p>
+          <div className="flex flex-row w-full">
+            <button
+              id="deny-disclaimer-btn"
+              className="w-1/2 text-xs sm:text-sm p-3 mr-1 rounded-lg txButton"
+              onClick={deniedDisclaimer}
+            >
+              Cancel
+            </button>
+            <button
+              id="sign-disclaimer-btn"
+              className="w-1/2 text-xs sm:text-sm p-3 ml-1 rounded-lg txButton"
+              onClick={approvedDisclaimer}
+            >
+              Agree
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
+    </OutsideClickHandler>
+  ) : (
+    <></>
   );
 }
 

@@ -1,161 +1,188 @@
-import Web3 from "web3";
-import Watcher from "@dataxfi/datax.js/dist/Watcher";
-import { Ocean, Config } from "@dataxfi/datax.js";
-import Web3Modal from "web3modal";
-import WalletConnectProvider from "@walletconnect/web3-provider";
-import { createContext, PropsWithChildren, useEffect, useState } from "react";
-import Core from "web3modal";
-import { Disclaimer } from "../components/DisclaimerModal";
+import { createContext, PropsWithChildren, useEffect, useRef, useState } from 'react';
+import Web3 from 'web3';
+import { Config, Watcher, IToken, ITList, ITokenInfo, Stake, Trade } from '@dataxfi/datax.js';
+import Web3Modal from 'web3modal';
+import WalletConnectProvider from '@walletconnect/web3-provider';
+import { disclaimer } from '../components/DisclaimerModal';
 import {
   connectedMultipleWalletsGA,
   connectedWalletGA,
   connectedToNetworkGA,
   deniedSignatureGA,
   connectedWalletViaGA,
-} from "./Analytics";
-import { TxHistory } from "../utils/txHistoryUtils";
-import { PoolData } from "../utils/stakedPoolsUtils";
+} from './Analytics';
+import {
+  IDisclaimerSigned,
+  globalStates,
+  ILiquidityPosition,
+  ITxHistory,
+  ITxDetails,
+  ISnackbarItem,
+  supportedChains,
+  ApprovalStates,
+} from '../@types/types';
+import BigNumber from 'bignumber.js';
 
-const initialState: any = {};
-const CONNECT_TEXT = "Connect Wallet";
+const CONNECT_TEXT = 'Connect Wallet';
+export const INITIAL_TOKEN_STATE: IToken = {
+  info: null,
+  value: new BigNumber(0),
+  balance: new BigNumber(0),
+  percentage: new BigNumber(0),
+  loading: false,
+}; 
 
-export const GlobalContext = createContext(initialState);
-
-//use these states to ensure proper management of bgLoading ops
-export const bgLoadingStates = {
-  allStakedPools: "stake",
-  tokenList: "tokens",
-  singlePoolData: "pool",
-  allTxHistory: "history",
-  singleTx: "tx",
-  txPending: "txPending",
-  maxStake: "maxStake",
-  maxUnstake: "maxUnstake",
-  balance: "balance",
-  maxExchange: "maxExchange",
-  calcTrade: "calcTrade",
-};
-// Global state needs to inhereit types before this can be implemented :/
-// export type bgLoading = "stake" | "tokens" | "pool" | "history" | "tx" | "txPending" | "maxUnstake" | "balance" | "maxExchange" | "calcTrade"
-
-export function removeBgLoadingState(bgLoading: string[], state: string): string[] {
-  const newBgLoading = bgLoading.filter((s: string) => s !== state);
-  return newBgLoading;
+export function placeHolderOrContent(
+  content: JSX.Element,
+  placeholderSize: string,
+  conditional: boolean,
+  rows: number = 1
+) {
+  if (conditional) return content;
+  const elements = [];
+  while (rows) {
+    elements.push(
+      <div
+        key={`placholder-${rows}`}
+        style={{
+          width: placeholderSize,
+          height: '12px',
+          borderRadius: '4px',
+          backgroundColor: '#1b1b1b',
+          margin: '4px 0',
+        }}
+      />
+    );
+    rows = rows - 1;
+  }
+  return elements.map((e) => e);
 }
 
+export const GlobalContext = createContext<globalStates>({} as globalStates);
+
 export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }) => {
-  const NETWORK = "mainnet";
-  // const [state, dispatch]: [any, Function] = useReducer(AppReducer, initialState)
-
   // essential states for connection to web3, user wallet, ocean operations, and DataX configurations
-  const [web3Modal, setWeb3Modal] = useState<Core | null>(null);
-  const [accountId, setAccountId] = useState<string | null>(null);
-  const [chainId, setChainId] = useState<number | undefined>(undefined);
-  const [provider, setProvider] = useState(null);
-  const [web3, setWeb3] = useState<Web3 | null>(null);
-  const [ocean, setOcean] = useState<Ocean | null>(null);
-  const [config, setConfig] = useState<any>(null);
-  const [watcher, setWatcher] = useState<any | null>(null);
-  const [unsupportedNet, setUnsupportedNet] = useState<boolean>(false);
+  const [web3Modal, setWeb3Modal] = useState<Web3Modal>();
+  const [accountId, setAccountId] = useState<string>();
+  const [chainId, setChainId] = useState<supportedChains>();
+  const [provider, setProvider] = useState<Web3Modal>();
+  const [web3, setWeb3] = useState<Web3>();
+  const [config, setConfig] = useState<Config>();
+  const [watcher, setWatcher] = useState<Watcher>();
+  const [stake, setStake] = useState<Stake>();
+  const [refAddress, setRefAddress] = useState<string>();
+  const [trade, setTrade] = useState<Trade>();
 
-  //states responsible for user info collection
+  // loading state is to be used when the app needs to finish loading before a page can render (i.e. show loading screen)
+  const [loading, setLoading] = useState<boolean>(true);
+  const [location, setLocation] = useState<string>('/');
+
+  // Modal and notification states
+  const [unsupportedNet, setUnsupportedNet] = useState<boolean>(false);
+  const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
+  const [snackbarItem, setSnackbarItem] = useState<ISnackbarItem>();
+  const [showUnlockTokenModal, setShowUnlockTokenModal] = useState<boolean>(false);
+  const [showTokenModal, setShowTokenModal] = useState<boolean>(false);
+  const [showTxHistoryModal, setShowTxHistoryModal] = useState<boolean>(false);
+  const [showDescModal, setShowDescModal] = useState<boolean>(false);
+  const [confirmingTx, setConfirmingTx] = useState(false);
+  const [showConfirmTxDetails, setShowConfirmTxDetails] = useState(false);
+  const [showTxDone, setShowTxDone] = useState(false);
   const [cookiesAllowed, setCookiesAllowed] = useState<boolean | null>(null);
   const [showDisclaimer, setShowDisclaimer] = useState<boolean>(false);
-  const [disclaimerSigned, setDisclaimerSigned] = useState<{
-    client: boolean | null | "denied";
-    wallet: boolean | null | "denied";
-  }>({
+  const [disclaimerSigned, setDisclaimerSigned] = useState<IDisclaimerSigned>({
     client: null,
     wallet: null,
   });
 
-  // loading state is to be used when the app needs to finish loading before a page can render (i.e. show loading screen)
-  const [loading, setLoading] = useState<boolean>(true);
+  // transaction states
+  const [spotSwapFee, setSpotSwapFee] = useState<string | undefined>('0');
+  const baseMinExchange = '0.01';
+  const [pendingTxs, setPendingTxs] = useState<string[]>([]);
+  const [txHistory, setTxHistory] = useState<ITxHistory>();
+  const [lastTx, setLastTx] = useState<ITxDetails>();
+  const [preTxDetails, setPreTxDetails] = useState<ITxDetails>();
+  const [executeSwap, setExecuteSwap] = useState<boolean>(false);
+  const [txApproved, setTxApproved] = useState<boolean>(false);
+  const [showTxSettings, setShowTxSettings] = useState<boolean>(false);
+  const [executeStake, setExecuteStake] = useState<boolean>(false);
+  const [executeUnstake, setExecuteUnstake] = useState<boolean>(false);
+  const [executeUnlock, setExecuteUnlock] = useState<boolean>(false);
+  const [approving, setApproving] = useState<ApprovalStates>('pending');
+  const [swapFee, setSwapFee] = useState<string>('0');
+  const [afterSlippage, setAfterSlippage] = useState<BigNumber>(new BigNumber(0));
+  const [slippage, setSlippage] = useState<BigNumber>(new BigNumber(1));
+  const [path, setPath] = useState<string[] | null>([]);
+  const [meta, setMeta] = useState<string[]>();
 
-  // bg loading is to be used when the app can render the page without needing to finish loading
-  // when using bg loading push a loading item with the operation name (using bgLoadingStates)
-  // consider using type Set<string>
-  const [bgLoading, setBgLoading] = useState<string[]>([]);
+  // user pool information states
+  const [allStakedPools, setAllStakedPools] = useState<ILiquidityPosition[]>();
+  const [singleLiquidityPos, setSingleLiquidityPos] = useState<ILiquidityPosition>();
 
-  //array of pending transaction Ids
-  const [pendingTxs, setPendingTxs] = useState<number[]>([]);
+  // token data states
+  const [datatokens, setDatatokens] = useState<ITokenInfo[]>();
+  const [ERC20Tokens, setERC20Tokens] = useState<ITokenInfo[]>();
+  const [ERC20TokenResponse, setERC20TokenResponse] = useState<ITList>();
+  const [dtTokenResponse, setDtTokenResponse] = useState<ITList>();
+  const [t2DIDResponse, setT2DIDResponse] = useState<any>();
+  const [buttonText, setButtonText] = useState<string>(CONNECT_TEXT);
+  const [exactToken, setExactToken] = useState<1 | 2>(1);
 
-  //Transaction and tx modal states
-  const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
-  const [showTxHistoryModal, setShowTxHistoryModal] = useState<boolean>(false);
-  //all transaction history
-  const [txHistory, setTxHistory] = useState<TxHistory | null>(null);
-
-  // (user)confirmModal and txDone state for specific transactions
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [showTxDone, setShowTxDone] = useState(false);
-
-  //all stake pool information for the current user
-  const [allStakedPools, setAllStakedPools] = useState<PoolData[] | null>(null);
-  //Pool information associated with pool
-  const [currentStakePool, setCurrentStakePool] = useState<PoolData>();
-  //Stake pool sync timeout
-  const [stakeFetchTimeout, setStakeFetchTimeout] = useState<boolean>(false);
-
-  //dToken information associated with pool
-  const [currentStakeToken, setCurrentStakeToken] = useState<{}>();
-  //currentTokens to be rendered in token modal
-  const [currentTokens, setCurrentTokens] = useState<[] | null>(null);
-  //response from token fetch operation
-  const [tokenResponse, setTokenResponse] = useState<{} | null | undefined>();
-  const [buttonText, setButtonText] = useState<string | undefined>(CONNECT_TEXT);
-
-  const [notifications, setNotifications] = useState([]);
-
-  const [showUnlockTokenModal, setShowUnlockTokenModal] = useState<boolean>(false);
-
-  const [location, setLocation] = useState<string>("/");
-
+  // selected token states
+  const [tokenIn, setTokenIn] = useState<IToken>(INITIAL_TOKEN_STATE);
+  const [tokenOut, setTokenOut] = useState<IToken>(INITIAL_TOKEN_STATE);
+  const selectTokenPos = useRef<1 | 2 | null>(null);
+  const [importPool, setImportPool] = useState<string>();
+  // bg states
   const [bgOff, setBgOff] = useState(false);
+  const [blurBG, setBlurBG] = useState(false);
+
+  const tokensCleared = useRef(false);
 
   // remove all pending signatures to instantiate disclaimer flow upon user reconnection
   useEffect(() => {
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      const value = localStorage.getItem(key || "");
-      if (value === "pending") localStorage.removeItem(key || "");
+      const value = localStorage.getItem(key || '');
+      if (value === 'Pending') localStorage.removeItem(key || '');
+      localStorage.removeItem('WEB3_CONNECT_CACHED_PROVIDER');
     }
 
-    const bgPref = localStorage.getItem("bgPref");
+    const bgPref = localStorage.getItem('bgPref');
     if (bgPref) setBgOff(JSON.parse(bgPref));
   }, []);
-
-  // recall handle connect if the provider is set but there is no account id
-  // essential for disclaimer flow
-  useEffect(() => {
-    if (provider && !accountId && disclaimerSigned.wallet !== "denied" && disclaimerSigned.client !== "denied") {
-      handleConnect();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [disclaimerSigned.client, disclaimerSigned.wallet]);
 
   // intitialize web3modal to use to connect to provider
   useEffect(() => {
     async function init() {
-      const web3Modal = new Web3Modal({
-        network: "mainnet", // optional
-        cacheProvider: true, // optional
-        theme: "dark",
-        providerOptions: {
-          walletconnect: {
-            package: WalletConnectProvider, // required
-            options: {
-              infuraId: process.env.REACT_APP_INFURA_ID, // required
-            },
+      try {
+        const web3Modal = new Web3Modal({
+          cacheProvider: true,
+          network: 'mainnet', // optional
+          theme: {
+            background: 'rgb(0, 0, 0, 1)',
+            main: 'rgb(199, 199, 199)',
+            secondary: 'rgb(136, 136, 136)',
+            border: 'rgba(45, 45, 45, 1)',
+            hover: 'rgba(58, 123, 191, .3)',
           },
-        }, // required
-      });
-
-      setWeb3Modal(web3Modal);
+          providerOptions: {
+            walletconnect: {
+              package: WalletConnectProvider, // required
+              options: {
+                infuraId: process.env.REACT_APP_INFURA_ID, // required
+                rpc: { 137: 'https://matic-mainnet.chainstacklabs.com' },
+              },
+            },
+          }, // required
+        });
+        setWeb3Modal(web3Modal);
+      } catch (error) {
+        console.log(error);
+      }
     }
 
     init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [web3, chainId]);
 
   /**
@@ -167,27 +194,42 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
    * @returns
    * signature hash from wallet
    */
-  async function handleSignature() {
-    if (!web3) return;
-    let accounts = await web3.eth.getAccounts();
-    const account = accounts[0].toLowerCase();
-
-    try {
-      localStorage.setItem(account, "pending");
-      let signature = await web3.eth.personal.sign(Disclaimer(), account || "", "", () => {
-        setShowDisclaimer(false);
-      });
-      console.log(signature);
-
-      localStorage.setItem(account, signature);
-      setDisclaimerSigned({ ...disclaimerSigned, wallet: true });
-      return signature;
-    } catch (error) {
-      console.error(error);
-      localStorage.removeItem(account);
-      deniedSignatureGA();
-    }
-    return false;
+  async function handleSignature(account: string, web3: Web3, bypass?: boolean): Promise<string> {
+    return new Promise((resolve, reject) => {
+      account = account.toLowerCase();
+      const localSignature = localStorage.getItem(account || '');
+      const clientApproved = disclaimerSigned.client;
+      const walletApproved = disclaimerSigned.wallet;
+      if (localSignature) return resolve(localSignature);
+      if ((clientApproved || bypass) && !walletApproved) {
+        localStorage.setItem(account, 'pending');
+        web3.eth.personal
+          .sign(disclaimer, account || '', '')
+          .then((signature) => {
+            localStorage.setItem(account, signature);
+            setDisclaimerSigned({ ...disclaimerSigned, wallet: true });
+            // if bypass is true then this is being called from Disclaimer modal
+            if (bypass) handleConnect();
+            resolve(signature);
+          })
+          .catch((error) => {
+            console.error(error);
+            setSnackbarItem({ type: 'error', message: 'User Denied Disclaimer' });
+            localStorage.removeItem(account);
+            setDisclaimerSigned({ client: false, wallet: false });
+            deniedSignatureGA();
+            reject(error);
+          })
+          .finally(() => {
+            setShowDisclaimer(false);
+            setBlurBG(false);
+          });
+        // } catch (error) {
+      } else if (!clientApproved && !walletApproved) {
+        setShowDisclaimer(true);
+        setBlurBG(true);
+      }
+    });
   }
 
   /**
@@ -201,14 +243,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
    * current localSignature value
    */
 
-  async function handleDisclaimer(account: string, localSignature: string | null): Promise<any> {
-    account = account.toLowerCase();
-    if (!localSignature || localSignature === "pending") {
-      setShowDisclaimer(true);
-    }
-    return localSignature;
-  }
-
   /**
    * Handles connection to web3 and user wallet.
    */
@@ -217,32 +251,36 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       const provider = await web3Modal?.connect();
       setProvider(provider);
       const web3 = new Web3(provider);
-      // console.log("Web3");
-      // console.log(web3);
       setWeb3(web3);
 
-      let accounts = await web3.eth.getAccounts();
-      let account = accounts[0] ? accounts[0].toLowerCase() : null;
-      const localSignature = localStorage.getItem(account ? account : "");
+      const accounts = await web3.eth.getAccounts();
+      const account = accounts[0] ? accounts[0].toLowerCase() : null;
+      if (!account) return;
+      await handleSignature(account, web3);
 
-      if (localSignature && localSignature !== "pending") {
-        let _chainId = parseInt(String(await web3.eth.getChainId()));
-        setChainId(_chainId);
+      const _chainId = String(await web3.eth.getChainId());
+      setChainId(_chainId as supportedChains);
 
-        // This is required to do wallet-specific functions
-        const ocean = new Ocean(web3, String(_chainId));
-        setOcean(ocean);
-        // console.log("chainID - ", chainId);
-        // console.log("Pre chainID - ", _chainId);
-        const config = new Config(web3, String(_chainId));
-        setConfig(config);
-        // console.log(config);
-        const watcher = new Watcher(web3, String(_chainId));
-        setWatcher(watcher);
-        isSupportedChain(config, String(_chainId), accounts[0] ? accounts[0] : "");
-      } else {
-        await handleDisclaimer(accounts[0], localSignature);
-      }
+      const network: supportedChains = String(_chainId) as supportedChains;
+
+      const config = new Config(web3, network);
+      setConfig(config);
+
+      const watcher = new Watcher(web3, network);
+      setWatcher(watcher);
+
+      const stake = new Stake(web3, network);
+      setStake(stake);
+
+      const trade = new Trade(web3, network);
+      setTrade(trade);
+
+      isSupportedChain(config, String(_chainId), accounts[0] ? accounts[0] : '');
+
+
+
+      setRefAddress(process.env.REACT_APP_REF_ADDRESS);
+      setSpotSwapFee(process.env.REACT_APP_REF_FEE);
       setListeners(provider, web3);
     } catch (error) {
       console.error(error);
@@ -250,7 +288,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   }
 
   /**
-   * Verifies the chain the current wallet is on is supported by DataX before connecting.
+   * Verifies the current chain is supported by DataX before connecting.
    *
    * @param config
    * @param chainId
@@ -258,28 +296,25 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
    * @returns
    */
 
-  function isSupportedChain(config: Config, chainId: string, account: string | null) {
+  function isSupportedChain(config: Config, chainId: string, account?: string) {
     try {
-      const network = config.getNetwork(chainId);
+      const network = config.getNetwork(chainId as supportedChains);
       connectedToNetworkGA({ network, chainId });
-      if (network === "unknown") {
-        setAccountId(null);
+      if (network === 'unknown') {
+        setAccountId(undefined);
         setButtonText(CONNECT_TEXT);
         setUnsupportedNet(true);
       } else {
         setUnsupportedNet(false);
-        // console.log("Account Id - ", accountId);
-        // console.log("Pre Account Id - ", account);
-        //account is null when chain changes to prevent switching to an unsigned account
         setAccountId(account);
         setButtonText(account || CONNECT_TEXT);
         connectedWalletGA();
-        const wallet = localStorage.getItem("WEB3_CONNECT_CACHED_PROVIDER") || "unknown";
+        const wallet = localStorage.getItem('WEB3_CONNECT_CACHED_PROVIDER') || 'unknown';
         connectedWalletViaGA({ wallet });
         return true;
       }
     } catch (error) {
-      console.error(error);
+      console.error(error); 
     }
   }
 
@@ -291,52 +326,55 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
    */
 
   function setListeners(provider: any, web3: Web3) {
-    provider.on("accountsChanged", (accounts: any) => {
-      let account = accounts[0] ? accounts[0].toLowerCase() : null;
-      const localSignature = localStorage.getItem(account ? account : "");
-      if (localSignature && localSignature !== "pending") {
-        // console.log("Accounts changed to - ", accounts[0]);
-        // console.log("Connected Accounts - ", JSON.stringify(accounts));
+    provider.on('accountsChanged', async (accounts: string[]) => {
+      const account = accounts[0] ? accounts[0].toLowerCase() : null;
+      const localSignature = localStorage.getItem(account || '');
+      if (localSignature && localSignature !== 'pending') {
         setAccountId(accounts[0]);
-        setButtonText(accounts.length && accounts[0] !== "" ? accounts[0] : CONNECT_TEXT);
+        setButtonText(accounts.length && accounts[0] !== '' ? accounts[0] : CONNECT_TEXT);
         setDisclaimerSigned({ client: true, wallet: true });
         setShowDisclaimer(false);
+        setBlurBG(false);
         connectedMultipleWalletsGA();
         connectedWalletGA();
       } else {
-        setAccountId(null);
+        setAccountId(undefined);
         setButtonText(CONNECT_TEXT);
         setChainId(undefined);
         setDisclaimerSigned({ client: false, wallet: false });
       }
+      setAllStakedPools(undefined);
     });
 
     // Subscribe to chainId change
-    provider.on("chainChanged", async (chainId: any) => {
-      setCurrentTokens(null);
-      setTokenResponse(undefined);
-      setTxHistory(null);
+    provider.on('chainChanged', async (chainId: supportedChains) => {
+      setTokenIn(INITIAL_TOKEN_STATE);
+      setTokenOut(INITIAL_TOKEN_STATE);
+      setDtTokenResponse(undefined);
+      setTxHistory(undefined);
+      setERC20TokenResponse(undefined);
+      setERC20Tokens(undefined);
+      setShowDescModal(false);
       setPendingTxs([]);
-      const parsedId = String(parseInt(chainId));
-      // console.log(chainId);
+      setAllStakedPools(undefined);
+      const parsedId: supportedChains = String(parseInt(chainId)) as supportedChains;
       // console.log("Chain changed to ", parsedId);
-      setChainId(parseInt(chainId));
+      setChainId(parsedId as supportedChains);
       const config = new Config(web3, parsedId);
       // console.log("Config for new chain:");
       setConfig(config);
-      setOcean(new Ocean(web3, String(parseInt(chainId))));
-      isSupportedChain(config, parsedId, null);
+      isSupportedChain(config, parsedId, undefined);
     });
 
     // Subscribe to provider connection
-    provider.on("connect", (info: { chainId: number }) => {
-      console.log("Connect event fired");
-      console.log(info);
+    provider.on('connect', (info: { chainId: number }) => {
+      console.info('Connect event fired');
+      console.info(info);
     });
 
     // Subscribe to provider disconnection
-    provider.on("disconnect", (error: { code: number; message: string }) => {
-      console.log(error);
+    provider.on('disconnect', (error: { code: number; message: string }) => {
+      console.error(error);
     });
   }
 
@@ -349,10 +387,16 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         chainId,
         provider,
         web3,
-        ocean,
-        network: NETWORK,
         config,
         unsupportedNet,
+        tokensCleared,
+        refAddress,
+        stake,
+        trade,
+        path,
+        spotSwapFee,
+        baseMinExchange,
+        setPath,
         handleSignature,
         cookiesAllowed,
         setCookiesAllowed,
@@ -364,18 +408,20 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setLoading,
         allStakedPools,
         setAllStakedPools,
-        currentTokens,
-        setCurrentTokens,
-        tokenResponse,
-        setTokenResponse,
-        currentStakeToken,
-        setCurrentStakeToken,
-        currentStakePool,
-        setCurrentStakePool,
-        bgLoading,
-        setBgLoading,
+        datatokens,
+        setDatatokens,
+        ERC20Tokens,
+        setERC20Tokens,
+        ERC20TokenResponse,
+        setERC20TokenResponse,
+        dtTokenResponse,
+        setDtTokenResponse,
+        singleLiquidityPos,
+        setSingleLiquidityPos,
         txHistory,
         setTxHistory,
+        lastTx,
+        setLastTx,
         showSnackbar,
         setShowSnackbar,
         pendingTxs,
@@ -384,23 +430,64 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setShowTxHistoryModal,
         watcher,
         setWatcher,
-        showConfirmModal,
-        setShowConfirmModal,
+        confirmingTx,
+        setConfirmingTx,
         showTxDone,
         setShowTxDone,
-        stakeFetchTimeout,
-        setStakeFetchTimeout,
-        notifications,
-        setNotifications,
         showUnlockTokenModal,
         setShowUnlockTokenModal,
         location,
         setLocation,
         bgOff,
         setBgOff,
+        tokenIn,
+        setTokenIn,
+        tokenOut,
+        setTokenOut,
+        snackbarItem,
+        setSnackbarItem,
+        showDescModal,
+        setShowDescModal,
+        t2DIDResponse,
+        setT2DIDResponse,
+        blurBG,
+        setBlurBG,
+        showTokenModal,
+        setShowTokenModal,
+        selectTokenPos,
+        showConfirmTxDetails,
+        setShowConfirmTxDetails,
+        preTxDetails,
+        setPreTxDetails,
+        executeSwap,
+        setExecuteSwap,
+        txApproved,
+        setTxApproved,
+        executeStake,
+        setExecuteStake,
+        executeUnstake,
+        setExecuteUnstake,
+        executeUnlock,
+        setExecuteUnlock,
+        approving,
+        setApproving,
+        importPool,
+        setImportPool,
+        swapFee,
+        setSwapFee,
+        afterSlippage,
+        setAfterSlippage,
+        showTxSettings,
+        setShowTxSettings,
+        slippage,
+        setSlippage,
+        exactToken,
+        setExactToken,
+        meta,
+        setMeta,
       }}
     >
-      {children}
+      <>{children}</>
     </GlobalContext.Provider>
   );
 };

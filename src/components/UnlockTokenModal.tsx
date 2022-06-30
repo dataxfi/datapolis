@@ -1,53 +1,64 @@
-import { useContext, useEffect, useState } from "react";
-import { GlobalContext } from "../context/GlobalState";
-import { BiLockAlt, BiLockOpenAlt } from "react-icons/bi";
-import { MdClose } from "react-icons/md";
-import BigNumber from "bignumber.js";
-import { getTokenVal, isOCEAN, IToken } from "./Swap";
-import errorMessages from "../utils/errorMessages";
-import { getAllowance } from "../hooks/useTokenList";
-export type approvalStates = "approved" | "approving" | "pending";
+import { useContext, useEffect, useState } from 'react';
+import { GlobalContext } from '../context/GlobalState';
+import { BiLockAlt, BiLockOpenAlt } from 'react-icons/bi';
+import { MdClose } from 'react-icons/md';
+import BigNumber from 'bignumber.js';
+import { getAllowance } from '../hooks/useTokenList';
+import CenterModal from './CenterModal';
+import { Config } from '@dataxfi/datax.js';
 
-export default function UnlockTokenModal({
-  token1,
-  token2,
-  setToken,
-  nextFunction,
-  remove,
-}: {
-  token1: IToken;
-  token2: IToken;
-  setToken: Function;
-  nextFunction: Function;
-  remove?: boolean;
-}) {
-  const { accountId, config, ocean, showUnlockTokenModal, setShowUnlockTokenModal, notifications, setNotifications } =
-    useContext(GlobalContext);
-  const [approving, setApproving] = useState<approvalStates>("pending");
-  const [t1BN, setT1BN] = useState<BigNumber>(new BigNumber(0));
+export default function UnlockTokenModal() {
+  const {
+    accountId,
+    config,
+    setShowUnlockTokenModal,
+    setSnackbarItem,
+    lastTx,
+    tokenIn,
+    tokenOut,
+    setLastTx,
+    setTokenIn,
+    location,
+    showUnlockTokenModal,
+    setExecuteStake,
+    setExecuteSwap,
+    setExecuteUnstake,
+    setBlurBG,
+    preTxDetails,
+    executeUnlock,
+    setExecuteUnlock,
+    approving,
+    setApproving,
+    chainId,
+    stake,
+    trade,
+    singleLiquidityPos,
+  } = useContext(GlobalContext);
   const [pool, setPool] = useState<string | null>(null);
   const [address, setAddress] = useState<string | null>(null);
+  const remove = '/stake/remove';
 
   useEffect(() => {
-    const { t1BN } = getTokenVal(token1, token1);
-    setT1BN(t1BN);
-  }, [token1]);
+    if (showUnlockTokenModal) setApproving('pending');
+  }, [showUnlockTokenModal]);
 
   // Set up the interval.
   useEffect(() => {
     let delay: number | null = 1500;
     let id: NodeJS.Timeout;
-    if (accountId && ocean && pool && address) {
+    if (accountId && pool && address && stake) {
       id = setInterval(
         () =>
-          getAllowance(address, accountId, pool, ocean).then((res) => {
-            console.log("Response from allowance call", res);
+          getAllowance(address, accountId, pool, stake).then((res) => {
+            const txAmount =
+              location === '/stake/remove' && preTxDetails?.shares ? preTxDetails?.shares : tokenIn.value;
             const allowance = new BigNumber(res);
-            if (allowance.gte(t1BN)) {
+            if (allowance.gte(txAmount)) {
+              setExecuteUnlock(false);
               setShowUnlockTokenModal(false);
-              nextFunction();
               setPool(null);
               setAddress(null);
+              setBlurBG(false);
               delay = null;
             }
           }),
@@ -55,121 +66,154 @@ export default function UnlockTokenModal({
       );
     }
     return () => clearInterval(id);
-  }, [address, accountId, pool, ocean]);
+  }, [address, accountId, pool, stake]);
 
-  async function unlockTokens(amount: "perm" | "once") {
-    // currently being passed tx amount in both scenarios
-    if (ocean) {
-      let pool: string;
-      let address: string;
+  async function unlockTokens(amount: 'perm' | 'once') {
+    console.log(!preTxDetails, !chainId, !config?.custom, !trade, !tokenIn.info?.address, singleLiquidityPos?.address);
+    if (
+      !preTxDetails ||
+      !chainId ||
+      !config?.custom ||
+      !trade ||
+      (!tokenIn.info?.address && !singleLiquidityPos?.address)
+    )
+      return;
+    setApproving('approving');
+    setLastTx({ ...preTxDetails, status: 'Pending' });
 
-      if (remove) {
-        pool = token1.info.pool;
-        address = token1.info.tokenAddress;
-      } else if (isOCEAN(token1.info.address, ocean)) {
-        pool = token2.info.pool;
-        address = token1.info.address;
-      } else if (isOCEAN(token2.info.address, ocean)) {
-        pool = token1.info.pool;
-        address = token1.info.address;
-      } else {
-        pool = config.default.routerAddress;
-        address = token1.info.address;
-      }
+    if (stake) {
+      let spender: string = '';
+      let address: string = '';
 
+      if (location !== '/trade' && tokenOut.info) {
+        console.log('Getting base address in unlock token modal');
+        const poolForBaseToken =
+          location === '/stake/remove' ? singleLiquidityPos?.address : tokenOut.info?.pools[0].id;
+        if (!poolForBaseToken) return;
+        const baseAddress = await stake.getBaseToken(poolForBaseToken);
+        console.log('Base address in unlock token modal', baseAddress);
 
+        let contractToAllow = config.custom.stakeRouterAddress;
 
-      try {
-        const { t1BN } = getTokenVal(token1);
-        console.log("Setting approving");
-
-        setApproving("approving");
-        if (amount === "perm") {
-          await ocean.approve(address, pool, new BigNumber(18e10).toString(), accountId);
-          remove ? setToken(new BigNumber(18e10)) : setToken({ ...token1, allowance: new BigNumber(18e10) });
-        } else {
-          await ocean.approve(address, pool, t1BN.plus(0.001).toString(), accountId);
-          remove ? setToken(t1BN.plus(0.001)) : setToken({ ...token1, allowance: t1BN.plus(0.001) });
+        const addressToApprove = location === '/stake/remove' ? singleLiquidityPos?.address : tokenIn.info?.address;
+        if (contractToAllow && addressToApprove) {
+          console.log('token in address, and contract to allow', contractToAllow, contractToAllow);
+          address = addressToApprove;
+          spender = contractToAllow;
         }
-        console.log("Setting approved");
-        setApproving("approved");
-        setPool(pool);
+      }
+      
+      const approveTokenDecimals = location === '/stake/remove' ? 18 : tokenIn.info?.decimals;
+      try {
+        if (!accountId || (lastTx?.txType === 'unstake' && !lastTx?.shares)) return;
+        let txReceipt;
+        if (amount === 'perm') {
+          //TODO:Make this max uint 256
+          txReceipt = await trade.approve(address, accountId, new BigNumber(18e10).toString(), spender, false, approveTokenDecimals);
+          setTokenIn({ ...tokenIn, allowance: new BigNumber(18e10) });
+        } else {
+          const txAmount = location === '/stake/remove' ? preTxDetails.shares : tokenIn.value;
+          if (txAmount)
+            txReceipt = await trade.approve(address, accountId, txAmount.plus(0.001).toString(), spender, false, approveTokenDecimals);
+          setTokenIn({ ...tokenIn, allowance: tokenIn.value.plus(0.001) });
+        }
+        if (typeof txReceipt !== 'string') setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
+        setApproving('approved');
+        setPool(spender);
         setAddress(address);
-      } catch (error) {
-        console.error(error);
-        setApproving("pending");
-        console.log("Setting pending");
-
-        const allNotifications = notifications;
-        allNotifications.push({
-          type: "alert",
-          alert: {
-            message: errorMessages(error),
-            link: null,
-            type: "alert",
-          },
-        });
-        setNotifications([...allNotifications]);
+      } catch (error: any) {
+        console.error("Caught error : unlock token",error);
         setShowUnlockTokenModal(false);
+        setExecuteUnlock(false);
+        if (lastTx) setLastTx({ ...lastTx, status: 'Failure' });
+        setSnackbarItem({ type: 'error', message: error.message, error });
+        switchOnLocation(false);
+        setBlurBG(false);
       }
     }
   }
 
-  return showUnlockTokenModal && token1.info ? (
-    <div
-      id="transactionDoneModal"
-      className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 sm:max-w-sm w-full z-20 shadow"
-    >
+  function switchOnLocation(setExecute: boolean) {
+    switch (location) {
+      case '/trade':
+        setExecuteSwap(setExecute);
+        break;
+      case '/stake':
+        setExecuteStake(setExecute);
+        break;
+      case '/stake/remove':
+        setExecuteUnstake(setExecute);
+        break;
+    }
+  }
+
+  function close() {
+    setBlurBG(false);
+    setShowUnlockTokenModal(false);
+    switchOnLocation(false);
+    if (approving === 'pending') {
+      setExecuteUnlock(false);
+    }
+  }
+
+  // console.log(preTxDetails, showUnlockTokenModal, executeUnlock);
+  return preTxDetails && showUnlockTokenModal ? (
+    <CenterModal id="unlockTokenModal" onOutsideClick={close} className="sm:max-w-sm w-full z-30 shadow">
       <div className="bg-black border items-center flex flex-col rounded-lg pb-8 pt-2 px-4 hm-box mx-3">
         <div className="flex w-full  justify-end">
-          <MdClose
-            id="closeTokenModalBtn"
-            role="button"
-            onClick={() => {
-              setShowUnlockTokenModal(false);
-            }}
-            className="text-type-100 text-2xl"
-          />
+          <button onClick={close}>
+            <MdClose id="closeTokenModalBtn" className="text-gray-100 text-2xl" />
+          </button>
         </div>
-        {approving === "pending" ? (
-          <div className="pb-5">
-            <BiLockAlt size="72px" className="text-city-blue" />{" "}
-          </div>
-        ) : approving === "approving" ? (
-          <div className="pb-5">
+        <div className="pb-5">
+          {approving === 'pending' ? (
+            <BiLockAlt size="72px" className="text-city-blue" />
+          ) : approving === 'approving' ? (
             <BiLockAlt size="72px" className="text-city-blue animate-bounce" />
-          </div>
-        ) : (
-          <BiLockOpenAlt size="72px" className="text-city-blue animate-bounce" />
-        )}
-        <h3 className="text-sm lg:text-2xl pb-5">Unlock {token1.info.symbol}</h3>
+          ) : (
+            <BiLockOpenAlt size="72px" className="text-city-blue animate-bounce" />
+          )}
+        </div>
+        <h3 className="text-sm lg:text-2xl pb-5">Unlock {tokenIn.info?.symbol || preTxDetails?.tokenToUnlock}</h3>
         <p className="text-sm lg:text-base text-center pb-5">
-          DataX needs your permission to spend {t1BN.dp(5).toString()} {remove ? "shares" : token1.info.symbol}.
+          DataX needs your permission to spend{' '}
+          {location === remove ? preTxDetails.shares?.dp(5).toString() : tokenIn.value.dp(5).toString()}{' '}
+          {location === remove ? 'OPT' : tokenIn.info?.symbol}.
         </p>
 
         <button
           id="perm-unlock-btn"
           onClick={() => {
-            unlockTokens("perm");
+            unlockTokens('perm');
           }}
           className="w-full p-2 rounded-lg mb-2 bg-opacity-20 txButton"
-          disabled={approving === "approving" || pool || address ? true : false}
+          disabled={!!(approving === 'approving' || pool || address)}
         >
           Unlock Permanently
         </button>
         <button
           id="unlock-once-btn"
           onClick={() => {
-            unlockTokens("once");
+            unlockTokens('once');
           }}
-          disabled={approving === "approving" || pool || address ? true : false}
+          disabled={!!(approving === 'approving' || pool || address)}
           className="w-full p-2 rounded-lg mb-2 bg-opacity-20 txButton"
         >
           Unlock this time only
         </button>
       </div>
-    </div>
+    </CenterModal>
   ) : (
-    <></>
+    <div className="mt-4">
+      <button
+        id="confirmSwapModalBtn"
+        onClick={() => {
+          unlockTokens('once');
+        }}
+        className="px-4 py-2 text-lg w-full txButton rounded-lg"
+      >
+        Confirm swap
+      </button>
+    </div>
   );
 }

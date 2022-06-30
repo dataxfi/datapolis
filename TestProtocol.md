@@ -1,7 +1,5 @@
 # 🧑‍🔬 Manual test protocol for DataX 👩‍🔬
 
-
-
 > Keep the following in mind when completing this form:
 >
 > 1 - The following processes can be completed regularly to identify any issues upon creating a new bug fix or enhanchement. This protocol assumes you have a significant amount of OCEAN token or liquidity to be able to complete all of these tests. If you need ocean visit the <a href="https://faucet.rinkeby.oceanprotocol.com/send?address=0x7c8a5A7c34C8D9Bff143bEf41EaFfaAb8d543c87"> ocean faucet </a>.🧪
@@ -20,8 +18,8 @@
 >
 > 8 - This is a pretty thorough set of tests, if you're testing a new feature or bug fix test only the products it affects. (I.E. If you only add code to swap.tsx, only test swap.tsx. If you make changes to the transaction loader modal, test a each place the modal is used.)⚗️
 
+## Quick Navigation:
 
-## Quick Navigation: 
 <ul>
 <a href="#tradex"> TradeX Tests</a>
 <p>---🤖---</p>
@@ -32,21 +30,20 @@
 <a href="#remove"> Remove Liquidity Tests</a>
 <ul>
 
-
-
 ## <h2 id="standards">Standard Checks ✅</h2>
 
-| ( ✅ = always )                                                                  | TradeX    | StakeX | Remove Stake | Liquidity Position |
-| -------------------------------------------------------------------------------- | -----------------------------------------------------------------------------------------| ------ | ------------ | -- |
-| Preview Transaction Modal Appears                                                | ✅                                                                                                                              |        |  | |
-| Transaction Loader Modal Appears                                                 | ✅                                                                                                                              | ✅ | ✅  | |
-| Snackbar appears when transaction<br /> completes                               | ✅                                                                                                                              | ✅  | ✅ |✅ |
-| Approval Transaction (in wallet)                                                            | <p>When trading ocean <br /> in any way or <br /> trading any DT for <br /> the first time in a <br /> DT to DT transaction.<p> | ✅  | ✅ | |
-| Transaction Confirmation (in wallet)                                                        | ✅                                                                                                                              | ✅  | ✅   | |
-| Pending Indicator is visible when <br /> the Transaction Loader Modal is closed | ✅                                                                                                                              | ✅  | ✅ |✅ |
-| At any given moment there are no <br /> errors in the console.                          | ✅                                                                                                                              | ✅  | ✅ |✅ |
-| Pool information is shown for each pool. | | ✅ |  |✅ |
-## <h2 id="tradex">🔄 TradeX 🔄</h2> 
+| ( ✅ = always )                                                                 | TradeX                                                                                                                          | StakeX | Remove Stake | Liquidity Position |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------ | ------------------ |
+| Preview Transaction Modal Appears                                               | ✅                                                                                                                              |        |              |                    |
+| Transaction Loader Modal Appears                                                | ✅                                                                                                                              | ✅     | ✅           |                    |
+| Snackbar appears when transaction<br /> completes                               | ✅                                                                                                                              | ✅     | ✅           | ✅                 |
+| Approval Transaction (in wallet)                                                | <p>When trading ocean <br /> in any way or <br /> trading any DT for <br /> the first time in a <br /> DT to DT transaction.<p> | ✅     | ✅           |                    |
+| Transaction Confirmation (in wallet)                                            | ✅                                                                                                                              | ✅     | ✅           |                    |
+| Pending Indicator is visible when <br /> the Transaction Loader Modal is closed | ✅                                                                                                                              | ✅     | ✅           | ✅                 |
+| At any given moment there are no <br /> errors in the console.                  | ✅                                                                                                                              | ✅     | ✅           | ✅                 |
+| Pool information is shown for each pool.                                        |                                                                                                                                 | ✅     |              | ✅                 |
+
+## <h2 id="tradex">🔄 TradeX 🔄</h2>
 
 > Complete the transactions to test limits of TradeX (Rinkeby)
 
@@ -137,7 +134,7 @@
    The snackbar dissapears after about 8 seconds.
 
     <input type = "checkbox">
-    The transaction success modal DOESNT appear when the transaction loader modal was closed early. 
+    The transaction success modal DOESNT appear when the transaction loader modal was closed early.
 
   <textarea rows="10" cols="100" placeholder="Write notes here, expand text area so you can take screenshots and save your notes for discussion.."></textarea>
 
@@ -244,7 +241,7 @@ _You will most likely need over a thousand ocean to complete this test, reach ou
 
   <hr>
 
-**4) Complete a small DT to DT transaction, test max button (sell and buy), and swap tokens**  🧮 
+**4) Complete a small DT to DT transaction, test max button (sell and buy), and swap tokens** 🧮
 
 _If you dont currently own a small amount of two different datatokens, buy 1 or less of two different datatokens._
 
@@ -257,7 +254,7 @@ _If you dont currently own a small amount of two different datatokens, buy 1 or 
 - If max is less than 100 percent of your DT, sell some of that DT back to ocean, then restart this test.
 - Press the bax button of the buy DT, nothing should change.
 - Approve and Swap
-- Navigate to the transaction in the explorer and verify the details. 
+- Navigate to the transaction in the explorer and verify the details.
 
 - Ensure the following things occur:
 
@@ -293,7 +290,7 @@ _If you dont currently own a substantial amount of two different datatokens, buy
 - If max is 100 percent of your DT, buy more (with ocean), then restart this test.
 - Press the bax button of the buy DT, nothing should change.
 - Approve and Swap
-- Navigate to the transaction in the explorer and verify the details. 
+- Navigate to the transaction in the explorer and verify the details.
 
 - Ensure the following things occur:
 
@@ -318,11 +315,11 @@ _If you dont currently own a substantial amount of two different datatokens, buy
 
 ## <h2 id="stakex">🐖 StakeX 💵</h2>
 
-**1) Stake a small amount in a pool, check token modal, links, pool information, transaction loader and success modal.**  📐 
+**1) Stake a small amount in a pool, check token modal, links, pool information, transaction loader and success modal.** 📐
 
 - Select any datatoken
 - Click the pool link
-- Click the token link 
+- Click the token link
 - Check the pool information
   - Open another tab and go to tradeX
   - Select the same dt to sell and ocean to buy
@@ -336,10 +333,10 @@ _If you dont currently own a substantial amount of two different datatokens, buy
     The ocean token is not available in the token modal.
 
    <input type = "checkbox">
-    The pool button goes to the pool address in the explorer. 
+    The pool button goes to the pool address in the explorer.
 
    <input type = "checkbox">
-    The token button goes to the datatoken address in the explorer. 
+    The token button goes to the datatoken address in the explorer.
 
    <input type = "checkbox">
     The swap rate is the same as the exchange rate on TradeX.
@@ -366,29 +363,29 @@ _If you dont currently own a substantial amount of two different datatokens, buy
 
   <hr>
 
-**2) Stake a large amount in a pool, test Max stake button, check stake information matches on Liquidity position, snackbar, pending TX indicator.** 🧫 
+**2) Stake a large amount in a pool, test Max stake button, check stake information matches on Liquidity position, snackbar, pending TX indicator.** 🧫
 
 _This test requires you to have either done the test above and use the same DT from that test, or have previously staked OCEAN in the DT you use for this test. This test requires at least 100 and at most 250 ocean in your account, if you have more than 250 transfer some to another account._
 
 - Select any datatoken
-- Press "Max Stake", if the stake amount is less than your balance, sell some OCEAN tokens in TradeX. 
+- Press "Max Stake", if the stake amount is less than your balance, sell some OCEAN tokens in TradeX.
 - Open a new tab and navigate to your liquidity position page on StakeX
 - Check that the Pool liquidity matches between StakeX and the liquidity position page.
 - Immediately close the transaction loader modal.
 
 - Ensure the following things occur:
-  
+
    <input type = "checkbox">
-    Max stake input after pressing max stake is your total balance. 
+    Max stake input after pressing max stake is your total balance.
 
     <input type = "checkbox">
-    The Pool Liquidity matches the information in the liquidity position page for the DT pool you have selected.  
+    The Pool Liquidity matches the information in the liquidity position page for the DT pool you have selected.
 
     <input type = "checkbox">
-    Close the transaction loader modal before you sign the transactions. 
+    Close the transaction loader modal before you sign the transactions.
 
     <input type = "checkbox">
-    Pending transaction indicator appears in the snackbar after closing the transaction loader modal. 
+    Pending transaction indicator appears in the snackbar after closing the transaction loader modal.
 
     <input type = "checkbox">
     Snackbar appears when the transaction is complete.
@@ -405,24 +402,24 @@ _This test requires you to have either done the test above and use the same DT f
 _This test requires you to have a considerable amount of OCEAN, probably around 500 to 2000 OCEAN. You can attempt this but may need to aquire more ocean. If you own alot of the DT you use in this test, you will need even more OCEAN. Consider selling some or all of the DT you use in this test if you dont have enough OCEAN._
 
 - Select any datatoken
-- Press "Max Stake", if the stake amount is 100% of your balance, aquire more ocean token. 
+- Press "Max Stake", if the stake amount is 100% of your balance, aquire more ocean token.
 - Immediately close the transaction loader modal.
 - Open the transaction history modal before approving the transactions.
 - Watch the transaction until it is successful.
 
 - Ensure the following things occur:
-  
+
    <input type = "checkbox">
-    Max stake input after pressing max stake is less than your.  
+    Max stake input after pressing max stake is less than your.
 
     <input type = "checkbox">
-    The Pool Liquidity matches the information in the liquidity position page for the DT pool you have selected.  
+    The Pool Liquidity matches the information in the liquidity position page for the DT pool you have selected.
 
     <input type = "checkbox">
-    Close the transaction loader modal before you sign the transactions and open the transaction history modal. 
+    Close the transaction loader modal before you sign the transactions and open the transaction history modal.
 
     <input type = "checkbox">
-    The transaction in the history modal says 'pending' in the transaction history modal. 
+    The transaction in the history modal says 'pending' in the transaction history modal.
 
     <input type = "checkbox">
     When transaction in the history says 'pending' modal has a white link to the explorer that goes to your account address.
@@ -431,7 +428,7 @@ _This test requires you to have a considerable amount of OCEAN, probably around 
     The pending transaction indicator dissapears when a response from the transaction is received.
 
     <input type = "checkbox">
-    The transaction in the history modal changes to 'indexing' when a response from the transaction is received. 
+    The transaction in the history modal changes to 'indexing' when a response from the transaction is received.
 
     <input type = "checkbox">
     The pending transaction indicator dissapears when a response from the transaction is received.
@@ -448,30 +445,31 @@ _This test requires you to have a considerable amount of OCEAN, probably around 
   <textarea rows="10" cols="100" placeholder="Write notes here, expand text area so you can take screenshots and save your notes for discussion.."></textarea>
 
   <hr>
+
 ### <h2 id="LP">Liquidity Position</h2>
 
-**1)Check LP page has proper information, is loading only on first access, and you can view multiple at once.** 🥼 
+**1)Check LP page has proper information, is loading only on first access, and you can view multiple at once.** 🥼
 
 - Navigate to the liquidity position page.
-- Take a screenshot of the information of a pool. **(The tokens in the pools you use in this test need to also be in the token list.)** 
+- Take a screenshot of the information of a pool. **(The tokens in the pools you use in this test need to also be in the token list.)**
 - Navigate to and check values against the pool information in StakeX page (Do not use another tab)
-    - Specifically check the 'Pool liquidity' information is the same.
+  - Specifically check the 'Pool liquidity' information is the same.
 - Check your liquidity position doesn't reload when you navigate back to the liquidity position page.
 - Repeat process for two more pools.
 - View the information for multiple pools.
 - Ensure the following things occur:
-  
+
    <input type = "checkbox">
-    The liquidity pool information is loaded the first time you open the liquidity position page. 
+    The liquidity pool information is loaded the first time you open the liquidity position page.
 
     <input type = "checkbox">
     The pool information for 3 pools is the same on StakeX and StakeX liquidity position page.
 
     <input type = "checkbox">
-    The pool information never reloads when moving between StakeX and StakeX liquidity position page. 
+    The pool information never reloads when moving between StakeX and StakeX liquidity position page.
 
     <input type = "checkbox">
-    You can open multiple pool information sections and scroll up and down on the page. 
+    You can open multiple pool information sections and scroll up and down on the page.
 
   <textarea rows="10" cols="100" placeholder="Write notes here, expand text area so you can take screenshots and save your notes for discussion.."></textarea>
 
@@ -480,18 +478,18 @@ _This test requires you to have a considerable amount of OCEAN, probably around 
   **2)Check the LP information updates after transactions** 🧲
 
 - Navigate to the liquidity position page.
-- Wait for loading to complete, open a pool, and make a note or screenshot of your information. 
-- Navigate back to StakeX, and make a transaction in the pool you noted information for. 
-- Wait for the transaction to complete. 
+- Wait for loading to complete, open a pool, and make a note or screenshot of your information.
+- Navigate back to StakeX, and make a transaction in the pool you noted information for.
+- Wait for the transaction to complete.
 - Navigate back to liquidity position page.
-- Check that the LP information is loading again, or has already loaded. 
+- Check that the LP information is loading again, or has already loaded.
 - Check that your pool information is updated for the pool you added stake to.
 - Take a note or screenshot of the new information or the information of a different pool.
-- Navigate to the remove liquidity page. 
-- Remove liquidity. 
-- Wait for a successful transaction. 
+- Navigate to the remove liquidity page.
+- Remove liquidity.
+- Wait for a successful transaction.
 - Navigate back to the LP page
-- Check that the LP information is loading again, or has already loaded. 
+- Check that the LP information is loading again, or has already loaded.
 - Check that your pool information is updated for the pool you removed stake from.
 - Ensure the following things occur:
 
@@ -505,20 +503,19 @@ _This test requires you to have a considerable amount of OCEAN, probably around 
 
   <hr>
 
-
 ### <h2 id="#remove">Remove Liquidity</h2>
 
-  **1)Remove a small amount of stake, check button is disabled in appropriate states, the transaction loader modal, transaction success modal.** 🧲
+**1)Remove a small amount of stake, check button is disabled in appropriate states, the transaction loader modal, transaction success modal.** 🧲
 
 - Navigate to the remove liquidity page for any pool you have stake in. (Add stake if you have none.)
-- Enter 1 (1%) into the input. 
-- Remove stake 
+- Enter 1 (1%) into the input.
+- Remove stake
 - DONT close transaction loader modal
 - Check tx success modal link
 - Check button states throughout process.
 
     <input type = "checkbox">
-    The input calculates the OCEANS removed. 
+    The input calculates the OCEANS removed.
 
     <input type = "checkbox">
     The transaction loader modal shows two transactions to approve.
@@ -527,52 +524,52 @@ _This test requires you to have a considerable amount of OCEAN, probably around 
     The button is disabled while the transaction is processing.
 
     <input type = "checkbox">
-    The transaction loader modal closes when a response is received. 
+    The transaction loader modal closes when a response is received.
 
     <input type = "checkbox">
-    The transaction success modal opens when the transaction loader modal closes. 
+    The transaction success modal opens when the transaction loader modal closes.
 
     <input type = "checkbox">
-    The link in the transaction success modal opens the transaction in the explorer. 
+    The link in the transaction success modal opens the transaction in the explorer.
 
   <textarea rows="10" cols="100" placeholder="Write notes here, expand text area so you can take screenshots and save your notes for discussion.."></textarea>
 
   <hr>
   **2) Remove 50 percent of a decent amount of shares, check the snackbar, pending transaction indicator, and stake loading after transaction.** 🧲
 
-    _Stake ocean in a pool until you have shares that are worth over 100 ocean before trying this test_
+  _Stake ocean in a pool until you have shares that are worth over 100 ocean before trying this test_
 
-    - Type 50 percent in the input field
-    - Take note of current shares amount
-    - Immediately close the transaction loader modal
-    - Wait for LP information to reload after transaction 
+  - Type 50 percent in the input field
+  - Take note of current shares amount
+  - Immediately close the transaction loader modal
+  - Wait for LP information to reload after transaction
 
     <input type = "checkbox">
     Close the transaction loader modal before signing transactions.
 
     <input type = "checkbox">
-    The pending transaction indicator appears in the navbar when after closing the transaction loader modal. 
+    The pending transaction indicator appears in the navbar when after closing the transaction loader modal.
 
     <input type = "checkbox">
     The button to remove stake is disabled and says 'processing transaction' while the transaction is processing.
 
     <input type = "checkbox">
-    The snackbar appears when a response from the transaction is received.  
+    The snackbar appears when a response from the transaction is received.
 
     <input type = "checkbox">
     The link in the snackbar navigates to the transaction.
 
     <input type = "checkbox">
-    The liqiuidity information reloads when a response from the transaction is received.  
+    The liqiuidity information reloads when a response from the transaction is received.
 
     <input type = "checkbox">
-    The remove stake button is disabled and says "Loading your stake information" while loading the stake information. 
+    The remove stake button is disabled and says "Loading your stake information" while loading the stake information.
 
     <input type = "checkbox">
-    The transaction done modal DOESNT open when a response from the transaction is received. 
+    The transaction done modal DOESNT open when a response from the transaction is received.
 
     <input type = "checkbox">
-    The shares amount is updated after or while the LP information is finished loading. 
+    The shares amount is updated after or while the LP information is finished loading.
 
     <input type = "checkbox">
     The remove stake button is enabled after the LP information is finished loading.
@@ -581,15 +578,15 @@ _This test requires you to have a considerable amount of OCEAN, probably around 
 
   <hr>
 
-    **2) Remove max unstake of total shares, max unstake button, check tx history modal.** 🧲
+  **2) Remove max unstake of total shares, max unstake button, check tx history modal.** 🧲
 
-    - Press the max unstake button. **(If the max unstake is less than 100 percent of your shares, remove stake until it is 100 percent of your shares.)**
-    - Take note of the Receive amount and percent.
-    - Clear the input field then type 100 percent in the input field, nothing should change.
-    - Approve and withdrawal.
-    - Immediately close the transaction loader modal. 
-    - Open the tx history modal before signing the transactions.
-    - Wait for the transaction to succeed.
+  - Press the max unstake button. **(If the max unstake is less than 100 percent of your shares, remove stake until it is 100 percent of your shares.)**
+  - Take note of the Receive amount and percent.
+  - Clear the input field then type 100 percent in the input field, nothing should change.
+  - Approve and withdrawal.
+  - Immediately close the transaction loader modal.
+  - Open the tx history modal before signing the transactions.
+  - Wait for the transaction to succeed.
 
     <input type = "checkbox">
     Pressing the max unstake button and typing 100% achieves the same result.
@@ -601,10 +598,10 @@ _This test requires you to have a considerable amount of OCEAN, probably around 
     While the transaction is 'pending' in history modal, there is a white link to your account address on the explorer.
 
     <input type = "checkbox">
-    The transaction changes to 'indexing' when after receiving a response from the transaction.  
+    The transaction changes to 'indexing' when after receiving a response from the transaction.
 
     <input type = "checkbox">
-    While the transaction is 'indexing' in history modal, there is a green link to the transaction on the explorer. 
+    While the transaction is 'indexing' in history modal, there is a green link to the transaction on the explorer.
 
     <input type = "checkbox">
     The transaction says 'Success' shortly before or after the transaction reports successful in the explorer (-+ 30 seconds especially depending on your internet connection).
