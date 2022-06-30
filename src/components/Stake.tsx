@@ -100,7 +100,7 @@ export default function Stake() {
   }, [tokenOut.info?.address, baseToken, web3, chainId, config]);
 
   useEffect(() => {
-    if (tokenOut.info?.pools[0].id && stake && web3 && config && chainId && accountId) {
+    if (tokenOut.info?.pools && stake && web3 && config && chainId && accountId) {
       stake.getBaseToken(tokenOut.info?.pools[0].id).then((address) => {
         getToken(web3, chainId, address, 'exchange', config, accountId).then(setBaseToken);
       });
@@ -253,8 +253,7 @@ export default function Stake() {
   }
 
   async function setMaxStake() {
-    if (!tokenOut.info?.pools[0].id || !stake || !maxStakeAmt) return;
-    console.log(maxStakeAmt.toString());
+    if (!tokenOut.info?.pools || !stake || !maxStakeAmt) return;
     if (maxStakeAmt.isNaN()) {
       setTokenIn({ ...tokenIn, value: new BigNumber(0) });
       setSharesReceived(new BigNumber(0));

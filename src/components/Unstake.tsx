@@ -19,7 +19,7 @@ import useClearTokens from '../hooks/useClearTokens';
 import useTxHandler from '../hooks/useTxHandler';
 import TxSettings from './TxSettings';
 import usePathfinder from '../hooks/usePathfinder';
-import { to5 } from '../utils/utils';
+import { bn, calcSlippage, to5 } from '../utils/utils';
 // import PositionBox from './PositionBox';
 
 export default function Unstake() {
@@ -53,6 +53,7 @@ export default function Unstake() {
     spotSwapFee,
     meta,
     preTxDetails,
+    slippage,
   } = useContext(GlobalContext);
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
   const [btnText, setBtnText] = useState('Enter Amount to Remove');
@@ -120,7 +121,9 @@ export default function Unstake() {
     getAllowance(singleLiquidityPos.address, accountId, contractToAllow, stake).then(async (res) => {
       console.log('Token out allowance for contract ', singleLiquidityPos.address, contractToAllow, res);
       if (tokenOut.info?.address) {
-        const balance = await trade?.getBalance(accountId, false, tokenOut.info.address);
+        const tokenAddress =
+          tokenOut.info.address.toLowerCase() === accountId.toLowerCase() ? undefined : tokenOut.info.address;
+        const balance = await trade?.getBalance(accountId, false, tokenAddress);
         setTokenOut({ ...tokenOut, balance: new BigNumber(balance) });
         setAllowance(new BigNumber(res));
       }
@@ -260,26 +263,27 @@ export default function Unstake() {
 
           // if the perc input is >= 100 or user mac perc, set input to max
           if (percInput.gte(100) || percInput.gte(maxUnstake.userPerc)) {
-            //
             return maxUnstakeHandler();
           }
 
-          const sharesPerc = percInput.div(100).multipliedBy(singleLiquidityPos.shares).dp(5);
-          console.log(sharesPerc.toString());
+          const sharesAmtFromPerc = percInput.div(100).multipliedBy(singleLiquidityPos.shares).dp(5);
+          console.log(sharesAmtFromPerc.toString());
 
           let { baseAmountOut, dataxFee, refFee } = await stake.calcTokenOutGivenPoolIn({
             meta,
-            uints: [sharesPerc.toString(), spotSwapFee, '0'],
+            uints: [sharesAmtFromPerc.toString(), spotSwapFee, '0'],
             path,
           });
 
           const basePoolName = singleLiquidityPos?.baseToken.symbol;
-
           if (baseAmountOut && dataxFee && refFee) {
-            setSharesToRemove(sharesPerc);
+            const amountOutBN = bn(baseAmountOut);
+            const minAmountOut = calcSlippage(amountOutBN, slippage, false);
+            setAfterSlippage(minAmountOut);
+            setSharesToRemove(sharesAmtFromPerc);
             setDataxFee(`${to5(dataxFee)} ${basePoolName}`);
             setSwapFee(`${to5(refFee)} ${basePoolName}`);
-            setTokenOut({ ...tokenOut, value: new BigNumber(baseAmountOut) });
+            setTokenOut({ ...tokenOut, value: amountOutBN });
           }
 
           setCalculating(false);
@@ -297,6 +301,8 @@ export default function Unstake() {
       maxUnstake.maxTokenOut.toString()
     );
     try {
+      const minAmountOut = calcSlippage(maxUnstake.maxTokenOut, slippage, false);
+      setAfterSlippage(minAmountOut);
       setSharesToRemove(maxUnstake.maxPoolTokensIn);
       setRemovePercent(maxUnstake.userPerc);
       setTokenOut({ ...tokenOut, value: maxUnstake.maxTokenOut });
@@ -317,21 +323,20 @@ export default function Unstake() {
 
     setConfirmingTx(true);
     try {
-      // TODO: CALC SLIPPAGE AND USE IN TX
-      //TODO : setAfterSlippage(maxAmountIn)
-
+      const minAmountOut = calcSlippage(tokenOut.value, slippage, false);
+      setAfterSlippage(minAmountOut);
       const stakeInfo = {
         meta,
         path,
-        uints: [sharesToRemove.toString(), spotSwapFee, tokenOut.value.toString()],
+        uints: [sharesToRemove.toString(), spotSwapFee, minAmountOut.toString()],
       };
 
       console.log(stakeInfo);
 
-      const txReceipt = await stake.unstakeTokenFromDTPool(stakeInfo, accountId);
-      // tokenOut.info?.address.toLowerCase() === config?.custom.nativeAddress.toLowerCase()
-      //   ? await stake.unstakeETHFromDTPool(stakeInfo, accountId)
-      //   : await stake.unstakeTokenFromDTPool(stakeInfo, accountId);
+      const txReceipt =
+        tokenOut.info?.address.toLowerCase() === config?.custom.nativeAddress.toLowerCase()
+          ? await stake.unstakeETHFromDTPool(stakeInfo, accountId)
+          : await stake.unstakeTokenFromDTPool(stakeInfo, accountId);
 
       setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
       transactionTypeGA('unstake');

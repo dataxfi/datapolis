@@ -64,15 +64,11 @@ export default function useTokenList({ setLoading, setError }: { setLoading?: Fu
   }
 
   useEffect(() => {
+    console.log(!!ERC20TokenResponse)
     if (!ERC20TokenResponse && chainId && config?.custom && web3 && accountId) {
-      // console.log("Fetching erc20 list")
       getERC20TokenList(config, chainId, accountId)
         .then((list) => {
-          // console.log(list);
-
           if (!list) return;
-          console.log('Setting ERC20List');
-
           setERC20List(list);
         })
         .catch((error) => {
@@ -100,7 +96,6 @@ async function getDtTokenList(web3: Web3, chainId: supportedChains): Promise<ITL
 async function getERC20TokenList(config: Config, chainId: supportedChains, accountId:string): Promise<ITList | undefined> {
   try {
     const regularList = await axios.get(config.custom.tokenList);
-    console.log(regularList);
     let iTlistWithOcean;
     let listWithOcean;
     if (chainId === '4') {
@@ -158,6 +153,7 @@ export async function getToken(
   account:string
 ): Promise<ITokenInfo | undefined> {
   try {
+
     const dtList = await getDtTokenList(web3, chainId);
     const erc20List = await getERC20TokenList(config, chainId, account);
 

@@ -47,13 +47,13 @@ export default function ConfirmTxDetailsModal() {
     switch (location) {
       case '/stake':
         setTxTitle('Stake');
-        setPostExchangeString(`1 ${tokenIn.info?.symbol} = ${preTxDetails?.postExchange?.dp(5).toString()} OPT`);
+        // setPostExchangeString(`1 ${tokenIn.info?.symbol} = ${preTxDetails?.postExchange?.dp(5).toString()} OPT`);
         setAfterSlippageString(`${preTxDetails?.afterSlippage.dp(5).toString()} OPT`);
         break;
       case '/stake/remove':
         setTxTitle('Stake Removal');
-        setPostExchangeString(`1 Share = ${preTxDetails?.postExchange?.dp(5).toString()} OCEAN`);
-        setAfterSlippageString(`${preTxDetails?.pool?.datatoken.symbol} OPT`);
+        // setPostExchangeString(`1 Share = ${preTxDetails?.postExchange?.dp(5).toString()} OCEAN`);
+        setAfterSlippageString(`${preTxDetails?.afterSlippage.dp(5).toString()} ${preTxDetails?.tokenOut.info?.symbol}`);
         break;
       default:
         setTxTitle('Swap');
@@ -130,9 +130,7 @@ export default function ConfirmTxDetailsModal() {
           {/* <ConfirmSwapListItem name="Route" value="ETH > KNC" /> */}
           <ConfirmTxListItem
             name={minOrMax}
-            value={`${preTxDetails?.afterSlippage.dp(5).toString()} ${
-              location === '/stake/remove' ? `${preTxDetails?.pool?.datatoken.symbol} OPT` : ''
-            }`}
+            value={afterSlippageString}
           />
           {/* <ConfirmSwapListItem name="Price impact" value="-0.62%" valueClass="text-green-500" /> */}
           <ConfirmTxListItem name={`${txTitle} Fee`} value={preTxDetails?.swapFee ? `${preTxDetails?.swapFee}` : '0'} />
