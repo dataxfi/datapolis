@@ -1,5 +1,5 @@
 name: Deploy to Vercel
-on: [push, pull_request]
+# on: [push, pull_request]
 jobs:
 
   vercel-deploy:
