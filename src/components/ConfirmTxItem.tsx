@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../context/GlobalState';
 import useTokenImgSrc from '../hooks/useTokenImgSrc';
 import BigNumber from 'bignumber.js';
-import TokenImage from './TokenImage';
+import TokenImage from './TokenImage'; 
 
 export default function ConfirmTxItem({ pos }: { pos: 1 | 2 }) {
   const { tokenIn, tokenOut, location, preTxDetails } = useContext(GlobalContext);
