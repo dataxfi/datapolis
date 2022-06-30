@@ -93,7 +93,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [disclaimerSigned, setDisclaimerSigned] = useState<IDisclaimerSigned>({
     client: null,
     wallet: null,
-  });
+  }); 
 
   // transaction states
   const [spotSwapFee, setSpotSwapFee] = useState<string | undefined>('0');
