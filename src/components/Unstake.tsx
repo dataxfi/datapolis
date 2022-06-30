@@ -334,7 +334,7 @@ export default function Unstake() {
       console.log(stakeInfo);
 
       const txReceipt =
-        tokenOut.info?.address.toLowerCase() === config?.custom.nativeAddress.toLowerCase()
+        tokenOut.info?.address.toLowerCase() === accountId.toLowerCase()
           ? await stake.unstakeETHFromDTPool(stakeInfo, accountId)
           : await stake.unstakeTokenFromDTPool(stakeInfo, accountId);
 
@@ -348,7 +348,7 @@ export default function Unstake() {
     } catch (error: any) {
       console.error(error);
       setLastTx({ ...preTxDetails, status: 'Failure' });
-      setSnackbarItem({ type: 'error', message: error.error.message, error });
+      setSnackbarItem({ type: 'error', message: error.message, error });
       setConfirmingTx(false);
       setShowTxDone(false);
     } finally {
