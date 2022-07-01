@@ -330,7 +330,7 @@ export default function Unstake() {
       const stakeInfo = {
         meta,
         path,
-        uints: [sharesToRemove.toString(), spotSwapFee, minAmountOut.toString()],
+        uints: [sharesToRemove.toString(), spotSwapFee, minAmountOut.dp(5).toString()],
       };
 
       console.log("Stake Info Sent From Dapp",stakeInfo);
