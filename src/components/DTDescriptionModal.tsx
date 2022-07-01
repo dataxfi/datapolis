@@ -25,12 +25,14 @@ export default function DatasetDescription() {
     setT2DIDResponse,
     location,
     config,
-    chainId
+    chainId,
   } = useContext(GlobalContext);
 
   useEffect(() => {
-    if (showDescModal && !t2DIDResponse && tokenOut.info?.did && chainId) {
-      getDID(setT2DIDResponse, tokenOut.info?.did, chainId);
+    console.log(!!showDescModal, !!!t2DIDResponse, !!tokenOut.info?.did, !!chainId, console.log(tokenOut));
+    if (showDescModal && !t2DIDResponse && tokenOut.info?.address && chainId) {
+      console.log('Getting description');
+      getDID(setT2DIDResponse, tokenOut.info?.address, chainId);
     }
   }, [showDescModal]);
 
@@ -74,7 +76,7 @@ export default function DatasetDescription() {
   return (
     <div
       id={`${showDescModal && t2DIDResponse && tokenOut.info ? 'dataset-desc-vis' : 'dataset-desc-invis'}`}
-      className={`absolute max-w-[550px] top-1/2 left-1/2 ${
+      className={`absolute max-w-[650px] top-1/2 left-1/2 ${
         showDescModal && t2DIDResponse && tokenOut.info
           ? '-translate-x-1/2 2lg:-translate-x-full'
           : 'translate-x-[-225%] 2lg:translate-x-[-260%] 3xl:translate-x-[-400%]'
@@ -210,7 +212,11 @@ export default function DatasetDescription() {
   );
 }
 
-export async function getDID(setT2DIDResponse: React.Dispatch<any>, address: string, chainId:string): Promise<string | void> {
+export async function getDID(
+  setT2DIDResponse: React.Dispatch<any>,
+  address: string,
+  chainId: string
+): Promise<string | void> {
   try {
     const token = await axios.post('https://v4.aquarius.oceanprotocol.com/api/aquarius/assets/query', {
       from: 0,

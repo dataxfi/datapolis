@@ -5,7 +5,7 @@ import { GlobalContext, INITIAL_TOKEN_STATE } from '../context/GlobalState';
 import { getToken } from './useTokenList';
 import BigNumber from 'bignumber.js';
 export default function useAutoLoadToken() {
-  const { web3, chainId, setTokenOut, accountId, setTokenIn, location, config, trade } = useContext(GlobalContext);
+  const { web3, chainId, setTokenOut, tokenOut, accountId, setTokenIn, location, config, trade } = useContext(GlobalContext);
 
   const url = useLocation();
   useEffect(() => {
@@ -14,6 +14,8 @@ export default function useAutoLoadToken() {
     const pool = queryParams.get('pool');
     const inAddress = queryParams.get('in');
     const outAddress = queryParams.get('out');
+
+
 
     function setToken(address: string, isPool: boolean, pos: 1 | 2) {
       if (web3 && chainId && accountId && config)
