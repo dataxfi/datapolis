@@ -54,7 +54,7 @@ export default function Unstake() {
     meta,
     preTxDetails,
     slippage,
-    setBalanceTokenOut
+    setBalanceTokenOut,
   } = useContext(GlobalContext);
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
   const [btnText, setBtnText] = useState('Enter Amount to Remove');
@@ -125,7 +125,7 @@ export default function Unstake() {
         const tokenAddress =
           tokenOut.info.address.toLowerCase() === accountId.toLowerCase() ? undefined : tokenOut.info.address;
         const balance = await trade?.getBalance(accountId, false, tokenAddress);
-        setBalanceTokenOut(bn(balance))
+        setBalanceTokenOut(bn(balance));
         setAllowance(new BigNumber(res));
       }
     });
@@ -297,11 +297,6 @@ export default function Unstake() {
   };
 
   async function maxUnstakeHandler() {
-    console.log(
-      maxUnstake.maxPoolTokensIn.toString(),
-      maxUnstake.userPerc.toString(),
-      maxUnstake.maxTokenOut.toString()
-    );
     try {
       const minAmountOut = calcSlippage(maxUnstake.maxTokenOut, slippage, false);
       setAfterSlippage(minAmountOut);
@@ -333,7 +328,7 @@ export default function Unstake() {
         uints: [sharesToRemove.toString(), spotSwapFee, minAmountOut.dp(5).toString()],
       };
 
-      console.log("Stake Info Sent From Dapp",stakeInfo);
+      console.log('Stake Info Sent From Dapp', stakeInfo);
 
       const txReceipt =
         tokenOut.info?.address.toLowerCase() === accountId.toLowerCase()
@@ -361,6 +356,7 @@ export default function Unstake() {
       setTxApproved(false);
       setShowConfirmTxDetails(false);
       setBlurBG(false);
+      getMaxUnstake(getNewSignal());
     }
   }
 

@@ -102,19 +102,33 @@ export default function UnlockTokenModal() {
           spender = contractToAllow;
         }
       }
-      
+
       const approveTokenDecimals = location === '/stake/remove' ? 18 : tokenIn.info?.decimals;
       try {
         if (!accountId || (lastTx?.txType === 'unstake' && !lastTx?.shares)) return;
         let txReceipt;
         if (amount === 'perm') {
           //TODO:Make this max uint 256
-          txReceipt = await trade.approve(address, accountId, new BigNumber(18e10).toString(), spender, false, approveTokenDecimals);
+          txReceipt = await trade.approve(
+            address,
+            accountId,
+            new BigNumber(18e10).toString(),
+            spender,
+            false,
+            approveTokenDecimals
+          );
           setTokenIn({ ...tokenIn, allowance: new BigNumber(18e10) });
         } else {
           const txAmount = location === '/stake/remove' ? preTxDetails.shares : tokenIn.value;
           if (txAmount)
-            txReceipt = await trade.approve(address, accountId, txAmount.plus(0.001).toString(), spender, false, approveTokenDecimals);
+            txReceipt = await trade.approve(
+              address,
+              accountId,
+              txAmount.plus(0.001).toString(),
+              spender,
+              false,
+              approveTokenDecimals
+            );
           setTokenIn({ ...tokenIn, allowance: tokenIn.value.plus(0.001) });
         }
         if (typeof txReceipt !== 'string') setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
@@ -122,11 +136,14 @@ export default function UnlockTokenModal() {
         setPool(spender);
         setAddress(address);
       } catch (error: any) {
-        console.error("Caught error : unlock token",error);
+        console.error('Caught error : unlock token', error);
         setShowUnlockTokenModal(false);
         setExecuteUnlock(false);
         if (lastTx) setLastTx({ ...lastTx, status: 'Failure' });
-        setSnackbarItem({ type: 'error', message: error.message, error });
+        let message = error.message;
+        if (error?.error?.message.includes('Failed to check'))
+          message = 'Failed to check for transaction receipt. Check the transaction in your wallet.';
+        setSnackbarItem({ type: 'error', message, error });
         switchOnLocation(false);
         setBlurBG(false);
       }
