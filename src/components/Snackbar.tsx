@@ -72,7 +72,7 @@ export default function Snackbar() {
 
   if (!currentNot) return <></>;
   return (
-    <div className={'max-w-xs fixed right-2 top-18 md:right-8'}>
+    <div className={'max-w-xs fixed right-2 top-18 md:right-8 w-full'}>
       <div
         className={`relative top-0 left-0 max-w-xs w-full mx-auto bg-black bg-opacity-90 rounded-lg p-1 lg:p-4 transition-opacity ease-in-out opacity-${opacity} duration-500`}
       >
@@ -80,7 +80,7 @@ export default function Snackbar() {
           <div className="flex items-center">
             {txDetails && currentNot?.type === 'tx' ? (
               <>
-                <IoCheckboxOutline size="24" className="text-city-blue" />
+                <IoCheckboxOutline size="24" className="text-city-blue mr-3" />
                 <div>
                   <p>
                     {txDetails.txType === 'stake' && txDetails.tokenOut.info
@@ -109,7 +109,7 @@ export default function Snackbar() {
             ) : currentNot?.type === 'error' ? (
               <>
                 <BsXCircle className="text-red-500 mr-4 w-2" />
-                <p className='max-w-full text-xs px-2'>{errorMessage(currentNot)}</p>
+                <p className='max-w-full px-2'>{errorMessage(currentNot)}</p>
               </>
             ) : (
               <></>

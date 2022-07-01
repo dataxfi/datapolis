@@ -58,6 +58,7 @@ export default function Stake() {
     setBalanceTokenIn,
     showConfirmTxDetails,
     approving,
+    
   } = useContext(GlobalContext);
 
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
@@ -267,6 +268,7 @@ export default function Stake() {
       setBlurBG(false);
       setShowConfirmTxDetails(false);
       setTxApproved(false);
+      setBalanceTokenIn(new BigNumber(0));
     }
   }
 
