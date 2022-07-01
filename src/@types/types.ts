@@ -225,4 +225,6 @@ export interface globalStates {
   setMeta: React.Dispatch<React.SetStateAction<string[] | undefined>>;
   balanceTokenIn: BigNumber;
   setBalanceTokenIn: React.Dispatch<React.SetStateAction<BigNumber>>;
+  balanceTokenOut: BigNumber;
+  setBalanceTokenOut:  React.Dispatch<React.SetStateAction<BigNumber>>
 }

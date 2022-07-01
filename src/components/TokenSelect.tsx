@@ -38,6 +38,7 @@ export default function TokenSelect({
     setBlurBG,
     setShowTokenModal,
     path,
+    balanceTokenOut,
     balanceTokenIn
   } = useContext(GlobalContext);
   const [enabled, setEndabled] = useState(false);
@@ -163,7 +164,7 @@ export default function TokenSelect({
             <div className="h-full w-full rounded-lg bg-opacity-100 text-3xl p-1 flex-col items-center">
               {token?.balance ? (
                 <p id={`token${pos}-balance`} className="text-sm text-gray-400 whitespace-nowrap text-right">
-                  Balance: {balanceTokenIn.dp(3).toString()}
+                  Balance: {location === "/stake/remove" ? balanceTokenOut.dp(5).toString() :balanceTokenIn.dp(3).toString()}
                 </p>
               ) : (
                 <></>

@@ -129,7 +129,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [buttonText, setButtonText] = useState<string>(CONNECT_TEXT);
   const [exactToken, setExactToken] = useState<1 | 2>(1);
   const [balanceTokenIn, setBalanceTokenIn] = useState<BigNumber>(bn(0));
-
+  const [balanceTokenOut, setBalanceTokenOut] = useState<BigNumber>(bn(0));
   // selected token states
   const [tokenIn, setTokenIn] = useState<IToken>(INITIAL_TOKEN_STATE);
   const [tokenOut, setTokenOut] = useState<IToken>(INITIAL_TOKEN_STATE);
@@ -485,8 +485,10 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setExactToken,
         meta,
         setMeta,
-        balanceTokenIn, 
-        setBalanceTokenIn
+        balanceTokenIn,
+        setBalanceTokenIn,
+        setBalanceTokenOut, 
+        balanceTokenOut
       }}
     >
       <>{children}</>
