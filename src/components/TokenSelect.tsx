@@ -28,8 +28,18 @@ export default function TokenSelect({
   onMax?: Function;
   max: BigNumber;
 }) {
-  const { accountId, handleConnect, tokensCleared, location, config, selectTokenPos, setBlurBG, setShowTokenModal } =
-    useContext(GlobalContext);
+  const {
+    accountId,
+    handleConnect,
+    tokensCleared,
+    location,
+    config,
+    selectTokenPos,
+    setBlurBG,
+    setShowTokenModal,
+    path,
+    balanceTokenIn
+  } = useContext(GlobalContext);
   const [enabled, setEndabled] = useState(false);
   const [title, setTitle] = useState<TokenSelectTitles>();
   const [imgSrc, setImgSrc] = useState(token.info?.logoURI);
@@ -37,7 +47,16 @@ export default function TokenSelect({
   useTokenImgSrc(setImgSrc, token.info);
 
   useEffect(() => {
-    if (accountId && max.gt(0) && token.balance.gt(0)) {
+    if (
+      location === '/stake' &&
+      path &&
+      path.length > 0 &&
+      accountId &&
+      max.gt(0) &&
+      balanceTokenIn.gt(0) &&
+      (token.info?.address.toLowerCase() === path[0].toLowerCase() ||
+        token.info?.address.toLowerCase() === accountId?.toLowerCase())
+    ) {
       setEndabled(true);
     } else {
       setEndabled(false);
@@ -144,7 +163,7 @@ export default function TokenSelect({
             <div className="h-full w-full rounded-lg bg-opacity-100 text-3xl p-1 flex-col items-center">
               {token?.balance ? (
                 <p id={`token${pos}-balance`} className="text-sm text-gray-400 whitespace-nowrap text-right">
-                  Balance: {token.balance.dp(3).toString()}
+                  Balance: {balanceTokenIn.dp(3).toString()}
                 </p>
               ) : (
                 <></>
@@ -156,7 +175,7 @@ export default function TokenSelect({
                   data-test-max={max.dp(5).toString()}
                   max={max}
                   step="any"
-                  disabled={token?.loading || location === '/stake/remove'}
+                  disabled={token?.loading || location === '/stake/remove' || !enabled}
                   debounceTimeout={500}
                   onChange={(e) => {
                     if (updateNum) updateNum(e.target.value);

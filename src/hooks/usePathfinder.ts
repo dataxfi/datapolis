@@ -42,6 +42,7 @@ export default function usePathfinder(tokenIn: string | undefined, tokenOut: str
     }
 
     return () => {
+      console.error("Aborting former request to pathfinder.")
       controller.abort();
       setPath([]);
     };

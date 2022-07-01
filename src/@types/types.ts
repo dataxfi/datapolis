@@ -49,7 +49,7 @@ export interface ITxDetails {
   tokenOut: IToken;
   status: 'Pending' | 'Indexing' | 'Success' | 'Failure';
   txType: ITxType;
-  afterSlippage:BigNumber
+  afterSlippage: BigNumber;
   dataxFee?: string;
   swapFee?: string;
   slippage?: BigNumber;
@@ -116,8 +116,8 @@ export interface IDisclaimerSigned {
   wallet: boolean | null;
 }
 
-export type supportedChains = '137' 
-//| '56' | '1285' | '246';'1' | '4' | 
+export type supportedChains = '137';
+//| '56' | '1285' | '246';'1' | '4' |
 export interface globalStates {
   handleConnect: Function;
   buttonText: string;
@@ -223,4 +223,6 @@ export interface globalStates {
   baseMinExchange: string;
   meta: string[] | undefined;
   setMeta: React.Dispatch<React.SetStateAction<string[] | undefined>>;
+  balanceTokenIn: BigNumber;
+  setBalanceTokenIn: React.Dispatch<React.SetStateAction<BigNumber>>;
 }

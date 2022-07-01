@@ -22,6 +22,7 @@ import {
   ApprovalStates,
 } from '../@types/types';
 import BigNumber from 'bignumber.js';
+import { bn } from '../utils/utils';
 
 const CONNECT_TEXT = 'Connect Wallet';
 export const INITIAL_TOKEN_STATE: IToken = {
@@ -30,7 +31,7 @@ export const INITIAL_TOKEN_STATE: IToken = {
   balance: new BigNumber(0),
   percentage: new BigNumber(0),
   loading: false,
-}; 
+};
 
 export function placeHolderOrContent(
   content: JSX.Element,
@@ -93,7 +94,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [disclaimerSigned, setDisclaimerSigned] = useState<IDisclaimerSigned>({
     client: null,
     wallet: null,
-  }); 
+  });
 
   // transaction states
   const [spotSwapFee, setSpotSwapFee] = useState<string | undefined>('0');
@@ -110,7 +111,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [executeUnlock, setExecuteUnlock] = useState<boolean>(false);
   const [approving, setApproving] = useState<ApprovalStates>('pending');
   const [swapFee, setSwapFee] = useState<string>('0');
-  const [afterSlippage, setAfterSlippage] = useState<BigNumber>(new BigNumber(0));
+  const [afterSlippage, setAfterSlippage] = useState<BigNumber>(bn(0));
   const [slippage, setSlippage] = useState<BigNumber>(new BigNumber(1));
   const [path, setPath] = useState<string[] | null>([]);
   const [meta, setMeta] = useState<string[]>();
@@ -127,6 +128,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [t2DIDResponse, setT2DIDResponse] = useState<any>();
   const [buttonText, setButtonText] = useState<string>(CONNECT_TEXT);
   const [exactToken, setExactToken] = useState<1 | 2>(1);
+  const [balanceTokenIn, setBalanceTokenIn] = useState<BigNumber>(bn(0));
 
   // selected token states
   const [tokenIn, setTokenIn] = useState<IToken>(INITIAL_TOKEN_STATE);
@@ -277,8 +279,6 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
       isSupportedChain(config, String(_chainId), accounts[0] ? accounts[0] : '');
 
-
-
       setRefAddress(process.env.REACT_APP_REF_ADDRESS);
       setSpotSwapFee(process.env.REACT_APP_REF_FEE);
       setListeners(provider, web3);
@@ -314,7 +314,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         return true;
       }
     } catch (error) {
-      console.error(error); 
+      console.error(error);
     }
   }
 
@@ -485,6 +485,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setExactToken,
         meta,
         setMeta,
+        balanceTokenIn, 
+        setBalanceTokenIn
       }}
     >
       <>{children}</>

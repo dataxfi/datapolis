@@ -18,7 +18,7 @@ import TxSettings from './TxSettings';
 import { IStakeInfo } from '@dataxfi/datax.js/dist/@types/stake';
 import usePathfinder from '../hooks/usePathfinder';
 import { getToken } from '../hooks/useTokenList';
-import { calcSlippage, to5, BtnManager, INITIAL_BUTTON_STATE } from '../utils/utils';
+import { calcSlippage, to5, BtnManager, INITIAL_BUTTON_STATE, bn } from '../utils/utils';
 import { ITokenInfo } from '@dataxfi/datax.js';
 
 export default function Stake() {
@@ -53,6 +53,11 @@ export default function Stake() {
     baseMinExchange,
     meta,
     executeUnlock,
+    preTxDetails,
+    balanceTokenIn,
+    setBalanceTokenIn,
+    showConfirmTxDetails,
+    approving,
   } = useContext(GlobalContext);
 
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
@@ -109,7 +114,14 @@ export default function Stake() {
 
   useEffect(() => {
     if (!tokensCleared.current) return;
-    if (tokenIn.info && tokenOut.info && path) {
+    if (
+      tokenIn.info &&
+      tokenOut.info &&
+      path &&
+      path.length > 0 &&
+      (path[0].toLowerCase() === tokenIn.info.address.toLowerCase() ||
+        tokenIn.info.address.toLowerCase() === accountId?.toLowerCase())
+    ) {
       getMaxAndAllowance();
     }
   }, [tokenIn.info?.address, tokenOut.info?.address, tokensCleared, accountId, path?.length]);
@@ -119,7 +131,7 @@ export default function Stake() {
       const tokenAddress =
         tokenIn.info.address.toLowerCase() === accountId.toLowerCase() ? undefined : tokenIn.info.address;
       trade.getBalance(accountId, false, tokenAddress).then((res) => {
-        setTokenIn({ ...tokenIn, balance: new BigNumber(res) });
+        setBalanceTokenIn(bn(res));
       });
     }
   }, [tokenIn.info?.address, accountId]);
@@ -146,7 +158,7 @@ export default function Stake() {
       btnManager.updateBtn('Insufficient Liquidity', true);
     } else if (!tokenIn.value || tokenIn.value.eq(0)) {
       btnManager.updateBtn('Enter Stake Amount', true);
-    } else if (tokenIn.balance?.eq(0) || (tokenIn.balance && tokenIn.value.gt(tokenIn.balance))) {
+    } else if (balanceTokenIn?.eq(0) || (balanceTokenIn && tokenIn.value.gt(balanceTokenIn))) {
       btnManager.updateBtn(`Not Enough ${tokenIn.info?.symbol} Balance`, true);
     } else if (lastTx?.status === 'Pending' && (executeStake || executeUnlock)) {
       btnManager.updateBtn('Processing Transaction...', true);
@@ -162,12 +174,18 @@ export default function Stake() {
     chainId,
     tokenOut,
     tokenIn.value,
-    tokenIn.balance,
+    balanceTokenIn,
     loading,
     tokenIn.info,
     lastTx?.status,
     path?.length,
     path,
+    preTxDetails?.status,
+    accountId,
+    executeStake,
+    executeUnlock,
+    showConfirmTxDetails,
+    approving,
   ]);
 
   async function getMaxAndAllowance() {
@@ -260,8 +278,8 @@ export default function Stake() {
       setDataxFee('0');
       setSwapFee('0');
     } else {
-      if (tokenIn.balance?.lt(maxStakeAmt)) {
-        updateNum(tokenIn.balance);
+      if (balanceTokenIn?.lt(maxStakeAmt)) {
+        updateNum(balanceTokenIn);
       } else {
         updateNum(maxStakeAmt);
       }

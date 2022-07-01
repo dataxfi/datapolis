@@ -14,17 +14,17 @@ jobs:
       #     key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.json') }}
       #     restore-keys: ${{ runner.os }}-node- 
 
-      - name: Install deps
-        run: yarn install
+      # - name: Install deps
+      #   run: yarn install
 
       # - name: Run Lint Test
       #   run: yarn run lint
 
-      - name: Build
-        run: yarn build
-        env:
-          DISABLE_ESLINT_PLUGIN: true 
-          CI: false
+      # - name: Build
+      #   run: yarn build
+      #   env:
+      #     DISABLE_ESLINT_PLUGIN: true 
+      #     CI: false
 
       - name: Deploy to Staging 
         uses: amondnet/vercel-action@v25
