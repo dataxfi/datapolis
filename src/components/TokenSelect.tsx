@@ -37,7 +37,7 @@ export default function TokenSelect({
     selectTokenPos,
     setBlurBG,
     setShowTokenModal,
-    path,
+    paths: path,
     balanceTokenOut,
     balanceTokenIn
   } = useContext(GlobalContext);

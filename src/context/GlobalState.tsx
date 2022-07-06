@@ -20,6 +20,7 @@ import {
   ISnackbarItem,
   supportedChains,
   ApprovalStates,
+  IPathData,
 } from '../@types/types';
 import BigNumber from 'bignumber.js';
 import { bn } from '../utils/utils';
@@ -113,7 +114,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [swapFee, setSwapFee] = useState<string>('0');
   const [afterSlippage, setAfterSlippage] = useState<BigNumber>(bn(0));
   const [slippage, setSlippage] = useState<BigNumber>(new BigNumber(1));
-  const [path, setPath] = useState<string[] | null>([]);
+  const [paths, setPaths] = useState<IPathData| null>(null);
+  const [path, setPath] = useState<string[]>()
   const [meta, setMeta] = useState<string[]>();
 
   // user pool information states
@@ -393,10 +395,12 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         refAddress,
         stake,
         trade,
-        path,
+        paths,
+        setPaths,
         spotSwapFee,
-        baseMinExchange,
+        path, 
         setPath,
+        baseMinExchange,
         handleSignature,
         cookiesAllowed,
         setCookiesAllowed,

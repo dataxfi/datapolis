@@ -42,7 +42,7 @@ export default function Unstake() {
     setShowConfirmTxDetails,
     setBlurBG,
     stake,
-    path,
+    paths: path,
     refAddress,
     config,
     trade,

@@ -116,6 +116,10 @@ export interface IDisclaimerSigned {
   wallet: boolean | null;
 }
 
+export interface IPathData {
+  [key: string]: { path: string[]; amts: string[] };
+}
+
 export type supportedChains = '137';
 //| '56' | '1285' | '246';'1' | '4' |
 export interface globalStates {
@@ -217,8 +221,10 @@ export interface globalStates {
   setSlippage: React.Dispatch<React.SetStateAction<BigNumber>>;
   exactToken: 1 | 2;
   setExactToken: React.Dispatch<React.SetStateAction<1 | 2>>;
-  path: string[] | null;
-  setPath: React.Dispatch<React.SetStateAction<string[] | null>>;
+  paths: IPathData | null;
+  setPaths: React.Dispatch<React.SetStateAction<IPathData | null>>;
+  path: string[] | undefined 
+  setPath: React.Dispatch<React.SetStateAction<string[] | undefined>>
   spotSwapFee: string | undefined;
   baseMinExchange: string;
   meta: string[] | undefined;
@@ -226,5 +232,5 @@ export interface globalStates {
   balanceTokenIn: BigNumber;
   setBalanceTokenIn: React.Dispatch<React.SetStateAction<BigNumber>>;
   balanceTokenOut: BigNumber;
-  setBalanceTokenOut:  React.Dispatch<React.SetStateAction<BigNumber>>
+  setBalanceTokenOut: React.Dispatch<React.SetStateAction<BigNumber>>;
 }

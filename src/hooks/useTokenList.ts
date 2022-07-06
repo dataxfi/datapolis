@@ -129,6 +129,16 @@ async function getERC20TokenList(
       tags: ['matic'],
     };
 
+    const refetchResponse = await axios.get('https://github.com/dataxfi/pathfinder/blob/main/storage/reFetch.json');
+    const noPaths = refetchResponse.data[chainId];
+
+    noPaths.forEach((address: string) => {
+      const index = regularList.data.tokens.findIndex(
+        (token: ITokenInfo) => token.address.toLowerCase() === address.toLowerCase()
+      );
+      regularList.data.tokens.splice(index, 1);
+    });
+
     const listFilteredByChain = regularList.data.tokens.filter(
       (token: ITokenInfo) => String(token.chainId) === chainId
     );

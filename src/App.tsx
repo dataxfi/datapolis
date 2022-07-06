@@ -6,6 +6,7 @@ import CenterModalContainer from './components/CenterModalContainer';
 import UnsupportedNetwork from './components/UnsupportedNetwork';
 import LiquidityPosition from './components/LiquidityPosition';
 import WatchLocation from './components/WatchLocation';
+import usePathfinder from './hooks/usePathfinder';
 import CookiesModal from './components/CookiesModal';
 import useTxHistory from './hooks/useTxHistory';
 import useMetaParam from './hooks/useMetaParam';

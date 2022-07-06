@@ -16,7 +16,6 @@ import useClearTokens from '../hooks/useClearTokens';
 import useTxHandler from '../hooks/useTxHandler';
 import TxSettings from './TxSettings';
 import { IStakeInfo } from '@dataxfi/datax.js/dist/@types/stake';
-import usePathfinder from '../hooks/usePathfinder';
 import { getToken } from '../hooks/useTokenList';
 import { calcSlippage, to5, BtnManager, INITIAL_BUTTON_STATE, bn } from '../utils/utils';
 import { ITokenInfo } from '@dataxfi/datax.js';
@@ -83,7 +82,6 @@ export default function Stake() {
     tokenToUnlock: tokenOut.info?.symbol,
     afterSlippage,
   });
-  usePathfinder(tokenIn.info?.address || '', baseToken?.address);
 
   useEffect(() => {
     if (
