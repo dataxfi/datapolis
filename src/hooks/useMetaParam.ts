@@ -23,7 +23,7 @@ export default function useMetaParam() {
         }
         break;
     }
- 
+
     if (pool) setMeta([pool, accountId, refAddress, adapter]);
-  }, [config, location, singleLiquidityPos, tokenIn, accountId, refAddress]);
+  }, [config, location, singleLiquidityPos, tokenIn.info?.address, tokenOut.info?.address, accountId, refAddress]);
 }

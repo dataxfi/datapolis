@@ -108,7 +108,7 @@ export default function Snackbar() {
               </>
             ) : currentNot?.type === 'error' ? (
               <>
-                <BsXCircle className="text-red-500 mr-4 w-2" />
+                <BsXCircle className="text-red-500 mr-6 w-2" />
                 <p className='max-w-full px-2'>{errorMessage(currentNot)}</p>
               </>
             ) : (

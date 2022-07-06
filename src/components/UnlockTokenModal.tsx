@@ -6,6 +6,7 @@ import BigNumber from 'bignumber.js';
 import { getAllowance } from '../hooks/useTokenList';
 import CenterModal from './CenterModal';
 import { Config } from '@dataxfi/datax.js';
+import { bn } from '../utils/utils';
 
 export default function UnlockTokenModal() {
   const {
@@ -33,6 +34,7 @@ export default function UnlockTokenModal() {
     stake,
     trade,
     singleLiquidityPos,
+    setUnstakeAllowance,
   } = useContext(GlobalContext);
   const [pool, setPool] = useState<string | null>(null);
   const [address, setAddress] = useState<string | null>(null);
@@ -52,9 +54,13 @@ export default function UnlockTokenModal() {
           getAllowance(address, accountId, pool, stake).then((res) => {
             const txAmount =
               location === '/stake/remove' && preTxDetails?.shares ? preTxDetails?.shares : tokenIn.value;
-            const allowance = new BigNumber(res);
-            if (allowance.gte(txAmount)) {
+            const allowanceBN = new BigNumber(res);
+            const txAmountBN = new BigNumber(txAmount);
+            console.log('allowance: ', allowanceBN, 'txAmount', txAmount);
+            if (allowanceBN.gte(txAmountBN)) {
+              console.log('Tx amount is less than allowance');
               setExecuteUnlock(false);
+              switchOnLocation(true);
               setShowUnlockTokenModal(false);
               setPool(null);
               setAddress(null);
@@ -117,10 +123,12 @@ export default function UnlockTokenModal() {
             false,
             approveTokenDecimals
           );
-          setTokenIn({ ...tokenIn, allowance: new BigNumber(18e10) });
+          location === '/stake/remove'
+            ? setUnstakeAllowance(bn(18e10))
+            : setTokenIn({ ...tokenIn, allowance: new BigNumber(18e10) });
         } else {
           const txAmount = location === '/stake/remove' ? preTxDetails.shares : tokenIn.value;
-          if (txAmount)
+          if (txAmount) {
             txReceipt = await trade.approve(
               address,
               accountId,
@@ -129,13 +137,18 @@ export default function UnlockTokenModal() {
               false,
               approveTokenDecimals
             );
-          setTokenIn({ ...tokenIn, allowance: tokenIn.value.plus(0.001) });
+
+            location === '/stake/remove'
+              ? setUnstakeAllowance(txAmount?.plus(0.001))
+              : setTokenIn({ ...tokenIn, allowance: txAmount?.plus(0.001) });
+          }
         }
         if (typeof txReceipt !== 'string') setLastTx({ ...preTxDetails, txReceipt, status: 'Indexing' });
         setApproving('approved');
         setPool(spender);
         setAddress(address);
       } catch (error: any) {
+        // switchOnLocation(false);
         console.error('Caught error : unlock token', error);
         setShowUnlockTokenModal(false);
         setExecuteUnlock(false);
@@ -144,7 +157,6 @@ export default function UnlockTokenModal() {
         if (error?.error?.message.includes('Failed to check'))
           message = 'Failed to check for transaction receipt. Check the transaction in your wallet.';
         setSnackbarItem({ type: 'error', message, error });
-        switchOnLocation(false);
         setBlurBG(false);
       }
     }

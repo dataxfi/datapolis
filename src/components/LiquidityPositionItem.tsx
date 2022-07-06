@@ -109,7 +109,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                 </div>
                 <div className="justify-self-end">
                   <p className="text-gray-100 text-sm ">
-                    {yourPoolSharePerc?.gte(1) ? `${yourPoolSharePerc?.dp(5).toString()} %` : yourPoolSharePerc?.eq(0) ? '0' : '> 0 %'}
+                    {yourPoolSharePerc?.gte(0.00001) ? `${yourPoolSharePerc?.dp(5).toString()} %` : yourPoolSharePerc?.eq(0) ? '0' : '> 0.00001 %'}
                   </p>
                 </div>
               </div>

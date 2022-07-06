@@ -13,8 +13,9 @@ export default function usePathfinder() {
   let controller = new AbortController();
   let lastLocation = useRef(location);
   useEffect(() => {
-    console.log(tokenIn, tokenOut, chainId, config);
+
     if (tokenIn && tokenOut && chainId && config) {
+      console.log("Getting path for: " + tokenIn.info?.address, " to token: ", tokenOut.info?.address)
       const pathsToOceanLink = 'https://pathfinder-five.vercel.app/api/storage/v2/pathsToOcean';
       const pathsFromOceanLink = 'https://pathfinder-five.vercel.app/api/storage/v2/pathsFromOcean';
 

@@ -132,6 +132,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [exactToken, setExactToken] = useState<1 | 2>(1);
   const [balanceTokenIn, setBalanceTokenIn] = useState<BigNumber>(bn(0));
   const [balanceTokenOut, setBalanceTokenOut] = useState<BigNumber>(bn(0));
+  const [unstakeAllowance, setUnstakeAllowance] = useState<BigNumber>(bn(0))
+
   // selected token states
   const [tokenIn, setTokenIn] = useState<IToken>(INITIAL_TOKEN_STATE);
   const [tokenOut, setTokenOut] = useState<IToken>(INITIAL_TOKEN_STATE);
@@ -492,7 +494,9 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         balanceTokenIn,
         setBalanceTokenIn,
         setBalanceTokenOut, 
-        balanceTokenOut
+        balanceTokenOut, 
+        unstakeAllowance, 
+        setUnstakeAllowance
       }}
     >
       <>{children}</>

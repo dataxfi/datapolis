@@ -233,4 +233,6 @@ export interface globalStates {
   setBalanceTokenIn: React.Dispatch<React.SetStateAction<BigNumber>>;
   balanceTokenOut: BigNumber;
   setBalanceTokenOut: React.Dispatch<React.SetStateAction<BigNumber>>;
+  unstakeAllowance: BigNumber
+  setUnstakeAllowance: React.Dispatch<React.SetStateAction<BigNumber>>
 }

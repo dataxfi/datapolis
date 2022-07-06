@@ -55,6 +55,8 @@ export default function Unstake() {
     preTxDetails,
     slippage,
     setBalanceTokenOut,
+    unstakeAllowance, 
+    setUnstakeAllowance
   } = useContext(GlobalContext);
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
   const [btnText, setBtnText] = useState('Enter Amount to Remove');
@@ -65,7 +67,6 @@ export default function Unstake() {
   const [abortCalculation, setAbortCalculation] = useState<AbortController>(new AbortController());
   const [poolMetaData, setPoolMetaData] = useState<IPoolMetaData>();
   const [dataxFee, setDataxFee] = useState<string>();
-  const [allowance, setAllowance] = useState<BigNumber>();
   const [minUnstakeAmt, setMinUnstakeAmt] = useState<BigNumber>();
   const [afterSlippage, setAfterSlippage] = useState<BigNumber>(new BigNumber(0));
 
@@ -77,6 +78,8 @@ export default function Unstake() {
   });
   const [baseAddress, setBaseAddress] = useState<string>('');
 
+
+
   // hooks
   // tokenIn.info?.pool update pool in useLiquidityPos hook below
   useLiquidityPos();
@@ -87,7 +90,6 @@ export default function Unstake() {
     executeUnstake,
     setExecuteUnstake,
     { shares: sharesToRemove, pool: poolMetaData, dataxFee, swapFee, tokenToUnlock: 'OPT', afterSlippage },
-    allowance,
     sharesToRemove
   );
   usePathfinder();
@@ -132,7 +134,7 @@ export default function Unstake() {
           tokenOut.info.address.toLowerCase() === accountId.toLowerCase() ? undefined : tokenOut.info.address;
         const balance = await trade?.getBalance(accountId, false, tokenAddress);
         setBalanceTokenOut(bn(balance));
-        setAllowance(new BigNumber(res));
+        setUnstakeAllowance(new BigNumber(res));
       }
     });
   }, [stake, singleLiquidityPos?.address, tokenOut.info?.address, accountId, trade, path?.length, config, meta]);
@@ -178,7 +180,7 @@ export default function Unstake() {
     } else if (minUnstakeAmt && tokenOut.value.lt(minUnstakeAmt)) {
       setBtnDisabled(true);
       setBtnText(`Minimum Removal is ${minUnstakeAmt.toString()} ${tokenOut.info.symbol}`);
-    } else if (allowance?.lt(sharesToRemove)) {
+    } else if (unstakeAllowance?.lt(sharesToRemove)) {
       setBtnDisabled(false);
       setBtnText(`Unlock ${singleLiquidityPos.baseToken.symbol}/${singleLiquidityPos.datatoken.symbol} Pool Tokens`);
     } else {
@@ -194,7 +196,7 @@ export default function Unstake() {
     tokenOut.allowance,
     tokenOut.info?.address,
     stake,
-    allowance,
+    unstakeAllowance,
     path?.length,
   ]);
 
@@ -312,11 +314,7 @@ export default function Unstake() {
       setTokenOut({ ...tokenOut, value: maxUnstake.maxTokenOut });
     } catch (error) {
       console.error(error);
-    } finally {
-      setCalculating(false);
-      setExecuteUnstake(false);
-      setConfirmingTx(false);
-    }
+    } 
   }
 
   async function unstake(preTxDetails: ITxDetails) {
@@ -348,6 +346,7 @@ export default function Unstake() {
       if (singleLiquidityPos && preTxDetails.shares) {
         const newShares = new BigNumber(singleLiquidityPos.shares).minus(preTxDetails.shares);
         setSingleLiquidityPos({ ...singleLiquidityPos, shares: newShares });
+        setUnstakeAllowance(unstakeAllowance.minus(preTxDetails.shares))
       }
     } catch (error: any) {
       console.error(error);
@@ -364,6 +363,8 @@ export default function Unstake() {
       setShowConfirmTxDetails(false);
       setBlurBG(false);
       getMaxUnstake(getNewSignal());
+      setCalculating(false);
+      setConfirmingTx(false);
     }
   }
 

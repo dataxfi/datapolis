@@ -17,7 +17,6 @@ export default function useTxHandler(
     swapFee?: string;
     tokenToUnlock? :string
   },
-  allowanceOverride?: BigNumber,
   txAmountOverride?: BigNumber
 ) {
   const {
@@ -35,17 +34,18 @@ export default function useTxHandler(
     preTxDetails,
     location,
     showUnlockTokenModal,
+    unstakeAllowance
   } = useContext(GlobalContext);
 
-  useEffect(() => {
-    const allowanceNeeded = allowanceOverride ? allowanceOverride : tokenIn.allowance;
-    const txAmount = txAmountOverride ? txAmountOverride : tokenIn.value;
-    if (showUnlockTokenModal && allowanceNeeded?.lt(txAmount)) {
-      setBlurBG(false);
-      setShowUnlockTokenModal(false);
-      txFunction(true);
-    }
-  }, [tokenIn.allowance]);
+  // useEffect(() => {
+  //   const allowanceNeeded = allowanceOverride ? allowanceOverride : tokenIn.allowance;
+  //   const txAmount = txAmountOverride ? txAmountOverride : tokenIn.value;
+  //   if (showUnlockTokenModal && allowanceNeeded?.lt(txAmount)) {
+  //     setBlurBG(false);
+  //     setShowUnlockTokenModal(false);
+  //     txFunction(true);
+  //   }
+  // }, [tokenIn.allowance]);
 
   useEffect(() => {
     if (!accountId && executeTx) {
@@ -54,7 +54,9 @@ export default function useTxHandler(
       return;
     }
 
-    const allowanceNeeded = allowanceOverride ? allowanceOverride : tokenIn.allowance;
+    console.log("txApproved: ",txApproved, executeTx, !!preTxDetails)
+
+    const allowanceNeeded = location === "/stake/remove" ? unstakeAllowance : tokenIn.allowance;
     const txAmount = txAmountOverride ? txAmountOverride : tokenIn.value;
 
     if (accountId && executeTx) {
@@ -68,7 +70,7 @@ export default function useTxHandler(
           afterSlippage: tokenIn.value,
           txDateId: Date.now().toString(),
           txType: 'approve',
-          shares: txAmountOverride,
+          shares: txAmount,
           tokenToUnlock: txDetails.tokenToUnlock 
         });
         setExecuteUnlock(true);
@@ -76,7 +78,7 @@ export default function useTxHandler(
         setBlurBG(true);
         setExecuteTx(false);
       } else if (!txApproved && executeTx) {
-
+        console.log("Showing confirm tx details.")
         let txType: ITxType;
         switch (location) {
           case '/stake':
@@ -102,11 +104,9 @@ export default function useTxHandler(
         setPreTxDetails(preTxDetails);
         setShowConfirmTxDetails(true);
         setBlurBG(true);
+        setExecuteTx(false)
       } else if (executeTx && preTxDetails) {
-        console.log('Executing TX');
-        console.log(preTxDetails);
-        
-
+        console.log('Executing TX with tx details :\n', preTxDetails)        
         setLastTx(preTxDetails);
         txFunction(preTxDetails);
       }
