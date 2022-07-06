@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { GlobalContext } from '../context/GlobalState';
 /**
  * Uses datax pathfinder to find a swap path between tokens.
@@ -11,26 +11,23 @@ export default function usePathfinder() {
     useContext(GlobalContext);
 
   let controller = new AbortController();
-
+  let lastLocation = useRef(location);
   useEffect(() => {
+    console.log(tokenIn, tokenOut, chainId, config);
     if (tokenIn && tokenOut && chainId && config) {
-      console.log('Finding path for ' + tokenIn + ' ---> ' + tokenOut);
-      // initially reset path on any change
-      // if(path && (location === "/stake" && path[0] === this))
-
-      const pathsToOceanLink = 'https://github.com/dataxfi/pathfinder/blob/main/storage/chain137/pathsToOcean.json';
-      const pathsFromOceanLink = 'https://github.com/dataxfi/pathfinder/blob/main/storage/chain137/pathsFromOcean.json';
+      const pathsToOceanLink = 'https://pathfinder-five.vercel.app/api/storage/v2/pathsToOcean';
+      const pathsFromOceanLink = 'https://pathfinder-five.vercel.app/api/storage/v2/pathsFromOcean';
 
       const getPaths = (link: string) =>
         axios
           .get(link)
           .then((res) => {
-            console.log(res);
+            // console.log(res);
             const {
-              data: { path },
+              data: { paths },
             } = res;
-            console.log(path);
-            setPaths(path);
+            // console.log(paths);
+            setPaths(paths);
           })
           .catch(() => {
             setPaths(null);
@@ -48,24 +45,33 @@ export default function usePathfinder() {
       controller.abort();
       setPaths(null);
     };
-  }, [location]);
+  }, [location, tokenIn.info?.address, tokenOut.info?.address, chainId, config]);
 
   useEffect(() => {
-    if (!tokenIn.info?.address || !tokenOut.info?.address) return;
-
-    let token;
-
-    if (location === '/stake') {
-      token = tokenIn.info?.address;
+    // console.log(tokenIn.info?.address, tokenOut.info?.address, paths);
+    if (
+      (location === '/stake' && (!tokenIn.info?.address || !tokenOut.info?.address)) ||
+      (location === '/stake/remove' && !tokenOut.info?.address)
+    ) {
+      setPath(undefined);
     } else {
-      token = tokenOut.info?.address;
-    }
+      let token;
 
-    if (token === accountId) token = config?.custom.nativeAddress;
+      if (location === '/stake') {
+        token = tokenIn.info?.address;
+      } else {
+        token = tokenOut.info?.address;
+      }
 
-    if (paths && token) {
-      const pathFound = paths[token];
-      if (pathFound) setPath(pathFound.path);
+      if (token === accountId) token = config?.custom.nativeAddress;
+
+      // console.log('Paths', paths, 'token', token);
+
+      if (paths && token) {
+        const pathFound = paths[token.toLowerCase()];
+        console.log(pathFound);
+        if (pathFound) setPath(pathFound.path);
+      }
     }
   }, [tokenIn.info?.address, tokenOut.info?.address, paths]);
 }

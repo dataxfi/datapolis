@@ -145,6 +145,8 @@ export default function Stake() {
 
   useEffect(() => {
     const btnManager = new BtnManager(setBtnProps);
+    console.log("Updating button", path);
+    
     if (!accountId) {
       btnManager.updateBtn();
     } else if (!tokenOut.info) {

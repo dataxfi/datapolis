@@ -42,7 +42,7 @@ export default function Unstake() {
     setShowConfirmTxDetails,
     setBlurBG,
     stake,
-    paths: path,
+    path,
     refAddress,
     config,
     trade,
@@ -85,12 +85,12 @@ export default function Unstake() {
   useTxHandler(
     unstake,
     executeUnstake,
-    setExecuteUnlock,
+    setExecuteUnstake,
     { shares: sharesToRemove, pool: poolMetaData, dataxFee, swapFee, tokenToUnlock: 'OPT', afterSlippage },
     allowance,
     sharesToRemove
   );
-  usePathfinder(baseAddress, tokenOut.info?.address || '');
+  usePathfinder();
 
   useEffect(() => {
     if (singleLiquidityPos?.address && stake) {
@@ -109,14 +109,20 @@ export default function Unstake() {
   }, [singleLiquidityPos]);
 
   useEffect(() => {
-    if (!stake || !singleLiquidityPos || !accountId || !tokenOut.info?.address || !trade || !path || !config) return;
-    getMaxUnstake(getNewSignal())
-      .then((res: IMaxUnstake | void) => {
-        if (res) {
-          setMaxUnstake(res);
-        }
-      })
-      .catch(console.error);
+    console.log(
+      'Getting max and allowance:',
+      !!(!stake || !singleLiquidityPos || !accountId || !tokenOut.info?.address || !trade || !path || !config),
+      !!!stake,
+      !!!singleLiquidityPos,
+      !!!accountId,
+      !!!tokenOut.info?.address,
+      !!!trade,
+      !!!path,
+      !!!config, 
+      !!!meta
+    );
+    if (!stake || !singleLiquidityPos || !accountId || !tokenOut.info?.address || !trade || !path || !config || !meta) return;
+    getMaxUnstake(getNewSignal()).catch(console.error);
 
     const contractToAllow = config.custom.stakeRouterAddress;
     getAllowance(singleLiquidityPos.address, accountId, contractToAllow, stake).then(async (res) => {
@@ -129,7 +135,7 @@ export default function Unstake() {
         setAllowance(new BigNumber(res));
       }
     });
-  }, [stake, singleLiquidityPos?.address, tokenOut.info?.address, accountId, trade, path?.length, config]);
+  }, [stake, singleLiquidityPos?.address, tokenOut.info?.address, accountId, trade, path?.length, config, meta]);
 
   useEffect(() => {
     // token selected is base, set min to base min
@@ -142,7 +148,7 @@ export default function Unstake() {
     if (path && path.length > 1 && web3) {
       trade?.getAmountsOut(baseMinExchange, path).then((res) => setMinUnstakeAmt(new BigNumber(res[res.length - 1])));
     }
-  }, [path, web3, tokenOut.info?.address]);
+  }, [path?.length, web3, tokenOut.info?.address]);
 
   useEffect(() => {
     setInputDisabled(false);
@@ -189,6 +195,7 @@ export default function Unstake() {
     tokenOut.info?.address,
     stake,
     allowance,
+    path?.length,
   ]);
 
   async function getMaxUnstake(signal: AbortSignal): Promise<IMaxUnstake> {

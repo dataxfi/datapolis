@@ -81,7 +81,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                 </div>
                 <div className="justify-self-end">
                   <p id="yourShares" className="text-gray-100 text-sm ">
-                    {shares.lt(.00001)? "> 0 %":shares?.dp(5).toString()}
+                    {shares.lt(.00001)? "> 0.00001 OPT":shares?.dp(5).toString()}
                   </p>
                 </div>
                 <div>

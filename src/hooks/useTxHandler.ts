@@ -104,6 +104,8 @@ export default function useTxHandler(
         setBlurBG(true);
       } else if (executeTx && preTxDetails) {
         console.log('Executing TX');
+        console.log(preTxDetails);
+        
 
         setLastTx(preTxDetails);
         txFunction(preTxDetails);

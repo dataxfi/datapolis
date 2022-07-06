@@ -129,12 +129,13 @@ async function getERC20TokenList(
       tags: ['matic'],
     };
 
-    const refetchResponse = await axios.get('https://github.com/dataxfi/pathfinder/blob/main/storage/reFetch.json');
-    const noPaths = refetchResponse.data[chainId];
+    const refetchResponse = await axios.get('https://pathfinder-five.vercel.app/api/storage/v2/refetch');
+    console.log(refetchResponse)
+    const noPaths = refetchResponse.data.tokens[chainId];
 
-    noPaths.forEach((address: string) => {
+    noPaths.forEach(( token: {address: string}) => {      
       const index = regularList.data.tokens.findIndex(
-        (token: ITokenInfo) => token.address.toLowerCase() === address.toLowerCase()
+        (token: ITokenInfo) => token.address.toLowerCase() === token.address.toLowerCase()
       );
       regularList.data.tokens.splice(index, 1);
     });
