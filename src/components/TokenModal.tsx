@@ -37,6 +37,7 @@ export default function TokenModal() {
   const [showDtks, setShowDtks] = useState<boolean>(true);
   const [commons, setCommons] = useState<TInfo[]>([]);
   const [controller, setController] = useState(new AbortController());
+
   useTokenList({ setLoading, setError });
   const initialChain = useRef(chainId);
   useEffect(() => {
@@ -58,16 +59,11 @@ export default function TokenModal() {
       setLoading(true);
       setError(false);
     }
-    // else {
-    //   console.log("Closing here")
-    //   closeModal();
-    // }
   }, [dtTokenResponse, datatokens]);
 
   useEffect(() => {
     try {
       if (chainId && ERC20Tokens) {
-        // console.log(ERC20Tokens)
         const tokens = ERC20Tokens.filter((info) => {
           const match = commonTokens[chainId].find((token) => info.address === token);
           if (match) return info;
@@ -76,7 +72,7 @@ export default function TokenModal() {
         setCommons(tokens);
       }
     } catch (error) {
-      // console.error(error)
+      console.error(error);
     }
   }, [chainId, ERC20Tokens]);
 
@@ -96,11 +92,12 @@ export default function TokenModal() {
   };
 
   const searchToken = (val: string) => {
-    if (val && datatokens) {
+    console.log(val);
+    if (val && dtTokenResponse) {
       if (showDtks) {
-        setDatatokens(filterTokens(datatokens, val));
-      } else if (ERC20Tokens) {
-        setERC20Tokens(filterTokens(ERC20Tokens as ITokenInfo[], val));
+        setDatatokens(filterTokens(dtTokenResponse.tokens, val));
+      } else if (ERC20TokenResponse) {
+        setERC20Tokens(filterTokens(ERC20TokenResponse.tokens as ITokenInfo[], val));
       }
     } else if (dtTokenResponse && showDtks) {
       setDatatokens(dtTokenResponse.tokens);
@@ -111,6 +108,8 @@ export default function TokenModal() {
 
   function closeModal() {
     console.log('Closing token modal');
+    setDatatokens(dtTokenResponse?.tokens);
+    setERC20Tokens(ERC20TokenResponse?.tokens);
     setShowTokenModal(false);
     setBlurBG(false);
     setShowDtks(true);
@@ -174,6 +173,12 @@ export default function TokenModal() {
             <input
               id="tokenSearch"
               onChange={(e) => searchToken(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Backspace') {
+                  const target = e.target as HTMLInputElement;
+                  searchToken(target.value);
+                }
+              }}
               type="text"
               placeholder="Search token"
               className="px-4 py-2 h-full w-full rounded-lg bg-primary-900 text-base outline-none focus:placeholder-gray-200 placeholder-gray-400"

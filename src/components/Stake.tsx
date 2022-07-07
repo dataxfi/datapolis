@@ -57,7 +57,6 @@ export default function Stake() {
     setBalanceTokenIn,
     showConfirmTxDetails,
     approving,
-    
   } = useContext(GlobalContext);
 
   const [maxStakeAmt, setMaxStakeAmt] = useState<BigNumber>(new BigNumber(0));
@@ -144,7 +143,7 @@ export default function Stake() {
   }, [tokenIn.info?.address]);
 
   useEffect(() => {
-    const btnManager = new BtnManager(setBtnProps);    
+    const btnManager = new BtnManager(setBtnProps);
     if (!accountId) {
       btnManager.updateBtn();
     } else if (!tokenOut.info) {
@@ -188,7 +187,13 @@ export default function Stake() {
   ]);
 
   async function getMaxAndAllowance() {
-    if (stake && tokenOut.info?.pools[0] && accountId && path) {
+    if (
+      stake &&
+      tokenOut.info?.pools &&
+      accountId &&
+      path &&
+      path[0].toLowerCase() === tokenIn.info?.address.toLowerCase()
+    ) {
       const usingETH = accountId.toLowerCase() === tokenIn.info?.address.toLowerCase();
       console.log(usingETH);
       stake

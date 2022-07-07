@@ -30,11 +30,17 @@ export default function useTokenList({ setLoading, setError }: { setLoading?: Fu
       getDtTokenList(web3, chainId)
         .then((res) => {
           if (res) {
-            setDtTokenResponse(res);
             if (location !== '/trade')
               setDatatokens(
                 res.tokens.filter((token) => token.isFRE === false).sort((a, b) => a.symbol.localeCompare(b.symbol))
               );
+              //TODO: When exchange is supported, this needs to be revised for FRE+pool token list
+            setDtTokenResponse({
+              ...res,
+              tokens: res.tokens
+                .filter((token) => token.isFRE === false)
+                .sort((a, b) => a.symbol.localeCompare(b.symbol)),
+            });
           }
         })
         .catch((err: Error) => {
@@ -49,7 +55,6 @@ export default function useTokenList({ setLoading, setError }: { setLoading?: Fu
   }, [location, dtTokenResponse, web3, chainId, accountId]);
 
   useEffect(() => {
-    console.log(!!ERC20TokenResponse);
     if (!ERC20TokenResponse && chainId && config?.custom && web3 && accountId) {
       getERC20TokenList(config, chainId, accountId)
         .then((list) => {
@@ -116,7 +121,7 @@ async function getERC20TokenList(
     };
 
     const refetchResponse = await axios.get('https://pathfinder-five.vercel.app/api/storage/v2/refetch');
-    console.log(refetchResponse);
+    // console.log(refetchResponse);
     const noPaths = refetchResponse.data.tokens[chainId];
 
     noPaths.forEach((token: { address: string }) => {
