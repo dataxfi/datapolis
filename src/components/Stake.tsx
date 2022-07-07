@@ -144,9 +144,7 @@ export default function Stake() {
   }, [tokenIn.info?.address]);
 
   useEffect(() => {
-    const btnManager = new BtnManager(setBtnProps);
-    console.log("Updating button", path);
-    
+    const btnManager = new BtnManager(setBtnProps);    
     if (!accountId) {
       btnManager.updateBtn();
     } else if (!tokenOut.info) {
@@ -315,19 +313,13 @@ export default function Stake() {
     ) {
       let amountIn = val.toString();
 
-      if (tokenIn.info.address.toLowerCase() !== baseToken.address.toLowerCase()) {
-        console.log('Getting base amount in from:', amountIn);
-        const amountsOut = await trade.getAmountsOut(amountIn, path);
-        const bn = new BigNumber(amountsOut[amountsOut.length - 1]);
-        amountIn = bn.toString();
-      }
-
-      console.log('base amount in', amountIn);
+      // const amountsOut = await trade.getAmountsOut(amountIn, path)
+      // console.log(amountsOut)
 
       const stakeInfo: IStakeInfo = {
         meta: [tokenOut.info.pools[0].id, accountId, refAddress, config.custom.uniV2AdapterAddress],
         uints: [amountIn, '0', '0'],
-        path: [baseToken.address],
+        path,
       };
 
       try {
