@@ -117,6 +117,9 @@ export default function useWatchLocation() {
         setTokenOut(INITIAL_TOKEN_STATE);
         setT2DIDResponse(undefined);
         setExactToken(1);
+      } else if (location === '/stake/list') {
+        setTokenIn(INITIAL_TOKEN_STATE);
+        setTokenOut(INITIAL_TOKEN_STATE);
       }
     }
   }, [lastTx]);

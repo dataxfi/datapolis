@@ -24,16 +24,6 @@ export default function useTokenList({ setLoading, setError }: { setLoading?: Fu
     setDtTokenResponse(undefined);
   }, [location]);
 
-  const initialChain = useRef(chainId);
-  useEffect(() => {
-    if (chainId !== initialChain.current) {
-      setDatatokens(undefined);
-      setDtTokenResponse(undefined);
-      setERC20TokenResponse(undefined);
-      setERC20Tokens(undefined);
-    }
-  }, [chainId, setDatatokens, setDtTokenResponse]);
-
   useEffect(() => {
     if (accountId && !dtTokenResponse && web3 && chainId) {
       if (setLoading) setLoading(true);
@@ -58,18 +48,14 @@ export default function useTokenList({ setLoading, setError }: { setLoading?: Fu
     }
   }, [location, dtTokenResponse, web3, chainId, accountId]);
 
-  function setERC20List(list: ITList) {
-    setERC20Tokens(list.tokens);
-    setERC20TokenResponse(list);
-  }
-
   useEffect(() => {
     console.log(!!ERC20TokenResponse);
     if (!ERC20TokenResponse && chainId && config?.custom && web3 && accountId) {
       getERC20TokenList(config, chainId, accountId)
         .then((list) => {
           if (!list) return;
-          setERC20List(list);
+          setERC20Tokens(list.tokens);
+          setERC20TokenResponse(list);
         })
         .catch((error) => {
           console.error(error);
@@ -130,10 +116,10 @@ async function getERC20TokenList(
     };
 
     const refetchResponse = await axios.get('https://pathfinder-five.vercel.app/api/storage/v2/refetch');
-    console.log(refetchResponse)
+    console.log(refetchResponse);
     const noPaths = refetchResponse.data.tokens[chainId];
 
-    noPaths.forEach(( token: {address: string}) => {      
+    noPaths.forEach((token: { address: string }) => {
       const index = regularList.data.tokens.findIndex(
         (token: ITokenInfo) => token.address.toLowerCase() === token.address.toLowerCase()
       );

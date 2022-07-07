@@ -139,16 +139,18 @@ export default function TokenModal() {
           setToken = setTokenOut;
           break;
         default:
-          console.log('setting pool to import', token.pools[0].id);
+          console.log('Stetting import pool:', token.pools[0].id);
           setImportPool(token.pools[0].id);
           break;
       }
-      if (setToken) setToken({ ...INITIAL_TOKEN_STATE, info: token });
-      const tokenAddress = accountId.toLowerCase() === token.address.toLowerCase() ? undefined : token.address;
-      trade.getBalance(accountId, false, tokenAddress).then((balance) => {
-        console.log('User Balance: ', balance);
-        setToken({ ...INITIAL_TOKEN_STATE, info: token, balance: new BigNumber(balance) });
-      });
+      if (location !== '/stake/list') {
+        setToken({ ...INITIAL_TOKEN_STATE, info: token });
+        const tokenAddress = accountId.toLowerCase() === token.address.toLowerCase() ? undefined : token.address;
+        trade.getBalance(accountId, false, tokenAddress).then((balance) => {
+          console.log('User Balance: ', balance);
+          setToken({ ...INITIAL_TOKEN_STATE, info: token, balance: new BigNumber(balance) });
+        });
+      }
 
       resolve(setController(newController));
     });

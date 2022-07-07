@@ -352,13 +352,19 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
     // Subscribe to chainId change
     provider.on('chainChanged', async (chainId: supportedChains) => {
+      // token reset
       setTokenIn(INITIAL_TOKEN_STATE);
       setTokenOut(INITIAL_TOKEN_STATE);
+      setShowDescModal(false);
+
+      //token list reset
+      setDatatokens(undefined);
       setDtTokenResponse(undefined);
-      setTxHistory(undefined);
       setERC20TokenResponse(undefined);
       setERC20Tokens(undefined);
-      setShowDescModal(false);
+
+      //tx and lp info reset
+      setTxHistory(undefined);
       setPendingTxs([]);
       setAllStakedPools(undefined);
       const parsedId: supportedChains = String(parseInt(chainId)) as supportedChains;

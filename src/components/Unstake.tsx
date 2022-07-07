@@ -55,8 +55,8 @@ export default function Unstake() {
     preTxDetails,
     slippage,
     setBalanceTokenOut,
-    unstakeAllowance, 
-    setUnstakeAllowance
+    unstakeAllowance,
+    setUnstakeAllowance,
   } = useContext(GlobalContext);
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
   const [btnText, setBtnText] = useState('Enter Amount to Remove');
@@ -77,8 +77,6 @@ export default function Unstake() {
     userPerc: new BigNumber(0),
   });
   const [baseAddress, setBaseAddress] = useState<string>('');
-
-
 
   // hooks
   // tokenIn.info?.pool update pool in useLiquidityPos hook below
@@ -111,32 +109,35 @@ export default function Unstake() {
   }, [singleLiquidityPos]);
 
   useEffect(() => {
-    console.log(
-      'Getting max and allowance:',
-      !!(!stake || !singleLiquidityPos || !accountId || !tokenOut.info?.address || !trade || !path || !config),
-      !!!stake,
-      !!!singleLiquidityPos,
-      !!!accountId,
-      !!!tokenOut.info?.address,
-      !!!trade,
-      !!!path,
-      !!!config, 
-      !!!meta
-    );
-    if (!stake || !singleLiquidityPos || !accountId || !tokenOut.info?.address || !trade || !path || !config || !meta) return;
-    getMaxUnstake(getNewSignal()).catch(console.error);
+    // console.log(
+    //   'Getting max and allowance:',
+    //   !!(!stake || !singleLiquidityPos || !accountId || !tokenOut.info?.address || !trade || !path || !config),
+    //   !!!stake,
+    //   !!!singleLiquidityPos,
+    //   !!!accountId,
+    //   !!!tokenOut.info?.address,
+    //   !!!trade,
+    //   !!!path,
+    //   !!!config,
+    //   !!!meta
+    // );
+    if (!stake || !singleLiquidityPos || !accountId || !tokenOut.info?.address || !trade || !path || !config || !meta)
+      return;
+    if (path[path.length - 1].toLowerCase() === tokenOut.info.address.toLowerCase()) {
+      getMaxUnstake(getNewSignal()).catch(console.error);
 
-    const contractToAllow = config.custom.stakeRouterAddress;
-    getAllowance(singleLiquidityPos.address, accountId, contractToAllow, stake).then(async (res) => {
-      console.log('Token out allowance for contract ', singleLiquidityPos.address, contractToAllow, res);
-      if (tokenOut.info?.address) {
-        const tokenAddress =
-          tokenOut.info.address.toLowerCase() === accountId.toLowerCase() ? undefined : tokenOut.info.address;
-        const balance = await trade?.getBalance(accountId, false, tokenAddress);
-        setBalanceTokenOut(bn(balance));
-        setUnstakeAllowance(new BigNumber(res));
-      }
-    });
+      const contractToAllow = config.custom.stakeRouterAddress;
+      getAllowance(singleLiquidityPos.address, accountId, contractToAllow, stake).then(async (res) => {
+        console.log('Token out allowance for contract ', singleLiquidityPos.address, contractToAllow, res);
+        if (tokenOut.info?.address) {
+          const tokenAddress =
+            tokenOut.info.address.toLowerCase() === accountId.toLowerCase() ? undefined : tokenOut.info.address;
+          const balance = await trade?.getBalance(accountId, false, tokenAddress);
+          setBalanceTokenOut(bn(balance));
+          setUnstakeAllowance(new BigNumber(res));
+        }
+      });
+    }
   }, [stake, singleLiquidityPos?.address, tokenOut.info?.address, accountId, trade, path?.length, config, meta]);
 
   useEffect(() => {
@@ -314,7 +315,7 @@ export default function Unstake() {
       setTokenOut({ ...tokenOut, value: maxUnstake.maxTokenOut });
     } catch (error) {
       console.error(error);
-    } 
+    }
   }
 
   async function unstake(preTxDetails: ITxDetails) {
@@ -346,7 +347,7 @@ export default function Unstake() {
       if (singleLiquidityPos && preTxDetails.shares) {
         const newShares = new BigNumber(singleLiquidityPos.shares).minus(preTxDetails.shares);
         setSingleLiquidityPos({ ...singleLiquidityPos, shares: newShares });
-        setUnstakeAllowance(unstakeAllowance.minus(preTxDetails.shares))
+        setUnstakeAllowance(unstakeAllowance.minus(preTxDetails.shares));
       }
     } catch (error: any) {
       console.error(error);

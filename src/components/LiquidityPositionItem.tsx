@@ -22,6 +22,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
   useLiquidityPos(importPool, setImportPool);
 
   useEffect(() => {
+    console.log("Importing pool:",address)
     setImportPool(address);
   }, [accountId]);
 
