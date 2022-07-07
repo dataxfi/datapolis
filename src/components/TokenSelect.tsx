@@ -39,7 +39,7 @@ export default function TokenSelect({
     setShowTokenModal,
     path,
     balanceTokenOut,
-    balanceTokenIn
+    balanceTokenIn,
   } = useContext(GlobalContext);
   const [enabled, setEndabled] = useState(false);
   const [title, setTitle] = useState<TokenSelectTitles>();
@@ -164,7 +164,8 @@ export default function TokenSelect({
             <div className="h-full w-full rounded-lg bg-opacity-100 text-3xl p-1 flex-col items-center">
               {token?.balance ? (
                 <p id={`token${pos}-balance`} className="text-sm text-gray-400 whitespace-nowrap text-right">
-                  Balance: {location === "/stake/remove" ? balanceTokenOut.dp(5).toString() :balanceTokenIn.dp(3).toString()}
+                  Balance:{' '}
+                  {location === '/stake/remove' ? balanceTokenOut.dp(3).toString() : balanceTokenIn.dp(5).toString()}
                 </p>
               ) : (
                 <></>
@@ -216,6 +217,7 @@ export default function TokenSelect({
                         }   py-1 rounded px-1 w-12 outline-none`}
                         placeholder="%"
                         disabled={!enabled}
+                        step="any"
                       />
                     </div>
                   ) : (

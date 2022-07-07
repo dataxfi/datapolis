@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { GlobalContext, INITIAL_TOKEN_STATE } from '../context/GlobalState';
 import BigNumber from 'bignumber.js';
 import useLiquidityPos from './useLiquidityPos';
+import { bn } from '../utils/utils';
 
 // work around for being able to use useLocation globaly without a conditionaly rendered component
 
@@ -25,6 +26,8 @@ export default function useWatchLocation() {
     setImportPool,
     setExactToken,
     chainId,
+    setBalanceTokenIn,
+    setBalanceTokenOut,
   } = useContext(GlobalContext);
   const currentLocation = useLocation();
   const lastLocation = useRef(currentLocation);
@@ -34,6 +37,12 @@ export default function useWatchLocation() {
 
   useEffect(() => {
     setLocation(currentLocation.pathname);
+    if (currentLocation.pathname === '/stake/list') {
+      setTokenIn(INITIAL_TOKEN_STATE);
+      setTokenOut(INITIAL_TOKEN_STATE);
+      setBalanceTokenIn(bn(0));
+      setBalanceTokenOut(bn(0));
+    }
   }, [currentLocation]);
 
   function switchOnPathParams() {
@@ -120,6 +129,8 @@ export default function useWatchLocation() {
       } else if (location === '/stake/list') {
         setTokenIn(INITIAL_TOKEN_STATE);
         setTokenOut(INITIAL_TOKEN_STATE);
+        setBalanceTokenIn(bn(0));
+        setBalanceTokenOut(bn(0));
       }
     }
   }, [lastTx]);

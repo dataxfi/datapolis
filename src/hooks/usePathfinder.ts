@@ -42,7 +42,7 @@ export default function usePathfinder() {
     }
 
     return () => {
-      console.error('Aborting former request to pathfinder.');
+      // console.error('Aborting former request to pathfinder.');
       controller.abort();
       setPaths(null);
     };

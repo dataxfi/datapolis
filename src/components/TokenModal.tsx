@@ -31,6 +31,7 @@ export default function TokenModal() {
     setImportPool,
     trade,
     web3,
+    setPath
   } = useContext(GlobalContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -92,7 +93,6 @@ export default function TokenModal() {
   };
 
   const searchToken = (val: string) => {
-    console.log(val);
     if (val && dtTokenResponse) {
       if (showDtks) {
         setDatatokens(filterTokens(dtTokenResponse.tokens, val));
@@ -116,6 +116,7 @@ export default function TokenModal() {
   }
 
   const tokenSelected = async (token: ITokenInfo) => {
+    setPath(undefined)
     console.log(token);
     controller.abort();
     const newController = new AbortController();

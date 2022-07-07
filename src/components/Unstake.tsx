@@ -20,6 +20,7 @@ import useTxHandler from '../hooks/useTxHandler';
 import TxSettings from './TxSettings';
 import usePathfinder from '../hooks/usePathfinder';
 import { bn, calcSlippage, to5 } from '../utils/utils';
+import { IoConstructOutline } from 'react-icons/io5';
 // import PositionBox from './PositionBox';
 
 export default function Unstake() {
@@ -123,7 +124,10 @@ export default function Unstake() {
     // );
     if (!stake || !singleLiquidityPos || !accountId || !tokenOut.info?.address || !trade || !path || !config || !meta)
       return;
-    if (path[path.length - 1].toLowerCase() === tokenOut.info.address.toLowerCase()) {
+    if (
+      path[path.length - 1].toLowerCase() === tokenOut.info.address.toLowerCase() ||
+      path[path.length - 1].toLowerCase() === config.custom.nativeAddress.toLowerCase()
+    ) {
       getMaxUnstake(getNewSignal()).catch(console.error);
 
       const contractToAllow = config.custom.stakeRouterAddress;
@@ -215,8 +219,9 @@ export default function Unstake() {
           spotSwapFee
         );
 
-        setDataxFee(to5(dataxFee));
-        setSwapFee(to5(refFee));
+        const basePoolName = singleLiquidityPos?.baseToken.symbol
+        setDataxFee(`${to5(dataxFee)} ${basePoolName}`);
+        setSwapFee(`${to5(refFee)} ${basePoolName}`);
         setMaxUnstake({
           maxTokenOut: new BigNumber(maxTokenOut),
           maxPoolTokensIn: new BigNumber(maxPoolTokensIn),
@@ -288,6 +293,7 @@ export default function Unstake() {
           });
 
           const basePoolName = singleLiquidityPos?.baseToken.symbol;
+          console.log("Base pool token symbol: ", basePoolName)
           if (baseAmountOut && dataxFee && refFee) {
             const amountOutBN = bn(baseAmountOut);
             const minAmountOut = calcSlippage(amountOutBN, slippage, false);
