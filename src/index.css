@@ -1,7 +1,7 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;800;900&family=Spectral+SC:wght@600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Yantramanav:wght@100;300;400;500;700;900&display=swap');
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,800;0,900;1,800;1,900&family=Special+Elite&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,800;0,900;1,800;1,900&family=Special+Elite&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Spectral+SC:wght@600&display=swap');
 @tailwind base;
 @tailwind components;
@@ -16,38 +16,26 @@ input::-webkit-inner-spin-button {
 }
 
 /* Firefox */
-input[type="number"] {
+input[type='number'] {
   -moz-appearance: textfield;
+}
+
+input:focus {
+  @apply border-none;
 }
 
 body,
 html,
 #loader {
-  @apply text-type-100 bg-no-repeat md:h-full m-0 bg-fixed;
-  background: rgb(46,115,185);
-  background: linear-gradient(0deg, rgba(46,115,185,1) 0%, rgba(31,75,121,1) 41%, rgba(18,38,61,1) 100%);
-  /* background: rgb(9,30,121);
-background: radial-gradient(circle, rgba(9,30,121,1) 0%, rgba(2,0,36,1) 100%); */
+  @apply text-gray-100 bg-no-repeat md:h-full m-0 bg-fixed;
+  background: rgb(46, 115, 185);
+  background: linear-gradient(0deg, rgba(46, 115, 185, 1) 0%, rgba(31, 75, 121, 1) 41%, rgba(18, 38, 61, 1) 100%);
 }
+
 html,
 body,
 #root {
   @apply h-full;
-}
-/* #root{
-  @apply h-screen md:h-full 
-} */
-
-#bg-stake {
-  @apply absolute bg-dataXstake bg-cover bg-bottom;
-}
-
-#bg-trade {
-  @apply absolute bg-dataXtrade bg-cover bg-bottom;
-}
-
-#bg-home {
-  @apply absolute bg-dataXcity bg-cover bg-bottom;
 }
 
 #root:empty,
@@ -62,43 +50,22 @@ html:empty {
 #loadText {
   @apply animate-pulse;
 }
-/* Links */
-.hm-link {
-  @apply text-type-300 hover:text-type-50;
+
+.center {
+  @apply top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2;
 }
 
-/* Buttons */
-.hm-btn {
-  @apply px-4 py-2 rounded;
+.btn-dark {
+  @apply py-1 px-3 bg-black text-white bg-opacity-50 hover:bg-opacity-10 hover:bg-white  border-gray-500 border-[.5px];
+  @apply transition-all duration-200;
 }
 
-.hm-btn.hm-btn-medium {
-  @apply px-4 py-4 rounded;
+.btn-sm {
+  padding: 0.025rem 0.5rem !important;
 }
 
-.hm-btn.hm-btn-light {
-  @apply bg-black bg-opacity-75 text-type-200 hover:bg-primary-800 hover:bg-opacity-75 transition-all duration-200;
-}
-
-.hm-loading {
-  display: inline-block;
-  width: 50px;
-  height: 50px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: #fff;
-  animation: spin 1s ease-in-out infinite;
-  -webkit-animation: spin 1s ease-in-out infinite;
-}
-
-.logo {
-  width: 8rem;
-  height: 4rem;
-}
-
-.product {
-  font-size: 1rem;
-  font-weight: 200;
+.btn-dark:disabled {
+  @apply text-gray-600 hover:bg-black hover:bg-opacity-50 cursor-not-allowed;
 }
 
 @keyframes spin {
@@ -166,41 +133,37 @@ html:empty {
   background: linear-gradient(90deg, rgba(49, 59, 101, 1) 0%, rgba(58, 123, 191, 1) 100%);
 }
 
-.txButton {
-  position: relative;
+.txButton, .confirmBtn {
+  @apply p-2 rounded-lg w-full relative;
   background-image: rgb(10, 69, 110);
   background-image: linear-gradient(90deg, rgba(10, 69, 110, 1) 0%, rgba(26, 38, 70, 1) 100%);
   z-index: 1;
 }
 
-.txButton::before {
-  border-radius: 0.5rem;
-  position: absolute;
-  content: "";
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+.txButton::before, .confirmBtn::before {
+  @apply absolute top-0 right-0 bottom-0 left-0 opacity-0 rounded-lg;
+  content: '';
   background-image: rgb(49, 59, 101);
   background-image: linear-gradient(90deg, rgba(49, 59, 101, 1) 0%, rgba(58, 123, 191, 1) 100%);
   z-index: -1;
   transition: opacity 0.1s linear;
-  opacity: 0;
 }
-.txButton:hover::before {
-  opacity: 1;
+.txButton:hover::before, .confirmBtn:hover::before {
+  @apply opacity-100;
 }
 
 .txButton:disabled::before {
-  opacity: 0;
+  @apply opacity-0;
 }
 
 .txButton:disabled {
-  cursor: not-allowed;
-  background-color: black;
-  opacity: 0.5;
+  @apply cursor-not-allowed bg-black opacity-50;
 }
 
 .mobileBgPosition {
   background-position: bottom left 5%;
+}
+
+.ReactCollapse--collapse {
+  transition: height 300ms;
 }

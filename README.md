@@ -64,13 +64,13 @@ A few things to keep in mind regarding both suites:
 
 > Both tests suites are currently only on the rinkeby network, but the UI tests suite does not execute transactions.
 
-> There are two rare but reoccuring unsolved issues with the test suites: 
-   - Error: Node is detached from the document. 
-     - This rarely happens but will make the suite fail from time to time, rerun the tests. 
-   - Disclaimer isn't being signed.
-     - This occurs about 25% of the time, where the MM popup is closed after the disclaimer is sent, effectively rejecting the signature transaction. Rerun the tests. 
-     - A solution for this is expected to be implemented in the future. 
+> There are two rare but reoccuring unsolved issues with the test suites:
 
+- Error: Node is detached from the document.
+  - This rarely happens but will make the suite fail from time to time, rerun the tests.
+- Disclaimer isn't being signed.
+  - This occurs about 25% of the time, where the MM popup is closed after the disclaimer is sent, effectively rejecting the signature transaction. Rerun the tests.
+  - A solution for this is expected to be implemented in the future.
 
 #### UI Tests
 
@@ -83,13 +83,13 @@ A few things to keep in mind regarding both suites:
 
       You can get the private key from logging into the test account or asking the team in dev-internal channel.
 
-- `yarn run test-ui` will run all of the test files in the UI test suite consecutively in this order: Navigation, cookies, disclaimer, lp, stake, trade, unstake. 
+- `yarn run test-ui` will run all of the test files in the UI test suite consecutively in this order: Navigation, cookies, disclaimer, lp, stake, trade, unstake.
 - `yarn run test-<fileName>` will run the file name you provide, you can check the package.json or the files themselves for the name. (E.G. uiNav.test.ts --> test-uiNav)
 
 A few other things to keep in mind:
 
 - If you implement a new fix or feature effecting only one page, you can test only that one page. Mind that if you change a componenent used across the entire app, its best to test everything.
-- The UI test suites are meant to all pass consecutively (as in each test in a file). Each test works off the position the last test left the dapp. This is intentional. Since these tests focus on UI, the tests should all pass in-order to effectively mimick a user seamlessly flowing through the application. 
+- The UI test suites are meant to all pass consecutively (as in each test in a file). Each test works off the position the last test left the dapp. This is intentional. Since these tests focus on UI, the tests should all pass in-order to effectively mimick a user seamlessly flowing through the application.
 
 #### Transaction Tests
 
@@ -115,6 +115,20 @@ Close Future Implementation:
 - Utility functions for moving assets to test particular suites (sell all DT, sell all OCEAN, unstake all pools, etc.)
 - A UX test suite focusing on speed and conveinience.
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+## Contributing to test suites
+
+> Refer to the Test-API.md file located in the tests directory to view the functions available and quickly write new tests with minimal boilerplate.
+
+Test priority (High value features)
+
+| Boilerplate                                                                                                                  | Making Trade                                             | Staking                                                                     | Unstaking               | LP                                                                  |
+| ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------------------------------- | ----------------------- | ------------------------------------------------------------------- |
+| <p>- Connecting to provider<br />- Accessing user wallet<br />- Collecting wallet information<br />- Getting token lists</p> | <p>- OCEAN to DT<br />- DT to OCEAN<br />- DT to DT </p> | <p>- Stake ocean in Pool <br />- Stake information is present and valid</p> | Unstake ocean from pool | <p>- Pool Import<br />- Pool Scan<br />- Valid Pool Information</p> |
+=======
+>>>>>>> 9ba7a374dfe5eb4cf336207df9348fae4b18c60b
 ### Contributing To Test Suites
 > Refer to the Test-API.md file located in the tests directory to view the functions available and quickly write new tests with minimal boilerplate. 
 
@@ -157,4 +171,9 @@ The instructions below are provided for any migrations to new teams in vercel, o
 Keep in mind:
 If your new changes include changes to datax.js, the version will need to be bumped in datax.js before doing so. Deployment of Datapolis needs to be dependant on the version of datax.js that is currently available on NPM. 
 
+<<<<<<< HEAD
 If your new changes include a new envrionment variable, ensure you add this _before_ you deploy, so it is readily available when the new deployment is live. 
+=======
+If your new changes include a new envrionment variable, ensure you add this _before_ you deploy, so it is readily available when the new deployment is live. 
+>>>>>>> 25ab2b8 (Update readme)
+>>>>>>> 9ba7a374dfe5eb4cf336207df9348fae4b18c60b

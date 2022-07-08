@@ -1,8 +1,10 @@
-import puppeteer from "puppeteer";
-import * as dappeteer from "@chainsafe/dappeteer";
-import "regenerator-runtime/runtime";
+/**
+ * @jest-environment ./node_modules/@keithers98/dappeteer-stable/dist/jest/DappeteerEnvironment.js
+ */
+import puppeteer from 'puppeteer';
+import * as dappeteer from '@keithers98/dappeteer-stable';
+import 'regenerator-runtime/runtime';
 import {
-  setupDappBrowser,
   setupDataX,
   closeBrowser,
   approveTransactions,
@@ -13,9 +15,12 @@ import {
   setupUnstake,
   executeTransaction,
   awaitUpdateShares,
-} from "../../utils";
-import BigNumber from "bignumber.js";
-describe("Execute Standard Trades on Stake", () => {
+  navToTradeXFromLanding,
+  acceptCookies,
+  goToLocalHost,
+} from '../../utils';
+import BigNumber from 'bignumber.js';
+describe('Execute Standard Trades on Stake', () => {
   jest.setTimeout(300000);
   let page: puppeteer.Page;
   let browser: puppeteer.Browser;
@@ -24,14 +29,14 @@ describe("Execute Standard Trades on Stake", () => {
   let initialShares: BigNumber;
 
   beforeAll(async () => {
-    const tools = await setupDappBrowser();
-    if (tools) {
-      page = tools?.page;
-      browser = tools?.browser;
-      metamask = tools?.metamask;
-    }
-    await setupDataX(page, metamask, "rinkeby", false);
-    initialShares = await navToRemoveStake(page, "SAGKRI-94");
+    browser = global.browser;
+    metamask = global.metamask;
+    page = global.page;
+    await goToLocalHost(page);
+    await acceptCookies(page);
+    await navToTradeXFromLanding(page);
+    await setupDataX(page, metamask, 'rinkeby', false);
+    initialShares = await navToRemoveStake(page, 'SAGKRI-94');
   });
 
   afterAll(async () => {
@@ -42,7 +47,7 @@ describe("Execute Standard Trades on Stake", () => {
     try {
       await page.waitForTimeout(250);
       await setupUnstake(page, amt, initialShares);
-      await executeTransaction(page, metamask, "unstake");
+      await executeTransaction(page, metamask, 'unstake');
       await approveTransactions(metamask, page, 1);
       await confirmAndCloseTxDoneModal(page);
       initialShares = new BigNumber(await awaitUpdateShares(page, initialShares));
@@ -54,18 +59,18 @@ describe("Execute Standard Trades on Stake", () => {
     }
   }
 
-  //with new .001 min ocean tx feature, design this test to pass if .001 validation stops the transaction
-  it("Unstake 1% from SAGKRI-94", async () => {
-    await stdUnstakeFlow("1");
+  // with new .001 min ocean tx feature, design this test to pass if .001 validation stops the transaction
+  it('Unstake 1% from SAGKRI-94', async () => {
+    await stdUnstakeFlow('1');
   });
 
-  it("Unstake 50% from SAGKRI-94", async () => {
+  it('Unstake 50% from SAGKRI-94', async () => {
     await reloadOrContinue(lastTestPassed, page);
-    await stdUnstakeFlow("50");
+    await stdUnstakeFlow('50');
   });
 
-  it("Unstake max from SAGKRI-94", async () => {
+  it('Unstake max from SAGKRI-94', async () => {
     await reloadOrContinue(lastTestPassed, page);
-    await stdUnstakeFlow("max");
+    await stdUnstakeFlow('max');
   });
 });
