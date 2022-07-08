@@ -34,7 +34,7 @@ export default function useTokenList({ setLoading, setError }: { setLoading?: Fu
               setDatatokens(
                 res.tokens.filter((token) => token.isFRE === false).sort((a, b) => a.symbol.localeCompare(b.symbol))
               );
-              //TODO: When exchange is supported, this needs to be revised for FRE+pool token list
+            //TODO: When exchange is supported, this needs to be revised for FRE+pool token list
             setDtTokenResponse({
               ...res,
               tokens: res.tokens
@@ -90,7 +90,7 @@ async function getERC20TokenList(
   accountId: string
 ): Promise<ITList | undefined> {
   try {
-    const regularList = await axios.get(config.custom.tokenList);
+    const response = await axios.get(config.custom.tokenList);
     let iTlistWithOcean;
     let listWithOcean;
     // if (chainId === '4') {
@@ -120,28 +120,35 @@ async function getERC20TokenList(
       tags: ['matic'],
     };
 
+    const erc20list = response.data.tokens;
+
     const refetchResponse = await axios.get('https://pathfinder-five.vercel.app/api/storage/v2/refetch');
     // console.log(refetchResponse);
-    const noPaths = refetchResponse.data.tokens[chainId];
+    const noPaths = refetchResponse.data.tokens[chainId].map((token: { address: string }) =>
+      token.address.toLowerCase()
+    );
 
-    noPaths.forEach((token: { address: string }) => {
-      const index = regularList.data.tokens.findIndex(
-        (token: ITokenInfo) => token.address.toLowerCase() === token.address.toLowerCase()
-      );
-      regularList.data.tokens.splice(index, 1);
+    noPaths.push("0x8d520c8E66091cfD6743fe37Fbe3A09505616C4b".toLowerCase())
+    // console.log(noPaths);
+
+    const withoutNoPaths = erc20list.filter((token: ITokenInfo) => {
+      if(token.address === "0x8505b9d2254A7Ae468c0E9dd10Ccea3A837aef5c"){
+        console.log("Comp",!noPaths.includes(token.address.toLowerCase()) )
+      }
+      if (!noPaths.includes(token.address.toLowerCase())) {
+        return token;
+      }
     });
 
-    const listFilteredByChain = regularList.data.tokens.filter(
-      (token: ITokenInfo) => String(token.chainId) === chainId
-    );
+    const listFilteredByChain = withoutNoPaths.filter((token: ITokenInfo) => String(token.chainId) === chainId);
 
     const listHasOcean = listFilteredByChain.find(
       (token: ITokenInfo) => token.address.toLowerCase() === oceanTokens[chainId].address.toLowerCase()
     );
 
     !listHasOcean
-      ? (iTlistWithOcean = { ...regularList.data, tokens: [matic, oceanTokens[chainId], ...listFilteredByChain] })
-      : (iTlistWithOcean = { ...regularList.data, tokens: [matic, ...listFilteredByChain] });
+      ? (iTlistWithOcean = { ...response.data, tokens: [matic, oceanTokens[chainId], ...listFilteredByChain] })
+      : (iTlistWithOcean = { ...response.data, tokens: [matic, ...listFilteredByChain] });
     // }
 
     return iTlistWithOcean;

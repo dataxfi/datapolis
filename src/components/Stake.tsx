@@ -180,7 +180,7 @@ export default function Stake() {
   ]);
 
   async function getMaxAndAllowance() {
-    console.log('Inside max function', stake, tokenOut.info?.pools, accountId, path);
+    console.log('Inside max function', balanceTokenIn.toString());
     if (balanceTokenIn.lte(0.0000099)) {
       console.log('Setting max to 0');
 
@@ -189,6 +189,8 @@ export default function Stake() {
       if (stake && tokenOut.info?.pools && accountId && path) {
         const usingETH = accountId.toLowerCase() === tokenIn.info?.address.toLowerCase();
         console.log(
+          path[0].toLowerCase() === tokenIn.info?.address.toLowerCase(),
+          usingETH && path[0].toLowerCase() === config?.custom.nativeAddress.toLowerCase(),
           (!usingETH && path[0].toLowerCase() === tokenIn.info?.address.toLowerCase()) ||
             (usingETH && path[0].toLowerCase() === config?.custom.nativeAddress.toLowerCase())
         );
@@ -297,7 +299,7 @@ export default function Stake() {
   async function updateNum(val: string | BigNumber) {
     console.log('Calling calc function with new input value', val);
     const percent = bn(val.toString()).multipliedBy(100).div(balanceTokenIn);
-    console.log(percent.toString())
+    console.log(percent.toString());
 
     // initially set state to value to persist the max if the user continuously tries to enter over the max (or balance)
     setTokenIn({ ...tokenIn, value: new BigNumber(val), percentage: percent });
@@ -323,7 +325,9 @@ export default function Stake() {
       baseToken
     ) {
       let amountIn = val.dp(5).toString();
-
+      console.log(web3.utils.toWei('26'));
+      const amountsOut = await trade.getAmountsOut(amountIn, path);
+      console.log(amountsOut);
       const stakeInfo: IStakeInfo = {
         meta: [tokenOut.info.pools[0].id, accountId, refAddress, config.custom.uniV2AdapterAddress],
         uints: [amountIn, '0', '0'],

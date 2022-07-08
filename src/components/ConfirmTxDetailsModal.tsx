@@ -36,10 +36,12 @@ export default function ConfirmTxDetailsModal() {
   const swapPostExchangeString = `1 ${tokenIn.info?.symbol} = ${preTxDetails?.postExchange?.dp(5).toString()} ${
     tokenOut.info?.symbol
   }`;
+
   const [postExchangeString, setPostExchangeString] = useState<string>(swapPostExchangeString);
   const swapAfterSlippageString = `${preTxDetails?.afterSlippage.dp(5).toString()} ${
     exactToken === 1 ? tokenOut.info?.symbol : tokenIn.info?.symbol
   }`;
+  
   const [afterSlippageString, setAfterSlippageString] = useState<string>(swapAfterSlippageString);
   const [minOrMax, setMinOrMax] = useState<'Minimum Received' | 'Maximum Spent'>('Minimum Received');
 

@@ -31,7 +31,7 @@ export default function TokenModal() {
     setImportPool,
     trade,
     web3,
-    setPath
+    setPath,
   } = useContext(GlobalContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -116,7 +116,7 @@ export default function TokenModal() {
   }
 
   const tokenSelected = async (token: ITokenInfo) => {
-    setPath(undefined)
+    setPath(undefined);
     console.log(token);
     controller.abort();
     const newController = new AbortController();
@@ -239,6 +239,9 @@ export default function TokenModal() {
                 id="tokenList"
               >
                 <ReactList itemRenderer={tokenRenderer} length={ERC20Tokens ? ERC20Tokens.length : 0} type="simple" />
+              </div>
+              <div className='w-full flex justify-center items-center pt-2'>
+                <p className='text-sm'>Token list fetched from QuickSwap</p>
               </div>
             </>
           ) : (
