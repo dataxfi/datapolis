@@ -283,8 +283,12 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
       isSupportedChain(config, String(_chainId), accounts[0] ? accounts[0] : '');
 
-      setRefAddress(process.env.REACT_APP_REF_ADDRESS);
-      setSpotSwapFee(process.env.REACT_APP_REF_FEE);
+      const refAddress = process.env.REACT_APP_REF_ADDRESS
+      const refFee = process.env.REACT_APP_REF_FEE
+      console.log("Ref Address: ", refAddress)
+      console.log("Ref Fee: ", refFee)
+      setRefAddress(refAddress);
+      setSpotSwapFee(refFee);
       setListeners(provider, web3);
     } catch (error) {
       console.error(error);

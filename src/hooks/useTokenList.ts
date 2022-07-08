@@ -132,9 +132,6 @@ async function getERC20TokenList(
     // console.log(noPaths);
 
     const withoutNoPaths = erc20list.filter((token: ITokenInfo) => {
-      if(token.address === "0x8505b9d2254A7Ae468c0E9dd10Ccea3A837aef5c"){
-        console.log("Comp",!noPaths.includes(token.address.toLowerCase()) )
-      }
       if (!noPaths.includes(token.address.toLowerCase())) {
         return token;
       }

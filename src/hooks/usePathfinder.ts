@@ -70,7 +70,7 @@ export default function usePathfinder() {
 
       if (paths && token) {
         const pathFound = paths[token.toLowerCase()];
-        console.log(pathFound);
+        // console.log(pathFound);
         if (pathFound) setPath(pathFound.path);
       }
     }
