@@ -180,10 +180,7 @@ export default function Stake() {
   ]);
 
   async function getMaxAndAllowance() {
-    console.log('Inside max function', balanceTokenIn.toString());
     if (balanceTokenIn.lte(0.0000099)) {
-      console.log('Setting max to 0');
-
       setMaxStakeAmt(bn(0));
     } else {
       if (stake && tokenOut.info?.pools && accountId && path) {
@@ -198,11 +195,9 @@ export default function Stake() {
           (!usingETH && path[0].toLowerCase() === tokenIn.info?.address.toLowerCase()) ||
           (usingETH && path[0].toLowerCase() === config?.custom.nativeAddress.toLowerCase())
         ) {
-          console.log('getting max stake with new path');
           stake
             ?.getUserMaxStake(tokenOut.info?.pools[0].id, accountId, path, usingETH)
             .then((res) => {
-              console.log('Max stake is', res?.toString());
               if (res) {
                 setMaxStakeAmt(new BigNumber(res));
               }
@@ -330,7 +325,7 @@ export default function Stake() {
       console.log(amountsOut);
       const stakeInfo: IStakeInfo = {
         meta: [tokenOut.info.pools[0].id, accountId, refAddress, config.custom.uniV2AdapterAddress],
-        uints: [amountIn, '0', '0'],
+        uints: [amountIn, spotSwapFee, '0'],
         path,
       };
 

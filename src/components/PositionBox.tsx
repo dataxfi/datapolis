@@ -64,7 +64,7 @@ export default function PositionBox({
         const stakeInfo = {
           meta: [poolAddress, accountId, refAddress, config.custom.uniV2AdapterAddress],
           path: [baseTokenAddress],
-          uints: [myPoolShares, '0', '0'],
+          uints: [myPoolShares, "0", '0'],
         };
 
         const response = await stake?.calcTokenOutGivenPoolIn(stakeInfo);
