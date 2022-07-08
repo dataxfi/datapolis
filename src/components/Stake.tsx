@@ -321,7 +321,6 @@ export default function Stake() {
       spotSwapFee
     ) {
       let amountIn = val.dp(5).toString();
-      console.log(web3.utils.toWei('26'));
       const amountsOut = await trade.getAmountsOut(amountIn, path);
       console.log(amountsOut);
       const stakeInfo: IStakeInfo = {
