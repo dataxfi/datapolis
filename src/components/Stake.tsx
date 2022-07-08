@@ -317,7 +317,8 @@ export default function Stake() {
       refAddress &&
       trade &&
       web3 &&
-      baseToken
+      baseToken &&
+      spotSwapFee
     ) {
       let amountIn = val.dp(5).toString();
       console.log(web3.utils.toWei('26'));
