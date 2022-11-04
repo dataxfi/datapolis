@@ -18,17 +18,7 @@ plugins:
   - 'promise'
   - 'import'
 rules:
-  {
-    semi: [2, 'always'],
-    space-before-function-paren: [2, { 'anonymous': 'always', 'named': 'never', 'asyncArrow': 'always' }],
-    comma-dangle: [2, 'only-multiline'],
-    curly: [2, 'multi-line'],
-    no-use-before-define: off,
-    react/react-in-jsx-scope: off,
-    multiline-ternary: [2, 'never'],
-    no-async-promise-executor: off,
-    no-console: [1, { 'allow': ['warn', 'error', 'info'] }],
-  }
+  {}
 globals:
   React: 'readonly'
   JSX: 'readonly'
