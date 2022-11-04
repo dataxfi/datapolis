@@ -2,7 +2,7 @@
 
 ### A defi exchange platform built using datax.js and web3.
 
-> DataX Docs: https://docs.datax.fi/
+> Docs: https://docs.datapolis.city/
 
 Quick navigation 
 
