@@ -33,6 +33,16 @@ rules:
     space-infix-ops: off,
     no-extra-boolean-cast: off,
     indent: off,
+    no-floating-decimal: off,
+    no-multi-spaces: off,
+    quotes: off, 
+    prefer-const: off,
+    spaced-comment: off,
+    no-multiple-empty-lines: off,
+    padded-blocks: off,
+    array-callback-return: off,
+    comma-spacing: off,
+    no-unneeded-ternary: off,
   }
 globals:
   React: 'readonly'
