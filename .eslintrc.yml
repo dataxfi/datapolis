@@ -19,15 +19,20 @@ plugins:
   - 'import'
 rules:
   {
-    semi: [2, 'always'],
-    space-before-function-paren: [2, { 'anonymous': 'always', 'named': 'never', 'asyncArrow': 'always' }],
-    comma-dangle: [2, 'only-multiline'],
-    curly: [2, 'multi-line'],
+    semi: off,
+    space-before-function-paren: off,
+    comma-dangle: off,
+    curly: off,
     no-use-before-define: off,
     react/react-in-jsx-scope: off,
-    multiline-ternary: [2, 'never'],
+    multiline-ternary: off,
     no-async-promise-executor: off,
-    no-console: [1, { 'allow': ['warn', 'error', 'info'] }],
+    no-console: off,
+    no-trailing-spaces: off,
+    no-unused-vars: off,
+    space-infix-ops: off,
+    no-extra-boolean-cast: off,
+    indent: off,
   }
 globals:
   React: 'readonly'
