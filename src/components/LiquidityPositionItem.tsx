@@ -3,23 +3,14 @@ import { GlobalContext } from '../context/GlobalState';
 import { ILiquidityPosition } from '../@types/types';
 import { BsChevronDown, BsChevronUp } from 'react-icons/bs';
 import { Link } from 'react-router-dom';
-import useLiquidityPos from '../hooks/useLiquidityPos';
+// import useLiquidityPos from '../hooks/useLiquidityPos';
 function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: ILiquidityPosition; index: number }) {
-  const {
-    accountId,
-    address,
-    baseToken,
-    datatoken,
-    shares,
-    dtAmount,
-    baseAmount,
-    yourPoolSharePerc,
-    totalPoolShares,
-  } = singleLiqPosItem;
+  const { accountId, address, baseToken, datatoken, shares, dtAmount, baseAmount, yourPoolSharePerc, totalPoolShares } =
+    singleLiqPosItem;
   const { setSingleLiquidityPos, chainId } = useContext(GlobalContext);
   const [visible, setVisible] = useState<boolean>(false);
   const [importPool, setImportPool] = useState<string>();
-  useLiquidityPos(importPool, setImportPool);
+  // useLiquidityPos(importPool, setImportPool);
 
   useEffect(() => {
     // console.log("Importing pool:",address)
@@ -82,7 +73,7 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                 </div>
                 <div className="justify-self-end">
                   <p id="yourShares" className="text-gray-100 text-sm ">
-                    {shares.lt(.00001)? "> 0.00001 OPT":shares?.dp(5).toString()}
+                    {shares.lt(0.00001) ? '> 0.00001 OPT' : shares?.dp(5).toString()}
                   </p>
                 </div>
                 <div>
@@ -110,7 +101,11 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                 </div>
                 <div className="justify-self-end">
                   <p className="text-gray-100 text-sm ">
-                    {yourPoolSharePerc?.gte(0.00001) ? `${yourPoolSharePerc?.dp(5).toString()} %` : yourPoolSharePerc?.eq(0) ? '0' : '> 0.00001 %'}
+                    {yourPoolSharePerc?.gte(0.00001)
+                      ? `${yourPoolSharePerc?.dp(5).toString()} %`
+                      : yourPoolSharePerc?.eq(0)
+                      ? '0'
+                      : '> 0.00001 %'}
                   </p>
                 </div>
               </div>
@@ -129,7 +124,9 @@ function LiquidityPositionItem({ singleLiqPosItem, index }: { singleLiqPosItem: 
                 key="removeStake"
                 to={`/stake/remove?on=${chainId}&pool=${address}`}
                 className={`ml-1 ${
-                  Number(shares) === 0 ? 'modalButton cursor-not-allowed pointer-events-none rounded p-2px w-1/2 text-center text-gray-500' : 'modalButton rounded p-2px w-1/2 text-center'
+                  Number(shares) === 0
+                    ? 'modalButton cursor-not-allowed pointer-events-none rounded p-2px w-1/2 text-center text-gray-500'
+                    : 'modalButton rounded p-2px w-1/2 text-center'
                 } `}
                 onClick={() => {
                   if (Number(shares) > 0) setSingleLiquidityPos(singleLiqPosItem);

@@ -2,7 +2,7 @@ import { useContext, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { GlobalContext, INITIAL_TOKEN_STATE } from '../context/GlobalState';
 import BigNumber from 'bignumber.js';
-import useLiquidityPos from './useLiquidityPos';
+
 import { bn } from '../utils/utils';
 
 // work around for being able to use useLocation globaly without a conditionaly rendered component
@@ -33,7 +33,7 @@ export default function useWatchLocation() {
   const lastLocation = useRef(currentLocation);
   const [searchParams, setSearchParams] = useSearchParams();
 
-  useLiquidityPos(importPool, setImportPool);
+
 
   useEffect(() => {
     setLocation(currentLocation.pathname);

@@ -39,7 +39,7 @@ export default function LandingPage() {
           <SocialLinkIcons effect="grow" />
         </ul>
         <ul className="inline-flex">
-          <a href="https://docs.datax.fi" id="learnMoreLink" className="homeButton flex items-center py-2 ml-2 px-3">
+          <a href="" id="learnMoreLink" className="homeButton flex items-center py-2 ml-2 px-3">
             <FaBook className="mr-2" />
             <p>Learn More</p>
           </a>

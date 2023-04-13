@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 // import { Config } from '@dataxfi/datax.js'
 import { GlobalContext } from '../context/GlobalState';
-import PendingTxsIndicator from './PendingTxsIndicator';
+
 import { INavText } from '../@types/types';
 
 const DesktopNavbar = ({
@@ -50,7 +50,6 @@ const DesktopNavbar = ({
           })}
         </div>
         <div className="grid grid-flow-col gap-4 items-center">
-          <PendingTxsIndicator />
           <div className="hidden md:block capitalize btn-dark rounded">
             <h3>{network}</h3>
           </div>

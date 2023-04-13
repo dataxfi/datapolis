@@ -3,14 +3,14 @@ import Web3 from 'web3';
 import { Config, Watcher, IToken, ITList, ITokenInfo, Stake, Trade } from '@dataxfi/datax.js';
 import Web3Modal from 'web3modal';
 import WalletConnectProvider from '@walletconnect/web3-provider';
-import { disclaimer } from '../components/DisclaimerModal';
-import {
-  connectedMultipleWalletsGA,
-  connectedWalletGA,
-  connectedToNetworkGA,
-  deniedSignatureGA,
-  connectedWalletViaGA,
-} from './Analytics';
+// import { disclaimer } from '../components/DisclaimerModal';
+// import {
+//   connectedMultipleWalletsGA,
+//   connectedWalletGA,
+//   connectedToNetworkGA,
+//   deniedSignatureGA,
+//   connectedWalletViaGA,
+// } from './Analytics';
 import {
   IDisclaimerSigned,
   globalStates,
@@ -114,8 +114,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [swapFee, setSwapFee] = useState<string>('0');
   const [afterSlippage, setAfterSlippage] = useState<BigNumber>(bn(0));
   const [slippage, setSlippage] = useState<BigNumber>(new BigNumber(1));
-  const [paths, setPaths] = useState<IPathData| null>(null);
-  const [path, setPath] = useState<string[]>()
+  const [paths, setPaths] = useState<IPathData | null>(null);
+  const [path, setPath] = useState<string[]>();
   const [meta, setMeta] = useState<string[]>();
 
   // user pool information states
@@ -132,7 +132,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   const [exactToken, setExactToken] = useState<1 | 2>(1);
   const [balanceTokenIn, setBalanceTokenIn] = useState<BigNumber>(bn(0));
   const [balanceTokenOut, setBalanceTokenOut] = useState<BigNumber>(bn(0));
-  const [unstakeAllowance, setUnstakeAllowance] = useState<BigNumber>(bn(0))
+  const [unstakeAllowance, setUnstakeAllowance] = useState<BigNumber>(bn(0));
 
   // selected token states
   const [tokenIn, setTokenIn] = useState<IToken>(INITIAL_TOKEN_STATE);
@@ -207,34 +207,35 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       const clientApproved = disclaimerSigned.client;
       const walletApproved = disclaimerSigned.wallet;
       if (localSignature) return resolve(localSignature);
-      if ((clientApproved || bypass) && !walletApproved) {
-        localStorage.setItem(account, 'pending');
-        web3.eth.personal
-          .sign(disclaimer, account || '', '')
-          .then((signature) => {
-            localStorage.setItem(account, signature);
-            setDisclaimerSigned({ ...disclaimerSigned, wallet: true });
-            // if bypass is true then this is being called from Disclaimer modal
-            if (bypass) handleConnect();
-            resolve(signature);
-          })
-          .catch((error) => {
-            console.error(error);
-            setSnackbarItem({ type: 'error', message: 'User Denied Disclaimer' });
-            localStorage.removeItem(account);
-            setDisclaimerSigned({ client: false, wallet: false });
-            deniedSignatureGA();
-            reject(error);
-          })
-          .finally(() => {
-            setShowDisclaimer(false);
-            setBlurBG(false);
-          });
-        // } catch (error) {
-      } else if (!clientApproved && !walletApproved) {
-        setShowDisclaimer(true);
-        setBlurBG(true);
-      }
+      // if ((clientApproved || bypass) && !walletApproved) {
+      //   localStorage.setItem(account, 'pending');
+      //   web3.eth.personal
+      //     .sign(disclaimer, account || '', '')
+      //     .then((signature) => {
+      //       localStorage.setItem(account, signature);
+      //       setDisclaimerSigned({ ...disclaimerSigned, wallet: true });
+      //       // if bypass is true then this is being called from Disclaimer modal
+      //       if (bypass) handleConnect();
+      //       resolve(signature);
+      //     })
+      //     .catch((error) => {
+      //       console.error(error);
+      //       setSnackbarItem({ type: 'error', message: 'User Denied Disclaimer' });
+      //       localStorage.removeItem(account);
+      //       setDisclaimerSigned({ client: false, wallet: false });
+      //       deniedSignatureGA();
+      //       reject(error);
+      //     })
+      //     .finally(() => {
+      //       setShowDisclaimer(false);
+      //       setBlurBG(false);
+      //     });
+      // } catch (error) {
+      // }
+      // else if (!clientApproved && !walletApproved) {
+      //   setShowDisclaimer(true);
+      //   setBlurBG(true);
+      // }
     });
   }
 
@@ -283,10 +284,10 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
       isSupportedChain(config, String(_chainId), accounts[0] ? accounts[0] : '');
 
-      const refAddress = process.env.REACT_APP_REF_ADDRESS
-      const refFee = process.env.REACT_APP_REF_FEE
-      console.log("Ref Address: ", refAddress)
-      console.log("Ref Fee: ", refFee)
+      const refAddress = process.env.REACT_APP_REF_ADDRESS;
+      const refFee = process.env.REACT_APP_REF_FEE;
+      console.log('Ref Address: ', refAddress);
+      console.log('Ref Fee: ', refFee);
       setRefAddress(refAddress);
       setSpotSwapFee(refFee);
       setListeners(provider, web3);
@@ -307,7 +308,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
   function isSupportedChain(config: Config, chainId: string, account?: string) {
     try {
       const network = config.getNetwork(chainId as supportedChains);
-      connectedToNetworkGA({ network, chainId });
+      // connectedToNetworkGA({ network, chainId });
       if (network === 'unknown') {
         setAccountId(undefined);
         setButtonText(CONNECT_TEXT);
@@ -316,9 +317,9 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setUnsupportedNet(false);
         setAccountId(account);
         setButtonText(account || CONNECT_TEXT);
-        connectedWalletGA();
+        // connectedWalletGA();
         const wallet = localStorage.getItem('WEB3_CONNECT_CACHED_PROVIDER') || 'unknown';
-        connectedWalletViaGA({ wallet });
+        // connectedWalletViaGA({ wallet });
         return true;
       }
     } catch (error) {
@@ -343,8 +344,8 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setDisclaimerSigned({ client: true, wallet: true });
         setShowDisclaimer(false);
         setBlurBG(false);
-        connectedMultipleWalletsGA();
-        connectedWalletGA();
+        // connectedMultipleWalletsGA();
+        // connectedWalletGA();
       } else {
         setAccountId(undefined);
         setButtonText(CONNECT_TEXT);
@@ -410,7 +411,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         paths,
         setPaths,
         spotSwapFee,
-        path, 
+        path,
         setPath,
         baseMinExchange,
         handleSignature,
@@ -503,10 +504,10 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setMeta,
         balanceTokenIn,
         setBalanceTokenIn,
-        setBalanceTokenOut, 
-        balanceTokenOut, 
-        unstakeAllowance, 
-        setUnstakeAllowance
+        setBalanceTokenOut,
+        balanceTokenOut,
+        unstakeAllowance,
+        setUnstakeAllowance,
       }}
     >
       <>{children}</>

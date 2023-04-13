@@ -2,7 +2,6 @@ import { Link, useLocation } from 'react-router-dom';
 import { MdMenu, MdClose } from 'react-icons/md';
 import { useState, useEffect, useContext } from 'react';
 import { GlobalContext } from '../context/GlobalState';
-import PendingTxsIndicator from './PendingTxsIndicator';
 import { INavText } from '../@types/types';
 
 const MobileNavbar = ({
@@ -57,7 +56,6 @@ const MobileNavbar = ({
           </Link>
         </div>
         <div className="flex">
-          <PendingTxsIndicator />
           <div className="pl-5">
             {menuVisible ? (
               <button>

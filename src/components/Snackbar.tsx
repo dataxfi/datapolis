@@ -3,7 +3,7 @@ import { GlobalContext } from '../context/GlobalState';
 import { ISnackbarItem, ITxDetails } from '../@types/types';
 import { BsX, BsXCircle } from 'react-icons/bs';
 import { IoCheckboxOutline } from 'react-icons/io5';
-import { getTxUrl } from '../hooks/useTxHistory';
+
 import BigNumber from 'bignumber.js';
 export default function Snackbar() {
   const { snackbarItem, setSnackbarItem, accountId, config, tokenIn, lastTx, preTxDetails } = useContext(GlobalContext);
@@ -24,13 +24,6 @@ export default function Snackbar() {
       setSnackbarItem(undefined);
     }
   }, [snackbarItem, currentNot]);
-
-  useEffect(() => {
-    if (accountId && currentNot?.newTx && config) {
-      setUrl(getTxUrl({ config, accountId, txHash: currentNot.newTx.txReceipt?.transactionHash }));
-    }
-    setTxDetails(currentNot?.newTx);
-  }, [accountId, currentNot, config]);
 
   useEffect(() => {
     if (cleanup) {
@@ -92,12 +85,14 @@ export default function Snackbar() {
                           txDetails.pool?.baseToken.symbol
                         }/${txDetails.pool?.datatoken.symbol} pool`
                       : txDetails.txType === 'approve'
-                      ? `Unlock ${txDetails.tokenIn.info?.symbol || lastTx?.tokenToUnlock || preTxDetails?.tokenToUnlock}`
+                      ? `Unlock ${
+                          txDetails.tokenIn.info?.symbol || lastTx?.tokenToUnlock || preTxDetails?.tokenToUnlock
+                        }`
                       : `Trade ${new BigNumber(txDetails.tokenIn.value).dp(5).toString()} ${
                           txDetails.tokenIn.info?.symbol
                         } for ${new BigNumber(txDetails.tokenOut.value).dp(5).toString()} ${
                           txDetails.tokenOut.info?.symbol
-                        }`} 
+                        }`}
                   </p>
                   <p className="text-gray-300 text-sm">
                     <a target="_blank" rel="noreferrer" href={url} className="hover:text-city-blue">
@@ -109,7 +104,7 @@ export default function Snackbar() {
             ) : currentNot?.type === 'error' ? (
               <>
                 <BsXCircle className="text-red-500 mr-6 w-2" />
-                <p className='max-w-full px-2'>{errorMessage(currentNot)}</p>
+                <p className="max-w-full px-2">{errorMessage(currentNot)}</p>
               </>
             ) : (
               <></>

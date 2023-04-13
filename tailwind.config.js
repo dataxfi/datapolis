@@ -57,14 +57,14 @@ module.exports = {
       },
       backgroundImage: {
         dataXgif: 'url("./assets/DataX-X-Fold.gif")',
-        dataXcity: 'url("./assets/DataX-City.jpeg")',
+        // dataXcity: 'url("./assets/DataX-City.jpeg")',
         dataXtrade: 'url("./assets/TradeX.jpeg")',
-        dataXstake: 'url("./assets/StakeX.jpeg")',
+        // dataXstake: 'url("./assets/StakeX.jpeg")',
       },
       colors: {
         primary: colors.gray,
         secondary: colors.indigo,
-        tertiary: colors.sky,
+        // tertiary: colors.sky,
         gray: colors.stone,
         background: colors.black,
         yellow: {
