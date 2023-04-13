@@ -4,16 +4,17 @@ import { useEffect, useContext } from 'react';
 import { GlobalContext } from './context/GlobalState';
 
 import UnsupportedNetwork from './components/UnsupportedNetwork';
-import LiquidityPosition from './components/LiquidityPosition';
+import LiquidityPosition from './pages/LiquidityPosition';
 
-import LandingPage from './components/LandingPage';
+import LandingPage from './pages/LandingPage';
 import BigNumber from 'bignumber.js';
-import Snackbar from './components/Snackbar';
+import Snackbar from  './components/Snackbar';
 import Unstake from './components/Unstake';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import Stake from './components/Stake';
-import Swap from './components/Swap';
+import Stake from './pages/Stake';
+import Swap from './pages/Swap';
+import WatchLocation from './components/WatchLocation';
 
 BigNumber.config({ DECIMAL_PLACES: 18, ROUNDING_MODE: BigNumber.ROUND_DOWN, EXPONENTIAL_AT: 30 });
 
@@ -47,6 +48,7 @@ function App() {
             <UnsupportedNetwork />
           ) : (
             <Router>
+              <WatchLocation/>
               <Navbar />
               <Routes>
                 <Route path="/" element={<LandingPage />} />

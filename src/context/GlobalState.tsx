@@ -3,14 +3,16 @@ import Web3 from 'web3';
 import { Config, Watcher, IToken, ITList, ITokenInfo, Stake, Trade } from '@dataxfi/datax.js';
 import Web3Modal from 'web3modal';
 import WalletConnectProvider from '@walletconnect/web3-provider';
-// import { disclaimer } from '../components/DisclaimerModal';
-// import {
-//   connectedMultipleWalletsGA,
-//   connectedWalletGA,
-//   connectedToNetworkGA,
-//   deniedSignatureGA,
-//   connectedWalletViaGA,
-// } from './Analytics';
+import { disclaimer } from '../components/DisclaimerModal';
+
+
+import {
+  connectedMultipleWalletsGA,
+  connectedWalletGA,
+  connectedToNetworkGA,
+  deniedSignatureGA,
+  connectedWalletViaGA,
+} from './Analytics';
 import {
   IDisclaimerSigned,
   globalStates,
@@ -207,35 +209,34 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
       const clientApproved = disclaimerSigned.client;
       const walletApproved = disclaimerSigned.wallet;
       if (localSignature) return resolve(localSignature);
-      // if ((clientApproved || bypass) && !walletApproved) {
-      //   localStorage.setItem(account, 'pending');
-      //   web3.eth.personal
-      //     .sign(disclaimer, account || '', '')
-      //     .then((signature) => {
-      //       localStorage.setItem(account, signature);
-      //       setDisclaimerSigned({ ...disclaimerSigned, wallet: true });
-      //       // if bypass is true then this is being called from Disclaimer modal
-      //       if (bypass) handleConnect();
-      //       resolve(signature);
-      //     })
-      //     .catch((error) => {
-      //       console.error(error);
-      //       setSnackbarItem({ type: 'error', message: 'User Denied Disclaimer' });
-      //       localStorage.removeItem(account);
-      //       setDisclaimerSigned({ client: false, wallet: false });
-      //       deniedSignatureGA();
-      //       reject(error);
-      //     })
-      //     .finally(() => {
-      //       setShowDisclaimer(false);
-      //       setBlurBG(false);
-      //     });
-      // } catch (error) {
-      // }
-      // else if (!clientApproved && !walletApproved) {
-      //   setShowDisclaimer(true);
-      //   setBlurBG(true);
-      // }
+      if ((clientApproved || bypass) && !walletApproved) {
+        localStorage.setItem(account, 'pending');
+        web3.eth.personal
+          .sign(disclaimer, account || '', '')
+          .then((signature) => {
+            localStorage.setItem(account, signature);
+            setDisclaimerSigned({ ...disclaimerSigned, wallet: true });
+            // if bypass is true then this is being called from Disclaimer modal
+            if (bypass) handleConnect();
+            resolve(signature);
+          })
+          .catch((error) => {
+            console.error(error);
+            setSnackbarItem({ type: 'error', message: 'User Denied Disclaimer' });
+            localStorage.removeItem(account);
+            setDisclaimerSigned({ client: false, wallet: false });
+            deniedSignatureGA();
+            reject(error);
+          })
+          .finally(() => {
+            setShowDisclaimer(false);
+            setBlurBG(false);
+          });
+     // } catch (error) {
+      } else if (!clientApproved && !walletApproved) {
+        setShowDisclaimer(true);
+        setBlurBG(true);
+      }
     });
   }
 
@@ -317,9 +318,9 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setUnsupportedNet(false);
         setAccountId(account);
         setButtonText(account || CONNECT_TEXT);
-        // connectedWalletGA();
+        connectedWalletGA();
         const wallet = localStorage.getItem('WEB3_CONNECT_CACHED_PROVIDER') || 'unknown';
-        // connectedWalletViaGA({ wallet });
+         connectedWalletViaGA({ wallet });
         return true;
       }
     } catch (error) {

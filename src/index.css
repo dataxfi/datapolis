@@ -29,7 +29,8 @@ html,
 #loader {
   @apply text-gray-100 bg-no-repeat md:h-full m-0 bg-fixed;
   background: rgb(46, 115, 185);
-  background: linear-gradient(0deg, rgba(46, 115, 185, 1) 0%, rgba(31, 75, 121, 1) 41%, rgba(18, 38, 61, 1) 100%);
+  /*background: linear-gradient(0deg, rgba(46, 115, 185, 1) 0%, rgba(31, 75, 121, 1) 
+  41%, rgba(18, 38, 61, 1) 100%); */
 }
 
 html,

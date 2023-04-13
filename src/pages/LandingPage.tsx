@@ -1,7 +1,7 @@
 import { FaAngleDoubleRight, FaBook } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import SocialLinkIcons from './SocialLinkIcons';
-import BuiltWDataX from './BuiltWDataX';
+import SocialLinkIcons from '../components/SocialLinkIcons';
+import BuiltWDataX from '../components/BuiltWDataX';
 
 export default function LandingPage() {
   return (
@@ -33,7 +33,7 @@ export default function LandingPage() {
           </h1>
         </div>
         <p className="text-xl  xl:text-3xl text-shadow-light mt-4 xl:mt-12 font-yantramanav">
-          Datapolis is the world&apos;s first <span className="text-yellow">Data Nation</span>{' '}
+          Datapolis is the world&apos;s first <span className="text-black">Data Nation</span>{' '}
         </p>
         <ul className="text-5xl py-4 inline-flex mt-4">
           <SocialLinkIcons effect="grow" />

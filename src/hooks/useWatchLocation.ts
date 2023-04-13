@@ -36,6 +36,7 @@ export default function useWatchLocation() {
 
 
   useEffect(() => {
+    
     setLocation(currentLocation.pathname);
     if (currentLocation.pathname === '/stake/list') {
       setTokenIn(INITIAL_TOKEN_STATE);

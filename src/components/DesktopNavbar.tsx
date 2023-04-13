@@ -40,14 +40,7 @@ const DesktopNavbar = ({
               <p>Beta</p>
             </div>
           </Link>
-          {links.map((link, idx) => {
-            return (
-              <Link id={`${link.name}-link`} key={idx} to={link.link} className="hm-link hidden md:block product">
-                {/* <div className={`w-1 h-3.5 bg-blue-500 rounded-full ${location.toLowerCase().includes(link.name.toLowerCase())? "" : "hidden"}`}/> */}
-                {link.name}
-              </Link>
-            );
-          })}
+          
         </div>
         <div className="grid grid-flow-col gap-4 items-center">
           <div className="hidden md:block capitalize btn-dark rounded">
