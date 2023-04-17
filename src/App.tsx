@@ -53,7 +53,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/trade" element={<Swap />} />
-                <Route path="/stake" element={<Stake />} />
+                <Route path="/delicate" element={<Stake />} />
                 <Route path="/stake/remove" element={<Unstake />} />
                 <Route path="/stake/list" element={<LiquidityPosition />} />
               </Routes>

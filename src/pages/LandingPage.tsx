@@ -43,7 +43,7 @@ export default function LandingPage() {
             <FaBook className="mr-2" />
             <p>Learn More</p>
           </a>
-          <Link to="/stake" id="enterDappLink" className="homeButton flex items-center py-2 ml-2 px-3">
+          <Link to="/delicate" id="enterDappLink" className="homeButton flex items-center py-2 ml-2 px-3">
             <p>Enter Datapolis</p>
             <FaAngleDoubleRight className="ml-2" />
           </Link>
