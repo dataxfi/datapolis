@@ -5,7 +5,6 @@ import Web3Modal from 'web3modal';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import { disclaimer } from '../components/DisclaimerModal';
 
-
 import {
   connectedMultipleWalletsGA,
   connectedWalletGA,
@@ -232,7 +231,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
             setShowDisclaimer(false);
             setBlurBG(false);
           });
-     // } catch (error) {
+        // } catch (error) {
       } else if (!clientApproved && !walletApproved) {
         setShowDisclaimer(true);
         setBlurBG(true);
@@ -255,18 +254,22 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
    * Handles connection to web3 and user wallet.
    */
   async function handleConnect() {
+    console.log('handle connect');
     try {
       const provider = await web3Modal?.connect();
       setProvider(provider);
       const web3 = new Web3(provider);
       setWeb3(web3);
-
+      console.log('web3 connected', web3);
       const accounts = await web3.eth.getAccounts();
       const account = accounts[0] ? accounts[0].toLowerCase() : null;
+      setAccountId(account);
+      console.log('account', account);
       if (!account) return;
       await handleSignature(account, web3);
 
       const _chainId = String(await web3.eth.getChainId());
+
       setChainId(_chainId as supportedChains);
 
       const network: supportedChains = String(_chainId) as supportedChains;
@@ -282,6 +285,12 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
 
       const trade = new Trade(web3, network);
       setTrade(trade);
+
+      console.log('network', network);
+      console.log('config', config);
+      console.log('watcher', watcher);
+      console.log('stake', stake);
+      console.log('trade', trade);
 
       isSupportedChain(config, String(_chainId), accounts[0] ? accounts[0] : '');
 
@@ -320,7 +329,7 @@ export const GlobalProvider = ({ children }: { children: PropsWithChildren<{}> }
         setButtonText(account || CONNECT_TEXT);
         connectedWalletGA();
         const wallet = localStorage.getItem('WEB3_CONNECT_CACHED_PROVIDER') || 'unknown';
-         connectedWalletViaGA({ wallet });
+        connectedWalletViaGA({ wallet });
         return true;
       }
     } catch (error) {
